@@ -1,5 +1,6 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { join } from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -9,4 +10,18 @@ export default defineConfig({
       usePolling: true,
     },
   },
-});
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-venders': ['react', 'react-dom'],
+        },
+      },
+    },
+  },
+  resolve: {
+    alias: {
+      '@': join(__dirname, 'src'),
+    },
+  },
+})

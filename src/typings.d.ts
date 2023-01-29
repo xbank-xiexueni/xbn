@@ -1,3 +1,4 @@
 interface Window {
-  ethereum?: any;
+  ethereum?: any
+  // ethereum?: import('ethers').providers.ExternalProvider
 }

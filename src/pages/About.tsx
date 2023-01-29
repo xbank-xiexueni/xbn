@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 
 const About = () => {
   return (
@@ -6,7 +6,7 @@ const About = () => {
       About
       <Link to='/'>to home</Link>
     </>
-  );
-};
+  )
+}
 
-export default About;
+export default About

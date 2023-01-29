@@ -1,20 +1,21 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import { ChakraProvider } from '@chakra-ui/react';
-import { BrowserRouter } from 'react-router-dom';
-import './index.css';
-import { TransactionsProvider } from './context/TransactionContext';
+import { ChakraProvider } from '@chakra-ui/react'
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 
-const rootElement = document.getElementById('root');
-ReactDOM.createRoot(rootElement as HTMLElement).render(
+import App from './App'
+import { TransactionsProvider } from './context/TransactionContext'
+import './index.css'
+
+const rootElement = document.getElementById('root')
+createRoot(rootElement as HTMLElement).render(
   <TransactionsProvider>
-    <React.StrictMode>
+    <StrictMode>
       <ChakraProvider>
         <BrowserRouter>
           <App />
         </BrowserRouter>
       </ChakraProvider>
-    </React.StrictMode>
-  </TransactionsProvider>
-);
+    </StrictMode>
+  </TransactionsProvider>,
+)
