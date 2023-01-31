@@ -9,6 +9,7 @@ export default defineConfig({
     watch: {
       usePolling: true,
     },
+    open: true,
   },
   build: {
     rollupOptions: {

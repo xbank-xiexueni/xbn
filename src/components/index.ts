@@ -1,0 +1,6 @@
+export { default as Header } from './header/index'
+export { default as Footer } from './footer/index'
+export { default as Table } from './Table/index'
+export { default as InputSearch } from './input-search/index'
+export { default as AreaChartComponent } from './AreaChartComponent'
+export { default as NftListCard } from './NftListCard'
