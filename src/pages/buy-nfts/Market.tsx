@@ -9,21 +9,98 @@ import {
   ListItem,
   Flex,
   SimpleGrid,
+  HStack,
 } from '@chakra-ui/react'
 import range from 'lodash/range'
-import { useState, type FunctionComponent } from 'react'
+import { useState, type FunctionComponent, type ReactElement } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import { InputSearch, NftListCard } from '@/components'
+import { InputSearch, NftListCard, Select } from '@/components'
 import COLORS from '@/utils/Colors'
 
 import IconChecked from '@/assets/icon/icon-checked.svg'
+import IconEth from '@/assets/icon/icon-eth.svg'
 import IconVerifiedFill from '@/assets/icon/icon-verified-fill.svg'
+import TEST_IMG from '@/assets/test-img.svg'
 
-const CollectionListItem: FunctionComponent<{
+const DescriptionComponent: FunctionComponent<{
+  data: {
+    isVerified?: boolean
+    titleImage?: string
+    title?: string
+    description?: string
+    img?: string
+    keys?: {
+      value: string
+      label: string | ReactElement
+      isEth?: boolean
+    }[]
+  }
+}> = ({
+  data: {
+    title = '',
+    description = '',
+    img = '',
+    keys = [],
+    isVerified = false,
+  },
+}) => {
+  const [show, setShow] = useState(false)
+  return (
+    <Box mb={12}>
+      <Flex gap={5} alignItems='end' mb={8}>
+        <Box minW='108px'>
+          <Image src={img} />
+        </Box>
+        <Box>
+          <Heading fontSize={'3xl'} display='flex'>
+            {title}
+            {isVerified && <Image src={IconVerifiedFill} />}
+          </Heading>
+
+          <Text
+            color={COLORS.secondaryTextColor}
+            mt={2}
+            fontSize={'md'}
+            fontWeight='medium'
+          >
+            {show ? description : `${description.substring(0, 80)}...`}
+            {description?.length > 80 && (
+              <a
+                color={COLORS.primaryColor}
+                onClick={() => setShow((prev) => !prev)}
+              >
+                {show ? 'show less' : 'show'}
+              </a>
+            )}
+          </Text>
+        </Box>
+      </Flex>
+
+      <HStack spacing={10}>
+        {keys.map(({ label, value, isEth }) => (
+          <Box key={`${label}`}>
+            <Heading fontSize={'2xl'} display='flex' mb={1}>
+              {isEth && <Image src={IconEth} height={8} />}
+              {value}
+            </Heading>
+            {typeof value === 'string' ? (
+              <Text color={COLORS.infoTextColor}>{label}</Text>
+            ) : (
+              label
+            )}
+          </Box>
+        ))}
+      </HStack>
+    </Box>
+  )
+}
+
+export const CollectionListItem: FunctionComponent<{
   data: {
     ID: number
   }
-  onClick: () => void
+  onClick?: () => void
   isActive?: boolean
 }> = ({ data: { ID }, onClick, isActive }) => {
   return (
@@ -66,6 +143,8 @@ const CollectionListItem: FunctionComponent<{
 }
 
 const Market = () => {
+  const navigate = useNavigate()
+
   const [selectCollection, setSelectCollection] = useState<number>()
   return (
     <Grid
@@ -105,9 +184,65 @@ const Market = () => {
         </List>
       </GridItem>
       <GridItem pl='2' area={'main'}>
+        <DescriptionComponent
+          data={{
+            img: TEST_IMG,
+            title: 'Lend',
+            isVerified: true,
+            description:
+              'Provide funds to111111 11111 11111 11111 1111 111 111 11111 11111 111111 1111 111111 111111111 1111 1111 support NFT installment, obtain interest or collateral.',
+            keys: [
+              {
+                label: 'Floor price',
+                value: '15.18',
+                isEth: true,
+              },
+              {
+                label: 'Min DP',
+                value: '9.32',
+                isEth: true,
+              },
+              {
+                label: '24h -922%',
+                value: '85.86',
+                isEth: true,
+              },
+              {
+                label: 'supply',
+                value: '10,0000',
+              },
+              {
+                label: 'Listing',
+                value: '700',
+              },
+            ],
+          }}
+        />
+
+        <Flex justify={'space-between'} mb={6}>
+          <Box w='70%'>
+            <InputSearch />
+          </Box>
+          <Box w='20%'>
+            <Select
+              options={[
+                {
+                  label: 'Price: low to high',
+                  value: 1,
+                },
+              ]}
+            />
+          </Box>
+        </Flex>
         <SimpleGrid minChildWidth='230px' spacing={'16px'}>
           {range(15).map((item) => (
-            <NftListCard data={{}} key={item} />
+            <NftListCard
+              data={{}}
+              key={item}
+              onClick={() => {
+                navigate(`/asset/${item}`)
+              }}
+            />
           ))}
         </SimpleGrid>
       </GridItem>

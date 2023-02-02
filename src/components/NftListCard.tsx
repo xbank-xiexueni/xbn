@@ -3,6 +3,7 @@ import {
   Card,
   CardBody,
   CardFooter,
+  type CardProps,
   Divider,
   Flex,
   Image,
@@ -15,12 +16,14 @@ import COLORS from '@/utils/Colors'
 import IconEth from '@/assets/icon/icon-eth.svg'
 
 import type { FunctionComponent } from 'react'
-const NftListCard: FunctionComponent<{
-  // temp
-  data: any
-}> = () => {
+const NftListCard: FunctionComponent<
+  {
+    // temp
+    data: any
+  } & CardProps
+> = ({ data, ...rest }) => {
   return (
-    <Card>
+    <Card {...rest}>
       <CardBody p={0}>
         <Box bg='gray.100'>
           <Image

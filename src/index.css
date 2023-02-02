@@ -2,3 +2,23 @@
   font-family: HarmonyOS;
   src: url(./assets/font/fontello.ttf);
 }
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--chakra-colors-gray-400);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--chakra-colors-gray-100);
+  border-radius: 6px;
+}

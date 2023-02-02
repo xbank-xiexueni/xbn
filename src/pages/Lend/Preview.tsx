@@ -35,7 +35,7 @@ const Preview = () => {
         <Button
           leftIcon={<Image src={IconArrowLeft} />}
           onClick={() => {
-            navigate('/lend/my-pools/create')
+            navigate(-1)
           }}
         >
           Back

@@ -39,6 +39,7 @@ export interface ColumnProps {
     arg1: string | boolean | number,
   ) => ReactElement
   sortable?: boolean
+  fixed?: 'left' | 'right'
 }
 export type MyTableProps = TableProps & {
   columns: ColumnProps[]
@@ -60,180 +61,203 @@ const Index: FunctionComponent<MyTableProps> = ({
     direction: '',
     field: '',
   })
+
+  console.log(sortParams)
   return (
-    <TableContainer position={'relative'}>
-      {loading && (
-        <Flex
-          position={'absolute'}
-          left={0}
-          right={0}
-          top={0}
-          bottom={0}
-          bg='rgba(0,0,0,.2)'
-          borderRadius={4}
-          alignItems='center'
-          justify={'center'}
-        >
-          <Spinner
-            thickness='4px'
-            speed='0.65s'
-            emptyColor='gray.200'
-            color='blue.500'
-            size='xl'
-          />
-        </Flex>
-      )}
+    <>
       {tableTitle && (
         <Heading size={'md'} mt={6}>
           {tableTitle}
         </Heading>
       )}
+      <TableContainer position={'relative'}>
+        {loading && (
+          <Flex
+            position={'absolute'}
+            left={0}
+            right={0}
+            top={0}
+            bottom={0}
+            bg='rgba(0,0,0,.2)'
+            borderRadius={4}
+            justify={'center'}
+            zIndex={10}
+          >
+            <Spinner
+              thickness='4px'
+              speed='0.65s'
+              emptyColor='gray.200'
+              color={COLORS.primaryColor}
+              size='xl'
+              mt={20}
+            />
+          </Flex>
+        )}
 
-      <Table
-        variant='unstyled'
-        style={{
-          borderCollapse: 'collapse',
-          borderSpacing: '0 10px',
-        }}
-        className='my-table'
-        title='asas'
-      >
-        {!!caption && !loading && <TableCaption>{caption()}</TableCaption>}
-        <Thead>
-          <Tr>
-            {columns.map(
-              ({ key, sortable, width, thAlign, title, dataIndex }) => (
-                <Th
-                  textAlign={thAlign}
-                  key={key}
-                  color={
-                    sortParams.field === dataIndex
-                      ? COLORS.primaryColor
-                      : COLORS.infoTextColor
-                  }
-                  fontSize={'md'}
-                  fontWeight='medium'
-                  cursor={sortable ? 'pointer' : 'default'}
-                  w={width || `${100 / columns.length}%`}
-                  // textAlign={align}
-                  onClick={() => {
-                    if (!sortable) return
-                    const { direction, field } = sortParams
-                    if (field === dataIndex) {
-                      // 改变方向
-                      const nextDirection: 'ASC' | 'DESC' | '' =
-                        direction === ''
-                          ? 'ASC'
-                          : direction === 'ASC'
-                          ? 'DESC'
-                          : ''
-                      if (onSort) {
-                        onSort({
-                          ...sortParams,
+        <Table
+          variant='unstyled'
+          style={{
+            borderCollapse: 'collapse',
+            borderSpacing: '0 10px',
+          }}
+          className='my-table'
+          title='asas'
+        >
+          {!!caption && !loading && <TableCaption>{caption()}</TableCaption>}
+          <Thead>
+            <Tr pos='relative'>
+              {columns.map(
+                ({
+                  key,
+                  sortable,
+                  width,
+                  thAlign,
+                  title,
+                  dataIndex,
+                  fixed,
+                }) => (
+                  <Th
+                    textAlign={thAlign}
+                    key={key}
+                    color={
+                      sortParams.field === dataIndex
+                        ? COLORS.primaryColor
+                        : COLORS.infoTextColor
+                    }
+                    position={fixed ? 'sticky' : 'relative'}
+                    zIndex={fixed ? 1 : 'inherit'}
+                    bg='white'
+                    right={0}
+                    fontSize={'md'}
+                    fontWeight='medium'
+                    cursor={sortable ? 'pointer' : 'default'}
+                    w={width || `${100 / columns.length}%`}
+                    // textAlign={align}
+                    onClick={() => {
+                      if (!sortable) return
+                      const { direction, field } = sortParams
+                      if (field === dataIndex) {
+                        // 改变方向
+                        const nextDirection: 'ASC' | 'DESC' | '' =
+                          direction === ''
+                            ? 'ASC'
+                            : direction === 'ASC'
+                            ? 'DESC'
+                            : ''
+                        if (onSort) {
+                          onSort({
+                            ...sortParams,
+                            direction: nextDirection,
+                          })
+                        }
+
+                        setSortParam((prev) => ({
+                          ...prev,
                           direction: nextDirection,
-                        })
-                      }
+                        }))
+                      } else {
+                        // 字段改变
+                        if (onSort) {
+                          onSort({
+                            field: dataIndex,
+                            direction: 'ASC',
+                          })
+                        }
 
-                      setSortParam((prev) => ({
-                        ...prev,
-                        direction: nextDirection,
-                      }))
-                    } else {
-                      // 字段改变
-                      if (onSort) {
-                        onSort({
+                        setSortParam({
                           field: dataIndex,
                           direction: 'ASC',
                         })
                       }
-
-                      setSortParam({
-                        field: dataIndex,
-                        direction: 'ASC',
-                      })
-                    }
-                  }}
-                >
-                  <Flex
-                    justify={
-                      thAlign === 'center'
-                        ? 'center'
-                        : thAlign === 'right'
-                        ? 'flex-end'
-                        : 'flex-start'
-                    }
+                    }}
                   >
-                    {title}
-                    {sortable && sortParams.field !== dataIndex && (
-                      <Image src={IconUnSort} />
-                    )}
-
-                    {sortParams.field === dataIndex &&
-                      sortParams.direction === 'ASC' && (
-                        <Image src={IconSortASC} />
-                      )}
-                    {sortParams.field === dataIndex &&
-                      sortParams.direction === 'DESC' && (
-                        <Image src={IconSortDESC} />
-                      )}
-                  </Flex>
-                </Th>
-              ),
-            )}
-          </Tr>
-        </Thead>
-        <Tbody>
-          {isEmpty(data) ? (
-            <Tr>
-              <Td colSpan={columns.length}>
-                <EmptyTableComponent />
-              </Td>
-            </Tr>
-          ) : (
-            data.map((item, rowIndex) => (
-              <Tr
-                key={JSON.stringify(item)}
-                bg={COLORS.secondaryBgc}
-                borderRadius={20}
-                mb={4}
-              >
-                {columns.map(
-                  (
-                    { dataIndex, render, key, width, align = 'left' },
-                    colIndex,
-                  ) => (
-                    <Th
-                      fontSize='md'
-                      key={key}
-                      w={width}
-                      textAlign={align}
-                      borderTopLeftRadius={!(rowIndex && colIndex) ? 10 : 0}
-                      borderTopRightRadius={
-                        rowIndex === 0 && colIndex === columns?.length - 1
-                          ? 10
-                          : 0
-                      }
-                      borderBottomLeftRadius={!colIndex ? 10 : 0}
-                      borderBottomRightRadius={
-                        colIndex === columns?.length - 1 ? 10 : 0
+                    <Flex
+                      justify={
+                        thAlign === 'center'
+                          ? 'center'
+                          : thAlign === 'right'
+                          ? 'flex-end'
+                          : 'flex-start'
                       }
                     >
-                      {!!render ? (
-                        <Flex justifyContent={align}>
-                          {render(item, item[dataIndex])}
-                        </Flex>
-                      ) : (
-                        item[dataIndex]
+                      {title}
+                      {sortable && sortParams.field !== dataIndex && (
+                        <Image src={IconUnSort} />
                       )}
-                    </Th>
-                  ),
-                )}
+
+                      {sortParams.field === dataIndex &&
+                        sortParams.direction === 'ASC' && (
+                          <Image src={IconSortASC} />
+                        )}
+                      {sortParams.field === dataIndex &&
+                        sortParams.direction === 'DESC' && (
+                          <Image src={IconSortDESC} />
+                        )}
+                    </Flex>
+                  </Th>
+                ),
+              )}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {isEmpty(data) ? (
+              <Tr>
+                <Td colSpan={columns.length}>
+                  <EmptyTableComponent />
+                </Td>
               </Tr>
-            ))
-          )}
-        </Tbody>
-      </Table>
-    </TableContainer>
+            ) : (
+              data.map((item, rowIndex) => (
+                <Tr
+                  key={JSON.stringify(item)}
+                  bg={COLORS.secondaryBgc}
+                  mb={4}
+                  pos='relative'
+                >
+                  {columns.map(
+                    (
+                      { dataIndex, render, key, width, align = 'left', fixed },
+                      colIndex,
+                    ) => (
+                      <Th
+                        fontSize='md'
+                        key={key}
+                        bg={COLORS.secondaryBgc}
+                        w={width}
+                        textAlign={align}
+                        position={fixed ? 'sticky' : 'relative'}
+                        zIndex={fixed ? 1 : 'inherit'}
+                        right={0}
+                        borderTopLeftRadius={
+                          rowIndex === 0 && colIndex === 0 ? 10 : 0
+                        }
+                        borderTopRightRadius={
+                          rowIndex === 0 && colIndex === columns?.length - 1
+                            ? 10
+                            : 0
+                        }
+                        borderBottomLeftRadius={colIndex === 0 ? 10 : 0}
+                        borderBottomRightRadius={
+                          colIndex === columns?.length - 1 ? 10 : 0
+                        }
+                      >
+                        {!!render ? (
+                          <Flex justifyContent={align}>
+                            {render(item, item[dataIndex])}
+                          </Flex>
+                        ) : (
+                          item[dataIndex]
+                        )}
+                      </Th>
+                    ),
+                  )}
+                </Tr>
+              ))
+            )}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </>
   )
 }
 

@@ -60,6 +60,14 @@ const ComponentStyle = {
           opacity: 0.5,
         },
       },
+      primaryLink: {
+        bg: 'white',
+        color: COLORS.primaryColor,
+        _hover: {
+          opacity: 0.5,
+        },
+        borderRadius: 8,
+      },
       link: {
         color: COLORS.primaryColor,
       },

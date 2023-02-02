@@ -10,6 +10,13 @@ export default defineConfig({
       usePolling: true,
     },
     open: true,
+    proxy: {
+      '/api': {
+        target: 'http://jsonplaceholder.typicode.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
   build: {
     rollupOptions: {

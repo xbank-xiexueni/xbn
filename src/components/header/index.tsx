@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 import kebabCase from 'lodash/kebabCase'
 import { useContext, useMemo } from 'react'
+import Jazzicon from 'react-jazzicon'
 import { Link, useLocation } from 'react-router-dom'
 
 import Icon from '@/assets/logo.png'
@@ -166,19 +167,25 @@ const Header = () => {
             </Popover>
           </Flex>
 
-          <Button
-            onClick={connectWallet}
-            disabled={!!currentAccount}
-            display={{
-              sm: 'none',
-              md: 'none',
-              lg: 'block',
-            }}
-          >
-            {currentAccount
-              ? `${currentAccount.substring(0, 5)}...`
-              : 'Connect'}
-          </Button>
+          <Flex gap={2} alignItems='center'>
+            <Jazzicon
+              diameter={20}
+              seed={parseInt(currentAccount.slice(2, 10), 16)}
+            />
+            <Button
+              onClick={connectWallet}
+              disabled={!!currentAccount}
+              display={{
+                sm: 'none',
+                md: 'none',
+                lg: 'block',
+              }}
+            >
+              {currentAccount
+                ? `${currentAccount.substring(0, 5)}...`
+                : 'Connect'}
+            </Button>
+          </Flex>
 
           <Popover isLazy trigger='click' placement='bottom-end'>
             <PopoverTrigger>

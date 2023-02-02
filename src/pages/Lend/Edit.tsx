@@ -1,4 +1,8 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Box,
   Button,
   Card,
@@ -88,7 +92,7 @@ You can also use the small sliders on the right and bottom of the table to adjus
 const INITIAL_TENOR = TENORS[3]
 const INITIAL_COLLATERAL = COLLATERALS[4]
 
-const Create = () => {
+const Index = () => {
   const navigate = useNavigate()
   const params = useParams()
   console.log('🚀 ~ file: Create.tsx:91 ~ Create ~ searchParams', params)
@@ -121,6 +125,31 @@ const Create = () => {
     return arr
   }, [rowCount, currentCollaterals, currentTenors])
 
+  if (isEmpty(params)) {
+    return (
+      <Alert
+        status='error'
+        variant='top-accent'
+        flexDirection='column'
+        alignItems='center'
+        justifyContent='center'
+        textAlign='center'
+        height='200px'
+      >
+        <AlertIcon boxSize='40px' mr={0} />
+        <AlertTitle mt={4} mb={1} fontSize='lg'>
+          pool not found
+        </AlertTitle>
+        <AlertDescription maxWidth='sm'>
+          sorry sorry sorry sorry sorry sorry sorry sorry
+        </AlertDescription>
+        <Button onClick={() => navigate(-1)} mt={4}>
+          Back
+        </Button>
+      </Alert>
+    )
+  }
+
   return (
     <Container maxW={SUB_RESPONSIVE_MAX_W}>
       <Flex
@@ -147,7 +176,7 @@ const Create = () => {
         >
           <Box mb={8}>
             <Heading size={'lg'} mb={2}>
-              Create New Pool
+              Edit Pool
             </Heading>
             <Text color={COLORS.secondaryTextColor}>
               Determine the Tenor length for which potential borrowers can open
@@ -411,4 +440,4 @@ const Create = () => {
   )
 }
 
-export default Create
+export default Index
