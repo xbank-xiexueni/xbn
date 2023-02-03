@@ -50,7 +50,8 @@ const ComponentStyle = {
         bg: COLORS.secondaryColor,
         color: COLORS.primaryColor,
         _hover: {
-          opacity: 0.8,
+          bg: COLORS.primaryColor,
+          color: 'white',
         },
       },
       primary: {

@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverBody,
+  IconButton,
 } from '@chakra-ui/react'
 import kebabCase from 'lodash/kebabCase'
 import { useContext, useMemo } from 'react'
@@ -23,6 +24,7 @@ import { RESPONSIVE_MAX_W } from '@/utils/constants'
 
 import IconArrowActive from '@/assets/icon/icon-arrow-down-active.svg'
 import IconArrow from '@/assets/icon/icon-arrow-down.svg'
+import IconWalletOutline from '@/assets/icon/icon-wallet-outline.svg'
 
 const Header = () => {
   const { currentAccount, connectWallet } = useContext(TransactionContext)
@@ -167,24 +169,25 @@ const Header = () => {
             </Popover>
           </Flex>
 
-          <Flex gap={2} alignItems='center'>
+          <Flex gap={6} alignItems='center'>
             <Jazzicon
-              diameter={20}
+              diameter={30}
               seed={parseInt(currentAccount.slice(2, 10), 16)}
             />
-            <Button
+            <IconButton
+              justifyContent={'center'}
+              aria-label=''
               onClick={connectWallet}
+              // variant='outline'
+              bg='white'
               disabled={!!currentAccount}
               display={{
                 sm: 'none',
                 md: 'none',
-                lg: 'block',
+                lg: 'inline-flex',
               }}
-            >
-              {currentAccount
-                ? `${currentAccount.substring(0, 5)}...`
-                : 'Connect'}
-            </Button>
+              icon={<Image src={IconWalletOutline} />}
+            />
           </Flex>
 
           <Popover isLazy trigger='click' placement='bottom-end'>

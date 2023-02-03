@@ -14,10 +14,10 @@ import {
   Tag,
   List,
 } from '@chakra-ui/react'
-import random from 'lodash/random'
-import range from 'lodash/range'
-import sampleSize from 'lodash/sampleSize'
+import useRequest from 'ahooks/lib/useRequest'
+import debounce from 'lodash/debounce'
 import {
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -27,10 +27,11 @@ import {
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import ImgLend from '@/assets/LEND.png'
-import { InputSearch, Table } from '@/components'
+import { InputSearch, Pagination, Table } from '@/components'
 import type { ColumnProps, MyTableProps } from '@/components/Table'
 // import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
+import { generateList } from '@/utils/utils'
 
 import IconEth from '@/assets/icon/icon-eth.svg'
 import IconPlus from '@/assets/icon/icon-plus.svg'
@@ -124,48 +125,168 @@ const OpenLoansTables: FunctionComponent<{
   )
 }
 
-const generateList = (l?: number) => {
-  return range(l || 10).map((item) => ({
-    ID: item,
-    col1: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      random(2, 10),
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-    col2: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      2,
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-    col3: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      5,
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-    col4: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      8,
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-    col5: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      16,
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-    col6: item + 10,
-    col7: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      16,
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-  }))
-}
+const column1: ColumnProps[] = [
+  {
+    title: 'Collection',
+    dataIndex: 'col1',
+    key: 'col1',
+    align: 'left',
+    render: (_, value) => (
+      <Flex alignItems={'center'} gap={2}>
+        <Box w={10} h={10} bg='pink' borderRadius={4} />
+        <Text>{value}</Text>
+      </Flex>
+    ),
+  },
+  {
+    title: 'Est. Floor*',
+    dataIndex: 'col2',
+    key: 'col2',
+  },
+  {
+    title: 'TVL (USD)',
+    dataIndex: 'col3',
+    key: 'col3',
+    sortable: true,
+  },
+  {
+    title: 'Collateral Factor',
+    dataIndex: 'col4',
+    key: 'col4',
+  },
+  {
+    title: 'Interest',
+    dataIndex: 'col5',
+    key: 'Interest',
+  },
+  {
+    title: 'Trade',
+    dataIndex: 'ID',
+    key: 'ID',
+    align: 'right',
+    thAlign: 'right',
+    fixed: 'right',
+    render: (_, id) => {
+      return (
+        <Flex>
+          <Link to={`/lend/pools/create/${id}`}>
+            <Text>Supply</Text>
+          </Link>
+        </Flex>
+      )
+    },
+  },
+]
+
+const column2: ColumnProps[] = [
+  {
+    title: 'Collection',
+    dataIndex: 'col1',
+    key: 'col1',
+    align: 'left',
+    render: (_, value) => (
+      <Flex alignItems={'center'} gap={2}>
+        <Box w={10} h={10} bg='pink' borderRadius={4} />
+        <Text>{value}</Text>
+      </Flex>
+    ),
+  },
+  {
+    title: 'Est. Floor*',
+    dataIndex: 'col2',
+    key: 'col2',
+  },
+  {
+    title: 'TVL (USD)',
+    dataIndex: 'col3',
+    key: 'col3',
+    sortable: true,
+  },
+  {
+    title: 'Collateral Factor',
+    dataIndex: 'col4',
+    key: 'col4',
+  },
+  {
+    title: 'Tenor',
+    dataIndex: 'col5',
+    key: 'col5',
+  },
+  {
+    title: 'Interest',
+    dataIndex: 'col6',
+    key: 'col6',
+  },
+  { title: 'Loans', dataIndex: 'col7', key: 'col7' },
+  {
+    title: '',
+    dataIndex: 'ID',
+    key: 'ID',
+    align: 'right',
+    fixed: 'right',
+    thAlign: 'right',
+    render: (_, id) => {
+      return (
+        <Flex alignItems='center' gap={2}>
+          <Link to=''>
+            <Text color={COLORS.secondaryTextColor}>Details</Text>
+          </Link>
+          <Link to={`/lend/pools/edit/${id}`}>
+            <Text
+              color={COLORS.primaryColor}
+              py={3}
+              px={4}
+              borderRadius={8}
+              bg='white'
+            >
+              Manage
+            </Text>
+          </Link>
+        </Flex>
+      )
+    },
+  },
+]
+
+const column3: ColumnProps[] = [
+  {
+    title: 'Asset',
+    dataIndex: 'col1',
+    key: 'col1',
+    align: 'left',
+    render: (_, value) => (
+      <Flex alignItems={'center'} gap={2}>
+        <Box w={10} h={10} bg='pink' borderRadius={4} />
+        <Text>{value}</Text>
+      </Flex>
+    ),
+  },
+  {
+    title: 'Lender',
+    dataIndex: 'col2',
+    key: 'col2',
+  },
+  {
+    title: 'Borrower',
+    dataIndex: 'col3',
+    key: 'col3',
+  },
+  {
+    title: 'Loan value',
+    dataIndex: 'col4',
+    key: 'col4',
+  },
+  {
+    title: 'Duration',
+    dataIndex: 'col5',
+    key: 'col5',
+  },
+  {
+    title: 'Interest',
+    dataIndex: 'col6',
+    key: 'col6',
+  },
+]
 
 const Lend = () => {
   // const {
@@ -175,10 +296,22 @@ const Lend = () => {
   //   balance,
   //   getBalanceFromContract,
   // } = useContext(TransactionContext)
+  const {
+    data: activeCollectionList,
+    loading: loading1,
+    runAsync: runActiveCollectionsAsync,
+  } = useRequest(() => generateList(10))
+
+  const {
+    data: myPoolsList,
+    loading: loading2,
+    runAsync: runMyPoolsAsync,
+  } = useRequest(() => generateList(20))
 
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const [tabKey, setTabKey] = useState<0 | 1 | 2>(0)
+  const [searchValue, setSearchValue] = useState('')
 
   useEffect(() => {
     setTabKey(() => {
@@ -195,181 +328,30 @@ const Lend = () => {
     })
   }, [pathname])
 
-  const columns1 = useMemo((): ColumnProps[] => {
-    return [
-      {
-        title: 'Collection',
-        dataIndex: 'col1',
-        key: 'col1',
-        align: 'left',
-        render: (_, value) => (
-          <Flex alignItems={'center'} gap={2}>
-            <Box w={10} h={10} bg='pink' borderRadius={4} />
-            <Text>{value}</Text>
-          </Flex>
-        ),
-      },
-      {
-        title: 'Est. Floor*',
-        dataIndex: 'col2',
-        key: 'col2',
-      },
-      {
-        title: 'TVL (USD)',
-        dataIndex: 'col3',
-        key: 'col3',
-        sortable: true,
-      },
-      {
-        title: 'Collateral Factor',
-        dataIndex: 'col4',
-        key: 'col4',
-      },
-      {
-        title: 'Interest',
-        dataIndex: 'col5',
-        key: 'Interest',
-      },
-      {
-        title: 'Trade',
-        dataIndex: 'ID',
-        key: 'ID',
-        align: 'right',
-        thAlign: 'right',
-        fixed: 'right',
-        render: (_, id) => {
-          return (
-            <Flex>
-              <Button
-                variant={'link'}
-                onClick={() => {
-                  navigate(`/lend/pools/edit/${id}`)
-                }}
-              >
-                Supply
-              </Button>
-            </Flex>
-          )
-        },
-      },
-    ]
-  }, [navigate])
+  const handleSearch = useCallback(
+    (value: string) => {
+      if (!value) {
+        return
+      }
+      if (tabKey === 0) {
+        runActiveCollectionsAsync()
+        // 搜索 activeCollections
+      }
+      if (tabKey === 1) {
+        // 搜索 my pools
+        runMyPoolsAsync()
+      }
+    },
+    [tabKey, runActiveCollectionsAsync, runMyPoolsAsync],
+  )
 
-  const columns2 = useMemo((): ColumnProps[] => {
-    return [
-      {
-        title: 'Collection',
-        dataIndex: 'col1',
-        key: 'col1',
-        align: 'left',
-        render: (_, value) => (
-          <Flex alignItems={'center'} gap={2}>
-            <Box w={10} h={10} bg='pink' borderRadius={4} />
-            <Text>{value}</Text>
-          </Flex>
-        ),
-      },
-      {
-        title: 'Est. Floor*',
-        dataIndex: 'col2',
-        key: 'col2',
-      },
-      {
-        title: 'TVL (USD)',
-        dataIndex: 'col3',
-        key: 'col3',
-        sortable: true,
-      },
-      {
-        title: 'Collateral Factor',
-        dataIndex: 'col4',
-        key: 'col4',
-      },
-      {
-        title: 'Tenor',
-        dataIndex: 'col5',
-        key: 'col5',
-      },
-      {
-        title: 'Interest',
-        dataIndex: 'col6',
-        key: 'col6',
-      },
-      { title: 'Loans', dataIndex: 'col7', key: 'col7' },
-      {
-        title: '',
-        dataIndex: 'ID',
-        key: 'ID',
-        align: 'right',
-        fixed: 'right',
-        thAlign: 'right',
-        render: (_, id) => {
-          return (
-            <Flex alignItems='center'>
-              <Link to=''>
-                <Text color={COLORS.secondaryTextColor}>Details</Text>
-              </Link>
-              <Button
-                ml={1}
-                variant={'primaryLink'}
-                onClick={() => {
-                  navigate(`/lend/pools/edit/${id}`)
-                }}
-              >
-                Manage
-              </Button>
-            </Flex>
-          )
-        },
-      },
-    ]
-  }, [navigate])
+  const debounceHandleSearch = useMemo(() => {
+    return debounce(handleSearch, 1000)
+  }, [handleSearch])
 
-  const columns3 = useMemo((): ColumnProps[] => {
-    return [
-      {
-        title: 'Asset',
-        dataIndex: 'col1',
-        key: 'col1',
-        align: 'left',
-        render: (_, value) => (
-          <Flex alignItems={'center'} gap={2}>
-            <Box w={10} h={10} bg='pink' borderRadius={4} />
-            <Text>{value}</Text>
-          </Flex>
-        ),
-      },
-      {
-        title: 'Lender',
-        dataIndex: 'col2',
-        key: 'col2',
-      },
-      {
-        title: 'Borrower',
-        dataIndex: 'col3',
-        key: 'col3',
-      },
-      {
-        title: 'Loan value',
-        dataIndex: 'col4',
-        key: 'col4',
-      },
-      {
-        title: 'Duration',
-        dataIndex: 'col5',
-        key: 'col5',
-      },
-      {
-        title: 'Interest',
-        dataIndex: 'col6',
-        key: 'col6',
-      },
-    ]
-  }, [])
-
-  const [loading, setLoading] = useState(false)
-
-  // console.log(import.meta.env, '111111111')
+  useEffect(() => {
+    debounceHandleSearch(searchValue)
+  }, [searchValue, debounceHandleSearch])
 
   return (
     <>
@@ -408,6 +390,7 @@ const Lend = () => {
         index={tabKey}
         position='relative'
         onChange={(key) => {
+          setSearchValue('')
           switch (key) {
             case 0:
               navigate('/lend/pools')
@@ -425,9 +408,19 @@ const Lend = () => {
         }}
       >
         {tabKey !== 2 && (
-          <Box position={'absolute'} right={0} top={0}>
-            <InputSearch />
-          </Box>
+          <Flex position={'absolute'} right={0} top={0}>
+            <InputSearch
+              value={searchValue}
+              onChange={(e) => {
+                setSearchValue(e.target.value)
+              }}
+            />
+            {tabKey === 0 && (
+              <Button variant={'secondary'} minW='200px'>
+                + Creative new pool
+              </Button>
+            )}
+          </Flex>
         )}
 
         <TabList
@@ -469,7 +462,7 @@ const Lend = () => {
               fontSize={'xs'}
               h={5}
             >
-              51
+              {myPoolsList?.length}
             </Tag>
           </Tab>
           <Tab
@@ -490,24 +483,21 @@ const Lend = () => {
         <TabPanels>
           <TabPanel p={0}>
             <Table
-              loading={loading}
-              columns={columns1}
-              data={generateList(10)}
-              caption={() => <Button variant={'secondary'}>More</Button>}
+              loading={loading1}
+              columns={column1}
+              data={activeCollectionList || []}
+              caption={() => <Pagination total={123} />}
               onSort={(args) => {
-                setLoading(true)
-                setTimeout(() => {
-                  setLoading(false)
-                  console.log(args)
-                }, 5000)
+                console.log(args)
+                runActiveCollectionsAsync()
               }}
             />
           </TabPanel>
           <TabPanel p={0}>
             <Table
-              loading={loading}
-              columns={columns2}
-              data={generateList(10)}
+              loading={loading2}
+              columns={column2}
+              data={myPoolsList || []}
               caption={() => (
                 <Button
                   variant={'primary'}
@@ -521,11 +511,8 @@ const Lend = () => {
                 </Button>
               )}
               onSort={(args) => {
-                setLoading(true)
-                setTimeout(() => {
-                  setLoading(false)
-                  console.log(args)
-                }, 5000)
+                console.log(args, tabKey)
+                runMyPoolsAsync()
               }}
             />
           </TabPanel>
@@ -546,10 +533,10 @@ const Lend = () => {
                 <InputSearch placeholder='Collections...' />
 
                 <List spacing={4} mt={4}>
-                  {range(10).map((item) => (
+                  {(myPoolsList || []).map((item) => (
                     <CollectionListItem
-                      data={{ ID: item }}
-                      key={item}
+                      data={{ ID: item.ID }}
+                      key={JSON.stringify(item)}
                       // onClick={() => setSelectCollection(item)}
                       // isActive={selectCollection === item}
                     />
@@ -566,9 +553,9 @@ const Lend = () => {
                   tables={[
                     {
                       title: 'Current Loans as Borrower',
-                      loading: loading,
+                      // loading: loading,
                       columns: [
-                        ...columns3,
+                        ...column3,
                         // {
                         //   title: '',
                         //   dataIndex: 'ID',
@@ -595,19 +582,17 @@ const Lend = () => {
                         // },
                       ],
 
-                      data: generateList(1),
+                      data: [],
                     },
                     {
                       title: 'Previous Loans as Borrower(Paid off)',
-                      loading: loading,
-                      columns: [...columns3],
-                      data: generateList(1),
+                      columns: [...column3],
+                      data: [],
                     },
                     {
                       title: 'Previous Loans as Borrower(Overdue)',
-                      loading: loading,
-                      columns: [...columns3],
-                      data: generateList(1),
+                      columns: [...column3],
+                      data: [],
                     },
                   ]}
                 />

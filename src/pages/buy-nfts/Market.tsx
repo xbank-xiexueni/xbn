@@ -98,7 +98,7 @@ const DescriptionComponent: FunctionComponent<{
 
 export const CollectionListItem: FunctionComponent<{
   data: {
-    ID: number
+    ID: any
   }
   onClick?: () => void
   isActive?: boolean

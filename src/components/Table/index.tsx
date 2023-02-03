@@ -1,7 +1,6 @@
 import {
   Image,
   Table,
-  TableCaption,
   TableContainer,
   Tbody,
   Td,
@@ -43,7 +42,7 @@ export interface ColumnProps {
 }
 export type MyTableProps = TableProps & {
   columns: ColumnProps[]
-  data: Record<string, string | boolean | number>[]
+  data: Record<string, string>[]
   onSort?: (arg: { direction: string; field: string }) => void
   loading?: boolean
   caption?: () => ReactElement
@@ -61,8 +60,6 @@ const Index: FunctionComponent<MyTableProps> = ({
     direction: '',
     field: '',
   })
-
-  console.log(sortParams)
   return (
     <>
       {tableTitle && (
@@ -101,9 +98,7 @@ const Index: FunctionComponent<MyTableProps> = ({
             borderSpacing: '0 10px',
           }}
           className='my-table'
-          title='asas'
         >
-          {!!caption && !loading && <TableCaption>{caption()}</TableCaption>}
           <Thead>
             <Tr pos='relative'>
               {columns.map(
@@ -137,23 +132,30 @@ const Index: FunctionComponent<MyTableProps> = ({
                       if (!sortable) return
                       const { direction, field } = sortParams
                       if (field === dataIndex) {
-                        // 改变方向
-                        const nextDirection: 'ASC' | 'DESC' | '' =
-                          direction === ''
-                            ? 'ASC'
-                            : direction === 'ASC'
-                            ? 'DESC'
-                            : ''
+                        let nextDirection: 'ASC' | 'DESC' | '' = ''
+                        let newField = field
+                        if (direction === '') {
+                          nextDirection = 'ASC'
+                        }
+                        if (direction === 'ASC') {
+                          nextDirection = 'DESC'
+                        }
+                        if (direction === 'DESC') {
+                          nextDirection = ''
+                          newField = ''
+                        }
                         if (onSort) {
                           onSort({
                             ...sortParams,
                             direction: nextDirection,
+                            field: newField,
                           })
                         }
 
-                        setSortParam((prev) => ({
-                          ...prev,
+                        setSortParam(() => ({
+                          ...sortParams,
                           direction: nextDirection,
+                          field: newField,
                         }))
                       } else {
                         // 字段改变
@@ -257,6 +259,9 @@ const Index: FunctionComponent<MyTableProps> = ({
           </Tbody>
         </Table>
       </TableContainer>
+      <Flex justify={'center'} my={8}>
+        {!!caption && !loading && caption()}
+      </Flex>
     </>
   )
 }
