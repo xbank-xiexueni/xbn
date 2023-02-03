@@ -32,17 +32,22 @@ const Pagination: FunctionComponent<PaginationProps> = ({
     <Flex alignItems={'center'} gap={4}>
       <Box>&lt;</Box>
       {range(1, itemCount + 1).map((page) => (
-        <Box
+        <Flex
           key={page}
-          px={4}
-          py={3}
-          borderRadius={8}
-          border={`1px solid ${COLORS.borderColor}`}
-          bg={current === page ? COLORS.primaryColor : 'white'}
-          color={current === page ? 'white' : COLORS.textColor}
+          w='36px'
+          h='36px'
+          borderRadius={36}
+          bg={current === page ? COLORS.secondaryColor : 'white'}
+          color={current === page ? COLORS.primaryColor : COLORS.textColor}
+          alignItems='center'
+          justify={'center'}
+          _hover={{
+            bg: COLORS.secondaryBgc,
+          }}
+          cursor='pointer'
         >
           {page}
-        </Box>
+        </Flex>
       ))}
       <Box>&gt;</Box>
     </Flex>

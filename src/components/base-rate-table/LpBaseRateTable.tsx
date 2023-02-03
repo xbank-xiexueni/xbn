@@ -52,16 +52,16 @@ const LpBaseRateTable: FunctionComponent<{
   )
 
   const tableData = useMemo(() => {
-    const arr = new Array(rowCount) //表格有10行
+    const arr = new Array(rowCount)
     for (let i = 0; i < rowCount; i++) {
       const forMapArr = [...currentTenors]
       arr[i] = forMapArr.map((_, index) => {
-        return (
+        const res =
           (baseRate -
             ((rowCount - i - 1) * sliderRightValue +
               (colCount - index - 1) * sliderBottomValue)) *
           sliderTopValue
-        ).toFixed(2)
+        return res === ~~res ? res : res.toFixed(2)
       })
     }
     return arr

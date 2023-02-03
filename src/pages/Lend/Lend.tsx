@@ -35,6 +35,7 @@ import { generateList } from '@/utils/utils'
 
 import IconEth from '@/assets/icon/icon-eth.svg'
 import IconPlus from '@/assets/icon/icon-plus.svg'
+import IconSearch from '@/assets/icon/icon-search.svg'
 
 import { CollectionListItem } from '../buy-nfts/Market'
 
@@ -296,6 +297,7 @@ const Lend = () => {
   //   balance,
   //   getBalanceFromContract,
   // } = useContext(TransactionContext)
+  const [showSearch, setShowSearch] = useState(false)
   const {
     data: activeCollectionList,
     loading: loading1,
@@ -408,15 +410,37 @@ const Lend = () => {
         }}
       >
         {tabKey !== 2 && (
-          <Flex position={'absolute'} right={0} top={0}>
-            <InputSearch
-              value={searchValue}
-              onChange={(e) => {
-                setSearchValue(e.target.value)
-              }}
-            />
+          <Flex position={'absolute'} right={0} top={0} gap={4}>
+            {showSearch ? (
+              <InputSearch
+                value={searchValue}
+                onChange={(e) => {
+                  setSearchValue(e.target.value)
+                }}
+              />
+            ) : (
+              <Flex
+                h='44px'
+                w='44px'
+                borderRadius={44}
+                justify='center'
+                alignItems={'center'}
+                cursor='pointer'
+                onClick={() => setShowSearch(true)}
+                _hover={{
+                  bg: COLORS.secondaryBgc,
+                }}
+              >
+                <Image src={IconSearch} />
+              </Flex>
+            )}
+
             {tabKey === 0 && (
-              <Button variant={'secondary'} minW='200px'>
+              <Button
+                variant={'secondary'}
+                minW='200px'
+                onClick={() => navigate('/lend/pools/create')}
+              >
                 + Creative new pool
               </Button>
             )}

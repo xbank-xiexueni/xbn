@@ -54,6 +54,7 @@ function AsyncSelectCollection<
           </components.Control>
         ),
       }}
+      // @ts-ignore
       formatOptionLabel={({ label, value }: Option) => (
         <Flex alignItems={'center'}>
           <Box w={4} h={4} bg='pink' />
