@@ -18,7 +18,11 @@ function CustomSelect<
   return (
     <Select
       {...restProps}
-      theme={(theme) => ({ ...theme, borderRadius: 0, width: 240 })}
+      theme={(theme) => ({
+        ...theme,
+        borderRadius: 0,
+        width: 240,
+      })}
       styles={{
         control: (baseStyles, state) => ({
           ...baseStyles,
@@ -26,8 +30,13 @@ function CustomSelect<
           borderRadius: 8,
           height: 44,
           borderColor: state.isFocused
-            ? COLORS.secondaryColor
+            ? COLORS.primaryColor
             : COLORS.borderColor,
+        }),
+        option: (baseStyles, state) => ({
+          ...baseStyles,
+          backgroundColor: state.isSelected ? COLORS.secondaryColor : 'white',
+          color: COLORS.textColor,
         }),
       }}
       components={{

@@ -8,6 +8,7 @@ const PoolEdit = lazy(() => import('./pages/Lend/Edit'))
 
 // buy nfts
 const Market = lazy(() => import('./pages/buy-nfts/Market'))
+const MyAssets = lazy(() => import('./pages/buy-nfts/MyAssets'))
 
 // nft detail
 const NftAssetDetail = lazy(() => import('./pages/nft-asset/NftAssetDetail'))
@@ -80,6 +81,14 @@ function App() {
           element={
             <Suspense fallback={<>...</>}>
               <NftAssetDetail />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/buy-nfts/my-assets'
+          element={
+            <Suspense fallback={<>...</>}>
+              <MyAssets />
             </Suspense>
           }
         />

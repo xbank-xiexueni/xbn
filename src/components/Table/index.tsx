@@ -9,7 +9,6 @@ import {
   Tr,
   type TableProps,
   Flex,
-  Spinner,
   Heading,
 } from '@chakra-ui/react'
 import isEmpty from 'lodash/isEmpty'
@@ -20,6 +19,8 @@ import COLORS from '@/utils/Colors'
 import IconSortDESC from '@/assets/icon/icon-sort-down.svg'
 import IconSortASC from '@/assets/icon/icon-sort-up.svg'
 import IconUnSort from '@/assets/icon/icon-unsort.svg'
+
+import { LoadingComponent } from '..'
 
 import EmptyTableComponent from './EmptyTableComponent'
 
@@ -71,28 +72,7 @@ const Index: FunctionComponent<MyTableProps> = ({
         </Heading>
       )}
       <TableContainer position={'relative'}>
-        {loading && (
-          <Flex
-            position={'absolute'}
-            left={0}
-            right={0}
-            top={0}
-            bottom={0}
-            bg='rgba(0,0,0,.1)'
-            borderRadius={4}
-            justify={'center'}
-            zIndex={10}
-          >
-            <Spinner
-              thickness='4px'
-              speed='0.65s'
-              emptyColor='gray.200'
-              color={COLORS.primaryColor}
-              size='xl'
-              mt={20}
-            />
-          </Flex>
-        )}
+        {<LoadingComponent loading={loading} />}
 
         <Table
           variant='unstyled'

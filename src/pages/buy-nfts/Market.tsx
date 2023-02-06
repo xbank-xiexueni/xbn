@@ -4,136 +4,20 @@ import {
   GridItem,
   Heading,
   List,
-  Image,
-  Text,
-  ListItem,
   Flex,
   SimpleGrid,
-  HStack,
 } from '@chakra-ui/react'
 import range from 'lodash/range'
-import { useState, type FunctionComponent, type ReactElement } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { SearchInput, NftListCard, Select } from '@/components'
+import { SearchInput, MarketNftListCard, Select } from '@/components'
 import COLORS from '@/utils/Colors'
 
-import IconChecked from '@/assets/icon/icon-checked.svg'
-import IconEth from '@/assets/icon/icon-eth.svg'
-import IconVerifiedFill from '@/assets/icon/icon-verified-fill.svg'
 import TEST_IMG from '@/assets/test-img.svg'
 
-const DescriptionComponent: FunctionComponent<{
-  data: {
-    isVerified?: boolean
-    titleImage?: string
-    title?: string
-    description?: string
-    img?: string
-    keys?: {
-      value: string
-      label: string | ReactElement
-      isEth?: boolean
-    }[]
-  }
-}> = ({
-  data: {
-    title = '',
-    description = '',
-    img = '',
-    keys = [],
-    isVerified = false,
-  },
-}) => {
-  const [show, setShow] = useState(false)
-  return (
-    <Box mb={12}>
-      <Flex gap={5} alignItems='end' mb={8}>
-        <Box minW='108px'>
-          <Image src={img} />
-        </Box>
-        <Box>
-          <Heading fontSize={'3xl'} display='flex'>
-            {title}
-            {isVerified && <Image src={IconVerifiedFill} />}
-          </Heading>
-
-          <Text
-            color={COLORS.secondaryTextColor}
-            mt={2}
-            fontSize={'md'}
-            fontWeight='medium'
-          >
-            {show ? description : `${description.substring(0, 80)}...`}
-            {description?.length > 80 && (
-              <a
-                color={COLORS.primaryColor}
-                onClick={() => setShow((prev) => !prev)}
-              >
-                {show ? 'show less' : 'show'}
-              </a>
-            )}
-          </Text>
-        </Box>
-      </Flex>
-
-      <HStack spacing={10}>
-        {keys.map(({ label, value, isEth }) => (
-          <Box key={`${label}`}>
-            <Heading fontSize={'2xl'} display='flex' mb={1}>
-              {isEth && <Image src={IconEth} height={8} />}
-              {value}
-            </Heading>
-            {typeof value === 'string' ? (
-              <Text color={COLORS.infoTextColor}>{label}</Text>
-            ) : (
-              label
-            )}
-          </Box>
-        ))}
-      </HStack>
-    </Box>
-  )
-}
-
-export const CollectionListItem: FunctionComponent<{
-  data: any
-  onClick?: () => void
-  isActive?: boolean
-}> = ({ data: { id, name }, onClick, isActive }) => {
-  return (
-    <ListItem
-      key={id}
-      px={4}
-      py={3}
-      display='flex'
-      alignItems={'center'}
-      justifyContent='space-between'
-      border={`1px solid ${COLORS.borderColor}`}
-      borderRadius={8}
-      _hover={{
-        bg: COLORS.secondaryColor,
-      }}
-      cursor='pointer'
-      bg={isActive ? COLORS.secondaryColor : 'white'}
-      onClick={onClick}
-    >
-      <Flex alignItems={'center'}>
-        <Box w={6} h={6} bg='gray.600' mr={4} />
-        <Text fontSize={'sm'}>
-          {name}
-          &nbsp;
-        </Text>
-        <Image src={IconVerifiedFill} />
-      </Flex>
-      {isActive ? (
-        <Image src={IconChecked} />
-      ) : (
-        <Text fontSize={'sm'}>{id}</Text>
-      )}
-    </ListItem>
-  )
-}
+import CollectionDescription from './components/CollectionDescription'
+import CollectionListItem from './components/CollectionListItem'
 
 const Market = () => {
   const navigate = useNavigate()
@@ -177,7 +61,7 @@ const Market = () => {
         </List>
       </GridItem>
       <GridItem pl='2' area={'main'}>
-        <DescriptionComponent
+        <CollectionDescription
           data={{
             img: TEST_IMG,
             title: 'Lend',
@@ -216,20 +100,18 @@ const Market = () => {
           <Box w='70%'>
             <SearchInput />
           </Box>
-          <Box w='20%'>
-            <Select
-              options={[
-                {
-                  label: 'Price: low to high',
-                  value: 1,
-                },
-              ]}
-            />
-          </Box>
+          <Select
+            options={[
+              {
+                label: 'Price: low to high',
+                value: 1,
+              },
+            ]}
+          />
         </Flex>
         <SimpleGrid minChildWidth='230px' spacing={'16px'}>
           {range(15).map((item) => (
-            <NftListCard
+            <MarketNftListCard
               data={{}}
               key={item}
               onClick={() => {

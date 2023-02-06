@@ -16,7 +16,7 @@ import COLORS from '@/utils/Colors'
 import IconEth from '@/assets/icon/icon-eth.svg'
 
 import type { FunctionComponent } from 'react'
-const NftListCard: FunctionComponent<
+const MarketNftListCard: FunctionComponent<
   {
     // temp
     data: any
@@ -67,4 +67,4 @@ const NftListCard: FunctionComponent<
   )
 }
 
-export default NftListCard
+export default MarketNftListCard

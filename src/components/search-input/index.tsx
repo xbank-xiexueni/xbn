@@ -49,10 +49,9 @@ const index: FunctionComponent<
           boxShadow: `0 0 0 1px ${
             isInvalid ? COLORS.errorColor : COLORS.primaryColor
           }`,
-          borderColor: isInvalid ? COLORS.errorColor : COLORS.primaryColor,
           ..._focusVisible,
         }}
-        borderColor={isInvalid ? COLORS.errorColor : COLORS.primaryColor}
+        borderColor={isInvalid ? COLORS.errorColor : COLORS.borderColor}
       />
     </InputGroup>
   )

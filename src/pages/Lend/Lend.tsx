@@ -27,6 +27,7 @@ import {
   SearchInput,
   Pagination,
   Table,
+  LoadingComponent,
 } from '@/components'
 import type { ColumnProps } from '@/components/Table'
 // import { TransactionContext } from '@/context/TransactionContext'
@@ -38,7 +39,7 @@ import IconChecked from '@/assets/icon/icon-checked.svg'
 import IconEth from '@/assets/icon/icon-eth.svg'
 import IconSearch from '@/assets/icon/icon-search.svg'
 
-import { CollectionListItem } from '../buy-nfts/Market'
+import CollectionListItem from '../buy-nfts/components/CollectionListItem'
 
 import AllPoolsDescription from './components/AllPoolsDescription'
 import OpenLoansTables from './components/OpenLoansTables'
@@ -126,7 +127,7 @@ const Lend = () => {
   // open loans
   // 左侧 collections
   const [allMyPoolsList, setAllMyPoolsList] = useState([])
-  const {} = useRequest(apiGetMyPools, {
+  const { loading: loading3 } = useRequest(apiGetMyPools, {
     onSuccess: (data: { data: { list: any } }) => {
       setAllMyPoolsList(data?.data?.list)
     },
@@ -241,7 +242,7 @@ const Lend = () => {
 
   return (
     <>
-      <Button isDisabled>调用啦</Button>
+      {/* <Button isDisabled>调用啦</Button> */}
       <Box my={10}>
         <AllPoolsDescription
           data={{
@@ -486,7 +487,8 @@ const Lend = () => {
                 </Heading>
                 <SearchInput placeholder='Collections...' />
 
-                <List spacing={4} mt={4}>
+                <List spacing={4} mt={4} position='relative'>
+                  <LoadingComponent loading={loading3} />
                   <Flex
                     justify={'space-between'}
                     py={3}
