@@ -7,6 +7,7 @@ import {
   Image,
   Text,
 } from '@chakra-ui/react'
+import isEmpty from 'lodash/isEmpty'
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -36,6 +37,7 @@ const Create = () => {
   const { state } = useLocation()
   const [selectCollateral, setSelectCollateral] = useState(INITIAL_COLLATERAL)
   const [selectTenor, setSelectTenor] = useState(INITIAL_TENOR)
+  const [selectCollection, setSelectCollection] = useState({ ...state })
 
   return (
     <Container maxW={SUB_RESPONSIVE_MAX_W}>
@@ -81,7 +83,7 @@ const Create = () => {
               />
               <AsyncSelectCollection
                 placeholder='Please select'
-                onChange={(e) => console.log(e)}
+                onChange={(e) => setSelectCollection(e)}
                 defaultValue={state}
               />
               {/* {isEmpty(params) ? <InputSearch /> : params.collectionId} */}
@@ -159,7 +161,12 @@ You can also use the small sliders on the right and bottom of the table to adjus
             />
           </Box>
           <Flex justify={'center'} mb={10}>
-            <ApproveEthButton variant={'primary'} w='240px' h='52px'>
+            <ApproveEthButton
+              variant={'primary'}
+              w='240px'
+              h='52px'
+              isDisabled={isEmpty(selectCollection)}
+            >
               Confirm
             </ApproveEthButton>
           </Flex>

@@ -35,6 +35,7 @@ const ComponentStyle = {
     baseStyle: {
       fontWeight: 'bold', // Normally, it is "semibold"
       borderRadius: '50px',
+      opacity: 1,
     },
     // // 2. We can add a new button size or extend existing
     // sizes: {
@@ -57,8 +58,13 @@ const ComponentStyle = {
       primary: {
         bg: COLORS.primaryColor,
         color: 'white',
+        _disabled: {
+          bg: COLORS.tipTextColor,
+        },
         _hover: {
-          opacity: 0.5,
+          _disabled: {
+            bg: COLORS.tipTextColor,
+          },
         },
       },
       primaryLink: {

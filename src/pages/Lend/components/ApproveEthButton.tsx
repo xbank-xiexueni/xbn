@@ -12,17 +12,27 @@ import {
   Box,
   Text,
   Image,
+  type ButtonProps,
+  InputGroup,
+  InputLeftElement,
+  Input,
+  InputRightElement,
 } from '@chakra-ui/react'
-import { useRef } from 'react'
+import {
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FunctionComponent,
+} from 'react'
 
-import { InputWithIcon } from '@/components'
+import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
 
 import IconClose from '@/assets/icon/icon-close.svg'
+import IconError from '@/assets/icon/icon-error.svg'
 import IconEth from '@/assets/icon/icon-eth.svg'
-
-import type { ButtonProps } from '@chakra-ui/react'
-import type { FunctionComponent } from 'react'
 
 const DataItem: FunctionComponent<{ label: string; data: number }> = ({
   label,
@@ -47,10 +57,26 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
   children,
   ...rest
 }) => {
+  const { getBalance, balance } = useContext(TransactionContext)
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const [amount, setAmount] = useState<number>()
+  const [flag, setFlag] = useState(true)
 
   const initialRef = useRef(null)
   const finalRef = useRef(null)
+
+  const isError = useMemo(() => {
+    //  amount < balance + Has been lent
+    if (amount) {
+      return amount > balance + 10
+    } else {
+      return !flag
+    }
+  }, [amount, balance, flag])
+
+  useEffect(() => {
+    getBalance()
+  }, [getBalance])
 
   return (
     <>
@@ -92,20 +118,38 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
             </Flex>
             <FormControl>
               <FormLabel>Amount</FormLabel>
-              <InputWithIcon
-                placeholder='Enter the approve ETH amount...'
-                icon={IconEth}
-                h='60px'
-                borderRadius={8}
-                iconProps={{
-                  top: 4,
-                  left: 4,
-                }}
-                type='number'
-                errorBorderColor={COLORS.errorColor}
-                isInvalid={true}
-              />
-              {true && (
+              <InputGroup>
+                <InputLeftElement
+                  pointerEvents='none'
+                  color='gray.300'
+                  fontSize='1.2em'
+                  top='10px'
+                >
+                  <Image src={IconEth} />
+                </InputLeftElement>
+                <Input
+                  value={amount}
+                  onChange={(e) => {
+                    setFlag(false)
+                    setAmount(Number(e.target.value))
+                  }}
+                  h='60px'
+                  lineHeight='60px'
+                  borderRadius={8}
+                  borderColor={COLORS.secondaryTextColor}
+                  placeholder='Enter the approve ETH amount...'
+                  type='number'
+                  errorBorderColor={COLORS.errorColor}
+                  isInvalid={isError}
+                />
+                {isError && (
+                  <InputRightElement top='10px'>
+                    <Image src={IconError} />
+                  </InputRightElement>
+                )}
+              </InputGroup>
+
+              {isError && (
                 <Text mt={2} color={COLORS.errorColor}>
                   Insufficient funds，Maximum input：xxx
                 </Text>
@@ -114,7 +158,15 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
           </ModalBody>
 
           {/* <ModalFooter justifyContent={'center'}> */}
-          <Button variant='primary' mr={3} mt={2} mb={10} mx={10} h='52px'>
+          <Button
+            variant='primary'
+            mr={3}
+            mt={2}
+            mb={10}
+            mx={10}
+            h='52px'
+            isDisabled={isError}
+          >
             Approve
           </Button>
           {/* </ModalFooter> */}

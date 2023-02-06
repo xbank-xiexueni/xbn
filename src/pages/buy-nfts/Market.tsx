@@ -15,7 +15,7 @@ import range from 'lodash/range'
 import { useState, type FunctionComponent, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { InputWithIcon, NftListCard, Select } from '@/components'
+import { SearchInput, NftListCard, Select } from '@/components'
 import COLORS from '@/utils/Colors'
 
 import IconChecked from '@/assets/icon/icon-checked.svg'
@@ -163,7 +163,7 @@ const Market = () => {
         <Heading size={'md'} mb={4}>
           Collections
         </Heading>
-        <InputWithIcon placeholder='Collections...' />
+        <SearchInput placeholder='Collections...' />
 
         <List spacing={4} mt={4}>
           {range(10).map((item) => (
@@ -214,7 +214,7 @@ const Market = () => {
 
         <Flex justify={'space-between'} mb={6}>
           <Box w='70%'>
-            <InputWithIcon />
+            <SearchInput />
           </Box>
           <Box w='20%'>
             <Select

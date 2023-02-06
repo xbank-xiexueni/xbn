@@ -24,7 +24,7 @@ import { apiGetActiveCollection, apiGetMyPools } from '@/api'
 import ImgLend from '@/assets/LEND.png'
 import {
   ConnectWalletModal,
-  InputWithIcon,
+  SearchInput,
   Pagination,
   Table,
 } from '@/components'
@@ -241,7 +241,7 @@ const Lend = () => {
 
   return (
     <>
-      {/* <Button onClick={getBalanceFromContract}>调用啦</Button> */}
+      <Button isDisabled>调用啦</Button>
       <Box my={10}>
         <AllPoolsDescription
           data={{
@@ -295,7 +295,7 @@ const Lend = () => {
         {tabKey !== 2 && (
           <Flex position={'absolute'} right={0} top={0} gap={4}>
             {showSearch || isEmpty(activeCollectionData?.list) ? (
-              <InputWithIcon
+              <SearchInput
                 value={tabKey === 0 ? activeCollectionSearch : myPoolsSearch}
                 onChange={(e) => {
                   if (tabKey === 0) {
@@ -484,7 +484,7 @@ const Lend = () => {
                 <Heading size={'md'} mb={4}>
                   Collections
                 </Heading>
-                <InputWithIcon placeholder='Collections...' />
+                <SearchInput placeholder='Collections...' />
 
                 <List spacing={4} mt={4}>
                   <Flex

@@ -23,7 +23,7 @@ export const TransactionContext = createContext({
   connectWallet: () => {},
   getBalance: () => {},
   currentAccount: '',
-  balance: '',
+  balance: 0,
   getBalanceFromContract: () => {},
   connectLoading: false,
 })
@@ -48,7 +48,7 @@ export const TransactionsProvider = ({
   children: ReactElement
 }) => {
   const [currentAccount, setCurrentAccount] = useState('')
-  const [balance, setBalance] = useState('')
+  const [balance, setBalance] = useState(0)
 
   const { isOpen, onClose } = useDisclosure()
 
@@ -98,10 +98,8 @@ export const TransactionsProvider = ({
     if (!currentAccount || !ethereum) return
     const provider = new ethers.providers.Web3Provider(ethereum)
 
-    const currentBalance = (
-      await provider.getBalance(currentAccount)
-    ).toString()
-    setBalance(currentBalance)
+    const currentBalance = await provider.getBalance(currentAccount)
+    setBalance(currentBalance.toNumber())
   }, [currentAccount])
 
   const checkIfWalletIsConnect = useCallback(async () => {
