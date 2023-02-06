@@ -11,6 +11,7 @@ import {
   PopoverHeader,
   PopoverBody,
   IconButton,
+  useDisclosure,
 } from '@chakra-ui/react'
 import kebabCase from 'lodash/kebabCase'
 import { useContext, useMemo } from 'react'
@@ -26,9 +27,14 @@ import IconArrowActive from '@/assets/icon/icon-arrow-down-active.svg'
 import IconArrow from '@/assets/icon/icon-arrow-down.svg'
 import IconWalletOutline from '@/assets/icon/icon-wallet-outline.svg'
 
+import { ConnectWalletModal } from '..'
+
 const Header = () => {
-  const { currentAccount, connectWallet } = useContext(TransactionContext)
+  const { currentAccount } = useContext(TransactionContext)
+
   const { pathname } = useLocation()
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const activePath = useMemo((): 'LEND' | 'BUY_NFTS' | 'SELL_NFTS' | '' => {
     if (pathname.startsWith('/lend')) {
@@ -170,14 +176,17 @@ const Header = () => {
           </Flex>
 
           <Flex gap={6} alignItems='center'>
-            <Jazzicon
-              diameter={30}
-              seed={parseInt(currentAccount.slice(2, 10), 16)}
-            />
+            {!!currentAccount && (
+              <Jazzicon
+                diameter={30}
+                seed={parseInt(currentAccount.slice(2, 10), 16)}
+              />
+            )}
+
             <IconButton
               justifyContent={'center'}
               aria-label=''
-              onClick={connectWallet}
+              onClick={onOpen}
               // variant='outline'
               bg='white'
               disabled={!!currentAccount}
@@ -215,6 +224,8 @@ const Header = () => {
           </Popover>
         </Flex>
       </Container>
+
+      <ConnectWalletModal visible={isOpen} handleClose={onClose} />
     </Box>
   )
 }

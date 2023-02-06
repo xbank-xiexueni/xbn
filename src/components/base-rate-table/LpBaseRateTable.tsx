@@ -8,13 +8,12 @@ import {
   Text,
   SliderThumb,
   Box,
-  Button,
   SlideFade,
 } from '@chakra-ui/react'
 import slice from 'lodash/slice'
 import { type FunctionComponent, useMemo, useState } from 'react'
 
-import { DescriptionComponent } from '@/pages/Lend/Create'
+import StepDescription from '@/pages/Lend/components/StepDescription'
 import COLORS from '@/utils/Colors'
 import { COLLATERALS, LP_BASE_RATE, TENORS } from '@/utils/constants'
 
@@ -79,7 +78,7 @@ const LpBaseRateTable: FunctionComponent<{
     <Card mb={8} bg={COLORS.secondaryBgc} borderRadius={'16px'} p={8}>
       <Flex wrap={'wrap'}>
         {description && (
-          <DescriptionComponent
+          <StepDescription
             data={{
               step: 4,
               ...description,
@@ -97,6 +96,7 @@ const LpBaseRateTable: FunctionComponent<{
           onChange={(target) => {
             setSliderTopValue(target)
           }}
+          mb={8}
         >
           {TOP_SLIDER_STEPS.map((item) => (
             <SliderMark value={item} fontSize='sm' key={item} zIndex={1}>
@@ -118,21 +118,23 @@ const LpBaseRateTable: FunctionComponent<{
 
           <SliderMark
             value={TOP_SLIDER_STEPS[0]}
-            mt='1'
+            mt={4}
             ml='-2.5'
             fontSize='sm'
+            color={COLORS.secondaryTextColor}
           >
             min
           </SliderMark>
           <SliderMark
             value={TOP_SLIDER_STEPS[TOP_SLIDER_STEPS.length - 1]}
-            mt='1'
             ml='-2.5'
             fontSize='sm'
+            mt={4}
+            color={COLORS.secondaryTextColor}
           >
             max
           </SliderMark>
-          <SliderMark
+          {/* <SliderMark
             value={sliderTopValue}
             textAlign='center'
             // color='white'
@@ -142,7 +144,7 @@ const LpBaseRateTable: FunctionComponent<{
             zIndex={5}
           >
             {sliderTopValue}%
-          </SliderMark>
+          </SliderMark> */}
 
           <SliderTrack bg={COLORS.tipTextColor}>
             <SliderFilledTrack
@@ -269,7 +271,7 @@ const LpBaseRateTable: FunctionComponent<{
       </Flex>
       <Flex justify={'center'} mt={5}>
         <Flex alignItems={'center'}>
-          <Button variant='ghost'>-</Button>
+          {/* <Button variant='ghost'>-</Button> */}
           <Slider
             min={BOTTOM_SLIDER_STEPS[0]}
             max={BOTTOM_SLIDER_STEPS[BOTTOM_SLIDER_STEPS.length - 1]}
@@ -293,7 +295,7 @@ const LpBaseRateTable: FunctionComponent<{
               }}
             />
           </Slider>
-          <Button variant='ghost'>+</Button>
+          {/* <Button variant='ghost'>+</Button> */}
         </Flex>
       </Flex>
     </Card>

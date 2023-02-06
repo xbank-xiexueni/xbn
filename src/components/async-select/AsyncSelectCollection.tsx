@@ -1,25 +1,12 @@
 import { Box, Flex } from '@chakra-ui/react'
-import range from 'lodash/range'
-import { components } from 'react-select'
+import useRequest from 'ahooks/lib/useRequest'
+import { useCallback } from 'react'
 import AsyncSelect from 'react-select/async'
 
-import type { GroupBase, Props } from 'react-select'
+import { apiGetActiveCollection } from '@/api'
+import COLORS from '@/utils/Colors'
 
-function generateList(l: number): Promise<Record<string, string>[]> {
-  const res = range(l || 10).map((item) => ({
-    value: item.toString(),
-    label: `${item}- xxn `,
-  }))
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(res)
-    }, 1000)
-  })
-}
-const promiseOptions = (inputValue: string) => {
-  console.log(inputValue, '11111')
-  return generateList(10)
-}
+import type { GroupBase, Props } from 'react-select'
 
 function AsyncSelectCollection<
   Option,
@@ -30,11 +17,33 @@ function AsyncSelectCollection<
 }: Props<Option, IsMulti, Group> & {
   // loadOptions: (inputValue: string) => Promise<Record<string, string>[]>
 }) {
+  const { loading, runAsync: handleFetchActiveCollections } = useRequest(
+    apiGetActiveCollection,
+    {
+      manual: true,
+    },
+  )
+
+  const promiseOptions = useCallback(
+    (inputValue: string) => {
+      console.log(inputValue)
+      return new Promise<any[]>((resolve) => {
+        handleFetchActiveCollections()
+          .then((res: { data: { list: any[] | PromiseLike<any[]> } }) => {
+            resolve(res.data.list)
+          })
+          .catch((err: any) => console.log(err))
+      })
+    },
+    [handleFetchActiveCollections],
+  )
   return (
     <AsyncSelect
-      cacheOptions
-      // defaultOptions
+      isLoading={loading}
+      className='react-select-container'
+      defaultOptions
       // @ts-ignore
+      isOptionSelected={(item, select) => item.id === select}
       loadOptions={promiseOptions}
       theme={(theme) => ({ ...theme, borderRadius: 0, width: 240 })}
       styles={{
@@ -44,21 +53,20 @@ function AsyncSelectCollection<
           borderRadius: 8,
           height: 44,
         }),
-        input: (styles) => ({ ...styles }),
+        option: (baseStyles, state) => ({
+          ...baseStyles,
+          backgroundColor: state.isSelected ? COLORS.secondaryColor : 'white',
+          color: COLORS.textColor,
+        }),
       }}
       components={{
-        Control: ({ children, ...rest1 }) => (
-          <components.Control {...rest1}>
-            {/* <Image src={img} ml={3} /> */}
-            {children}
-          </components.Control>
-        ),
+        IndicatorSeparator: () => null,
       }}
       // @ts-ignore
-      formatOptionLabel={({ label, value }: Option) => (
-        <Flex alignItems={'center'}>
+      formatOptionLabel={({ col2, id }: Option) => (
+        <Flex alignItems={'center'} key={id}>
           <Box w={4} h={4} bg='pink' />
-          {label}----{value}
+          ----{col2}
         </Flex>
       )}
       {...rest}

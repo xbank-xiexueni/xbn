@@ -1,0 +1,27 @@
+.my-table {
+  border-collapse: separate !important;
+  tbody {
+    tr:hover {
+      th:nth-child(1) div {
+        background-color: white;
+      }
+      th div {
+        border-radius: 8px;
+      }
+    }
+  }
+  th {
+    text-transform: initial;
+  }
+}
+
+.cell-fixed-right {
+  box-sizing: border-box;
+  transition: box-shadow 0.3s;
+  content: '';
+  pointer-events: none;
+}
+
+.cell-fixed-right::after {
+  box-shadow: inset -10px 0 8px -8px pink;
+}

@@ -22,7 +22,8 @@ import IconSortASC from '@/assets/icon/icon-sort-up.svg'
 import IconUnSort from '@/assets/icon/icon-unsort.svg'
 
 import EmptyTableComponent from './EmptyTableComponent'
-import './index.css'
+
+import './index.less'
 
 export interface ColumnProps {
   title: string
@@ -46,6 +47,7 @@ export type MyTableProps = TableProps & {
   onSort?: (arg: { direction: string; field: string }) => void
   loading?: boolean
   caption?: () => ReactElement
+  emptyRender?: () => ReactElement
 }
 
 const Index: FunctionComponent<MyTableProps> = ({
@@ -55,6 +57,7 @@ const Index: FunctionComponent<MyTableProps> = ({
   loading = false,
   caption,
   title: tableTitle,
+  emptyRender,
 }) => {
   const [sortParams, setSortParam] = useState({
     direction: '',
@@ -75,7 +78,7 @@ const Index: FunctionComponent<MyTableProps> = ({
             right={0}
             top={0}
             bottom={0}
-            bg='rgba(0,0,0,.2)'
+            bg='rgba(0,0,0,.1)'
             borderRadius={4}
             justify={'center'}
             zIndex={10}
@@ -205,7 +208,7 @@ const Index: FunctionComponent<MyTableProps> = ({
             {isEmpty(data) ? (
               <Tr>
                 <Td colSpan={columns.length}>
-                  <EmptyTableComponent />
+                  {emptyRender ? emptyRender() : <EmptyTableComponent />}
                 </Td>
               </Tr>
             ) : (

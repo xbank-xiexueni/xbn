@@ -1,18 +1,14 @@
 import {
   Box,
   Button,
-  Card,
   Container,
   Flex,
   Heading,
   Image,
-  Tag,
   Text,
-  type BoxProps,
-  type CardProps,
 } from '@chakra-ui/react'
-import { useState, type FunctionComponent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { LpBaseRateTable, Select } from '@/components'
 import AsyncSelectCollection from '@/components/async-select/AsyncSelectCollection'
@@ -23,72 +19,21 @@ import {
   COLLATERALS,
   INITIAL_COLLATERAL,
   INITIAL_TENOR,
+  STEPS_DESCRIPTIONS,
 } from '@/utils/constants'
 
 import IconArrowLeft from '@/assets/icon/icon-arrow-left.svg'
 import IconTime from '@/assets/icon/icon-calendar.svg'
 import IconIntersect from '@/assets/icon/icon-intersect.svg'
 
-const CardWithBg: FunctionComponent<CardProps> = (props) => {
-  return (
-    <Card bg={COLORS.secondaryBgc} borderRadius={'16px'} p={8} {...props} />
-  )
-}
-
-export const DescriptionComponent: FunctionComponent<
-  {
-    data: {
-      step: number
-      title: string
-      text: string
-    }
-  } & BoxProps
-> = ({ data: { step, title, text }, ...rest }) => {
-  return (
-    <Box {...rest}>
-      <Flex mb={5} alignItems='center'>
-        <Tag
-          bg={COLORS.primaryColor}
-          color='white'
-          borderRadius={'50%'}
-          mr={4}
-          w={8}
-          h={8}
-          justifyContent='center'
-        >
-          {step}
-        </Tag>
-        <Heading size={'md'}>{title}</Heading>
-      </Flex>
-      <Text color={COLORS.secondaryTextColor}>{text}</Text>
-    </Box>
-  )
-}
-
-const STEPS_DESCRIPTIONS = [
-  {
-    title: 'Select Collection',
-    text: 'In order to open a new pool we will first Have to determine which FT Collection you will want this pool to represent. You can start searching for any collection currently listed on OpenSea, X2Y2 and LooksRare.',
-  },
-  {
-    title: 'Select Tenor',
-    text: 'Determine the Tenor length for which potential borrowers can open a loan against. We commonly see a 60-days Tenor.',
-  },
-  {
-    title: 'Select COLLATERALS Factor',
-    text: 'Indicate the Colleteral Factor % which will help determine how much liquidity (Ethereum) borrowers can receive against the desired NFT collection. The higher the %, the more liquidity they can pull out of the pool. We typically recommend a 50% COLLATERALS Factor.',
-  },
-  {
-    title: 'Set the interest rate for each loan condition',
-    text: `According to the limit value of the loan conditions set in steps 1 and 2, the system refers to the historical order data to generate a suggested loan interest rate for you, and the funds approved by you under this interest rate are expected to generate income soon.
-If the current loan conditions and suggested interest rates do not meet your expectations, you can adjust the loan interest rate through the big slider below, and all interest rate values in the table will increase or decrease
-You can also use the small sliders on the right and bottom of the table to adjust the impact of changes in the two factors of COLLATERALS fat and loan duration on the interest rate.`,
-  },
-]
+import ApproveEthButton from './components/ApproveEthButton'
+import CardWithBg from './components/CardWithBg'
+import StepDescription from './components/StepDescription'
 
 const Create = () => {
   const navigate = useNavigate()
   // const params = useParams()
+  const { state } = useLocation()
   const [selectCollateral, setSelectCollateral] = useState(INITIAL_COLLATERAL)
   const [selectTenor, setSelectTenor] = useState(INITIAL_TENOR)
 
@@ -128,20 +73,24 @@ const Create = () => {
 
           <CardWithBg mb={8}>
             <Flex justify={'space-between'} alignItems='start'>
-              <DescriptionComponent
+              <StepDescription
                 data={{
                   step: 1,
                   ...STEPS_DESCRIPTIONS[0],
                 }}
               />
-              <AsyncSelectCollection placeholder='Please select' />
+              <AsyncSelectCollection
+                placeholder='Please select'
+                onChange={(e) => console.log(e)}
+                defaultValue={state}
+              />
               {/* {isEmpty(params) ? <InputSearch /> : params.collectionId} */}
             </Flex>
           </CardWithBg>
 
           <CardWithBg mb={8}>
             <Flex justify={'space-between'} alignItems='start'>
-              <DescriptionComponent
+              <StepDescription
                 w={{
                   lg: '50%',
                   md: '100%',
@@ -170,7 +119,7 @@ const Create = () => {
           </CardWithBg>
           <CardWithBg mb={8}>
             <Flex justify={'space-between'} alignItems='start'>
-              <DescriptionComponent
+              <StepDescription
                 w={{
                   lg: '50%',
                   md: '100%',
@@ -210,12 +159,9 @@ You can also use the small sliders on the right and bottom of the table to adjus
             />
           </Box>
           <Flex justify={'center'} mb={10}>
-            <Button
-              variant={'primary'}
-              // onClick={() => navigate('/lend/pools/create/preview')}
-            >
-              Deposit ETH
-            </Button>
+            <ApproveEthButton variant={'primary'} w='240px' h='52px'>
+              Confirm
+            </ApproveEthButton>
           </Flex>
         </Box>
       </Flex>

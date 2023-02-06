@@ -8,6 +8,7 @@ const COLORS = {
   secondaryBgc: '#F3F6F9',
   tipTextColor: '#B5C4D7',
   borderColor: '#E9EDF3',
+  errorColor: '#FF0066',
 }
 
 export default COLORS

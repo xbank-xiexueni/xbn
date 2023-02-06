@@ -15,7 +15,7 @@ import range from 'lodash/range'
 import { useState, type FunctionComponent, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { InputSearch, NftListCard, Select } from '@/components'
+import { InputWithIcon, NftListCard, Select } from '@/components'
 import COLORS from '@/utils/Colors'
 
 import IconChecked from '@/assets/icon/icon-checked.svg'
@@ -97,15 +97,13 @@ const DescriptionComponent: FunctionComponent<{
 }
 
 export const CollectionListItem: FunctionComponent<{
-  data: {
-    ID: any
-  }
+  data: any
   onClick?: () => void
   isActive?: boolean
-}> = ({ data: { ID }, onClick, isActive }) => {
+}> = ({ data: { id, name }, onClick, isActive }) => {
   return (
     <ListItem
-      key={ID}
+      key={id}
       px={4}
       py={3}
       display='flex'
@@ -123,12 +121,7 @@ export const CollectionListItem: FunctionComponent<{
       <Flex alignItems={'center'}>
         <Box w={6} h={6} bg='gray.600' mr={4} />
         <Text fontSize={'sm'}>
-          {ID}
-          {ID}
-          {ID}
-          {ID}
-          {ID}
-          {ID}
+          {name}
           &nbsp;
         </Text>
         <Image src={IconVerifiedFill} />
@@ -136,7 +129,7 @@ export const CollectionListItem: FunctionComponent<{
       {isActive ? (
         <Image src={IconChecked} />
       ) : (
-        <Text fontSize={'sm'}>{ID}</Text>
+        <Text fontSize={'sm'}>{id}</Text>
       )}
     </ListItem>
   )
@@ -170,12 +163,12 @@ const Market = () => {
         <Heading size={'md'} mb={4}>
           Collections
         </Heading>
-        <InputSearch placeholder='Collections...' />
+        <InputWithIcon placeholder='Collections...' />
 
         <List spacing={4} mt={4}>
           {range(10).map((item) => (
             <CollectionListItem
-              data={{ ID: item }}
+              data={{ id: item, name: 'xxxxxxx' }}
               key={item}
               onClick={() => setSelectCollection(item)}
               isActive={selectCollection === item}
@@ -221,7 +214,7 @@ const Market = () => {
 
         <Flex justify={'space-between'} mb={6}>
           <Box w='70%'>
-            <InputSearch />
+            <InputWithIcon />
           </Box>
           <Box w='20%'>
             <Select

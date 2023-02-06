@@ -1,5 +1,21 @@
+import {
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  useDisclosure,
+} from '@chakra-ui/react'
 import { ethers } from 'ethers'
-import { useEffect, useState, createContext, type ReactElement } from 'react'
+import {
+  useEffect,
+  useState,
+  createContext,
+  type ReactElement,
+  useCallback,
+} from 'react'
 
 import { contractABI, contractAddress } from '../utils/constants'
 
@@ -9,6 +25,7 @@ export const TransactionContext = createContext({
   currentAccount: '',
   balance: '',
   getBalanceFromContract: () => {},
+  connectLoading: false,
 })
 
 const { ethereum } = window
@@ -32,6 +49,10 @@ export const TransactionsProvider = ({
 }) => {
   const [currentAccount, setCurrentAccount] = useState('')
   const [balance, setBalance] = useState('')
+
+  const { isOpen, onClose } = useDisclosure()
+
+  const [connectLoading, setConnectLoading] = useState(false)
 
   // const getAllTransactions = async () => {
   //   try {
@@ -71,9 +92,9 @@ export const TransactionsProvider = ({
       console.log('disconnect')
       setCurrentAccount('')
     })
-  }, [])
+  }, [setCurrentAccount])
 
-  const getBalance = async () => {
+  const getBalance = useCallback(async () => {
     if (!currentAccount || !ethereum) return
     const provider = new ethers.providers.Web3Provider(ethereum)
 
@@ -81,9 +102,9 @@ export const TransactionsProvider = ({
       await provider.getBalance(currentAccount)
     ).toString()
     setBalance(currentBalance)
-  }
+  }, [currentAccount])
 
-  const checkIfWalletIsConnect = async () => {
+  const checkIfWalletIsConnect = useCallback(async () => {
     try {
       if (!ethereum) return alert('Please install MetaMask.')
 
@@ -94,44 +115,32 @@ export const TransactionsProvider = ({
 
         // getAllTransactions();
       } else {
+        setCurrentAccount('')
         console.log('No accounts found')
       }
     } catch (error) {
+      setCurrentAccount('')
       console.log(error)
     }
-  }
+  }, [])
 
-  // const checkIfTransactionsExists = async () => {
-  //   try {
-  //     if (ethereum) {
-  //       const transactionsContract = createEthereumContract()
-  //       const currentTransactionCount =
-  //         await transactionsContract.getTransactionCount()
-
-  //       window.localStorage.setItem('transactionCount', currentTransactionCount)
-  //     }
-  //   } catch (error) {
-  //     console.log(error)
-
-  //     throw new Error('No ethereum object')
-  //   }
-  // }
-
-  const connectWallet = async () => {
+  const connectWallet = useCallback(async () => {
     try {
       if (!ethereum) return alert('Please install MetaMask.')
-
+      setConnectLoading(true)
       const accounts = await ethereum.request({
         method: 'eth_requestAccounts',
       })
 
       setCurrentAccount(accounts[0])
+      setConnectLoading(false)
     } catch (error) {
       console.log(error)
+      setConnectLoading(false)
 
       throw new Error('No ethereum object')
     }
-  }
+  }, [])
 
   // const sendTransaction = async () => {
   //   try {
@@ -170,7 +179,7 @@ export const TransactionsProvider = ({
   //   }
   // }
 
-  const getBalanceFromContract = async () => {
+  const getBalanceFromContract = useCallback(async () => {
     try {
       if (!!ethereum) {
         const transactionsContract = createEthereumContract()
@@ -206,12 +215,12 @@ export const TransactionsProvider = ({
 
       throw new Error('No ethereum object')
     }
-  }
+  }, [])
 
   useEffect(() => {
     checkIfWalletIsConnect()
     // checkIfTransactionsExists()
-  }, [])
+  }, [checkIfWalletIsConnect])
 
   return (
     <TransactionContext.Provider
@@ -222,6 +231,7 @@ export const TransactionsProvider = ({
         balance,
         // transactions,
         currentAccount,
+        connectLoading,
         // isLoading,
         // sendTransaction,
         // handleChange,
@@ -230,6 +240,18 @@ export const TransactionsProvider = ({
       }}
     >
       {children}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Modal Title</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text fontWeight='bold' mb='1rem'>
+              You can scroll the content behind the modal
+            </Text>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </TransactionContext.Provider>
   )
 }

@@ -5,7 +5,6 @@ import { Route, Routes, Navigate } from 'react-router-dom'
 const Lend = lazy(() => import('./pages/Lend/Lend'))
 const PoolCreate = lazy(() => import('./pages/Lend/Create'))
 const PoolEdit = lazy(() => import('./pages/Lend/Edit'))
-const PoolCreatePreview = lazy(() => import('./pages/Lend/Preview'))
 
 // buy nfts
 const Market = lazy(() => import('./pages/buy-nfts/Market'))
@@ -28,7 +27,7 @@ function App() {
           }
         />
         <Route
-          path='lend/pools/create/:collectionId?'
+          path='lend/pools/create'
           element={
             <Suspense fallback={<>...</>}>
               <PoolCreate />
@@ -52,14 +51,6 @@ function App() {
           }
         />
 
-        <Route
-          path='lend/pools/create/preview'
-          element={
-            <Suspense fallback={<>...</>}>
-              <PoolCreatePreview />
-            </Suspense>
-          }
-        />
         <Route
           path='lend/loans'
           element={

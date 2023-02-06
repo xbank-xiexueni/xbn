@@ -26,4 +26,4 @@ request.interceptors.response.use((resp) => {
   return resp
 })
 
-export { request }
+export default request

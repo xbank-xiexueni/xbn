@@ -10,310 +10,136 @@ import {
   Text,
   Image,
   Heading,
-  HStack,
   Tag,
   List,
+  useDisclosure,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import debounce from 'lodash/debounce'
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type FunctionComponent,
-  type ReactElement,
-} from 'react'
+import isEmpty from 'lodash/isEmpty'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
+import { apiGetActiveCollection, apiGetMyPools } from '@/api'
 import ImgLend from '@/assets/LEND.png'
-import { InputSearch, Pagination, Table } from '@/components'
-import type { ColumnProps, MyTableProps } from '@/components/Table'
+import {
+  ConnectWalletModal,
+  InputWithIcon,
+  Pagination,
+  Table,
+} from '@/components'
+import type { ColumnProps } from '@/components/Table'
 // import { TransactionContext } from '@/context/TransactionContext'
+import EmptyTableComponent from '@/components/Table/EmptyTableComponent'
+import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
-import { generateList } from '@/utils/utils'
 
+import IconChecked from '@/assets/icon/icon-checked.svg'
 import IconEth from '@/assets/icon/icon-eth.svg'
-import IconPlus from '@/assets/icon/icon-plus.svg'
 import IconSearch from '@/assets/icon/icon-search.svg'
 
 import { CollectionListItem } from '../buy-nfts/Market'
 
-const DescriptionComponent: FunctionComponent<{
-  data: {
-    titleImage?: string
-    title?: string | ReactElement
-    description?: string | ReactElement
-    img?: string
-    keys?: {
-      value: string | ReactElement
-      label: string | ReactElement
-    }[]
-  }
-}> = ({ data: { title = '', description = '', img = '', keys = [] } }) => {
-  return (
-    <Flex
-      justify={{
-        sm: 'center',
-        md: 'space-between',
-      }}
-      alignItems='center'
-      wrap='wrap'
-    >
-      <Box
-        maxW={{
-          md: '40%',
-          xl: '50%',
-          sm: '100%',
-        }}
-      >
-        {typeof title === 'string' ? (
-          <Heading fontSize={'6xl'}>{title}</Heading>
-        ) : (
-          title
-        )}
-        {typeof description === 'string' ? (
-          <Text
-            color={COLORS.secondaryTextColor}
-            mt={2}
-            mb={10}
-            fontSize={'xl'}
-            fontWeight='medium'
-          >
-            {description}
-          </Text>
-        ) : (
-          description
-        )}
-
-        <HStack spacing={10}>
-          {keys.map(({ label, value }) => (
-            <Box key={`${label}`}>
-              {typeof value === 'string' ? (
-                <Heading fontSize={'3xl'}>{value}</Heading>
-              ) : (
-                value
-              )}
-              {typeof label === 'string' ? (
-                <Text color={COLORS.infoTextColor}>{label}</Text>
-              ) : (
-                label
-              )}
-            </Box>
-          ))}
-        </HStack>
-      </Box>
-      <Image
-        src={img}
-        w={{
-          sm: '100%',
-          md: '440px',
-        }}
-      />
-    </Flex>
-  )
-}
-
-const OpenLoansTables: FunctionComponent<{
-  tables: MyTableProps[]
-}> = ({ tables }) => {
-  return (
-    <Box>
-      {tables?.map((item) => (
-        <Table {...item} key={JSON.stringify(item)} />
-      ))}
-    </Box>
-  )
-}
-
-const column1: ColumnProps[] = [
-  {
-    title: 'Collection',
-    dataIndex: 'col1',
-    key: 'col1',
-    align: 'left',
-    render: (_, value) => (
-      <Flex alignItems={'center'} gap={2}>
-        <Box w={10} h={10} bg='pink' borderRadius={4} />
-        <Text>{value}</Text>
-      </Flex>
-    ),
-  },
-  {
-    title: 'Est. Floor*',
-    dataIndex: 'col2',
-    key: 'col2',
-  },
-  {
-    title: 'TVL (USD)',
-    dataIndex: 'col3',
-    key: 'col3',
-    sortable: true,
-  },
-  {
-    title: 'Collateral Factor',
-    dataIndex: 'col4',
-    key: 'col4',
-  },
-  {
-    title: 'Interest',
-    dataIndex: 'col5',
-    key: 'Interest',
-  },
-  {
-    title: 'Trade',
-    dataIndex: 'ID',
-    key: 'ID',
-    align: 'right',
-    thAlign: 'right',
-    fixed: 'right',
-    render: (_, id) => {
-      return (
-        <Flex>
-          <Link to={`/lend/pools/create/${id}`}>
-            <Text>Supply</Text>
-          </Link>
-        </Flex>
-      )
-    },
-  },
-]
-
-const column2: ColumnProps[] = [
-  {
-    title: 'Collection',
-    dataIndex: 'col1',
-    key: 'col1',
-    align: 'left',
-    render: (_, value) => (
-      <Flex alignItems={'center'} gap={2}>
-        <Box w={10} h={10} bg='pink' borderRadius={4} />
-        <Text>{value}</Text>
-      </Flex>
-    ),
-  },
-  {
-    title: 'Est. Floor*',
-    dataIndex: 'col2',
-    key: 'col2',
-  },
-  {
-    title: 'TVL (USD)',
-    dataIndex: 'col3',
-    key: 'col3',
-    sortable: true,
-  },
-  {
-    title: 'Collateral Factor',
-    dataIndex: 'col4',
-    key: 'col4',
-  },
-  {
-    title: 'Tenor',
-    dataIndex: 'col5',
-    key: 'col5',
-  },
-  {
-    title: 'Interest',
-    dataIndex: 'col6',
-    key: 'col6',
-  },
-  { title: 'Loans', dataIndex: 'col7', key: 'col7' },
-  {
-    title: '',
-    dataIndex: 'ID',
-    key: 'ID',
-    align: 'right',
-    fixed: 'right',
-    thAlign: 'right',
-    render: (_, id) => {
-      return (
-        <Flex alignItems='center' gap={2}>
-          <Link to=''>
-            <Text color={COLORS.secondaryTextColor}>Details</Text>
-          </Link>
-          <Link to={`/lend/pools/edit/${id}`}>
-            <Text
-              color={COLORS.primaryColor}
-              py={3}
-              px={4}
-              borderRadius={8}
-              bg='white'
-            >
-              Manage
-            </Text>
-          </Link>
-        </Flex>
-      )
-    },
-  },
-]
-
-const column3: ColumnProps[] = [
-  {
-    title: 'Asset',
-    dataIndex: 'col1',
-    key: 'col1',
-    align: 'left',
-    render: (_, value) => (
-      <Flex alignItems={'center'} gap={2}>
-        <Box w={10} h={10} bg='pink' borderRadius={4} />
-        <Text>{value}</Text>
-      </Flex>
-    ),
-  },
-  {
-    title: 'Lender',
-    dataIndex: 'col2',
-    key: 'col2',
-  },
-  {
-    title: 'Borrower',
-    dataIndex: 'col3',
-    key: 'col3',
-  },
-  {
-    title: 'Loan value',
-    dataIndex: 'col4',
-    key: 'col4',
-  },
-  {
-    title: 'Duration',
-    dataIndex: 'col5',
-    key: 'col5',
-  },
-  {
-    title: 'Interest',
-    dataIndex: 'col6',
-    key: 'col6',
-  },
-]
+import AllPoolsDescription from './components/AllPoolsDescription'
+import OpenLoansTables from './components/OpenLoansTables'
+import { activeCollectionColumns, loansForLendColumns } from './constants'
 
 const Lend = () => {
-  // const {
-  //   currentAccount,
-  //   connectWallet,
-  //   getBalance,
-  //   balance,
-  //   getBalanceFromContract,
-  // } = useContext(TransactionContext)
-  const [showSearch, setShowSearch] = useState(false)
-  const {
-    data: activeCollectionList,
-    loading: loading1,
-    runAsync: runActiveCollectionsAsync,
-  } = useRequest(() => generateList(10))
+  const { currentAccount } = useContext(TransactionContext)
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const interceptFn = useCallback(
+    (fn?: () => void) => {
+      // 判断是否连接钱包
+      if (!currentAccount) {
+        onOpen()
+        return
+      }
+      if (fn) {
+        fn()
+      }
+    },
+    [currentAccount, onOpen],
+  )
 
-  const {
-    data: myPoolsList,
-    loading: loading2,
-    runAsync: runMyPoolsAsync,
-  } = useRequest(() => generateList(20))
+  const [showSearch, setShowSearch] = useState(false)
+
+  // active collections
+  const [activeCollectionData, setActiveCollectionData] = useState({
+    list: [],
+    meta: {
+      current: 1,
+      total: 0,
+    },
+  })
+  const { loading: loading1, run: handleFetchActiveCollections } = useRequest(
+    apiGetActiveCollection,
+    {
+      onSuccess: (data: {
+        data: { list: any; meta: { pageNo: any; totalRecord: any } }
+      }) => {
+        setActiveCollectionData({
+          list: data?.data?.list,
+          meta: {
+            current: data?.data?.meta?.pageNo,
+            total: data?.data?.meta?.totalRecord,
+          },
+        })
+      },
+    },
+  )
+  const [activeCollectionSearch, setSearchForActiveCollection] = useState('')
+  const handleSearchActiveCollections = useMemo(() => {
+    const searchFn = async (value: string) => {
+      if (value) {
+        handleFetchActiveCollections()
+      }
+    }
+    return debounce(searchFn, 1000)
+  }, [handleFetchActiveCollections])
+
+  // my pools
+  const [myPoolsData, setMyPoolsData] = useState({
+    list: [],
+  })
+
+  const { loading: loading2, runAsync: handleFetchMyPools } = useRequest(
+    apiGetMyPools,
+    {
+      onSuccess: (data: { data: { list: any } }) => {
+        setMyPoolsData({
+          list: data?.data?.list,
+        })
+      },
+      ready: !!currentAccount,
+    },
+  )
+  const [myPoolsSearch, setSearchForMyPools] = useState('')
+  const handleSearchMyPools = useMemo(() => {
+    const searchFn = async (value: string) => {
+      if (value) {
+        handleFetchMyPools()
+      }
+    }
+    return debounce(searchFn, 1000)
+  }, [handleFetchMyPools])
+
+  // open loans
+  // 左侧 collections
+  const [allMyPoolsList, setAllMyPoolsList] = useState([])
+  const {} = useRequest(apiGetMyPools, {
+    onSuccess: (data: { data: { list: any } }) => {
+      setAllMyPoolsList(data?.data?.list)
+    },
+    ready: !!currentAccount,
+  })
+  // 三个表格的请求
+
+  // -1 代表全选
+  const [selectKeyForOpenLoans, setSelectKeyForOpenLoans] = useState(-1)
 
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const [tabKey, setTabKey] = useState<0 | 1 | 2>(0)
-  const [searchValue, setSearchValue] = useState('')
 
   useEffect(() => {
     setTabKey(() => {
@@ -321,45 +147,103 @@ const Lend = () => {
         case '/lend/pools':
           return 0
         case '/lend/my-pools':
+          interceptFn()
           return 1
         case '/lend/loans':
+          interceptFn()
           return 2
         default:
           return 0
       }
     })
-  }, [pathname])
-
-  const handleSearch = useCallback(
-    (value: string) => {
-      if (!value) {
-        return
-      }
-      if (tabKey === 0) {
-        runActiveCollectionsAsync()
-        // 搜索 activeCollections
-      }
-      if (tabKey === 1) {
-        // 搜索 my pools
-        runMyPoolsAsync()
-      }
-    },
-    [tabKey, runActiveCollectionsAsync, runMyPoolsAsync],
-  )
-
-  const debounceHandleSearch = useMemo(() => {
-    return debounce(handleSearch, 1000)
-  }, [handleSearch])
+  }, [pathname, interceptFn])
 
   useEffect(() => {
-    debounceHandleSearch(searchValue)
-  }, [searchValue, debounceHandleSearch])
+    setSearchForActiveCollection('')
+    setSearchForMyPools('')
+  }, [])
+
+  const column2: ColumnProps[] = [
+    {
+      title: 'Collection',
+      dataIndex: 'col1',
+      key: 'col1',
+      align: 'left',
+      render: (_, value) => (
+        <Flex alignItems={'center'} gap={2}>
+          <Box w={10} h={10} bg='pink' borderRadius={4} />
+          <Text>{value}</Text>
+        </Flex>
+      ),
+    },
+    {
+      title: 'Est. Floor*',
+      dataIndex: 'col2',
+      key: 'col2',
+    },
+    {
+      title: 'TVL (USD)',
+      dataIndex: 'col3',
+      key: 'col3',
+      sortable: true,
+    },
+    {
+      title: 'Collateral Factor',
+      dataIndex: 'col4',
+      key: 'col4',
+    },
+    {
+      title: 'Tenor',
+      dataIndex: 'col5',
+      key: 'col5',
+    },
+    {
+      title: 'Interest',
+      dataIndex: 'col6',
+      key: 'col6',
+    },
+    { title: 'Loans', dataIndex: 'col7', key: 'col7' },
+    {
+      title: '',
+      dataIndex: 'id',
+      key: 'id',
+      align: 'right',
+      fixed: 'right',
+      thAlign: 'right',
+      render: (_, id) => {
+        return (
+          <Flex alignItems='center' gap={2}>
+            <Text
+              color={COLORS.secondaryTextColor}
+              onClick={() => {
+                navigate('/lend/loans')
+                setSelectKeyForOpenLoans(id as number)
+              }}
+            >
+              Details
+            </Text>
+            <Link to={`/lend/pools/edit/${id}`}>
+              <Text
+                color={COLORS.primaryColor}
+                py={3}
+                px={4}
+                borderRadius={8}
+                bg='white'
+              >
+                Manage
+              </Text>
+            </Link>
+          </Flex>
+        )
+      },
+    },
+  ]
 
   return (
     <>
       {/* <Button onClick={getBalanceFromContract}>调用啦</Button> */}
       <Box my={10}>
-        <DescriptionComponent
+        <AllPoolsDescription
           data={{
             img: ImgLend,
             title: 'Lend',
@@ -392,7 +276,6 @@ const Lend = () => {
         index={tabKey}
         position='relative'
         onChange={(key) => {
-          setSearchValue('')
           switch (key) {
             case 0:
               navigate('/lend/pools')
@@ -411,11 +294,18 @@ const Lend = () => {
       >
         {tabKey !== 2 && (
           <Flex position={'absolute'} right={0} top={0} gap={4}>
-            {showSearch ? (
-              <InputSearch
-                value={searchValue}
+            {showSearch || isEmpty(activeCollectionData?.list) ? (
+              <InputWithIcon
+                value={tabKey === 0 ? activeCollectionSearch : myPoolsSearch}
                 onChange={(e) => {
-                  setSearchValue(e.target.value)
+                  if (tabKey === 0) {
+                    setSearchForActiveCollection(e.target.value)
+                    handleSearchActiveCollections(e.target.value)
+                  }
+                  if (tabKey === 1) {
+                    setSearchForMyPools(e.target.value)
+                    handleSearchMyPools(e.target.value)
+                  }
                 }}
               />
             ) : (
@@ -434,12 +324,13 @@ const Lend = () => {
                 <Image src={IconSearch} />
               </Flex>
             )}
-
-            {tabKey === 0 && (
+            {!isEmpty(activeCollectionData?.list) && (
               <Button
                 variant={'secondary'}
                 minW='200px'
-                onClick={() => navigate('/lend/pools/create')}
+                onClick={() =>
+                  interceptFn(() => navigate('/lend/pools/create'))
+                }
               >
                 + Creative new pool
               </Button>
@@ -452,7 +343,6 @@ const Lend = () => {
             color: COLORS.primaryColor,
             fontWeight: 'bold',
           }}
-          borderBottomWidth={1}
         >
           <Tab
             pt={4}
@@ -460,7 +350,7 @@ const Lend = () => {
             pb={5}
             _selected={{
               color: COLORS.primaryColor,
-              borderBottomWidth: 1,
+              borderBottomWidth: 2,
               borderColor: COLORS.primaryColor,
             }}
             fontWeight='bold'
@@ -473,7 +363,7 @@ const Lend = () => {
             pb={5}
             _selected={{
               color: COLORS.primaryColor,
-              borderBottomWidth: 1,
+              borderBottomWidth: 2,
               borderColor: COLORS.primaryColor,
             }}
             fontWeight='bold'
@@ -486,7 +376,7 @@ const Lend = () => {
               fontSize={'xs'}
               h={5}
             >
-              {myPoolsList?.length}
+              {myPoolsData?.list?.length}
             </Tag>
           </Tab>
           <Tab
@@ -495,7 +385,7 @@ const Lend = () => {
             pb={5}
             _selected={{
               color: COLORS.primaryColor,
-              borderBottomWidth: 1,
+              borderBottomWidth: 2,
               borderColor: COLORS.primaryColor,
             }}
             fontWeight='bold'
@@ -508,12 +398,45 @@ const Lend = () => {
           <TabPanel p={0}>
             <Table
               loading={loading1}
-              columns={column1}
-              data={activeCollectionList || []}
-              caption={() => <Pagination total={123} />}
+              columns={activeCollectionColumns}
+              data={activeCollectionData?.list || []}
+              caption={() =>
+                isEmpty(activeCollectionData?.list) ? (
+                  <></>
+                ) : (
+                  <Pagination
+                    total={activeCollectionData?.meta?.total}
+                    current={activeCollectionData.meta.current}
+                    onChange={(page) => {
+                      console.log('aaaaaaaaaaaa')
+                      console.log('🚀 ~ file: Lend.tsx:557 ~ Lend ~ page', page)
+                      handleFetchActiveCollections()
+                    }}
+                  />
+                )
+              }
               onSort={(args) => {
                 console.log(args)
-                runActiveCollectionsAsync()
+                handleFetchActiveCollections()
+              }}
+              emptyRender={() => {
+                return (
+                  <EmptyTableComponent
+                    action={() => {
+                      return (
+                        <Button
+                          variant={'secondary'}
+                          minW='200px'
+                          onClick={() =>
+                            interceptFn(() => navigate('/lend/pools/create'))
+                          }
+                        >
+                          + Creative new pool
+                        </Button>
+                      )
+                    }}
+                  />
+                )
               }}
             />
           </TabPanel>
@@ -521,22 +444,29 @@ const Lend = () => {
             <Table
               loading={loading2}
               columns={column2}
-              data={myPoolsList || []}
-              caption={() => (
-                <Button
-                  variant={'primary'}
-                  alignItems='center'
-                  leftIcon={<Image src={IconPlus} />}
-                  onClick={() => {
-                    navigate('/lend/pools/create')
-                  }}
-                >
-                  New Pool
-                </Button>
-              )}
+              data={myPoolsData?.list || []}
               onSort={(args) => {
                 console.log(args, tabKey)
-                runMyPoolsAsync()
+                handleFetchMyPools()
+              }}
+              emptyRender={() => {
+                return (
+                  <EmptyTableComponent
+                    action={() => {
+                      return (
+                        <Button
+                          variant={'secondary'}
+                          minW='200px'
+                          onClick={() =>
+                            interceptFn(() => navigate('/lend/pools/create'))
+                          }
+                        >
+                          + Creative new pool
+                        </Button>
+                      )
+                    }}
+                  />
+                )
               }}
             />
           </TabPanel>
@@ -554,15 +484,39 @@ const Lend = () => {
                 <Heading size={'md'} mb={4}>
                   Collections
                 </Heading>
-                <InputSearch placeholder='Collections...' />
+                <InputWithIcon placeholder='Collections...' />
 
                 <List spacing={4} mt={4}>
-                  {(myPoolsList || []).map((item) => (
+                  <Flex
+                    justify={'space-between'}
+                    py={3}
+                    px={4}
+                    alignItems='center'
+                    borderRadius={8}
+                    border={`1px solid ${COLORS.borderColor}`}
+                    cursor='pointer'
+                    onClick={() => setSelectKeyForOpenLoans(-1)}
+                    bg={
+                      selectKeyForOpenLoans === -1
+                        ? COLORS.secondaryColor
+                        : 'white'
+                    }
+                  >
+                    <Text fontSize={'sm'} fontWeight='700'>
+                      All my Collections
+                    </Text>
+                    {selectKeyForOpenLoans === -1 ? (
+                      <Image src={IconChecked} />
+                    ) : (
+                      <Text fontSize={'sm'}>{myPoolsData.list?.length}</Text>
+                    )}
+                  </Flex>
+                  {allMyPoolsList.map((item: any) => (
                     <CollectionListItem
-                      data={{ ID: item.ID }}
+                      data={{ ...item }}
                       key={JSON.stringify(item)}
-                      // onClick={() => setSelectCollection(item)}
-                      // isActive={selectCollection === item}
+                      onClick={() => setSelectKeyForOpenLoans(item.id)}
+                      isActive={selectKeyForOpenLoans === item.id}
                     />
                   ))}
                 </List>
@@ -576,46 +530,20 @@ const Lend = () => {
                 <OpenLoansTables
                   tables={[
                     {
-                      title: 'Current Loans as Borrower',
+                      title: 'Current Loans as Lender',
                       // loading: loading,
-                      columns: [
-                        ...column3,
-                        // {
-                        //   title: '',
-                        //   dataIndex: 'ID',
-                        //   key: 'ID',
-                        //   fixed: 'right',
-                        //   render: () => (
-                        //     <Flex alignItems='center'>
-                        //       <Link to=''>
-                        //         <Text color={COLORS.secondaryTextColor}>
-                        //           Details
-                        //         </Text>
-                        //       </Link>
-                        //       <Button
-                        //         ml={1}
-                        //         variant={'primaryLink'}
-                        //         // onClick={() => {
-                        //         //   navigate(`/lend/pools/edit/${id}`)
-                        //         // }}
-                        //       >
-                        //         Repay
-                        //       </Button>
-                        //     </Flex>
-                        //   ),
-                        // },
-                      ],
+                      columns: loansForLendColumns,
 
                       data: [],
                     },
                     {
-                      title: 'Previous Loans as Borrower(Paid off)',
-                      columns: [...column3],
+                      title: 'Previous Loans as Lender(Paid off)',
+                      columns: loansForLendColumns,
                       data: [],
                     },
                     {
-                      title: 'Previous Loans as Borrower(Overdue)',
-                      columns: [...column3],
+                      title: 'Previous Loans as Lender(Overdue)',
+                      columns: loansForLendColumns,
                       data: [],
                     },
                   ]}
@@ -625,6 +553,8 @@ const Lend = () => {
           </TabPanel>
         </TabPanels>
       </Tabs>
+
+      <ConnectWalletModal visible={isOpen} handleClose={onClose} />
     </>
   )
 }

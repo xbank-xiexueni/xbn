@@ -37,6 +37,7 @@ function CustomSelect<
             {children}
           </components.Control>
         ),
+        IndicatorSeparator: () => null,
       }}
     />
   )
