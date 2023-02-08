@@ -22,7 +22,7 @@ import IconSortASC from '@/assets/icon/icon-sort-up.svg'
 import IconUnSort from '@/assets/icon/icon-unsort.svg'
 
 import { LoadingComponent, EmptyTableComponent } from '..'
-import '../table/index.less'
+import '../table/table.less'
 
 export interface ColumnProps {
   title: string
