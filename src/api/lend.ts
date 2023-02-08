@@ -11,3 +11,9 @@ export const apiGetMyPools = async (params?: any) => {
     params,
   })
 }
+
+export const apiGetLpLoans = async (params: any) => {
+  return await request.get('/api/lp/loans', {
+    params,
+  })
+}

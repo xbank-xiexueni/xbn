@@ -16,11 +16,14 @@ import {
   Highlight,
   VStack,
   Divider,
+  useDisclosure,
 } from '@chakra-ui/react'
 import range from 'lodash/range'
-import { useState } from 'react'
+import { useCallback, useContext, useState } from 'react'
 
 import TestImage from '@/assets/IMAGE.png'
+import { ConnectWalletModal } from '@/components'
+import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
 import { COLLATERALS } from '@/utils/constants'
 
@@ -34,6 +37,21 @@ import PlanItem from './components/PlanItem'
 import RadioCard from './components/RadioCard'
 
 const NftAssetDetail = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { currentAccount } = useContext(TransactionContext)
+  const interceptFn = useCallback(
+    (fn?: () => void) => {
+      // 判断是否连接钱包
+      if (!currentAccount) {
+        onOpen()
+        return
+      }
+      if (fn) {
+        fn()
+      }
+    },
+    [currentAccount, onOpen],
+  )
   // const { id } = useParams()
   const [sliderValue, setSliderValue] = useState(COLLATERALS[4])
   const [
@@ -65,6 +83,13 @@ const NftAssetDetail = () => {
     onChange: console.log,
   })
   const installmentGroup = getInstallmentRootProps()
+
+  const handleClickPay = useCallback(() => {
+    interceptFn(() => {
+      //
+      console.log('点击 down payment')
+    })
+  }, [interceptFn])
 
   return (
     <SimpleGrid minChildWidth='600px' spacing='40px' mt={8} pb='100px'>
@@ -299,10 +324,18 @@ const NftAssetDetail = () => {
         </LabelComponent>
 
         {/* 按钮 */}
-        <Button variant={'primary'} display='flex' h='60px' w='100%'>
+        <Button
+          variant={'primary'}
+          display='flex'
+          h='60px'
+          w='100%'
+          onClick={handleClickPay}
+        >
           <Text fontWeight={'400'}>Down payment</Text>&nbsp;20 ETH
         </Button>
       </Box>
+
+      <ConnectWalletModal visible={isOpen} handleClose={onClose} />
     </SimpleGrid>
   )
 }

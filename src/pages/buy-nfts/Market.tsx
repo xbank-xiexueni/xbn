@@ -9,11 +9,15 @@ import {
   SimpleGrid,
   Highlight,
 } from '@chakra-ui/react'
-import range from 'lodash/range'
-import { useState } from 'react'
+import useRequest from 'ahooks/lib/useRequest'
+import isEmpty from 'lodash/isEmpty'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { apiGetActiveCollection } from '@/api'
+import { apiGetCollectionDetail } from '@/api/buyer'
 import {
+  LoadingComponent,
   // SearchInput,
   MarketNftListCard,
   // Select
@@ -29,6 +33,78 @@ const Market = () => {
   const navigate = useNavigate()
 
   const [selectCollection, setSelectCollection] = useState<number>()
+  const { data: collectionData, loading: collectionLoading } = useRequest(
+    apiGetActiveCollection,
+    {
+      onSuccess: (data) => {
+        if (isEmpty(data?.data?.list)) {
+          return
+        }
+        setSelectCollection(data.data.list[0].id)
+      },
+    },
+  )
+
+  const { data: detailData, loading: detailLoading } = useRequest(
+    () => apiGetCollectionDetail(selectCollection as number),
+    {
+      ready: !!selectCollection,
+      refreshDeps: [selectCollection],
+    },
+  )
+
+  console.log(detailData)
+  const descriptionData = useMemo(() => {
+    const detail = detailData?.data
+    if (isEmpty(detail)) {
+      return {}
+    }
+    const { name, description } = detail
+    return {
+      img: TEST_IMG,
+      title: name,
+      isVerified: true,
+      description,
+      keys: [
+        {
+          label: 'Floor price',
+          value: '15.18',
+          isEth: true,
+        },
+        {
+          label: 'Min DP',
+          value: '9.32',
+          isEth: true,
+        },
+        {
+          label: (
+            <Text
+              fontSize={'sm'}
+              fontWeight='500'
+              color={COLORS.secondaryTextColor}
+            >
+              <Highlight
+                styles={{ color: COLORS.errorColor, fontWeight: 500 }}
+                query='-900%'
+              >
+                24h -900%
+              </Highlight>
+            </Text>
+          ),
+          value: '85.86',
+          isEth: true,
+        },
+        {
+          label: 'supply',
+          value: '10,0000',
+        },
+        {
+          label: 'Listing',
+          value: '700',
+        },
+      ],
+    }
+  }, [detailData])
   return (
     <Grid
       templateAreas={`"header header"
@@ -58,65 +134,21 @@ const Market = () => {
         </Heading>
         {/* <SearchInput placeholder='Collections...' /> */}
 
-        <List spacing={4} mt={4}>
-          {range(10).map((item) => (
+        <List spacing={4} mt={4} position='relative'>
+          <LoadingComponent loading={collectionLoading} />
+
+          {collectionData?.data?.list.map((item: any) => (
             <CollectionListItem
-              data={{ id: item, name: 'xxxxxxx' }}
-              key={item}
-              onClick={() => setSelectCollection(item)}
-              isActive={selectCollection === item}
+              data={{ id: item.id, name: item.col2 }}
+              key={item.id}
+              onClick={() => setSelectCollection(item.id)}
+              isActive={selectCollection === item.id}
             />
           ))}
         </List>
       </GridItem>
-      <GridItem area={'main'}>
-        <CollectionDescription
-          data={{
-            img: TEST_IMG,
-            title: 'Lend',
-            isVerified: true,
-            description:
-              'Provide funds to111111 11111 11111 11111 1111 111 111 11111 11111 111111 1111 111111 111111111 1111 1111 support NFT installment, obtain interest or collateral.',
-            keys: [
-              {
-                label: 'Floor price',
-                value: '15.18',
-                isEth: true,
-              },
-              {
-                label: 'Min DP',
-                value: '9.32',
-                isEth: true,
-              },
-              {
-                label: (
-                  <Text
-                    fontSize={'sm'}
-                    fontWeight='500'
-                    color={COLORS.secondaryTextColor}
-                  >
-                    <Highlight
-                      styles={{ color: COLORS.errorColor, fontWeight: 500 }}
-                      query='-900%'
-                    >
-                      24h -900%
-                    </Highlight>
-                  </Text>
-                ),
-                value: '85.86',
-                isEth: true,
-              },
-              {
-                label: 'supply',
-                value: '10,0000',
-              },
-              {
-                label: 'Listing',
-                value: '700',
-              },
-            ],
-          }}
-        />
+      <GridItem area={'main'} position='relative'>
+        <CollectionDescription loading={detailLoading} data={descriptionData} />
 
         {/* <Flex justify={'space-between'} mb={6}>
           <Box w='70%'>
@@ -131,11 +163,12 @@ const Market = () => {
             ]}
           />
         </Flex> */}
-        <SimpleGrid minChildWidth='233px' spacing={'16px'}>
-          {range(15).map((item) => (
+        <SimpleGrid minChildWidth='233px' spacing={'16px'} position='relative'>
+          <LoadingComponent loading={detailLoading} />
+          {detailData?.data?.list?.map((item: any) => (
             <MarketNftListCard
               data={{}}
-              key={item}
+              key={item.id}
               onClick={() => {
                 navigate(`/asset/${item}`)
               }}

@@ -1,17 +1,31 @@
-import { Box, Heading, List, Flex, Text, Image } from '@chakra-ui/react'
-import { useState } from 'react'
+import {
+  Box,
+  Heading,
+  List,
+  Flex,
+  Text,
+  Image,
+  Highlight,
+  useDisclosure,
+} from '@chakra-ui/react'
+import useRequest from 'ahooks/lib/useRequest'
+import groupBy from 'lodash/groupBy'
+import isEmpty from 'lodash/isEmpty'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 // import { useNavigate } from 'react-router-dom'
 
 // import { SearchInput } from '@/components'
-import { LoadingComponent, TableList } from '@/components'
+import { apiGetBuyerLoans } from '@/api/buyer'
+import { ConnectWalletModal, LoadingComponent, TableList } from '@/components'
 import type { ColumnProps } from '@/components/table/Table'
+import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
 
 import IconChecked from '@/assets/icon/icon-checked.svg'
 
 import CollectionListItem from './components/CollectionListItem'
 
-export const loansForLendColumns: ColumnProps[] = [
+export const loansForBuyerColumns: ColumnProps[] = [
   {
     title: 'Asset',
     dataIndex: 'col1',
@@ -58,8 +72,62 @@ export const loansForLendColumns: ColumnProps[] = [
 
 const Loans = () => {
   // const navigate = useNavigate()
+  const { currentAccount } = useContext(TransactionContext)
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const interceptFn = useCallback(
+    (fn?: () => void) => {
+      // 判断是否连接钱包
+      if (!currentAccount) {
+        onOpen()
+        return
+      }
+      if (fn) {
+        fn()
+      }
+    },
+    [currentAccount, onOpen],
+  )
 
-  const [selectCollection, setSelectCollection] = useState<number>()
+  useEffect(() => interceptFn(), [interceptFn])
+
+  const [selectCollection, setSelectCollection] = useState<number>(-1)
+
+  // -1 代表全选
+
+  const { loading, data } = useRequest(apiGetBuyerLoans, {
+    ready: !!currentAccount,
+    debounceWait: 100,
+  })
+
+  const currentCollectionLoans = useMemo(() => {
+    return data?.data?.list?.filter(
+      (item: any) =>
+        item.collectionId === selectCollection || selectCollection === -1,
+    )
+  }, [data, selectCollection])
+
+  const statuedLoans = useMemo(
+    () => groupBy(currentCollectionLoans, 'status'),
+    [currentCollectionLoans],
+  )
+
+  const collectionList = useMemo(() => {
+    const arr = data?.data?.list || []
+    if (isEmpty(arr)) {
+      return []
+    }
+    const res: { id: number; name: string }[] = []
+    arr.forEach((element: any) => {
+      if (isEmpty(res.find((i) => i.id === element.collectionId))) {
+        res.push({
+          id: element.collectionId,
+          name: element.collectionName,
+        })
+      }
+    })
+    return res
+  }, [data])
+
   return (
     <Box>
       <Heading size={'2xl'} my='60px'>
@@ -91,11 +159,10 @@ const Loans = () => {
               borderRadius={8}
               border={`1px solid ${COLORS.borderColor}`}
               cursor='pointer'
-              // bg={
-              //   selectKeyForOpenLoans === -1
-              //     ? COLORS.secondaryColor
-              //     : 'white'
-              // }
+              onClick={() => {
+                setSelectCollection(-1)
+              }}
+              bg={selectCollection === -1 ? COLORS.secondaryColor : 'white'}
             >
               <Text fontSize={'sm'} fontWeight='700'>
                 All my Collections
@@ -106,10 +173,10 @@ const Loans = () => {
                 <Text fontSize={'sm'}>{10}</Text>
               )}
             </Flex>
-            {[{ id: 1 }].map((item: any) => (
+            {collectionList.map((item: any) => (
               <CollectionListItem
                 data={{ ...item }}
-                key={JSON.stringify(item)}
+                key={item.id}
                 onClick={() => setSelectCollection(item.id)}
                 isActive={selectCollection === item.id}
               />
@@ -125,26 +192,92 @@ const Loans = () => {
           <TableList
             tables={[
               {
-                title: 'Current Loans as Borrower',
+                tableTitle: () => (
+                  <Heading size={'md'} mt={6}>
+                    Current Loans as Borrower
+                  </Heading>
+                ),
                 // loading: loading,
-                columns: loansForLendColumns,
+                columns: [
+                  ...loansForBuyerColumns,
+                  {
+                    title: 'next payment date',
+                    dataIndex: 'col8',
+                    key: 'col8',
+                  },
+                  {
+                    title: 'next payment date',
+                    dataIndex: 'col9',
+                    key: 'col9',
+                  },
+                  {
+                    title: '',
+                    dataIndex: 'id',
+                    key: 'id',
+                    render: () => (
+                      <Box px={3} bg='white' borderRadius={8}>
+                        <Text
+                          color={COLORS.primaryColor}
+                          fontSize='sm'
+                          fontWeight={'700'}
+                        >
+                          Repay
+                        </Text>
+                      </Box>
+                    ),
+                  },
+                ],
 
-                data: [],
+                loading: loading,
+                data: statuedLoans[1],
+                key: '1',
               },
               {
-                title: 'Previous Loans as Borrower(Paid off)',
-                columns: loansForLendColumns,
-                data: [],
+                tableTitle: () => (
+                  <Heading size={'md'} mt={6}>
+                    <Highlight
+                      styles={{
+                        fontSize: '18px',
+                        fontWeight: 500,
+                        color: COLORS.secondaryTextColor,
+                      }}
+                      query='(Paid Off)'
+                    >
+                      Previous Loans as Borrower(Paid Off)
+                    </Highlight>
+                  </Heading>
+                ),
+
+                columns: loansForBuyerColumns,
+                loading: loading,
+                data: statuedLoans[2],
+                key: '2',
               },
               {
-                title: 'Previous Loans as Borrower(Overdue)',
-                columns: loansForLendColumns,
-                data: [],
+                tableTitle: () => (
+                  <Heading size={'md'} mt={6}>
+                    <Highlight
+                      styles={{
+                        fontSize: '18px',
+                        fontWeight: 500,
+                        color: COLORS.secondaryTextColor,
+                      }}
+                      query='(Overdue)'
+                    >
+                      Previous Loans as Borrower(Overdue)
+                    </Highlight>
+                  </Heading>
+                ),
+                columns: loansForBuyerColumns,
+                loading: loading,
+                data: statuedLoans[3],
+                key: '3',
               },
             ]}
           />
         </Box>
       </Flex>
+      <ConnectWalletModal visible={isOpen} handleClose={onClose} />
     </Box>
   )
 }

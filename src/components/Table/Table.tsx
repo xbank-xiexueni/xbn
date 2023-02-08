@@ -9,7 +9,6 @@ import {
   Tr,
   type TableProps,
   Flex,
-  Heading,
   Box,
 } from '@chakra-ui/react'
 import isEmpty from 'lodash/isEmpty'
@@ -48,6 +47,7 @@ export type MyTableProps = TableProps & {
   caption?: () => ReactElement
   emptyRender?: () => ReactElement
   maxW?: string
+  tableTitle?: () => ReactElement
 }
 
 const Index: FunctionComponent<MyTableProps> = ({
@@ -56,7 +56,7 @@ const Index: FunctionComponent<MyTableProps> = ({
   onSort,
   loading = false,
   caption,
-  title: tableTitle,
+  tableTitle,
   emptyRender,
   maxW,
 }) => {
@@ -66,11 +66,7 @@ const Index: FunctionComponent<MyTableProps> = ({
   })
   return (
     <>
-      {tableTitle && (
-        <Heading size={'md'} mt={6}>
-          {tableTitle}
-        </Heading>
-      )}
+      {!!tableTitle && tableTitle()}
       <TableContainer position={'relative'} maxW={maxW || '100%'}>
         {<LoadingComponent loading={loading} />}
 
@@ -192,7 +188,7 @@ const Index: FunctionComponent<MyTableProps> = ({
                 </Td>
               </Tr>
             ) : (
-              data.map((item, rowIndex) => (
+              data.map((item) => (
                 <Tr
                   key={JSON.stringify(item)}
                   bg={COLORS.secondaryBgc}
@@ -224,9 +220,7 @@ const Index: FunctionComponent<MyTableProps> = ({
                         paddingInlineStart={0}
                         paddingInlineEnd={0}
                         borderTopRightRadius={
-                          rowIndex === 0 &&
-                          colIndex === columns?.length - 1 &&
-                          !fixedRight
+                          colIndex === columns?.length - 1 && !fixedRight
                             ? 10
                             : 0
                         }
@@ -235,6 +229,8 @@ const Index: FunctionComponent<MyTableProps> = ({
                             ? 10
                             : 0
                         }
+                        borderBottomLeftRadius={colIndex === 0 ? 10 : 0}
+                        borderTopLeftRadius={colIndex === 0 ? 10 : 0}
                       >
                         <Box
                           lineHeight='40px'
@@ -248,13 +244,9 @@ const Index: FunctionComponent<MyTableProps> = ({
                           paddingInlineEnd={6}
                           // display={'table-cell'}
                           bg={COLORS.secondaryBgc}
-                          borderTopLeftRadius={
-                            rowIndex === 0 && colIndex === 0 ? 10 : 0
-                          }
+                          borderTopLeftRadius={colIndex === 0 ? 10 : 0}
                           borderTopRightRadius={
-                            rowIndex === 0 && colIndex === columns?.length - 1
-                              ? 10
-                              : 0
+                            colIndex === columns?.length - 1 ? 10 : 0
                           }
                           borderBottomLeftRadius={colIndex === 0 ? 10 : 0}
                           borderBottomRightRadius={

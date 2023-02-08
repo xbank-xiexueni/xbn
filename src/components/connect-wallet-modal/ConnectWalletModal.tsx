@@ -12,14 +12,12 @@ import {
   Box,
   Heading,
 } from '@chakra-ui/react'
-import { useContext } from 'react'
+import { useContext, type FunctionComponent } from 'react'
 
 import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
 
 import IconMetamask from '@/assets/icon/icon-metamask.svg'
-
-import type { FunctionComponent } from 'react'
 
 type IndexProps = {
   visible: boolean

@@ -13,14 +13,18 @@ import {
   Tag,
   List,
   useDisclosure,
+  Highlight,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 // import debounce from 'lodash/debounce'
+import { type Dictionary } from 'lodash'
+import groupBy from 'lodash/groupBy'
 import isEmpty from 'lodash/isEmpty'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import {
+  apiGetLpLoans,
   // apiGetActiveCollection,
   apiGetMyPools,
 } from '@/api'
@@ -112,7 +116,7 @@ const Lend = () => {
     list: [],
   })
 
-  const { loading: loading2, run: handleFetchMyPools } = useRequest(
+  const { loading: myPoolsLoading, run: handleFetchMyPools } = useRequest(
     apiGetMyPools,
     {
       onSuccess: (data: { data: { list: any } }) => {
@@ -120,7 +124,8 @@ const Lend = () => {
           list: data?.data?.list,
         })
       },
-      ready: !!currentAccount && tabKey === 0,
+      ready: !!currentAccount,
+      debounceWait: 100,
     },
   )
   // const [myPoolsSearch, setSearchForMyPools] = useState('')
@@ -135,17 +140,39 @@ const Lend = () => {
 
   // open loans
   // 左侧 collections
-  const [allMyPoolsList, setAllMyPoolsList] = useState([])
-  const { loading: loading3 } = useRequest(apiGetMyPools, {
-    onSuccess: (data: { data: { list: any } }) => {
-      setAllMyPoolsList(data?.data?.list)
-    },
-    ready: !!currentAccount && tabKey === 1,
-  })
+  // const [allMyPoolsList, setAllMyPoolsList] = useState([])
+  // const { loading: loading3 } = useRequest(apiGetMyPools, {
+  //   onSuccess: (data: { data: { list: any } }) => {
+  //     setAllMyPoolsList(data?.data?.list)
+  //   },
+  //   ready: !!currentAccount && tabKey === 1,
+  // })
   // 三个表格的请求
+  const [loansData, setLoansData] = useState<{
+    data: Dictionary<any[]>
+  }>({
+    data: {
+      1: [],
+      2: [],
+      3: [],
+    },
+  })
 
   // -1 代表全选
   const [selectKeyForOpenLoans, setSelectKeyForOpenLoans] = useState(-1)
+  const fetchLoans = useMemo(() => {
+    console.log(selectKeyForOpenLoans)
+    return apiGetLpLoans
+  }, [selectKeyForOpenLoans])
+  const { loading: loansLoading } = useRequest(fetchLoans, {
+    onSuccess: (data) => {
+      setLoansData({
+        data: groupBy(data.data.list, 'status'),
+      })
+    },
+    ready: tabKey === 1 && !!currentAccount,
+    refreshDeps: [selectKeyForOpenLoans],
+  })
 
   const { pathname } = useLocation()
   const navigate = useNavigate()
@@ -172,7 +199,7 @@ const Lend = () => {
   //   setSearchForMyPools('')
   // }, [])
 
-  const column2: ColumnProps[] = [
+  const myPoolsColumns: ColumnProps[] = [
     {
       title: 'Collection',
       dataIndex: 'col1',
@@ -453,8 +480,8 @@ const Lend = () => {
           </TabPanel> */}
           <TabPanel p={0}>
             <Table
-              loading={loading2}
-              columns={column2}
+              loading={myPoolsLoading}
+              columns={myPoolsColumns}
               data={myPoolsData?.list || []}
               onSort={(args) => {
                 console.log(args)
@@ -493,12 +520,12 @@ const Lend = () => {
                 }}
               >
                 <Heading size={'md'} mb={4}>
-                  Collections
+                  My Collection Pools
                 </Heading>
                 {/* <SearchInput placeholder='Collections...' /> */}
 
                 <List spacing={4} mt={4} position='relative'>
-                  <LoadingComponent loading={loading3} />
+                  <LoadingComponent loading={myPoolsLoading} />
                   <Flex
                     justify={'space-between'}
                     py={3}
@@ -523,7 +550,7 @@ const Lend = () => {
                       <Text fontSize={'sm'}>{myPoolsData.list?.length}</Text>
                     )}
                   </Flex>
-                  {allMyPoolsList.map((item: any) => (
+                  {myPoolsData.list.map((item: any) => (
                     <CollectionListItem
                       data={{ ...item }}
                       key={JSON.stringify(item)}
@@ -542,21 +569,55 @@ const Lend = () => {
                 <TableList
                   tables={[
                     {
-                      title: 'Current Loans as Lender',
-                      // loading: loading,
+                      tableTitle: () => (
+                        <Heading size={'md'} mt={6}>
+                          Current Loans as Lender
+                        </Heading>
+                      ),
                       columns: loansForLendColumns,
-
-                      data: [],
+                      loading: loansLoading,
+                      data: loansData?.data[1],
+                      key: '1',
                     },
                     {
-                      title: 'Previous Loans as Lender(Paid off)',
+                      tableTitle: () => (
+                        <Heading size={'md'} mt={6}>
+                          <Highlight
+                            styles={{
+                              fontSize: '18px',
+                              fontWeight: 500,
+                              color: COLORS.secondaryTextColor,
+                            }}
+                            query='(Paid Off)'
+                          >
+                            Previous Loans as Lender(Paid Off)
+                          </Highlight>
+                        </Heading>
+                      ),
                       columns: loansForLendColumns,
-                      data: [],
+                      data: loansData?.data[2],
+                      loading: loansLoading,
+                      key: '2',
                     },
                     {
-                      title: 'Previous Loans as Lender(Overdue)',
+                      tableTitle: () => (
+                        <Heading size={'md'} mt={6}>
+                          <Highlight
+                            styles={{
+                              fontSize: '18px',
+                              fontWeight: 500,
+                              color: COLORS.secondaryTextColor,
+                            }}
+                            query='(Overdue)'
+                          >
+                            Previous Loans as Lender(Overdue)
+                          </Highlight>
+                        </Heading>
+                      ),
                       columns: loansForLendColumns,
-                      data: [],
+                      data: loansData?.data[3],
+                      loading: loansLoading,
+                      key: '3',
                     },
                   ]}
                 />

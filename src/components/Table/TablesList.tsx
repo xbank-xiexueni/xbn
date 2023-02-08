@@ -1,7 +1,6 @@
 import { Box } from '@chakra-ui/react'
 
-import type { MyTableProps } from '@/components/table/Table'
-import Table from '@/components/table/Table'
+import Table, { type MyTableProps } from '@/components/table/Table'
 
 import type { FunctionComponent } from 'react'
 
@@ -11,7 +10,7 @@ const OpenLoansTables: FunctionComponent<{
   return (
     <Box>
       {tables?.map((item) => (
-        <Table {...item} key={JSON.stringify(item)} />
+        <Table {...item} key={item.key} />
       ))}
     </Box>
   )

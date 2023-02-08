@@ -6,9 +6,10 @@ import {
   Text,
   Image,
 } from '@chakra-ui/react'
-import { type ReactElement, type FunctionComponent } from 'react'
 
 import COLORS from '@/utils/Colors'
+
+import type { ReactElement, FunctionComponent } from 'react'
 
 const AllPoolsDescription: FunctionComponent<{
   data: {
