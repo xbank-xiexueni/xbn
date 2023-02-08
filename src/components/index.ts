@@ -11,3 +11,4 @@ export { default as ConnectWalletModal } from './connect-wallet-modal/ConnectWal
 export { default as LoadingComponent } from './loading/LoadingComponent'
 export { default as TableList } from './table/TablesList'
 export { default as EmptyTableComponent } from './table/EmptyTableComponent'
+export { default as NftOrigin } from './nft-origin/NftOrigin'

@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { useState } from 'react'
 
+import { NftOrigin } from '@/components'
 import COLORS from '@/utils/Colors'
 
 import IconEth from '@/assets/icon/icon-eth.svg'
@@ -80,10 +81,7 @@ const MarketNftListCard: FunctionComponent<
           h='56px'
         >
           <Flex alignItems={'center'} gap={1}>
-            <Box w={5} h={5} bg='green.200' borderRadius={20} />
-            <Text fontSize={'sm'} color={COLORS.secondaryTextColor}>
-              looksraedsd
-            </Text>
+            <NftOrigin type={1} />
           </Flex>
           <Flex alignItems={'center'} gap={1}>
             <Image src={IconEth} w={2} />

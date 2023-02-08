@@ -32,7 +32,15 @@ const CollectionDescription: FunctionComponent<{
 }> = ({ data, loading }) => {
   const [show, setShow] = useState(false)
   if (isEmpty(data) || loading) {
-    return <Skeleton h='212px' borderRadius={16} mb={12} />
+    return (
+      <Flex flexDirection={'column'} mb={12}>
+        <Flex mb={4} gap={3}>
+          <Skeleton h='108px' w='108px' borderRadius={8} />
+          <Skeleton h='108px' w={'500px'} borderRadius={16} />
+        </Flex>
+        <Skeleton h='100px' borderRadius={16} />
+      </Flex>
+    )
   }
   const {
     title = '',

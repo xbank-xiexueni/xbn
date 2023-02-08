@@ -7,10 +7,10 @@ import {
   type BoxProps,
 } from '@chakra-ui/react'
 
+import { NftOrigin } from '@/components'
 import COLORS from '@/utils/Colors'
 
 import IconEth from '@/assets/icon/icon-eth.svg'
-import IconLooksRare from '@/assets/icon/icon-loosrare.svg'
 import IconVerified from '@/assets/icon/icon-verified-fill.svg'
 
 import type { FunctionComponent } from 'react'
@@ -50,12 +50,7 @@ const DetailComponent: FunctionComponent<
             <Text fontSize={'xs'}>$123123</Text>
           </Flex>
         </Box>
-        <Flex gap={1}>
-          <Image src={IconLooksRare} />
-          <Text fontSize={'14px'} fontWeight={500}>
-            LooksRare
-          </Text>
-        </Flex>
+        <NftOrigin type={1} />
       </Flex>
     </Box>
   )
