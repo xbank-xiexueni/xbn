@@ -9,21 +9,34 @@ import {
   Image,
   Stack,
   Text,
+  Button,
 } from '@chakra-ui/react'
+import { useState } from 'react'
 
 import COLORS from '@/utils/Colors'
 
 import IconEth from '@/assets/icon/icon-eth.svg'
 
 import type { FunctionComponent } from 'react'
+
 const MarketNftListCard: FunctionComponent<
   {
     // temp
     data: any
   } & CardProps
 > = ({ data, ...rest }) => {
+  const [show, setShow] = useState(false)
   return (
-    <Card {...rest}>
+    <Card
+      {...rest}
+      _hover={{
+        boxShadow: `${COLORS.tipTextColor} 0px 0px 10px`,
+      }}
+      cursor='pointer'
+      onMouseOver={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+      borderRadius={8}
+    >
       <CardBody p={0}>
         <Box bg='gray.100'>
           <Image
@@ -49,20 +62,37 @@ const MarketNftListCard: FunctionComponent<
         </Stack>
       </CardBody>
       <Divider color={COLORS.borderColor} px={4} />
-      <CardFooter p={4} justify={'space-between'} alignItems='center'>
-        <Flex alignItems={'center'} gap={1}>
-          <Box w={5} h={5} bg='green.200' borderRadius={20} />
-          <Text fontSize={'sm'} color={COLORS.secondaryTextColor}>
-            looksraedsd
-          </Text>
-        </Flex>
-        <Flex alignItems={'center'} gap={1}>
-          <Image src={IconEth} w={2} />
-          <Text fontSize={'sm'} color={COLORS.secondaryTextColor}>
-            11.22
-          </Text>
-        </Flex>
-      </CardFooter>
+      {show ? (
+        <Button
+          borderRadius={8}
+          borderTopLeftRadius={0}
+          borderTopRightRadius={0}
+          variant='other'
+          h='56px'
+        >
+          Buy
+        </Button>
+      ) : (
+        <CardFooter
+          p={4}
+          justify={'space-between'}
+          alignItems='center'
+          h='56px'
+        >
+          <Flex alignItems={'center'} gap={1}>
+            <Box w={5} h={5} bg='green.200' borderRadius={20} />
+            <Text fontSize={'sm'} color={COLORS.secondaryTextColor}>
+              looksraedsd
+            </Text>
+          </Flex>
+          <Flex alignItems={'center'} gap={1}>
+            <Image src={IconEth} w={2} />
+            <Text fontSize={'sm'} color={COLORS.secondaryTextColor}>
+              11.22
+            </Text>
+          </Flex>
+        </CardFooter>
+      )}
     </Card>
   )
 }

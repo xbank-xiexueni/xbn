@@ -1,67 +1,42 @@
-import { Flex, Box } from '@chakra-ui/react'
-import range from 'lodash/range'
-import { type FunctionComponent, useMemo } from 'react'
+import Pagination, { type PaginationProps } from 'rc-pagination'
 
-import COLORS from '@/utils/Colors'
+import './index.less'
 
-type PaginationProps = {
-  showSizeChanger?: boolean
-  onShowSizeChange?: () => void
-  defaultCurrent?: number
-  total: number
-  onChange?: (page: number, pageSize?: number) => void
-  current?: number
-  disabled?: boolean
-  pageSize?: number
-}
-const Pagination: FunctionComponent<PaginationProps> = ({
-  // showSizeChanger = false,
-  // onShowSizeChange,
-  // defaultCurrent = 1,
-  current = 1,
+import type { FunctionComponent } from 'react'
+
+const index: FunctionComponent<PaginationProps> = ({
   total,
-  // disabled = false,
-  pageSize = 10,
+  defaultCurrent = 1,
+  ...rest
 }) => {
-  const itemCount = useMemo(
-    () => Math.ceil(total / pageSize),
-    [total, pageSize],
-  )
-
   return (
-    <Flex alignItems={'center'} gap={4}>
-      <Box>&lt;</Box>
-      {range(1, itemCount + 1).map((page) => (
-        <Flex
-          key={page}
-          w='36px'
-          h='36px'
-          borderRadius={36}
-          bg={current === page ? COLORS.secondaryColor : 'white'}
-          color={current === page ? COLORS.primaryColor : COLORS.textColor}
-          alignItems='center'
-          justify={'center'}
-          _hover={{
-            bg: COLORS.secondaryBgc,
-          }}
-          cursor='pointer'
-        >
-          {page}
-        </Flex>
-      ))}
-      <Box>&gt;</Box>
-    </Flex>
+    <Pagination
+      className='ant-pagination'
+      defaultCurrent={defaultCurrent}
+      total={total}
+      {...rest}
+    />
   )
+  // return (
+  //   <ReactPaginate
+  //     breakLabel='...'
+  //     nextLabel='>'
+  //     onPageChange={onPageChange}
+  //     pageRangeDisplayed={pageRangeDisplayed}
+  //     pageCount={pageCount}
+  //     previousLabel='<'
+  //     renderOnZeroPageCount={() => null}
+  //     containerClassName='paginate-container'
+  //     pageClassName='page-class'
+  //     pageLinkClassName='page-link-class'
+  //     activeClassName='active-class'
+  //     activeLinkClassName='active-link-class'
+  //     previousLinkClassName='previous-link-class'
+  //     nextLinkClassName='next-link-class'
+  //     nextClassName='next-class'
+  //     {...rest}
+  //   />
+  // )
 }
 
-/**
- * 
- *     <Pagination
-      showSizeChanger
-      onShowSizeChange={onShowSizeChange}
-      defaultCurrent={3}
-      total={500}
-    />
- */
-
-export default Pagination
+export default index

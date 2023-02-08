@@ -41,8 +41,7 @@
     "react-dom": "^18.2.0",
     "react-jazzicon": "^1.0.4",
     "react-router-dom": "^6.8.0",
-    "react-select": "^5.7.0",
-    "recharts": "^2.3.2"
+    "react-select": "^5.7.0"
   },
   "devDependencies": {
     "@types/babel__core": "^7.1.17",

@@ -45,7 +45,15 @@ function AsyncSelectCollection<
       // @ts-ignore
       isOptionSelected={(item, select) => item.id === select}
       loadOptions={promiseOptions}
-      theme={(theme) => ({ ...theme, borderRadius: 0, width: 240 })}
+      theme={(theme) => ({
+        ...theme,
+        borderRadius: 0,
+        width: 240,
+        colors: {
+          ...theme.colors,
+          primary: COLORS.primaryColor,
+        },
+      })}
       styles={{
         control: (baseStyles) => ({
           ...baseStyles,

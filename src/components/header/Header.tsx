@@ -95,14 +95,19 @@ const Header = () => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent w={48}>
-                <PopoverBody p={0}>
-                  {['Pools', 'My Pools', 'Loans'].map((item, index) => (
-                    <Box
+                <PopoverBody px={0} py={2}>
+                  {[
+                    // 'Pools',
+                    'My Pools',
+                    'Loans',
+                  ].map((item) => (
+                    <Flex
                       key={item}
                       borderBottomColor={COLORS.secondaryBgc}
-                      borderBottomWidth={index === 2 ? 0 : 1}
-                      px={2}
+                      gap={1}
+                      px={3}
                       py={2}
+                      flexDir='column'
                     >
                       <Link to={`/lend/${kebabCase(item)}`}>
                         <Text
@@ -115,7 +120,7 @@ const Header = () => {
                           {item}
                         </Text>
                       </Link>
-                    </Box>
+                    </Flex>
                   ))}
                 </PopoverBody>
               </PopoverContent>
@@ -146,30 +151,33 @@ const Header = () => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent w={48}>
-                <PopoverBody>
-                  <PopoverBody p={0}>
-                    {['Market', 'My assets', 'Loans'].map((item, index) => (
-                      <Box
-                        key={item}
-                        borderBottomColor={COLORS.secondaryBgc}
-                        borderBottomWidth={index === 2 ? 0 : 1}
-                        px={2}
-                        py={2}
-                      >
-                        <Link to={`/buy-nfts/${kebabCase(item)}`}>
-                          <Text
-                            fontSize='md'
-                            _hover={{
-                              color: COLORS.primaryColor,
-                            }}
-                            color={COLORS.textColor}
-                          >
-                            {item}
-                          </Text>
-                        </Link>
-                      </Box>
-                    ))}
-                  </PopoverBody>
+                <PopoverBody px={0} py={2}>
+                  {[
+                    'Market',
+                    //  'My assets',
+                    'Loans',
+                  ].map((item) => (
+                    <Flex
+                      key={item}
+                      borderBottomColor={COLORS.secondaryBgc}
+                      px={3}
+                      py={2}
+                      gap={1}
+                      flexDir='column'
+                    >
+                      <Link to={`/buy-nfts/${kebabCase(item)}`}>
+                        <Text
+                          fontSize='md'
+                          _hover={{
+                            color: COLORS.primaryColor,
+                          }}
+                          color={COLORS.textColor}
+                        >
+                          {item}
+                        </Text>
+                      </Link>
+                    </Flex>
+                  ))}
                 </PopoverBody>
               </PopoverContent>
             </Popover>

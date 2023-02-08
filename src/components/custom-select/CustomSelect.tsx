@@ -22,6 +22,10 @@ function CustomSelect<
         ...theme,
         borderRadius: 0,
         width: 240,
+        colors: {
+          ...theme.colors,
+          primary: COLORS.primaryColor,
+        },
       })}
       styles={{
         control: (baseStyles, state) => ({

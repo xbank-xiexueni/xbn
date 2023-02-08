@@ -7,12 +7,15 @@ import {
   Tab,
   TabPanels,
   Tag,
-  Flex,
+  // Flex,
   SimpleGrid,
 } from '@chakra-ui/react'
 import range from 'lodash/range'
 
-import { MyAssetNftListCard, SearchInput, Select } from '@/components'
+import {
+  MyAssetNftListCard,
+  // SearchInput, Select
+} from '@/components'
 import COLORS from '@/utils/Colors'
 
 const MyAssets = () => {
@@ -54,7 +57,7 @@ const MyAssets = () => {
 
         <TabPanels>
           <TabPanel p={0}>
-            <Flex justify={'space-between'} mb={6} mt={10}>
+            {/* <Flex justify={'space-between'} mb={6} mt={10}>
               <Box w='70%'>
                 <SearchInput />
               </Box>
@@ -70,8 +73,8 @@ const MyAssets = () => {
                   value: 1,
                 }}
               />
-            </Flex>
-            <SimpleGrid minChildWidth='330px' spacing={'16px'}>
+            </Flex> */}
+            <SimpleGrid minChildWidth='330px' spacing={'16px'} mt={10}>
               {range(15).map((item) => (
                 <MyAssetNftListCard data={{}} key={item} onClick={() => {}} />
               ))}

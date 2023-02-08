@@ -1,17 +1,23 @@
 import {
-  Box,
+  // Box,
   Grid,
   GridItem,
   Heading,
+  Text,
   List,
-  Flex,
+  // Flex,
   SimpleGrid,
+  Highlight,
 } from '@chakra-ui/react'
 import range from 'lodash/range'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { SearchInput, MarketNftListCard, Select } from '@/components'
+import {
+  // SearchInput,
+  MarketNftListCard,
+  // Select
+} from '@/components'
 import COLORS from '@/utils/Colors'
 
 import TEST_IMG from '@/assets/test-img.svg'
@@ -29,7 +35,10 @@ const Market = () => {
                   "nav main"
                   `}
       // gridTemplateRows={'50px 1fr 30px'}
-      gridTemplateColumns={'360px 1fr'}
+      gridTemplateColumns={{
+        lg: '360px 1fr',
+        md: '260px 1fr',
+      }}
       // h='200px'
       gap={9}
       // color='blackAlpha.700'
@@ -47,7 +56,7 @@ const Market = () => {
         <Heading size={'md'} mb={4}>
           Collections
         </Heading>
-        <SearchInput placeholder='Collections...' />
+        {/* <SearchInput placeholder='Collections...' /> */}
 
         <List spacing={4} mt={4}>
           {range(10).map((item) => (
@@ -60,7 +69,7 @@ const Market = () => {
           ))}
         </List>
       </GridItem>
-      <GridItem pl='2' area={'main'}>
+      <GridItem area={'main'}>
         <CollectionDescription
           data={{
             img: TEST_IMG,
@@ -80,7 +89,20 @@ const Market = () => {
                 isEth: true,
               },
               {
-                label: '24h -922%',
+                label: (
+                  <Text
+                    fontSize={'sm'}
+                    fontWeight='500'
+                    color={COLORS.secondaryTextColor}
+                  >
+                    <Highlight
+                      styles={{ color: COLORS.errorColor, fontWeight: 500 }}
+                      query='-900%'
+                    >
+                      24h -900%
+                    </Highlight>
+                  </Text>
+                ),
                 value: '85.86',
                 isEth: true,
               },
@@ -96,7 +118,7 @@ const Market = () => {
           }}
         />
 
-        <Flex justify={'space-between'} mb={6}>
+        {/* <Flex justify={'space-between'} mb={6}>
           <Box w='70%'>
             <SearchInput />
           </Box>
@@ -108,8 +130,8 @@ const Market = () => {
               },
             ]}
           />
-        </Flex>
-        <SimpleGrid minChildWidth='230px' spacing={'16px'}>
+        </Flex> */}
+        <SimpleGrid minChildWidth='233px' spacing={'16px'}>
           {range(15).map((item) => (
             <MarketNftListCard
               data={{}}

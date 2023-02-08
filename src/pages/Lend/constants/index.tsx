@@ -1,7 +1,7 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
 import { Link } from 'react-router-dom'
 
-import type { ColumnProps } from '@/components/Table'
+import type { ColumnProps } from '@/components/table/Table'
 
 export const activeCollectionColumns: ColumnProps[] = [
   {
@@ -25,7 +25,7 @@ export const activeCollectionColumns: ColumnProps[] = [
     title: 'TVL (USD)',
     dataIndex: 'col3',
     key: 'col3',
-    sortable: true,
+    // sortable: true,
   },
   {
     title: 'Collateral Factor',
@@ -43,7 +43,7 @@ export const activeCollectionColumns: ColumnProps[] = [
     key: 'id',
     align: 'right',
     thAlign: 'right',
-    fixed: 'right',
+    fixedRight: true,
     render: (data) => {
       return (
         <Flex
@@ -54,7 +54,7 @@ export const activeCollectionColumns: ColumnProps[] = [
           px={3}
           borderRadius={8}
         >
-          <Link to={`/lend/pools/create`} state={data}>
+          <Link to={`/lend/my-pools/create`} state={data}>
             <Text>Supply</Text>
           </Link>
         </Flex>

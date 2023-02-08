@@ -33,7 +33,7 @@ const CollectionDescription: FunctionComponent<{
   const [show, setShow] = useState(false)
   return (
     <Box mb={12}>
-      <Flex gap={5} alignItems='end' mb={8}>
+      <Flex gap={5} mb={8}>
         <Box minW='108px'>
           <Image src={img} />
         </Box>
@@ -51,13 +51,20 @@ const CollectionDescription: FunctionComponent<{
           >
             {show ? description : `${description.substring(0, 80)}...`}
             {description?.length > 80 && (
-              <a
+              <Box
+                as='a'
                 color={COLORS.primaryColor}
                 onClick={() => setShow((prev) => !prev)}
-                style={{ cursor: 'pointer' }}
+                cursor='pointer'
+                fontWeight={700}
+                borderRadius='50%'
+                _hover={{
+                  bg: COLORS.secondaryBgc,
+                }}
+                p={3}
               >
-                {show ? 'show less' : 'show'}
-              </a>
+                {show ? 'Less' : 'More'}
+              </Box>
             )}
           </Text>
         </Box>
@@ -65,9 +72,9 @@ const CollectionDescription: FunctionComponent<{
 
       <HStack spacing={10}>
         {keys.map(({ label, value, isEth }) => (
-          <Box key={`${label}`}>
+          <Flex key={`${label}`} flexDir='column' alignItems='center'>
             <Heading fontSize={'2xl'} display='flex' mb={1}>
-              {isEth && <Image src={IconEth} height={8} />}
+              {isEth && <Image src={IconEth} height={8} mr={1} />}
               {value}
             </Heading>
             {typeof value === 'string' ? (
@@ -75,7 +82,7 @@ const CollectionDescription: FunctionComponent<{
             ) : (
               label
             )}
-          </Box>
+          </Flex>
         ))}
       </HStack>
     </Box>

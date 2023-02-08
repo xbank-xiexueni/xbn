@@ -1,4 +1,11 @@
-import { Box, Flex, Heading, HStack, Text, Image } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  Heading,
+  // HStack,
+  Text,
+  Image,
+} from '@chakra-ui/react'
 import { type ReactElement, type FunctionComponent } from 'react'
 
 import COLORS from '@/utils/Colors'
@@ -14,7 +21,14 @@ const AllPoolsDescription: FunctionComponent<{
       label: string | ReactElement
     }[]
   }
-}> = ({ data: { title = '', description = '', img = '', keys = [] } }) => {
+}> = ({
+  data: {
+    title = '',
+    description = '',
+    img = '',
+    // keys = []
+  },
+}) => {
   return (
     <Flex
       justify={{
@@ -49,7 +63,7 @@ const AllPoolsDescription: FunctionComponent<{
         ) : (
           description
         )}
-
+        {/* 
         <HStack spacing={10}>
           {keys.map(({ label, value }) => (
             <Box key={`${label}`}>
@@ -65,7 +79,7 @@ const AllPoolsDescription: FunctionComponent<{
               )}
             </Box>
           ))}
-        </HStack>
+        </HStack> */}
       </Box>
       <Image
         src={img}

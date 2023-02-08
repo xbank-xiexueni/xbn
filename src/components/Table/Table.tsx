@@ -10,6 +10,7 @@ import {
   type TableProps,
   Flex,
   Heading,
+  Box,
 } from '@chakra-ui/react'
 import isEmpty from 'lodash/isEmpty'
 import { useState, type FunctionComponent, type ReactElement } from 'react'
@@ -20,11 +21,8 @@ import IconSortDESC from '@/assets/icon/icon-sort-down.svg'
 import IconSortASC from '@/assets/icon/icon-sort-up.svg'
 import IconUnSort from '@/assets/icon/icon-unsort.svg'
 
-import { LoadingComponent } from '..'
-
-import EmptyTableComponent from './EmptyTableComponent'
-
-import './index.less'
+import { LoadingComponent, EmptyTableComponent } from '..'
+import '../table/index.less'
 
 export interface ColumnProps {
   title: string
@@ -40,7 +38,7 @@ export interface ColumnProps {
     arg1: string | boolean | number,
   ) => ReactElement
   sortable?: boolean
-  fixed?: 'left' | 'right'
+  fixedRight?: boolean
 }
 export type MyTableProps = TableProps & {
   columns: ColumnProps[]
@@ -49,6 +47,7 @@ export type MyTableProps = TableProps & {
   loading?: boolean
   caption?: () => ReactElement
   emptyRender?: () => ReactElement
+  maxW?: string
 }
 
 const Index: FunctionComponent<MyTableProps> = ({
@@ -59,6 +58,7 @@ const Index: FunctionComponent<MyTableProps> = ({
   caption,
   title: tableTitle,
   emptyRender,
+  maxW,
 }) => {
   const [sortParams, setSortParam] = useState({
     direction: '',
@@ -71,7 +71,7 @@ const Index: FunctionComponent<MyTableProps> = ({
           {tableTitle}
         </Heading>
       )}
-      <TableContainer position={'relative'}>
+      <TableContainer position={'relative'} maxW={maxW || '100%'}>
         {<LoadingComponent loading={loading} />}
 
         <Table
@@ -92,7 +92,7 @@ const Index: FunctionComponent<MyTableProps> = ({
                   thAlign,
                   title,
                   dataIndex,
-                  fixed,
+                  fixedRight,
                 }) => (
                   <Th
                     textAlign={thAlign}
@@ -102,8 +102,8 @@ const Index: FunctionComponent<MyTableProps> = ({
                         ? COLORS.primaryColor
                         : COLORS.infoTextColor
                     }
-                    position={fixed ? 'sticky' : 'relative'}
-                    zIndex={fixed ? 1 : 'inherit'}
+                    position={fixedRight ? 'sticky' : 'relative'}
+                    zIndex={fixedRight ? 1 : 'inherit'}
                     bg='white'
                     right={0}
                     fontSize={'md'}
@@ -201,38 +201,74 @@ const Index: FunctionComponent<MyTableProps> = ({
                 >
                   {columns.map(
                     (
-                      { dataIndex, render, key, width, align = 'left', fixed },
+                      {
+                        dataIndex,
+                        render,
+                        key,
+                        width,
+                        align = 'left',
+                        fixedRight,
+                      },
                       colIndex,
                     ) => (
                       <Th
                         fontSize='md'
                         key={key}
-                        bg={COLORS.secondaryBgc}
                         w={width}
                         textAlign={align}
-                        position={fixed ? 'sticky' : 'relative'}
-                        zIndex={fixed ? 1 : 'inherit'}
+                        position={fixedRight ? 'sticky' : 'relative'}
+                        zIndex={fixedRight ? 1 : 'inherit'}
                         right={0}
-                        borderTopLeftRadius={
-                          rowIndex === 0 && colIndex === 0 ? 10 : 0
-                        }
+                        bg={fixedRight ? 'white' : COLORS.secondaryBgc}
+                        py={0}
+                        paddingInlineStart={0}
+                        paddingInlineEnd={0}
                         borderTopRightRadius={
-                          rowIndex === 0 && colIndex === columns?.length - 1
+                          rowIndex === 0 &&
+                          colIndex === columns?.length - 1 &&
+                          !fixedRight
                             ? 10
                             : 0
                         }
-                        borderBottomLeftRadius={colIndex === 0 ? 10 : 0}
                         borderBottomRightRadius={
-                          colIndex === columns?.length - 1 ? 10 : 0
+                          colIndex === columns?.length - 1 && !fixedRight
+                            ? 10
+                            : 0
                         }
                       >
-                        {!!render ? (
-                          <Flex justifyContent={align}>
-                            {render(item, item[dataIndex])}
-                          </Flex>
-                        ) : (
-                          item[dataIndex]
-                        )}
+                        <Box
+                          lineHeight='40px'
+                          boxShadow={
+                            fixedRight
+                              ? `-4px 0 5px -3px ${COLORS.borderColor}`
+                              : ''
+                          }
+                          py={3}
+                          paddingInlineStart={6}
+                          paddingInlineEnd={6}
+                          // display={'table-cell'}
+                          bg={COLORS.secondaryBgc}
+                          borderTopLeftRadius={
+                            rowIndex === 0 && colIndex === 0 ? 10 : 0
+                          }
+                          borderTopRightRadius={
+                            rowIndex === 0 && colIndex === columns?.length - 1
+                              ? 10
+                              : 0
+                          }
+                          borderBottomLeftRadius={colIndex === 0 ? 10 : 0}
+                          borderBottomRightRadius={
+                            colIndex === columns?.length - 1 ? 10 : 0
+                          }
+                        >
+                          {!!render ? (
+                            <Flex justifyContent={align}>
+                              {render(item, item[dataIndex])}
+                            </Flex>
+                          ) : (
+                            item[dataIndex]
+                          )}
+                        </Box>
                       </Th>
                     ),
                   )}

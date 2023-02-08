@@ -56,7 +56,23 @@ const ComponentStyle = {
         },
       },
       primary: {
-        bg: COLORS.primaryColor,
+        // 这么写是为了 hover over 不会突变
+        bg: 'linear-gradient(225deg, #0000FF 0%, #0000FF 100%)',
+        // bg: COLORS.primaryColor,
+        color: 'white',
+        _disabled: {
+          bg: COLORS.tipTextColor,
+        },
+        _hover: {
+          bg: 'linear-gradient(225deg, #0000FF 0%, #9500E0 100%)',
+          _disabled: {
+            bg: COLORS.tipTextColor,
+          },
+        },
+      },
+      other: {
+        bg: '#165DFF',
+        // bg: COLORS.primaryColor,
         color: 'white',
         _disabled: {
           bg: COLORS.tipTextColor,

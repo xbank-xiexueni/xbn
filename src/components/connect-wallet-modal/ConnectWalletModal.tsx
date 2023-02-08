@@ -35,7 +35,7 @@ const Index: FunctionComponent<IndexProps> = ({ visible, handleClose }) => {
 
   return (
     <Modal onClose={handleClose} isOpen={visible} isCentered>
-      <ModalOverlay />
+      <ModalOverlay bg='rgba(27, 34, 44, 0.4)' />
       <ModalContent>
         {!connectLoading && !currentAccount && (
           <ModalHeader>Connect Wallet</ModalHeader>
@@ -70,7 +70,7 @@ const Index: FunctionComponent<IndexProps> = ({ visible, handleClose }) => {
                 <Spinner
                   thickness='2px'
                   speed='1s'
-                  emptyColor='gray.200'
+                  emptyColor={COLORS.secondaryBgc}
                   color={COLORS.primaryColor}
                   w='52px'
                   h={'52px'}

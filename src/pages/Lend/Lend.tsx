@@ -15,38 +15,46 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
-import debounce from 'lodash/debounce'
+// import debounce from 'lodash/debounce'
 import isEmpty from 'lodash/isEmpty'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useCallback, useContext, useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
-import { apiGetActiveCollection, apiGetMyPools } from '@/api'
+import {
+  // apiGetActiveCollection,
+  apiGetMyPools,
+} from '@/api'
 import ImgLend from '@/assets/LEND.png'
 import {
   ConnectWalletModal,
-  SearchInput,
-  Pagination,
+  // SearchInput,
+  // Pagination,
   Table,
   LoadingComponent,
+  TableList,
+  EmptyTableComponent,
 } from '@/components'
-import type { ColumnProps } from '@/components/Table'
+import type { ColumnProps } from '@/components/table/Table'
 // import { TransactionContext } from '@/context/TransactionContext'
-import EmptyTableComponent from '@/components/Table/EmptyTableComponent'
 import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
 
 import IconChecked from '@/assets/icon/icon-checked.svg'
 import IconEth from '@/assets/icon/icon-eth.svg'
-import IconSearch from '@/assets/icon/icon-search.svg'
+// import IconSearch from '@/assets/icon/icon-search.svg'
 
 import CollectionListItem from '../buy-nfts/components/CollectionListItem'
 
 import AllPoolsDescription from './components/AllPoolsDescription'
-import OpenLoansTables from './components/OpenLoansTables'
-import { activeCollectionColumns, loansForLendColumns } from './constants'
+import {
+  // activeCollectionColumns,
+  loansForLendColumns,
+} from './constants'
 
 const Lend = () => {
   const { currentAccount } = useContext(TransactionContext)
+  const [tabKey, setTabKey] = useState<0 | 1 | 2>()
+
   const { isOpen, onOpen, onClose } = useDisclosure()
   const interceptFn = useCallback(
     (fn?: () => void) => {
@@ -62,48 +70,49 @@ const Lend = () => {
     [currentAccount, onOpen],
   )
 
-  const [showSearch, setShowSearch] = useState(false)
+  // const [showSearch, setShowSearch] = useState(false)
 
   // active collections
-  const [activeCollectionData, setActiveCollectionData] = useState({
-    list: [],
-    meta: {
-      current: 1,
-      total: 0,
-    },
-  })
-  const { loading: loading1, run: handleFetchActiveCollections } = useRequest(
-    apiGetActiveCollection,
-    {
-      onSuccess: (data: {
-        data: { list: any; meta: { pageNo: any; totalRecord: any } }
-      }) => {
-        setActiveCollectionData({
-          list: data?.data?.list,
-          meta: {
-            current: data?.data?.meta?.pageNo,
-            total: data?.data?.meta?.totalRecord,
-          },
-        })
-      },
-    },
-  )
-  const [activeCollectionSearch, setSearchForActiveCollection] = useState('')
-  const handleSearchActiveCollections = useMemo(() => {
-    const searchFn = async (value: string) => {
-      if (value) {
-        handleFetchActiveCollections()
-      }
-    }
-    return debounce(searchFn, 1000)
-  }, [handleFetchActiveCollections])
+  // const [activeCollectionData, setActiveCollectionData] = useState({
+  //   list: [],
+  //   meta: {
+  //     current: 1,
+  //     total: 0,
+  //   },
+  // })
+  // const { loading: loading1, run: handleFetchActiveCollections } = useRequest(
+  //   apiGetActiveCollection,
+  //   {
+  //     onSuccess: (data: {
+  //       data: { list: any; meta: { pageNo: any; totalRecord: any } }
+  //     }) => {
+  //       setActiveCollectionData({
+  //         list: data?.data?.list,
+  //         meta: {
+  //           current: data?.data?.meta?.pageNo,
+  //           total: data?.data?.meta?.totalRecord,
+  //         },
+  //       })
+  //     },
+  //     ready: tabKey === 0,
+  //   },
+  // )
+  // const [activeCollectionSearch, setSearchForActiveCollection] = useState('')
+  // const handleSearchActiveCollections = useMemo(() => {
+  //   const searchFn = async (value: string) => {
+  //     if (value) {
+  //       handleFetchActiveCollections()
+  //     }
+  //   }
+  //   return debounce(searchFn, 1000)
+  // }, [handleFetchActiveCollections])
 
   // my pools
   const [myPoolsData, setMyPoolsData] = useState({
     list: [],
   })
 
-  const { loading: loading2, runAsync: handleFetchMyPools } = useRequest(
+  const { loading: loading2, run: handleFetchMyPools } = useRequest(
     apiGetMyPools,
     {
       onSuccess: (data: { data: { list: any } }) => {
@@ -111,18 +120,18 @@ const Lend = () => {
           list: data?.data?.list,
         })
       },
-      ready: !!currentAccount,
+      ready: !!currentAccount && tabKey === 0,
     },
   )
-  const [myPoolsSearch, setSearchForMyPools] = useState('')
-  const handleSearchMyPools = useMemo(() => {
-    const searchFn = async (value: string) => {
-      if (value) {
-        handleFetchMyPools()
-      }
-    }
-    return debounce(searchFn, 1000)
-  }, [handleFetchMyPools])
+  // const [myPoolsSearch, setSearchForMyPools] = useState('')
+  // const handleSearchMyPools = useMemo(() => {
+  //   const searchFn = async (value: string) => {
+  //     if (value) {
+  //       handleFetchMyPools()
+  //     }
+  //   }
+  //   return debounce(searchFn, 1000)
+  // }, [handleFetchMyPools])
 
   // open loans
   // 左侧 collections
@@ -131,7 +140,7 @@ const Lend = () => {
     onSuccess: (data: { data: { list: any } }) => {
       setAllMyPoolsList(data?.data?.list)
     },
-    ready: !!currentAccount,
+    ready: !!currentAccount && tabKey === 1,
   })
   // 三个表格的请求
 
@@ -140,29 +149,28 @@ const Lend = () => {
 
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const [tabKey, setTabKey] = useState<0 | 1 | 2>(0)
 
   useEffect(() => {
     setTabKey(() => {
       switch (pathname) {
-        case '/lend/pools':
-          return 0
+        // case '/lend/pools':
+        //   return 0
         case '/lend/my-pools':
           interceptFn()
-          return 1
+          return 0
         case '/lend/loans':
           interceptFn()
-          return 2
+          return 1
         default:
           return 0
       }
     })
   }, [pathname, interceptFn])
 
-  useEffect(() => {
-    setSearchForActiveCollection('')
-    setSearchForMyPools('')
-  }, [])
+  // useEffect(() => {
+  //   setSearchForActiveCollection('')
+  //   setSearchForMyPools('')
+  // }, [])
 
   const column2: ColumnProps[] = [
     {
@@ -186,7 +194,7 @@ const Lend = () => {
       title: 'TVL (USD)',
       dataIndex: 'col3',
       key: 'col3',
-      sortable: true,
+      // sortable: true,
     },
     {
       title: 'Collateral Factor',
@@ -209,7 +217,7 @@ const Lend = () => {
       dataIndex: 'id',
       key: 'id',
       align: 'right',
-      fixed: 'right',
+      fixedRight: true,
       thAlign: 'right',
       render: (_, id) => {
         return (
@@ -220,10 +228,11 @@ const Lend = () => {
                 navigate('/lend/loans')
                 setSelectKeyForOpenLoans(id as number)
               }}
+              cursor='pointer'
             >
               Details
             </Text>
-            <Link to={`/lend/pools/edit/${id}`}>
+            {/* <Link to={`/lend/pools/edit/${id}`}>
               <Text
                 color={COLORS.primaryColor}
                 py={3}
@@ -233,7 +242,7 @@ const Lend = () => {
               >
                 Manage
               </Text>
-            </Link>
+            </Link> */}
           </Flex>
         )
       },
@@ -274,17 +283,18 @@ const Lend = () => {
       </Box>
 
       <Tabs
+        isLazy
         index={tabKey}
         position='relative'
         onChange={(key) => {
           switch (key) {
+            // case 0:
+            //   navigate('/lend/pools')
+            //   break
             case 0:
-              navigate('/lend/pools')
-              break
-            case 1:
               navigate('/lend/my-pools')
               break
-            case 2:
+            case 1:
               navigate('/lend/loans')
               break
 
@@ -293,9 +303,9 @@ const Lend = () => {
           }
         }}
       >
-        {tabKey !== 2 && (
+        {tabKey === 0 && (
           <Flex position={'absolute'} right={0} top={0} gap={4}>
-            {showSearch || isEmpty(activeCollectionData?.list) ? (
+            {/* {showSearch || isEmpty(activeCollectionData?.list) ? (
               <SearchInput
                 value={tabKey === 0 ? activeCollectionSearch : myPoolsSearch}
                 onChange={(e) => {
@@ -324,13 +334,13 @@ const Lend = () => {
               >
                 <Image src={IconSearch} />
               </Flex>
-            )}
-            {!isEmpty(activeCollectionData?.list) && (
+            )} */}
+            {!isEmpty(myPoolsData?.list) && (
               <Button
                 variant={'secondary'}
                 minW='200px'
                 onClick={() =>
-                  interceptFn(() => navigate('/lend/pools/create'))
+                  interceptFn(() => navigate('/lend/my-pools/create'))
                 }
               >
                 + Creative new pool
@@ -345,7 +355,7 @@ const Lend = () => {
             fontWeight: 'bold',
           }}
         >
-          <Tab
+          {/* <Tab
             pt={4}
             px={2}
             pb={5}
@@ -357,7 +367,7 @@ const Lend = () => {
             fontWeight='bold'
           >
             Active Collections
-          </Tab>
+          </Tab> */}
           <Tab
             pt={4}
             px={2}
@@ -396,7 +406,7 @@ const Lend = () => {
         </TabList>
 
         <TabPanels>
-          <TabPanel p={0}>
+          {/* <TabPanel p={0}>
             <Table
               loading={loading1}
               columns={activeCollectionColumns}
@@ -429,7 +439,7 @@ const Lend = () => {
                           variant={'secondary'}
                           minW='200px'
                           onClick={() =>
-                            interceptFn(() => navigate('/lend/pools/create'))
+                            interceptFn(() => navigate('/lend/my-pools/create'))
                           }
                         >
                           + Creative new pool
@@ -440,14 +450,14 @@ const Lend = () => {
                 )
               }}
             />
-          </TabPanel>
+          </TabPanel> */}
           <TabPanel p={0}>
             <Table
               loading={loading2}
               columns={column2}
               data={myPoolsData?.list || []}
               onSort={(args) => {
-                console.log(args, tabKey)
+                console.log(args)
                 handleFetchMyPools()
               }}
               emptyRender={() => {
@@ -459,7 +469,7 @@ const Lend = () => {
                           variant={'secondary'}
                           minW='200px'
                           onClick={() =>
-                            interceptFn(() => navigate('/lend/pools/create'))
+                            interceptFn(() => navigate('/lend/my-pools/create'))
                           }
                         >
                           + Creative new pool
@@ -485,7 +495,7 @@ const Lend = () => {
                 <Heading size={'md'} mb={4}>
                   Collections
                 </Heading>
-                <SearchInput placeholder='Collections...' />
+                {/* <SearchInput placeholder='Collections...' /> */}
 
                 <List spacing={4} mt={4} position='relative'>
                   <LoadingComponent loading={loading3} />
@@ -529,7 +539,7 @@ const Lend = () => {
                   md: '65%',
                 }}
               >
-                <OpenLoansTables
+                <TableList
                   tables={[
                     {
                       title: 'Current Loans as Lender',
