@@ -108,13 +108,7 @@ const NftAssetDetail = () => {
   )
 
   return (
-    <SimpleGrid
-      minChildWidth='600px'
-      spacing='40px'
-      mt={8}
-      pb='100px'
-      justifyItems={'center'}
-    >
+    <SimpleGrid minChildWidth='600px' spacing='40px' mt={8} pb='100px'>
       <Flex
         flexWrap={'wrap'}
         justify={{
@@ -221,7 +215,7 @@ const NftAssetDetail = () => {
 
         {/* Loan Period */}
         <LabelComponent label='Loan Period' isEmpty={isEmpty(periodOptions)}>
-          <HStack gap={4}>
+          <HStack gap={2}>
             {periodOptions.map((value, index) => {
               return (
                 <Flex
