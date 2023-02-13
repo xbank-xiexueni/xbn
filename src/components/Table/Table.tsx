@@ -106,6 +106,9 @@ const Index: FunctionComponent<MyTableProps> = ({
                     fontWeight='medium'
                     cursor={sortable ? 'pointer' : 'default'}
                     w={width || `${100 / columns.length}%`}
+                    py={0}
+                    paddingInlineStart={0}
+                    paddingInlineEnd={0}
                     // textAlign={align}
                     onClick={() => {
                       if (!sortable) return
@@ -160,6 +163,14 @@ const Index: FunctionComponent<MyTableProps> = ({
                           ? 'flex-end'
                           : 'flex-start'
                       }
+                      boxShadow={
+                        fixedRight
+                          ? `-4px 0 5px -3px ${COLORS.borderColor}`
+                          : ''
+                      }
+                      py={3}
+                      paddingInlineStart={6}
+                      paddingInlineEnd={6}
                     >
                       {title}
                       {sortable && sortParams.field !== dataIndex && (

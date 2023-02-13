@@ -214,6 +214,7 @@ const Loans = () => {
                     title: '',
                     dataIndex: 'id',
                     key: 'id',
+                    fixedRight: true,
                     render: () => (
                       <Box px={3} bg='white' borderRadius={8}>
                         <Text

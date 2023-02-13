@@ -9,6 +9,7 @@ import {
 import { type FunctionComponent } from 'react'
 
 import COLORS from '@/utils/Colors'
+import { UNIT } from '@/utils/constants'
 
 import IconVerified from '@/assets/icon/icon-verified-fill.svg'
 
@@ -47,7 +48,8 @@ const BelongToCollection: FunctionComponent<
           </Flex>
 
           <Text fontSize={'18px'} fontWeight='bold'>
-            {price}ETH
+            {price}
+            {UNIT}
           </Text>
         </Box>
       </Flex>

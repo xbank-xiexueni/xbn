@@ -1,39 +1,31 @@
-import { Box, useRadio, type UseRadioProps } from '@chakra-ui/react'
-import { type FunctionComponent, type ReactNode } from 'react'
+import { Box, type BoxProps } from '@chakra-ui/react'
+import { type FunctionComponent } from 'react'
 
 import COLORS from '@/utils/Colors'
 
-const RadioCard: FunctionComponent<
-  UseRadioProps & { children?: ReactNode }
-> = ({ ...props }) => {
-  const { getInputProps, getCheckboxProps } = useRadio(props)
+type RadioCardProps = {
+  isActive?: boolean
+}
 
-  const input = getInputProps()
-  const checkbox = getCheckboxProps()
-
+const RadioCard: FunctionComponent<BoxProps & RadioCardProps> = ({
+  children,
+  isActive,
+  ...props
+}) => {
   return (
-    <Box as='label' w='100%'>
-      <input {...input} />
-      <Box
-        {...checkbox}
-        cursor='pointer'
-        borderWidth='1px'
-        borderRadius='16'
-        borderColor={COLORS.tipTextColor}
-        _checked={{
-          borderColor: COLORS.primaryColor,
-          borderWidth: '2px',
-          _hover: {
-            borderColor: COLORS.primaryColor,
-          },
-        }}
-        _hover={{
-          borderColor: COLORS.textColor,
-        }}
-        p={4}
-      >
-        {props?.children}
-      </Box>
+    <Box
+      {...props}
+      w='100%'
+      cursor='pointer'
+      borderWidth={isActive ? '2px' : '1px'}
+      borderRadius='16'
+      borderColor={isActive ? COLORS.primaryColor : COLORS.tipTextColor}
+      _hover={{
+        borderColor: isActive ? COLORS.primaryColor : COLORS.textColor,
+      }}
+      p={4}
+    >
+      {children}
     </Box>
   )
 }

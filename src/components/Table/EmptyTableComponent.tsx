@@ -16,7 +16,12 @@ const EmptyTableComponent: FunctionComponent<{
       <Flex justify={'center'} mb={4}>
         <Image src={icon || defaultEmptyIcon} />
       </Flex>
-      <Text color={COLORS.secondaryTextColor} mb={6}>
+      <Text
+        color={COLORS.secondaryTextColor}
+        mb={6}
+        fontSize='sm'
+        fontWeight={'700'}
+      >
         {description || 'no Data yet...'}
       </Text>
       {action && action()}

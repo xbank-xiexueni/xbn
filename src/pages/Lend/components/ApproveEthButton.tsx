@@ -30,6 +30,7 @@ import {
 
 import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
+import { UNIT } from '@/utils/constants'
 
 import IconClose from '@/assets/icon/icon-close.svg'
 import IconError from '@/assets/icon/icon-error.svg'
@@ -102,7 +103,7 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
             display={'flex'}
             justifyContent='space-between'
           >
-            <Text>Approve ETH</Text>
+            <Text>Approve {UNIT}</Text>
             <Image src={IconClose} onClick={onClose} cursor='pointer' />
           </ModalHeader>
           <ModalBody pb={6} px={0}>

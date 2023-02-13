@@ -11,6 +11,8 @@ export const SUB_RESPONSIVE_MAX_W = {
   sm: '85%',
 }
 
+export const UNIT = 'ETH'
+
 export const LP_BASE_RATE: Record<string, number> = {
   '7-10': 11,
   '7-20': 12,

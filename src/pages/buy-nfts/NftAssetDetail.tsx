@@ -11,7 +11,6 @@ import {
   SliderFilledTrack,
   SliderThumb,
   SliderMark,
-  useRadioGroup,
   HStack,
   Highlight,
   VStack,
@@ -19,13 +18,13 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import range from 'lodash/range'
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 
 import TestImage from '@/assets/IMAGE.png'
 import { ConnectWalletModal } from '@/components'
 import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
-import { COLLATERALS } from '@/utils/constants'
+import { COLLATERALS, UNIT } from '@/utils/constants'
 
 import IconEth from '@/assets/icon/icon-eth.svg'
 import test from '@/assets/test-img.svg'
@@ -54,39 +53,32 @@ const NftAssetDetail = () => {
   )
   // const { id } = useParams()
   const [sliderValue, setSliderValue] = useState(COLLATERALS[4])
+
+  // loan periods
   const [
     periodOptions,
     // setPeriodOptions
-  ] = useState(['react', 'vue', 'svelte'])
+  ] = useState(['7', '14', '30', '60', '90'])
+  const [periodValue, setPeriodValue] = useState('7')
 
-  const {
-    getRootProps: getPeriodRootProps,
-    getRadioProps: getPeriodRadioProps,
-  } = useRadioGroup({
-    name: 'periodOptions',
-    defaultValue: 'react',
-    onChange: console.log,
-  })
-  const periodGroup = getPeriodRootProps()
+  // number of installments
+  const [installmentOptions, setInstallmentOptions] = useState(['1', '2', '3'])
+  const [installmentValue, setInstallmentValue] = useState('1')
 
-  const [
-    installmentOptions,
-    // setInstallmentOptions
-  ] = useState(['react', 'vue', 'svelte'])
-
-  const {
-    getRootProps: getInstallmentRootProps,
-    getRadioProps: getInstallmentRadioProps,
-  } = useRadioGroup({
-    name: 'installmentOptions',
-    defaultValue: 'react',
-    onChange: console.log,
-  })
-  const installmentGroup = getInstallmentRootProps()
+  useEffect(() => {
+    if (periodValue === '7') {
+      setInstallmentOptions(['1'])
+      return
+    }
+    if (periodValue === '14') {
+      setInstallmentOptions(['1', '2'])
+      return
+    }
+    setInstallmentOptions(['1', '2', '3'])
+  }, [periodValue])
 
   const handleClickPay = useCallback(() => {
     interceptFn(() => {
-      //
       console.log('点击 down payment')
     })
   }, [interceptFn])
@@ -199,18 +191,20 @@ const NftAssetDetail = () => {
 
         {/* Loan Period */}
         <LabelComponent label='Loan Period'>
-          <HStack {...periodGroup} gap={4}>
-            {periodOptions.map((value, index) => {
-              const radio = getPeriodRadioProps({ value })
+          <HStack gap={4}>
+            {periodOptions.map((value) => {
               return (
                 <Flex
                   key={value}
                   w={`${100 / periodOptions.length}%`}
                   maxW={136}
                 >
-                  <RadioCard {...radio}>
+                  <RadioCard
+                    onClick={() => setPeriodValue(value)}
+                    isActive={value === periodValue}
+                  >
                     <Text fontWeight={700} mb='58px'>
-                      {index} Days
+                      {value} Days
                     </Text>
                     <Text
                       fontWeight={500}
@@ -233,16 +227,18 @@ const NftAssetDetail = () => {
 
         {/* Number of installments */}
         <LabelComponent label='Number of installments'>
-          <HStack {...installmentGroup} gap={4}>
+          <HStack gap={4}>
             {installmentOptions.map((value, index) => {
-              const radio = getInstallmentRadioProps({ value })
               return (
                 <Flex
                   key={value}
                   w={`${100 / installmentOptions.length}%`}
                   maxW={188}
                 >
-                  <RadioCard {...radio}>
+                  <RadioCard
+                    onClick={() => setInstallmentValue(value)}
+                    isActive={value === installmentValue}
+                  >
                     <Text fontWeight={700} mb='58px'>
                       Pay in {index} installments
                     </Text>
@@ -284,22 +280,22 @@ const NftAssetDetail = () => {
             {/* Commodity price */}
             <Flex justify={'space-between'}>
               <Text color={COLORS.secondaryTextColor}>Commodity price</Text>
-              <Text color={COLORS.secondaryTextColor}>xxx ETH</Text>
+              <Text color={COLORS.secondaryTextColor}>xxx {UNIT}</Text>
             </Flex>
             {/* Down payment */}
             <Flex justify={'space-between'}>
               <Text color={COLORS.secondaryTextColor}>Down payment</Text>
-              <Text color={COLORS.secondaryTextColor}>xxx ETH</Text>
+              <Text color={COLORS.secondaryTextColor}>xxx {UNIT}</Text>
             </Flex>
             {/* Loan amount */}
             <Flex justify={'space-between'}>
               <Text color={COLORS.secondaryTextColor}>Loan amount</Text>
-              <Text color={COLORS.secondaryTextColor}>xxx ETH</Text>
+              <Text color={COLORS.secondaryTextColor}>xxx {UNIT}</Text>
             </Flex>
             {/* Interest fee */}
             <Flex justify={'space-between'}>
               <Text color={COLORS.secondaryTextColor}>Interest fee</Text>
-              <Text color={COLORS.secondaryTextColor}>xxx ETH</Text>
+              <Text color={COLORS.secondaryTextColor}>xxx {UNIT}</Text>
             </Flex>
             <Divider color={COLORS.borderColor} />
             {/* Total repayment */}
@@ -308,7 +304,7 @@ const NftAssetDetail = () => {
                 Total repayment
               </Text>
               <Text fontSize={'md'} fontWeight='bold'>
-                xxx ETH
+                xxx {UNIT}
               </Text>
             </Flex>
             {/* Floor breakeven */}
@@ -317,7 +313,7 @@ const NftAssetDetail = () => {
                 Floor breakeven
               </Text>
               <Text fontSize={'md'} fontWeight='bold'>
-                xxx ETH
+                xxx {UNIT}
               </Text>
             </Flex>
           </Flex>
@@ -331,7 +327,7 @@ const NftAssetDetail = () => {
           w='100%'
           onClick={handleClickPay}
         >
-          <Text fontWeight={'400'}>Down payment</Text>&nbsp;20 ETH
+          <Text fontWeight={'400'}>Down payment</Text>&nbsp;20 {UNIT}
         </Button>
       </Box>
 

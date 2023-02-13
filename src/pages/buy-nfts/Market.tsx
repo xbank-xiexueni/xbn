@@ -170,7 +170,7 @@ const Market = () => {
               data={{}}
               key={item.id}
               onClick={() => {
-                navigate(`/asset/${item}`)
+                navigate(`/asset/${item.id}`)
               }}
             />
           ))}
