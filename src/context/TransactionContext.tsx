@@ -7,8 +7,10 @@ import {
   ModalOverlay,
   Text,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react'
 import { ethers } from 'ethers'
+import isEmpty from 'lodash/isEmpty'
 import {
   useEffect,
   useState,
@@ -47,6 +49,7 @@ export const TransactionsProvider = ({
 }: {
   children: ReactElement
 }) => {
+  const toast = useToast()
   const [currentAccount, setCurrentAccount] = useState('')
   const [balance, setBalance] = useState(0)
 
@@ -88,11 +91,14 @@ export const TransactionsProvider = ({
 
   useEffect(() => {
     if (!ethereum) return
-    ethereum.on('disconnect', () => {
-      console.log('disconnect')
-      setCurrentAccount('')
+    ethereum.on('accountsChanged', function (accounts: string[]) {
+      // 一旦切换账号这里就会执行
+      if (isEmpty(accounts)) {
+        setCurrentAccount('')
+        return
+      }
     })
-  }, [setCurrentAccount])
+  }, [])
 
   const getBalance = useCallback(async () => {
     if (!currentAccount || !ethereum) return
@@ -104,7 +110,13 @@ export const TransactionsProvider = ({
 
   const checkIfWalletIsConnect = useCallback(async () => {
     try {
-      if (!ethereum) return alert('Please install MetaMask.')
+      if (!ethereum)
+        return toast({
+          title: `please install metamask`,
+          status: 'error',
+          isClosable: true,
+          duration: null,
+        })
 
       const accounts = await ethereum.request({ method: 'eth_accounts' })
 
@@ -120,11 +132,17 @@ export const TransactionsProvider = ({
       setCurrentAccount('')
       console.log(error)
     }
-  }, [])
+  }, [toast])
 
   const connectWallet = useCallback(async () => {
     try {
-      if (!ethereum) return alert('Please install MetaMask.')
+      if (!ethereum)
+        return toast({
+          title: `please install metamask`,
+          status: 'error',
+          isClosable: true,
+          duration: null,
+        })
       setConnectLoading(true)
       const accounts = await ethereum.request({
         method: 'eth_requestAccounts',
@@ -138,7 +156,7 @@ export const TransactionsProvider = ({
 
       throw new Error('No ethereum object')
     }
-  }, [])
+  }, [toast])
 
   // const sendTransaction = async () => {
   //   try {

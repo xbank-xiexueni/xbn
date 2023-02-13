@@ -1,4 +1,4 @@
-import { Box, type BoxProps } from '@chakra-ui/react'
+import { Flex, type FlexProps } from '@chakra-ui/react'
 import { type FunctionComponent } from 'react'
 
 import COLORS from '@/utils/Colors'
@@ -7,17 +7,20 @@ type RadioCardProps = {
   isActive?: boolean
 }
 
-const RadioCard: FunctionComponent<BoxProps & RadioCardProps> = ({
+const RadioCard: FunctionComponent<FlexProps & RadioCardProps> = ({
   children,
   isActive,
   ...props
 }) => {
   return (
-    <Box
+    <Flex
+      flexDir={'column'}
+      h='136px'
+      justifyContent='space-between'
       {...props}
       w='100%'
       cursor='pointer'
-      borderWidth={isActive ? '2px' : '1px'}
+      borderWidth={1}
       borderRadius='16'
       borderColor={isActive ? COLORS.primaryColor : COLORS.tipTextColor}
       _hover={{
@@ -26,7 +29,7 @@ const RadioCard: FunctionComponent<BoxProps & RadioCardProps> = ({
       p={4}
     >
       {children}
-    </Box>
+    </Flex>
   )
 }
 

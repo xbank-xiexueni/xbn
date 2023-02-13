@@ -17,16 +17,19 @@ import {
   Divider,
   useDisclosure,
 } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
+import dayjs from 'dayjs'
+import isEmpty from 'lodash/isEmpty'
 import range from 'lodash/range'
 import { useCallback, useContext, useEffect, useState } from 'react'
 
 import TestImage from '@/assets/IMAGE.png'
-import { ConnectWalletModal } from '@/components'
+import { ConnectWalletModal, SvgComponent } from '@/components'
 import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
+import { amortizationCalByDays } from '@/utils/calculation'
 import { COLLATERALS, UNIT } from '@/utils/constants'
 
-import IconEth from '@/assets/icon/icon-eth.svg'
 import test from '@/assets/test-img.svg'
 
 import BelongToCollection from './components/BelongToCollection'
@@ -52,29 +55,42 @@ const NftAssetDetail = () => {
     [currentAccount, onOpen],
   )
   // const { id } = useParams()
+  const [
+    commodityPrice,
+    // srCommodityPrice
+  ] = useState(90)
   const [sliderValue, setSliderValue] = useState(COLLATERALS[4])
+  const [loanAmount, setLoanAmount] = useState<number>()
+
+  useEffect(() => {
+    if (!commodityPrice) return
+    setLoanAmount((commodityPrice * sliderValue) / 100)
+  }, [sliderValue, commodityPrice])
 
   // loan periods
   const [
     periodOptions,
     // setPeriodOptions
-  ] = useState(['7', '14', '30', '60', '90'])
-  const [periodValue, setPeriodValue] = useState('7')
+  ] = useState<(7 | 14 | 30 | 60 | 90)[]>([7, 14, 30, 60, 90])
+  const [periodValue, setPeriodValue] = useState<7 | 14 | 30 | 60 | 90>(7)
 
   // number of installments
-  const [installmentOptions, setInstallmentOptions] = useState(['1', '2', '3'])
-  const [installmentValue, setInstallmentValue] = useState('1')
+  const [installmentOptions, setInstallmentOptions] = useState<(1 | 2 | 3)[]>([
+    1, 2, 3,
+  ])
+  const [installmentValue, setInstallmentValue] = useState<1 | 2 | 3>(1)
 
   useEffect(() => {
-    if (periodValue === '7') {
-      setInstallmentOptions(['1'])
+    if (!periodValue) return
+    if (periodValue === 7) {
+      setInstallmentOptions([1])
       return
     }
-    if (periodValue === '14') {
-      setInstallmentOptions(['1', '2'])
+    if (periodValue === 14) {
+      setInstallmentOptions([1, 2])
       return
     }
-    setInstallmentOptions(['1', '2', '3'])
+    setInstallmentOptions([1, 2, 3])
   }, [periodValue])
 
   const handleClickPay = useCallback(() => {
@@ -83,8 +99,22 @@ const NftAssetDetail = () => {
     })
   }, [interceptFn])
 
+  const getPlanPer = useCallback(
+    (value: number) => {
+      if (!loanAmount) return BigNumber(0)
+      return amortizationCalByDays(loanAmount, 0.29, periodValue, value)
+    },
+    [periodValue, loanAmount],
+  )
+
   return (
-    <SimpleGrid minChildWidth='600px' spacing='40px' mt={8} pb='100px'>
+    <SimpleGrid
+      minChildWidth='600px'
+      spacing='40px'
+      mt={8}
+      pb='100px'
+      justifyItems={'center'}
+    >
       <Flex
         flexWrap={'wrap'}
         justify={{
@@ -106,7 +136,7 @@ const NftAssetDetail = () => {
           data={{
             name1: 'xxx',
             name2: 'sssssssss',
-            price: '111',
+            price: `${commodityPrice}`,
             verified: true,
           }}
         />
@@ -126,18 +156,18 @@ const NftAssetDetail = () => {
               bg={COLORS.secondaryBgc}
               borderRadius={8}
               gap={1}
-              alignItems='center'
+              alignItems='baseline'
               justify={'center'}
               w='80px'
             >
-              <Image src={IconEth} h='20px' />
-              <Text fontSize={'lg'}>20</Text>
+              <SvgComponent svgId='icon-eth' svgSize='18px' />
+              <Text fontSize={'lg'}>{commodityPrice - (loanAmount || 0)}</Text>
             </Flex>
             <Divider orientation='vertical' h={6} />
             <Slider
               min={COLLATERALS[0]}
               max={COLLATERALS[COLLATERALS.length - 1]}
-              step={0.2}
+              step={10}
               onChange={(target) => {
                 setSliderValue(target)
               }}
@@ -182,17 +212,17 @@ const NftAssetDetail = () => {
             <Text fontSize={'xs'} fontWeight='500'>
               Loan amount
             </Text>
-            <Image src={IconEth} h='14px' />
+            <SvgComponent svgId='icon-eth' svgSize='12px' />
             <Text fontSize={'xs'} fontWeight='500'>
-              70
+              {loanAmount}
             </Text>
           </Flex>
         </LabelComponent>
 
         {/* Loan Period */}
-        <LabelComponent label='Loan Period'>
+        <LabelComponent label='Loan Period' isEmpty={isEmpty(periodOptions)}>
           <HStack gap={4}>
-            {periodOptions.map((value) => {
+            {periodOptions.map((value, index) => {
               return (
                 <Flex
                   key={value}
@@ -203,9 +233,7 @@ const NftAssetDetail = () => {
                     onClick={() => setPeriodValue(value)}
                     isActive={value === periodValue}
                   >
-                    <Text fontWeight={700} mb='58px'>
-                      {value} Days
-                    </Text>
+                    <Text fontWeight={700}>{value} Days</Text>
                     <Text
                       fontWeight={500}
                       fontSize='xs'
@@ -215,7 +243,7 @@ const NftAssetDetail = () => {
                         query={'APR'}
                         styles={{ color: COLORS.textColor }}
                       >
-                        29% APR
+                        {`${29 + index} % APR`}
                       </Highlight>
                     </Text>
                   </RadioCard>
@@ -226,9 +254,12 @@ const NftAssetDetail = () => {
         </LabelComponent>
 
         {/* Number of installments */}
-        <LabelComponent label='Number of installments'>
+        <LabelComponent
+          label='Number of installments'
+          isEmpty={isEmpty(installmentOptions)}
+        >
           <HStack gap={4}>
-            {installmentOptions.map((value, index) => {
+            {installmentOptions.map((value) => {
               return (
                 <Flex
                   key={value}
@@ -239,11 +270,11 @@ const NftAssetDetail = () => {
                     onClick={() => setInstallmentValue(value)}
                     isActive={value === installmentValue}
                   >
-                    <Text fontWeight={700} mb='58px'>
-                      Pay in {index} installments
-                    </Text>
+                    <Text fontWeight={700}>Pay in {value} installments</Text>
                     <Text fontWeight={500} fontSize='xs'>
-                      70 ETG/per
+                      {loanAmount && getPlanPer(value).toFixed(4)}
+                      &nbsp;
+                      {UNIT}/per
                     </Text>
                   </RadioCard>
                 </Flex>
@@ -261,62 +292,89 @@ const NftAssetDetail = () => {
             borderRadius={12}
             spacing={4}
           >
-            {range(3).map((value) => (
-              <PlanItem value={`${value}`} label='xxxxxx' key={value} />
+            <PlanItem value={'20'} label='Down payment on today' />
+
+            {range(installmentValue).map((value, index) => (
+              <PlanItem
+                value={getPlanPer(installmentValue).toFixed(4)}
+                label={dayjs()
+                  .add((periodValue / installmentValue) * (index + 1), 'days')
+                  .format('YYYY/MM/DD')}
+                key={value}
+              />
             ))}
           </VStack>
         </LabelComponent>
 
         {/* Trading Information */}
         <LabelComponent label='Trading Information' borderBottom={'none'}>
-          <Flex
-            border={`1px solid ${COLORS.tipTextColor}`}
-            py={6}
-            px={4}
-            borderRadius={12}
-            gap={4}
-            direction='column'
-          >
-            {/* Commodity price */}
-            <Flex justify={'space-between'}>
-              <Text color={COLORS.secondaryTextColor}>Commodity price</Text>
-              <Text color={COLORS.secondaryTextColor}>xxx {UNIT}</Text>
+          {loanAmount && (
+            <Flex
+              border={`1px solid ${COLORS.tipTextColor}`}
+              py={6}
+              px={4}
+              borderRadius={12}
+              gap={4}
+              direction='column'
+            >
+              {/* Commodity price */}
+              <Flex justify={'space-between'}>
+                <Text color={COLORS.secondaryTextColor}>Commodity price</Text>
+                <Text color={COLORS.secondaryTextColor}>
+                  {commodityPrice} {UNIT}
+                </Text>
+              </Flex>
+              {/* Down payment */}
+              <Flex justify={'space-between'}>
+                <Text color={COLORS.secondaryTextColor}>Down payment</Text>
+                <Text color={COLORS.secondaryTextColor}>
+                  {commodityPrice - loanAmount} {UNIT}
+                </Text>
+              </Flex>
+              {/* Loan amount */}
+              <Flex justify={'space-between'}>
+                <Text color={COLORS.secondaryTextColor}>Loan amount</Text>
+                <Text color={COLORS.secondaryTextColor}>
+                  {loanAmount} {UNIT}
+                </Text>
+              </Flex>
+              {/* Interest fee */}
+              <Flex justify={'space-between'}>
+                <Text color={COLORS.secondaryTextColor}>Interest fee</Text>
+                <Text color={COLORS.secondaryTextColor}>
+                  {getPlanPer(installmentValue)
+                    .multipliedBy(installmentValue)
+                    .minus(loanAmount)
+                    .toFixed(4)}
+                  {UNIT}
+                </Text>
+              </Flex>
+              <Divider color={COLORS.borderColor} />
+              {/* Total repayment */}
+              <Flex justify={'space-between'}>
+                <Text fontSize={'md'} fontWeight='bold'>
+                  Total repayment
+                </Text>
+                <Text fontSize={'md'} fontWeight='bold'>
+                  {getPlanPer(installmentValue)
+                    .multipliedBy(installmentValue)
+                    .minus(loanAmount)
+                    .plus(commodityPrice)
+                    .toFixed(4)}
+                  {UNIT}
+                </Text>
+              </Flex>
+              {/* Floor breakeven */}
+              <Flex justify={'space-between'}>
+                <Text fontSize={'md'} fontWeight='bold'>
+                  Floor breakeven
+                </Text>
+                <Text fontSize={'md'} fontWeight='bold'>
+                  xxx {UNIT}
+                </Text>
+              </Flex>
             </Flex>
-            {/* Down payment */}
-            <Flex justify={'space-between'}>
-              <Text color={COLORS.secondaryTextColor}>Down payment</Text>
-              <Text color={COLORS.secondaryTextColor}>xxx {UNIT}</Text>
-            </Flex>
-            {/* Loan amount */}
-            <Flex justify={'space-between'}>
-              <Text color={COLORS.secondaryTextColor}>Loan amount</Text>
-              <Text color={COLORS.secondaryTextColor}>xxx {UNIT}</Text>
-            </Flex>
-            {/* Interest fee */}
-            <Flex justify={'space-between'}>
-              <Text color={COLORS.secondaryTextColor}>Interest fee</Text>
-              <Text color={COLORS.secondaryTextColor}>xxx {UNIT}</Text>
-            </Flex>
-            <Divider color={COLORS.borderColor} />
-            {/* Total repayment */}
-            <Flex justify={'space-between'}>
-              <Text fontSize={'md'} fontWeight='bold'>
-                Total repayment
-              </Text>
-              <Text fontSize={'md'} fontWeight='bold'>
-                xxx {UNIT}
-              </Text>
-            </Flex>
-            {/* Floor breakeven */}
-            <Flex justify={'space-between'}>
-              <Text fontSize={'md'} fontWeight='bold'>
-                Floor breakeven
-              </Text>
-              <Text fontSize={'md'} fontWeight='bold'>
-                xxx {UNIT}
-              </Text>
-            </Flex>
-          </Flex>
+          )}
         </LabelComponent>
 
         {/* 按钮 */}
@@ -326,8 +384,10 @@ const NftAssetDetail = () => {
           h='60px'
           w='100%'
           onClick={handleClickPay}
+          disabled={!loanAmount}
         >
-          <Text fontWeight={'400'}>Down payment</Text>&nbsp;20 {UNIT}
+          <Text fontWeight={'400'}>Down payment</Text>&nbsp;
+          {commodityPrice - (loanAmount || 0)} {UNIT}
         </Button>
       </Box>
 

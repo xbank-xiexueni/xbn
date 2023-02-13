@@ -8,7 +8,6 @@ import {
   TabPanels,
   Tabs,
   Text,
-  Image,
   Heading,
   Tag,
   List,
@@ -37,15 +36,12 @@ import {
   LoadingComponent,
   TableList,
   EmptyTableComponent,
+  SvgComponent,
 } from '@/components'
 import type { ColumnProps } from '@/components/table/Table'
 // import { TransactionContext } from '@/context/TransactionContext'
 import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
-
-import IconChecked from '@/assets/icon/icon-checked.svg'
-import IconEth from '@/assets/icon/icon-eth.svg'
-// import IconSearch from '@/assets/icon/icon-search.svg'
 
 import CollectionListItem from '../buy-nfts/components/CollectionListItem'
 
@@ -295,7 +291,7 @@ const Lend = () => {
                 label: 'Historical Lent Out',
                 value: (
                   <Flex alignItems={'center'}>
-                    <Image src={IconEth} height={8} />
+                    <SvgComponent svgId='icon-eth' height={8} />
                     <Heading fontSize={'3xl'}>1,859.8</Heading>
                   </Flex>
                 ),
@@ -545,7 +541,7 @@ const Lend = () => {
                       All my Collections
                     </Text>
                     {selectKeyForOpenLoans === -1 ? (
-                      <Image src={IconChecked} />
+                      <SvgComponent svgId='icon-checked' />
                     ) : (
                       <Text fontSize={'sm'}>{myPoolsData.list?.length}</Text>
                     )}

@@ -33,7 +33,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-venders': ['react', 'react-dom'],
+          'react-venders': ['react', 'react-dom', 'react-router-dom'],
+          'chakra-vendors': ['@chakra-ui/react'],
         },
       },
     },

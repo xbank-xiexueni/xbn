@@ -1,11 +1,10 @@
 import { Flex, Image, Text } from '@chakra-ui/react'
 import { useMemo, type FunctionComponent } from 'react'
 
+import { SvgComponent } from '@/components'
 import COLORS from '@/utils/Colors'
 
-import IconLooksRare from '@/assets/icon/icon-loosrare.svg'
-import IconOpenSea from '@/assets/icon/icon-opensea.svg'
-import IconX2y2 from '@/assets/icon/icon-x2y2.svg'
+import IconX2y2 from '@/assets/icon-x2y2.svg'
 
 /**
  * 1: looksrare
@@ -13,35 +12,36 @@ import IconX2y2 from '@/assets/icon/icon-x2y2.svg'
  * 3. x2y2
  */
 const NftOrigin: FunctionComponent<{ type: 1 | 2 | 3 }> = ({ type }) => {
-  const { src, name } = useMemo(() => {
+  const { img, name } = useMemo(() => {
     switch (type) {
       case 1:
         return {
-          src: IconLooksRare,
+          img: <SvgComponent svgId='icon-loosrare' />,
           name: 'LooksRare',
         }
 
       case 2:
         return {
-          src: IconOpenSea,
+          img: <SvgComponent svgId='icon-opensea' />,
+
           name: 'OpenSea',
         }
       case 3:
         return {
-          src: IconX2y2,
+          img: <Image src={IconX2y2} />,
           name: 'X2Y2',
         }
 
       default:
         return {
-          src: IconLooksRare,
+          img: <SvgComponent svgId='icon-loosrare' />,
           name: 'LooksRare',
         }
     }
   }, [type])
   return (
     <Flex gap={1}>
-      <Image src={src} />
+      {img}
       <Text
         fontSize={'14px'}
         fontWeight={500}

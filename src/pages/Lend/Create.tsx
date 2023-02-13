@@ -1,17 +1,9 @@
-import {
-  Box,
-  Button,
-  Container,
-  Flex,
-  Heading,
-  Image,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Button, Container, Flex, Heading, Text } from '@chakra-ui/react'
 import isEmpty from 'lodash/isEmpty'
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { LpBaseRateTable, Select } from '@/components'
+import { LpBaseRateTable, Select, SvgComponent } from '@/components'
 import AsyncSelectCollection from '@/components/async-select/AsyncSelectCollection'
 import COLORS from '@/utils/Colors'
 import {
@@ -22,10 +14,6 @@ import {
   INITIAL_TENOR,
   STEPS_DESCRIPTIONS,
 } from '@/utils/constants'
-
-import IconArrowLeft from '@/assets/icon/icon-arrow-left.svg'
-import IconTime from '@/assets/icon/icon-calendar.svg'
-import IconIntersect from '@/assets/icon/icon-intersect.svg'
 
 import ApproveEthButton from './components/ApproveEthButton'
 import CardWithBg from './components/CardWithBg'
@@ -47,9 +35,10 @@ const Create = () => {
           md: 'flex-start',
         }}
         wrap='wrap'
+        mt={10}
       >
         <Button
-          leftIcon={<Image src={IconArrowLeft} />}
+          leftIcon={<SvgComponent svgId='icon-arrow-left' />}
           onClick={() => {
             navigate(-1)
           }}
@@ -109,7 +98,7 @@ const Create = () => {
                   label: `${INITIAL_TENOR} Days`,
                   value: INITIAL_TENOR,
                 }}
-                img={IconTime}
+                img={<SvgComponent svgId='icon-calendar' ml={3} />}
                 onChange={(e) => setSelectTenor(e?.value as number)}
                 options={TENORS?.map((item) => ({
                   label: `${item} Days`,
@@ -134,7 +123,7 @@ const Create = () => {
               <Select
                 placeholder='Please select'
                 // w={'240px'}
-                img={IconIntersect}
+                img={<SvgComponent svgId='icon-intersect' ml={3} />}
                 defaultValue={{
                   label: `${INITIAL_COLLATERAL} %`,
                   value: INITIAL_COLLATERAL,

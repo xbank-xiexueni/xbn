@@ -4,7 +4,6 @@ import {
   List,
   Flex,
   Text,
-  Image,
   Highlight,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -16,12 +15,15 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 // import { SearchInput } from '@/components'
 import { apiGetBuyerLoans } from '@/api/buyer'
-import { ConnectWalletModal, LoadingComponent, TableList } from '@/components'
+import {
+  ConnectWalletModal,
+  LoadingComponent,
+  SvgComponent,
+  TableList,
+} from '@/components'
 import type { ColumnProps } from '@/components/table/Table'
 import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
-
-import IconChecked from '@/assets/icon/icon-checked.svg'
 
 import CollectionListItem from './components/CollectionListItem'
 
@@ -128,6 +130,14 @@ const Loans = () => {
     return res
   }, [data])
 
+  const getCollectionLength = useCallback(
+    (targetId: string) => {
+      return data?.data?.list?.filter((i: any) => i.collectionId === targetId)
+        .length
+    },
+    [data],
+  )
+
   return (
     <Box>
       <Heading size={'2xl'} my='60px'>
@@ -168,7 +178,7 @@ const Loans = () => {
                 All my Collections
               </Text>
               {selectCollection === -1 ? (
-                <Image src={IconChecked} />
+                <SvgComponent svgId='icon-checked' />
               ) : (
                 <Text fontSize={'sm'}>{10}</Text>
               )}
@@ -179,6 +189,7 @@ const Loans = () => {
                 key={item.id}
                 onClick={() => setSelectCollection(item.id)}
                 isActive={selectCollection === item.id}
+                count={getCollectionLength(item.id)}
               />
             ))}
           </List>

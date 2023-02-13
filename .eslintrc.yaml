@@ -81,3 +81,4 @@ rules:
     [1, { disallowTypeAnnotations: false }]
   '@typescript-eslint/triple-slash-reference':
     [0, { no-unused-expressions: off }]
+  'import/no-named-as-default': 0

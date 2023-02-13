@@ -26,7 +26,7 @@ function AsyncSelectCollection<
 
   const promiseOptions = useCallback(
     (inputValue: string) => {
-      console.log(inputValue)
+      console.log(inputValue, 'inputValue')
       return new Promise<any[]>((resolve) => {
         handleFetchActiveCollections()
           .then((res: { data: { list: any[] | PromiseLike<any[]> } }) => {

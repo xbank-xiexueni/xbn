@@ -1,9 +1,7 @@
-import { Flex, ListItem, Box, Text, Image } from '@chakra-ui/react'
+import { Flex, ListItem, Box, Text } from '@chakra-ui/react'
 
+import { SvgComponent } from '@/components'
 import COLORS from '@/utils/Colors'
-
-import IconChecked from '@/assets/icon/icon-checked.svg'
-import IconVerifiedFill from '@/assets/icon/icon-verified-fill.svg'
 
 import type { FunctionComponent } from 'react'
 
@@ -11,7 +9,8 @@ const CollectionListItem: FunctionComponent<{
   data: any
   onClick?: () => void
   isActive?: boolean
-}> = ({ data: { id, name }, onClick, isActive }) => {
+  count?: number
+}> = ({ data: { id, name }, onClick, isActive, count }) => {
   return (
     <ListItem
       key={id}
@@ -35,12 +34,12 @@ const CollectionListItem: FunctionComponent<{
           {name}
           &nbsp;
         </Text>
-        <Image src={IconVerifiedFill} />
+        <SvgComponent svgId='icon-verified-fill' />
       </Flex>
       {isActive ? (
-        <Image src={IconChecked} />
+        <SvgComponent svgId='icon-checked' />
       ) : (
-        <Text fontSize={'sm'}>{id}</Text>
+        count && <Text fontSize={'sm'}>{count}</Text>
       )}
     </ListItem>
   )

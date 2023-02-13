@@ -8,10 +8,9 @@ import {
 } from '@chakra-ui/react'
 import { type FunctionComponent } from 'react'
 
+import { SvgComponent } from '@/components'
 import COLORS from '@/utils/Colors'
 import { UNIT } from '@/utils/constants'
-
-import IconVerified from '@/assets/icon/icon-verified-fill.svg'
 
 const BelongToCollection: FunctionComponent<
   BoxProps & {
@@ -44,7 +43,7 @@ const BelongToCollection: FunctionComponent<
             <Text fontSize={'18px'} fontWeight='bold'>
               {name}
             </Text>
-            {verified && <Image src={IconVerified} />}
+            {verified && <SvgComponent svgId='icon-verified' />}
           </Flex>
 
           <Text fontSize={'18px'} fontWeight='bold'>

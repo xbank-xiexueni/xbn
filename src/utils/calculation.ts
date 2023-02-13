@@ -1,0 +1,46 @@
+import BigNumber from 'bignumber.js'
+/**
+ *
+ * @param p 贷款本金
+ * @param i 每月利率 （年利率 除以 12）
+ * @param n 每月利率
+ * @returns 每月还款金额
+ */
+const amortizationCal = (p: number, i: number, n: number) => {
+  return (p * (i * Math.pow(1 + i, n))) / (Math.pow(1 + i, n) - 1)
+}
+
+/**
+ *
+ * @param principal 贷款本金
+ * @param interest_rate 年利率
+ * @param loan_period_days 贷款期数（以天为单位）
+ * @param x 分 x 期
+ * @returns 每 n 天还款金额
+ */
+const amortizationCalByDays = (
+  principal: number,
+  interest_rate: number,
+  loan_period_days: 7 | 14 | 30 | 60 | 90,
+  x: number,
+) => {
+  if (
+    Number.isNaN(principal) ||
+    Number.isNaN(interest_rate) ||
+    Number.isNaN(loan_period_days) ||
+    Number.isNaN(x)
+  ) {
+    return BigNumber(0)
+  }
+  // installment 天为一个还款周期
+  const installment = BigNumber(loan_period_days).dividedBy(x)
+  const i = BigNumber(interest_rate).dividedBy(365).multipliedBy(installment)
+  const n = BigNumber(loan_period_days).dividedBy(installment)
+  const iPlus1powN = i.plus(1).pow(n)
+  return iPlus1powN
+    .multipliedBy(i)
+    .dividedBy(iPlus1powN.minus(1))
+    .multipliedBy(principal)
+}
+
+export { amortizationCal, amortizationCalByDays }

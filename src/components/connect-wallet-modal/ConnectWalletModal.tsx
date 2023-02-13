@@ -6,7 +6,6 @@ import {
   ModalCloseButton,
   ModalBody,
   Flex,
-  Image,
   Text,
   Spinner,
   Box,
@@ -14,10 +13,9 @@ import {
 } from '@chakra-ui/react'
 import { useContext, type FunctionComponent } from 'react'
 
+import { SvgComponent } from '@/components'
 import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
-
-import IconMetamask from '@/assets/icon/icon-metamask.svg'
 
 type IndexProps = {
   visible: boolean
@@ -51,10 +49,13 @@ const Index: FunctionComponent<IndexProps> = ({ visible, handleClose }) => {
               onClick={connectWallet}
             >
               <Flex alignItems={'center'} gap={4}>
-                <Image src={IconMetamask} />
+                <SvgComponent svgId='icon-metamask' svgSize='32px' />
                 <Text fontWeight={'700'}>MetaMask</Text>
               </Flex>
-              <Text>&gt;</Text>
+              <SvgComponent
+                svgId='icon-arrow-down'
+                transform={'rotate(270deg)'}
+              />
             </Flex>
           ) : (
             <Flex
@@ -73,11 +74,12 @@ const Index: FunctionComponent<IndexProps> = ({ visible, handleClose }) => {
                   w='52px'
                   h={'52px'}
                 />
-                <Image
-                  src={IconMetamask}
+                <SvgComponent
+                  svgId='icon-metamask'
                   position='absolute'
                   top={2.5}
                   left={2.5}
+                  svgSize='34px'
                 />
               </Box>
 

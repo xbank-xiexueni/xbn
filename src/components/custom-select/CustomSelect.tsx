@@ -1,4 +1,3 @@
-import { Image } from '@chakra-ui/react'
 import Select, { components, type GroupBase, type Props } from 'react-select'
 
 import COLORS from '@/utils/Colors'
@@ -14,7 +13,10 @@ function CustomSelect<
   Option,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
->({ img, ...restProps }: Props<Option, IsMulti, Group> & { img?: string }) {
+>({
+  img,
+  ...restProps
+}: Props<Option, IsMulti, Group> & { img?: React.ReactElement }) {
   return (
     <Select
       {...restProps}
@@ -46,7 +48,7 @@ function CustomSelect<
       components={{
         Control: ({ children, ...rest }) => (
           <components.Control {...rest}>
-            <Image src={img} ml={3} />
+            {img}
             {children}
           </components.Control>
         ),

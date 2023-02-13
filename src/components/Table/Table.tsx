@@ -1,5 +1,4 @@
 import {
-  Image,
   Table,
   TableContainer,
   Tbody,
@@ -16,11 +15,7 @@ import { useState, type FunctionComponent, type ReactElement } from 'react'
 
 import COLORS from '@/utils/Colors'
 
-import IconSortDESC from '@/assets/icon/icon-sort-down.svg'
-import IconSortASC from '@/assets/icon/icon-sort-up.svg'
-import IconUnSort from '@/assets/icon/icon-unsort.svg'
-
-import { LoadingComponent, EmptyTableComponent } from '..'
+import { LoadingComponent, EmptyTableComponent, SvgComponent } from '..'
 import '../table/table.less'
 
 export interface ColumnProps {
@@ -174,16 +169,16 @@ const Index: FunctionComponent<MyTableProps> = ({
                     >
                       {title}
                       {sortable && sortParams.field !== dataIndex && (
-                        <Image src={IconUnSort} />
+                        <SvgComponent svgId='icon-unsort' />
                       )}
 
                       {sortParams.field === dataIndex &&
                         sortParams.direction === 'ASC' && (
-                          <Image src={IconSortASC} />
+                          <SvgComponent svgId='icon-sort-down' />
                         )}
                       {sortParams.field === dataIndex &&
                         sortParams.direction === 'DESC' && (
-                          <Image src={IconSortDESC} />
+                          <SvgComponent svgId='icon-sort-up' />
                         )}
                     </Flex>
                   </Th>

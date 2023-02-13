@@ -42,6 +42,7 @@ const Market = () => {
         }
         setSelectCollection(data.data.list[0].id)
       },
+      debounceWait: 100,
     },
   )
 
@@ -53,7 +54,6 @@ const Market = () => {
     },
   )
 
-  console.log(detailData)
   const descriptionData = useMemo(() => {
     const detail = detailData?.data
     if (isEmpty(detail)) {

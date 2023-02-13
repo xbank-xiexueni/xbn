@@ -1,17 +1,7 @@
-import {
-  Box,
-  Flex,
-  Heading,
-  Text,
-  Image,
-  type BoxProps,
-} from '@chakra-ui/react'
+import { Box, Flex, Heading, Text, type BoxProps } from '@chakra-ui/react'
 
-import { NftOrigin } from '@/components'
+import { NftOrigin, SvgComponent } from '@/components'
 import COLORS from '@/utils/Colors'
-
-import IconEth from '@/assets/icon/icon-eth.svg'
-import IconVerified from '@/assets/icon/icon-verified-fill.svg'
 
 import type { FunctionComponent } from 'react'
 
@@ -28,9 +18,9 @@ const DetailComponent: FunctionComponent<
   return (
     <Box mt={8}>
       {/* 名称*/}
-      <Flex>
+      <Flex alignItems={'baseline'}>
         <Text fontWeight={'500'}>{name1}</Text>
-        {verified && <Image src={IconVerified} />}
+        {verified && <SvgComponent svgId='icon-verified' />}
       </Flex>
       <Heading fontSize={'40px'}>{name2}</Heading>
       {/* 价格 */}
@@ -45,7 +35,7 @@ const DetailComponent: FunctionComponent<
         <Box>
           <Text>Price</Text>
           <Flex alignItems={'baseline'} mt={1} gap={1}>
-            <Image src={IconEth} h={'28px'} />
+            <SvgComponent svgId='icon-eth' svgSize='30px' />
             <Heading size={'xl'}>{price}</Heading>
             <Text fontSize={'xs'}>$123123</Text>
           </Flex>

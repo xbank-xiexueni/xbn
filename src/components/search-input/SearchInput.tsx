@@ -1,15 +1,13 @@
 import {
   Input,
   InputGroup,
-  Image,
   type InputProps,
   type ImageProps,
   InputLeftElement,
 } from '@chakra-ui/react'
 
+import { SvgComponent } from '@/components'
 import COLORS from '@/utils/Colors'
-
-import IconSearch from '@/assets/icon/icon-search.svg'
 
 import type { FunctionComponent } from 'react'
 
@@ -35,7 +33,7 @@ const index: FunctionComponent<
   return (
     <InputGroup pos={'relative'}>
       <InputLeftElement pointerEvents='none' color='gray.300' fontSize='1.2em'>
-        <Image src={IconSearch} />
+        <SvgComponent svgId='icon-search' />
       </InputLeftElement>
       <Input
         {...rest}

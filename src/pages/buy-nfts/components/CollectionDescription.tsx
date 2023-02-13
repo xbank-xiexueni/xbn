@@ -10,10 +10,8 @@ import {
 import isEmpty from 'lodash/isEmpty'
 import { useState, type FunctionComponent, type ReactElement } from 'react'
 
+import { SvgComponent } from '@/components'
 import COLORS from '@/utils/Colors'
-
-import IconEth from '@/assets/icon/icon-eth.svg'
-import IconVerifiedFill from '@/assets/icon/icon-verified-fill.svg'
 
 const CollectionDescription: FunctionComponent<{
   data?: {
@@ -61,7 +59,7 @@ const CollectionDescription: FunctionComponent<{
             <Heading fontSize={'3xl'} display='flex'>
               {title}
             </Heading>
-            {isVerified && <Image src={IconVerifiedFill} />}
+            {isVerified && <SvgComponent svgId='icon-verified-fill' />}
           </Flex>
 
           <Text
@@ -95,8 +93,9 @@ const CollectionDescription: FunctionComponent<{
       <HStack spacing={10}>
         {keys.map(({ label, value, isEth }) => (
           <Flex key={`${label}`} flexDir='column' alignItems='center'>
-            <Flex>
-              {isEth && <Image src={IconEth} height={8} mr={1} />}
+            <Flex alignItems={'baseline'}>
+              {isEth && <SvgComponent svgId='icon-eth' svgSize='20px' mr={1} />}
+
               <Heading fontSize={'2xl'} display='flex' mb={1}>
                 {value}
               </Heading>

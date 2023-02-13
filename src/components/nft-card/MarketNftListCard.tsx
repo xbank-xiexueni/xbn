@@ -13,10 +13,8 @@ import {
 } from '@chakra-ui/react'
 import { useState } from 'react'
 
-import { NftOrigin } from '@/components'
+import { NftOrigin, SvgComponent } from '@/components'
 import COLORS from '@/utils/Colors'
-
-import IconEth from '@/assets/icon/icon-eth.svg'
 
 import type { FunctionComponent } from 'react'
 
@@ -56,7 +54,7 @@ const MarketNftListCard: FunctionComponent<
           <Flex justify={'space-between'} alignItems='center'>
             <Text fontSize={'sm'}>aaaa</Text>
             <Flex alignItems={'center'} gap={1}>
-              <Image src={IconEth} w={2} />
+              <SvgComponent svgId='icon-eth' w={2} />
               <Text fontSize={'md'}>11.22</Text>
             </Flex>
           </Flex>
@@ -84,7 +82,7 @@ const MarketNftListCard: FunctionComponent<
             <NftOrigin type={1} />
           </Flex>
           <Flex alignItems={'center'} gap={1}>
-            <Image src={IconEth} w={2} />
+            <SvgComponent svgId='icon-eth' w={2} />
             <Text fontSize={'sm'} color={COLORS.secondaryTextColor}>
               11.22
             </Text>

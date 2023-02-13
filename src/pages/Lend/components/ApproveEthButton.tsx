@@ -11,7 +11,6 @@ import {
   // Flex,
   // Box,
   Text,
-  Image,
   type ButtonProps,
   InputGroup,
   InputLeftElement,
@@ -28,13 +27,10 @@ import {
   type FunctionComponent,
 } from 'react'
 
+import { SvgComponent } from '@/components'
 import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
 import { UNIT } from '@/utils/constants'
-
-import IconClose from '@/assets/icon/icon-close.svg'
-import IconError from '@/assets/icon/icon-error.svg'
-import IconEth from '@/assets/icon/icon-eth.svg'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
 //   label,
@@ -104,7 +100,11 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
             justifyContent='space-between'
           >
             <Text>Approve {UNIT}</Text>
-            <Image src={IconClose} onClick={onClose} cursor='pointer' />
+            <SvgComponent
+              svgId='icon-close'
+              onClick={onClose}
+              cursor='pointer'
+            />
           </ModalHeader>
           <ModalBody pb={6} px={0}>
             {/* 数值们 */}
@@ -128,7 +128,7 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
                   fontSize='1.2em'
                   top='10px'
                 >
-                  <Image src={IconEth} />
+                  <SvgComponent svgId='icon-eth' />
                 </InputLeftElement>
                 <NumberInput
                   w='100%'
@@ -158,7 +158,7 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
 
                 {isError && (
                   <InputRightElement top='10px'>
-                    <Image src={IconError} />
+                    <SvgComponent svgId='icon-error' />
                   </InputRightElement>
                 )}
               </InputGroup>

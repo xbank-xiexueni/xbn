@@ -8,7 +8,6 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-  PopoverHeader,
   PopoverBody,
   IconButton,
   useDisclosure,
@@ -23,11 +22,7 @@ import { TransactionContext } from '@/context/TransactionContext'
 import COLORS from '@/utils/Colors'
 import { RESPONSIVE_MAX_W } from '@/utils/constants'
 
-import IconArrowActive from '@/assets/icon/icon-arrow-down-active.svg'
-import IconArrow from '@/assets/icon/icon-arrow-down.svg'
-import IconWalletOutline from '@/assets/icon/icon-wallet-outline.svg'
-
-import { ConnectWalletModal } from '..'
+import { ConnectWalletModal, SvgComponent } from '..'
 
 const Header = () => {
   const { currentAccount } = useContext(TransactionContext)
@@ -79,8 +74,12 @@ const Header = () => {
                   fontSize={'md'}
                   px={0}
                   rightIcon={
-                    <Image
-                      src={activePath === 'LEND' ? IconArrowActive : IconArrow}
+                    <SvgComponent
+                      svgId={
+                        activePath === 'LEND'
+                          ? 'icon-arrow-down-active'
+                          : 'icon-arrow-down'
+                      }
                     />
                   }
                   _focus={{ bg: 'transparent' }}
@@ -133,9 +132,11 @@ const Header = () => {
                   variant={'ghost'}
                   fontSize={'md'}
                   rightIcon={
-                    <Image
-                      src={
-                        activePath === 'BUY_NFTS' ? IconArrowActive : IconArrow
+                    <SvgComponent
+                      svgId={
+                        activePath === 'BUY_NFTS'
+                          ? 'icon-arrow-down-active'
+                          : 'icon-arrow-down'
                       }
                     />
                   }
@@ -184,30 +185,31 @@ const Header = () => {
           </Flex>
 
           <Flex gap={6} alignItems='center'>
-            {!!currentAccount && (
+            {!!currentAccount ? (
               <Jazzicon
                 diameter={30}
                 seed={parseInt(currentAccount.slice(2, 10), 16)}
               />
+            ) : (
+              <IconButton
+                justifyContent={'center'}
+                aria-label=''
+                onClick={onOpen}
+                bg='white'
+                disabled={!!currentAccount}
+                // display={{
+                //   sm: 'none',
+                //   md: 'none',
+                //   lg: 'inline-flex',
+                // }}
+                icon={
+                  <SvgComponent svgId='icon-wallet-outline' svgSize='24px' />
+                }
+              />
             )}
-
-            <IconButton
-              justifyContent={'center'}
-              aria-label=''
-              onClick={onOpen}
-              // variant='outline'
-              bg='white'
-              disabled={!!currentAccount}
-              display={{
-                sm: 'none',
-                md: 'none',
-                lg: 'inline-flex',
-              }}
-              icon={<Image src={IconWalletOutline} />}
-            />
           </Flex>
 
-          <Popover isLazy trigger='click' placement='bottom-end'>
+          {/* <Popover isLazy trigger='click' placement='bottom-end'>
             <PopoverTrigger>
               <Button
                 variant={'ghost'}
@@ -229,7 +231,7 @@ const Header = () => {
                 eiusmod tempor incididunt ut labore et dolore.
               </PopoverBody>
             </PopoverContent>
-          </Popover>
+          </Popover> */}
         </Flex>
       </Container>
 
