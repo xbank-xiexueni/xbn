@@ -14,11 +14,13 @@ export default defineConfig({
       },
     },
   },
+
   server: {
+    open: true,
+    port: 8000,
     watch: {
       usePolling: true,
     },
-    open: true,
     proxy: {
       '/api': {
         // mock

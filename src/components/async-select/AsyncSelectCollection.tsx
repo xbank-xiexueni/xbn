@@ -6,7 +6,7 @@ import AsyncSelect from 'react-select/async'
 
 import { apiGetActiveCollection } from '@/api'
 
-import EmptyComponent from '../EmptyComponent'
+import { EmptyComponent } from '..'
 
 function AsyncSelectCollection<
   Option,

@@ -8,20 +8,23 @@ import {
   // Flex,
   SimpleGrid,
   Highlight,
+  useDisclosure,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import isEmpty from 'lodash-es/isEmpty'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useContext, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { apiGetActiveCollection } from '@/api'
 import { apiGetCollectionDetail } from '@/api/buyer'
 import {
+  ConnectWalletModal,
   LoadingComponent,
   // SearchInput,
   MarketNftListCard,
   // Select
 } from '@/components'
+import { TransactionContext } from '@/context/TransactionContext'
 
 import TEST_IMG from '@/assets/test-img.svg'
 
@@ -30,6 +33,21 @@ import CollectionListItem from './components/CollectionListItem'
 
 const Market = () => {
   const navigate = useNavigate()
+  const { currentAccount } = useContext(TransactionContext)
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const interceptFn = useCallback(
+    (fn?: () => void) => {
+      // 判断是否连接钱包
+      if (!currentAccount) {
+        onOpen()
+        return
+      }
+      if (fn) {
+        fn()
+      }
+    },
+    [currentAccount, onOpen],
+  )
 
   const [selectCollection, setSelectCollection] = useState<number>()
   const { data: collectionData, loading: collectionLoading } = useRequest(
@@ -172,12 +190,15 @@ const Market = () => {
               data={{}}
               key={item.id}
               onClick={() => {
-                navigate(`/asset/${item.id}`)
+                interceptFn(() => {
+                  navigate(`/asset/${item.id}`)
+                })
               }}
             />
           ))}
         </SimpleGrid>
       </GridItem>
+      <ConnectWalletModal visible={isOpen} handleClose={onClose} />
     </Grid>
   )
 }

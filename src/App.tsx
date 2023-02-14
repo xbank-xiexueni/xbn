@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
 
+import { Fallback } from '@/components'
+
 // Lend
 const Lend = lazy(() => import('./pages/Lend/Lend'))
 const PoolCreate = lazy(() => import('./pages/Lend/Create'))
@@ -15,6 +17,7 @@ const LoansForBuyer = lazy(() => import('./pages/buy-nfts/Loans'))
 const NftAssetDetail = lazy(() => import('./pages/buy-nfts/NftAssetDetail'))
 
 const NotFound = lazy(() => import('./pages/404'))
+
 function App() {
   return (
     <>
@@ -24,7 +27,7 @@ function App() {
         {/* <Route
           path='lend/pools'
           element={
-            <Suspense fallback={<>...</>}>
+            <Suspense fallback={<Fallback />}>
               <Lend />
             </Suspense>
           }
@@ -32,7 +35,7 @@ function App() {
         <Route
           path='lend/my-pools/create'
           element={
-            <Suspense fallback={<>...</>}>
+            <Suspense fallback={<Fallback />}>
               <PoolCreate />
             </Suspense>
           }
@@ -40,7 +43,7 @@ function App() {
         {/* <Route
           path='lend/pools/edit/:collectionId?'
           element={
-            <Suspense fallback={<>...</>}>
+            <Suspense fallback={<Fallback />}>
               <PoolEdit />
             </Suspense>
           }
@@ -48,7 +51,7 @@ function App() {
         <Route
           path='lend/my-pools'
           element={
-            <Suspense fallback={<>...</>}>
+            <Suspense fallback={<Fallback />}>
               <Lend />
             </Suspense>
           }
@@ -57,7 +60,7 @@ function App() {
         <Route
           path='lend/loans'
           element={
-            <Suspense fallback={<>...</>}>
+            <Suspense fallback={<Fallback />}>
               <Lend />
             </Suspense>
           }
@@ -71,7 +74,7 @@ function App() {
         <Route
           path='/buy-nfts/market'
           element={
-            <Suspense fallback={<>...</>}>
+            <Suspense fallback={<Fallback />}>
               <Market />
             </Suspense>
           }
@@ -81,7 +84,7 @@ function App() {
         <Route
           path='/asset/:id'
           element={
-            <Suspense fallback={<>...</>}>
+            <Suspense fallback={<Fallback />}>
               <NftAssetDetail />
             </Suspense>
           }
@@ -89,7 +92,7 @@ function App() {
         {/* <Route
           path='/buy-nfts/my-assets'
           element={
-            <Suspense fallback={<>...</>}>
+            <Suspense fallback={<Fallback />}>
               <MyAssets />
             </Suspense>
           }
@@ -97,7 +100,7 @@ function App() {
         <Route
           path='/buy-nfts/loans'
           element={
-            <Suspense fallback={<>...</>}>
+            <Suspense fallback={<Fallback />}>
               <LoansForBuyer />
             </Suspense>
           }
@@ -107,7 +110,7 @@ function App() {
           <Route
             path='pools'
             element={
-              <React.Suspense fallback={<>...</>}>
+              <React.Suspense fallback={<Fallback />}>
                 <Lend />
               </React.Suspense>
             }
@@ -115,7 +118,7 @@ function App() {
           <Route
             path='my-pools'
             element={
-              <React.Suspense fallback={<>...</>}>
+              <React.Suspense fallback={<Fallback />}>
                 <Lend />
               </React.Suspense>
             }
@@ -123,7 +126,7 @@ function App() {
           <Route
             path='loans'
             element={
-              <React.Suspense fallback={<>...</>}>
+              <React.Suspense fallback={<Fallback />}>
                 <Lend />
               </React.Suspense>
             }
@@ -131,7 +134,7 @@ function App() {
         </Route> */}
         <Route
           element={
-            <Suspense fallback={<>...</>}>
+            <Suspense fallback={<Fallback />}>
               <NotFound />
             </Suspense>
           }
