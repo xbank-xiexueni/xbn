@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react'
 
-import Table, { type MyTableProps } from '@/components/table'
+import Table, { type MyTableProps } from './table'
 
 import type { FunctionComponent } from 'react'
 
