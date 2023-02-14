@@ -11,7 +11,7 @@ import {
   Box,
 } from '@chakra-ui/react'
 import isEmpty from 'lodash/isEmpty'
-import { useState, type FunctionComponent, type ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 
 import { LoadingComponent, EmptyTableComponent, SvgComponent } from '..'
 import '../table/table.less'
@@ -43,7 +43,7 @@ export type MyTableProps = TableProps & {
   tableTitle?: () => ReactElement
 }
 
-const Table: FunctionComponent<MyTableProps> = ({
+const Table = ({
   columns,
   data,
   onSort,
@@ -52,7 +52,7 @@ const Table: FunctionComponent<MyTableProps> = ({
   tableTitle,
   emptyRender,
   maxW,
-}) => {
+}: MyTableProps) => {
   const [sortParams, setSortParam] = useState({
     direction: '',
     field: '',
