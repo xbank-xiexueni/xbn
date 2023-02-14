@@ -11,7 +11,7 @@ const Index = ({ loading }: { loading: boolean }) => {
       right={0}
       top={0}
       bottom={0}
-      bg='rgba(0,0,0,.1)'
+      bg='rgba(27, 34, 44, 0.1)'
       borderRadius={4}
       justify={'center'}
       zIndex={10}
