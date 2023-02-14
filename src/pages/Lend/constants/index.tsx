@@ -1,7 +1,7 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
 import { Link } from 'react-router-dom'
 
-import type { ColumnProps } from '@/components/table'
+import type { ColumnProps } from '@/components/my-table'
 
 export const activeCollectionColumns: ColumnProps[] = [
   {
@@ -9,7 +9,10 @@ export const activeCollectionColumns: ColumnProps[] = [
     dataIndex: 'name',
     key: 'name',
     align: 'left',
-    render: (_, value) => (
+    render: (
+      _: Record<string, string | number | boolean>,
+      value: string | number | boolean,
+    ) => (
       <Flex alignItems={'center'} gap={2}>
         <Box w={10} h={10} bg='pink' borderRadius={4} />
         <Text>{value}</Text>
@@ -44,7 +47,7 @@ export const activeCollectionColumns: ColumnProps[] = [
     align: 'right',
     thAlign: 'right',
     fixedRight: true,
-    render: (data) => {
+    render: (data: Record<string, string | number | boolean>) => {
       return (
         <Flex
           _hover={{
@@ -69,7 +72,10 @@ export const loansForLendColumns: ColumnProps[] = [
     dataIndex: 'col1',
     key: 'col1',
     align: 'left',
-    render: (_, value) => (
+    render: (
+      _: Record<string, string | number | boolean>,
+      value: string | number | boolean,
+    ) => (
       <Flex alignItems={'center'} gap={2}>
         <Box w={10} h={10} bg='pink' borderRadius={4} />
         <Text>{value}</Text>

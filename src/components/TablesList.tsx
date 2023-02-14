@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react'
 
-import Table, { type MyTableProps } from './table'
+import MyTable, { type MyTableProps } from './my-table'
 
 import type { FunctionComponent } from 'react'
 
@@ -10,7 +10,7 @@ const TableList: FunctionComponent<{
   return (
     <Box>
       {tables?.map((item) => (
-        <Table {...item} key={item.key} />
+        <MyTable {...item} key={item.key} />
       ))}
     </Box>
   )

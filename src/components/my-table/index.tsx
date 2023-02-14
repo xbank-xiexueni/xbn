@@ -14,7 +14,7 @@ import isEmpty from 'lodash/isEmpty'
 import { useState, type ReactElement } from 'react'
 
 import { LoadingComponent, EmptyTableComponent, SvgComponent } from '..'
-import '../table/table.less'
+import '../my-table/table.less'
 
 export interface ColumnProps {
   title: string
@@ -43,7 +43,7 @@ export type MyTableProps = TableProps & {
   tableTitle?: () => ReactElement
 }
 
-const Table = ({
+const MyTable = ({
   columns,
   data,
   onSort,
@@ -277,4 +277,4 @@ const Table = ({
   )
 }
 
-export default Table
+export default MyTable

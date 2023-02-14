@@ -32,13 +32,13 @@ import {
   ConnectWalletModal,
   // SearchInput,
   // Pagination,
-  Table,
+  MyTable,
   LoadingComponent,
   TableList,
   EmptyTableComponent,
   SvgComponent,
 } from '@/components'
-import type { ColumnProps } from '@/components/table'
+import type { ColumnProps } from '@/components/my-table'
 // import { TransactionContext } from '@/context/TransactionContext'
 import { TransactionContext } from '@/context/TransactionContext'
 
@@ -199,7 +199,10 @@ const Lend = () => {
       dataIndex: 'col1',
       key: 'col1',
       align: 'left',
-      render: (_, value) => (
+      render: (
+        _: Record<string, string | number | boolean>,
+        value: string | number | boolean,
+      ) => (
         <Flex alignItems={'center'} gap={2}>
           <Box w={10} h={10} bg='pink' borderRadius={4} />
           <Text>{value}</Text>
@@ -240,14 +243,17 @@ const Lend = () => {
       align: 'right',
       fixedRight: true,
       thAlign: 'right',
-      render: (_, id) => {
+      render: (
+        _: Record<string, string | number | boolean>,
+        value: string | number | boolean,
+      ) => {
         return (
           <Flex alignItems='center' gap={2}>
             <Text
               color='gray.3'
               onClick={() => {
                 navigate('/lend/loans')
-                setSelectKeyForOpenLoans(id as number)
+                setSelectKeyForOpenLoans(value as number)
               }}
               cursor='pointer'
             >
@@ -428,7 +434,7 @@ const Lend = () => {
 
         <TabPanels>
           {/* <TabPanel p={0}>
-            <Table
+            <MyTable
               loading={loading1}
               columns={activeCollectionColumns}
               data={activeCollectionData?.list || []}
@@ -473,11 +479,11 @@ const Lend = () => {
             />
           </TabPanel> */}
           <TabPanel p={0}>
-            <Table
+            <MyTable
               loading={myPoolsLoading}
               columns={myPoolsColumns}
               data={myPoolsData?.list || []}
-              onSort={(args) => {
+              onSort={(args: any) => {
                 console.log(args)
                 handleFetchMyPools()
               }}

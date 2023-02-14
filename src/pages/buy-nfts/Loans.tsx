@@ -21,7 +21,7 @@ import {
   SvgComponent,
   TableList,
 } from '@/components'
-import type { ColumnProps } from '@/components/table'
+import type { ColumnProps } from '@/components/my-table'
 import { TransactionContext } from '@/context/TransactionContext'
 
 import CollectionListItem from './components/CollectionListItem'
@@ -32,7 +32,10 @@ export const loansForBuyerColumns: ColumnProps[] = [
     dataIndex: 'col1',
     key: 'col1',
     align: 'left',
-    render: (_, value) => (
+    render: (
+      _: Record<string, string | number | boolean>,
+      value: string | number | boolean,
+    ) => (
       <Flex alignItems={'center'} gap={2}>
         <Box w={10} h={10} bg='pink' borderRadius={4} />
         <Text>{value}</Text>
