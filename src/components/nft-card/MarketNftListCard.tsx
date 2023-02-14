@@ -14,7 +14,6 @@ import {
 import { useState } from 'react'
 
 import { NftOrigin, SvgComponent } from '@/components'
-import COLORS from '@/utils/Colors'
 
 import type { FunctionComponent } from 'react'
 
@@ -29,7 +28,7 @@ const MarketNftListCard: FunctionComponent<
     <Card
       {...rest}
       _hover={{
-        boxShadow: `${COLORS.tipTextColor} 0px 0px 10px`,
+        boxShadow: `var(--chakra-colors-gray-1) 0px 0px 10px`,
       }}
       cursor='pointer'
       onMouseOver={() => setShow(true)}
@@ -48,7 +47,7 @@ const MarketNftListCard: FunctionComponent<
         </Box>
 
         <Stack mt={3} spacing={2} px={4} mb={2}>
-          <Text color={COLORS.secondaryTextColor} fontSize='sm'>
+          <Text color={`gray.3`} fontSize='sm'>
             Azuki #6671
           </Text>
           <Flex justify={'space-between'} alignItems='center'>
@@ -60,7 +59,7 @@ const MarketNftListCard: FunctionComponent<
           </Flex>
         </Stack>
       </CardBody>
-      <Divider color={COLORS.borderColor} px={4} />
+      <Divider color={`gray.2`} />
       {show ? (
         <Button
           borderRadius={8}
@@ -83,7 +82,7 @@ const MarketNftListCard: FunctionComponent<
           </Flex>
           <Flex alignItems={'center'} gap={1}>
             <SvgComponent svgId='icon-eth' w={2} />
-            <Text fontSize={'sm'} color={COLORS.secondaryTextColor}>
+            <Text fontSize={'sm'} color={`gray.3`}>
               11.22
             </Text>
           </Flex>

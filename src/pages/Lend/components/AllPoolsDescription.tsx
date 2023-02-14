@@ -7,8 +7,6 @@ import {
   Image,
 } from '@chakra-ui/react'
 
-import COLORS from '@/utils/Colors'
-
 import type { ReactElement, FunctionComponent } from 'react'
 
 const AllPoolsDescription: FunctionComponent<{
@@ -53,7 +51,7 @@ const AllPoolsDescription: FunctionComponent<{
         )}
         {typeof description === 'string' ? (
           <Text
-            color={COLORS.secondaryTextColor}
+            color='gray.3'
             mt={2}
             mb={10}
             fontSize={'xl'}
@@ -74,7 +72,7 @@ const AllPoolsDescription: FunctionComponent<{
                 value
               )}
               {typeof label === 'string' ? (
-                <Text color={COLORS.infoTextColor}>{label}</Text>
+                <Text color={`var(--chakra-colors-gray-4)`}>{label}</Text>
               ) : (
                 label
               )}

@@ -1,7 +1,6 @@
 import { Flex, ListItem, Box, Text } from '@chakra-ui/react'
 
 import { SvgComponent } from '@/components'
-import COLORS from '@/utils/Colors'
 
 import type { FunctionComponent } from 'react'
 
@@ -19,13 +18,13 @@ const CollectionListItem: FunctionComponent<{
       display='flex'
       alignItems={'center'}
       justifyContent='space-between'
-      border={`1px solid ${COLORS.borderColor}`}
+      border={`1px solid var(--chakra-colors-gray-2)`}
       borderRadius={8}
       _hover={{
-        bg: COLORS.secondaryColor,
+        bg: 'blue.2',
       }}
       cursor='pointer'
-      bg={isActive ? COLORS.secondaryColor : 'white'}
+      bg={isActive ? 'blue.2' : 'white'}
       onClick={onClick}
     >
       <Flex alignItems={'center'}>

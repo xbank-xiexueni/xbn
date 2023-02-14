@@ -16,7 +16,6 @@ import {
   MyAssetNftListCard,
   // SearchInput, Select
 } from '@/components'
-import COLORS from '@/utils/Colors'
 
 const MyAssets = () => {
   return (
@@ -27,7 +26,7 @@ const MyAssets = () => {
       <Tabs position='relative'>
         <TabList
           _active={{
-            color: COLORS.primaryColor,
+            color: 'blue.1',
             fontWeight: 'bold',
           }}
         >
@@ -36,15 +35,15 @@ const MyAssets = () => {
             px={2}
             pb={5}
             _selected={{
-              color: COLORS.primaryColor,
+              color: 'blue.1',
               borderBottomWidth: 2,
-              borderColor: COLORS.primaryColor,
+              borderColor: 'blue.1',
             }}
             fontWeight='bold'
           >
             Collected &nbsp;
             <Tag
-              bg={COLORS.primaryColor}
+              bg='blue.1'
               color='white'
               borderRadius={15}
               fontSize={'xs'}

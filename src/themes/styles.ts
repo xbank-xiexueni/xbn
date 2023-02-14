@@ -1,13 +1,11 @@
-import COLORS from '@/utils/Colors'
-
 const styles = {
   global: {
     'html, body': {
-      color: COLORS.textColor,
+      color: 'black.1',
       fontFamily: 'HarmonyOS',
     },
     a: {
-      color: COLORS.primaryColor,
+      color: 'blue.1',
     },
   },
 }

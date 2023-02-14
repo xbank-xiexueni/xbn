@@ -1,6 +1,5 @@
 import Select, { components, type GroupBase, type Props } from 'react-select'
 
-import COLORS from '@/utils/Colors'
 export interface ColorOption {
   readonly value: string
   readonly label: string
@@ -26,7 +25,7 @@ function CustomSelect<
         width: 240,
         colors: {
           ...theme.colors,
-          primary: COLORS.primaryColor,
+          primary: `var(--chakra-colors-blue-1)`,
         },
       })}
       styles={{
@@ -36,13 +35,15 @@ function CustomSelect<
           borderRadius: 8,
           height: 44,
           borderColor: state.isFocused
-            ? COLORS.primaryColor
-            : COLORS.borderColor,
+            ? `var(--chakra-colors-blue-1)`
+            : `var(--chakra-colors-gray-2)`,
         }),
         option: (baseStyles, state) => ({
           ...baseStyles,
-          backgroundColor: state.isSelected ? COLORS.secondaryColor : 'white',
-          color: COLORS.textColor,
+          backgroundColor: state.isSelected
+            ? `var(--chakra-colors-blue-2)`
+            : 'white',
+          color: `var(--chakra-colors-black-1)`,
         }),
       }}
       components={{

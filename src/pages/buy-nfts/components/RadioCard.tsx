@@ -1,8 +1,6 @@
 import { Flex, type FlexProps } from '@chakra-ui/react'
 import { type FunctionComponent } from 'react'
 
-import COLORS from '@/utils/Colors'
-
 type RadioCardProps = {
   isActive?: boolean
 }
@@ -22,9 +20,9 @@ const RadioCard: FunctionComponent<FlexProps & RadioCardProps> = ({
       cursor='pointer'
       borderWidth={1}
       borderRadius='16'
-      borderColor={isActive ? COLORS.primaryColor : COLORS.tipTextColor}
+      borderColor={isActive ? 'blue.1' : 'gray.1'}
       _hover={{
-        borderColor: isActive ? COLORS.primaryColor : COLORS.textColor,
+        borderColor: isActive ? 'blue.1' : 'black.1',
       }}
       p={4}
     >

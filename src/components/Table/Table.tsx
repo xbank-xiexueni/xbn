@@ -13,8 +13,6 @@ import {
 import isEmpty from 'lodash/isEmpty'
 import { useState, type FunctionComponent, type ReactElement } from 'react'
 
-import COLORS from '@/utils/Colors'
-
 import { LoadingComponent, EmptyTableComponent, SvgComponent } from '..'
 import '../table/table.less'
 
@@ -88,11 +86,7 @@ const Index: FunctionComponent<MyTableProps> = ({
                   <Th
                     textAlign={thAlign}
                     key={key}
-                    color={
-                      sortParams.field === dataIndex
-                        ? COLORS.primaryColor
-                        : COLORS.infoTextColor
-                    }
+                    color={sortParams.field === dataIndex ? 'blue.1' : 'gray.4'}
                     position={fixedRight ? 'sticky' : 'relative'}
                     zIndex={fixedRight ? 1 : 'inherit'}
                     bg='white'
@@ -160,7 +154,7 @@ const Index: FunctionComponent<MyTableProps> = ({
                       }
                       boxShadow={
                         fixedRight
-                          ? `-4px 0 5px -3px ${COLORS.borderColor}`
+                          ? `-4px 0 5px -3px var(--chakra-colors-gray-2)`
                           : ''
                       }
                       py={3}
@@ -197,7 +191,7 @@ const Index: FunctionComponent<MyTableProps> = ({
               data.map((item) => (
                 <Tr
                   key={JSON.stringify(item)}
-                  bg={COLORS.secondaryBgc}
+                  bg='gray.5'
                   mb={4}
                   pos='relative'
                 >
@@ -221,7 +215,7 @@ const Index: FunctionComponent<MyTableProps> = ({
                         position={fixedRight ? 'sticky' : 'relative'}
                         zIndex={fixedRight ? 1 : 'inherit'}
                         right={0}
-                        bg={fixedRight ? 'white' : COLORS.secondaryBgc}
+                        bg={fixedRight ? 'white' : 'gray.5'}
                         py={0}
                         paddingInlineStart={0}
                         paddingInlineEnd={0}
@@ -242,14 +236,14 @@ const Index: FunctionComponent<MyTableProps> = ({
                           lineHeight='40px'
                           boxShadow={
                             fixedRight
-                              ? `-4px 0 5px -3px ${COLORS.borderColor}`
+                              ? `-4px 0 5px -3px var(--chakra-colors-gray-2)`
                               : ''
                           }
                           py={3}
                           paddingInlineStart={6}
                           paddingInlineEnd={6}
                           // display={'table-cell'}
-                          bg={COLORS.secondaryBgc}
+                          bg='gray.5'
                           borderTopLeftRadius={colIndex === 0 ? 10 : 0}
                           borderTopRightRadius={
                             colIndex === columns?.length - 1 ? 10 : 0

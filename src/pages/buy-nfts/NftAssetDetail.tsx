@@ -26,7 +26,6 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 import TestImage from '@/assets/IMAGE.png'
 import { ConnectWalletModal, SvgComponent } from '@/components'
 import { TransactionContext } from '@/context/TransactionContext'
-import COLORS from '@/utils/Colors'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { COLLATERALS, UNIT } from '@/utils/constants'
 
@@ -140,14 +139,14 @@ const NftAssetDetail = () => {
           <Flex
             p={4}
             pr={6}
-            border={`1px solid ${COLORS.tipTextColor}`}
+            border={`1px solid var(--chakra-colors-gray-1)`}
             borderRadius={16}
             alignItems='center'
             gap={4}
           >
             <Flex
               py={3}
-              bg={COLORS.secondaryBgc}
+              bg='gray.5'
               borderRadius={8}
               gap={1}
               alignItems='baseline'
@@ -176,24 +175,20 @@ const NftAssetDetail = () => {
                     borderWidth={1}
                     borderColor='white'
                     mt={-1}
-                    bg={
-                      sliderValue > item
-                        ? COLORS.primaryColor
-                        : COLORS.tipTextColor
-                    }
+                    bg={sliderValue > item ? 'blue.1' : 'gray.1'}
                   />
                 </SliderMark>
               ))}
-              <SliderTrack bg={COLORS.tipTextColor}>
+              <SliderTrack bg='gray.1'>
                 <SliderFilledTrack
-                  // bg={COLORS.secondaryColor}
-                  bgGradient={`linear-gradient(90deg,#fff,${COLORS.primaryColor})`}
+                  // bg={`var(--chakra-colors-blue-2)`}
+                  bgGradient={`linear-gradient(90deg,#fff,var(--chakra-colors-blue-1))`}
                 />
               </SliderTrack>
               <SliderThumb
                 boxSize={6}
                 borderWidth={5}
-                borderColor={COLORS.primaryColor}
+                borderColor={'blue.1'}
                 _focus={{
                   boxShadow: 'none',
                 }}
@@ -228,14 +223,10 @@ const NftAssetDetail = () => {
                     isActive={value === periodValue}
                   >
                     <Text fontWeight={700}>{value} Days</Text>
-                    <Text
-                      fontWeight={500}
-                      fontSize='xs'
-                      color={COLORS.primaryColor}
-                    >
+                    <Text fontWeight={500} fontSize='xs' color='blue.1'>
                       <Highlight
                         query={'APR'}
-                        styles={{ color: COLORS.textColor }}
+                        styles={{ color: `var(--chakra-colors-black-1)` }}
                       >
                         {`${29 + index} % APR`}
                       </Highlight>
@@ -280,7 +271,7 @@ const NftAssetDetail = () => {
         {/* Repayment Plan */}
         <LabelComponent label='Repayment Plan'>
           <VStack
-            bg={COLORS.secondaryBgc}
+            bg={`var(--chakra-colors-gray-5)`}
             py={6}
             px={4}
             borderRadius={12}
@@ -304,7 +295,7 @@ const NftAssetDetail = () => {
         <LabelComponent label='Trading Information' borderBottom={'none'}>
           {loanAmount && (
             <Flex
-              border={`1px solid ${COLORS.tipTextColor}`}
+              border={`1px solid ${`var(--chakra-colors-gray-1)`}`}
               py={6}
               px={4}
               borderRadius={12}
@@ -313,29 +304,31 @@ const NftAssetDetail = () => {
             >
               {/* Commodity price */}
               <Flex justify={'space-between'}>
-                <Text color={COLORS.secondaryTextColor}>Commodity price</Text>
-                <Text color={COLORS.secondaryTextColor}>
+                <Text color={`var(--chakra-colors-gray-3)`}>
+                  Commodity price
+                </Text>
+                <Text color={`var(--chakra-colors-gray-3)`}>
                   {commodityPrice} {UNIT}
                 </Text>
               </Flex>
               {/* Down payment */}
               <Flex justify={'space-between'}>
-                <Text color={COLORS.secondaryTextColor}>Down payment</Text>
-                <Text color={COLORS.secondaryTextColor}>
+                <Text color={`var(--chakra-colors-gray-3)`}>Down payment</Text>
+                <Text color={`var(--chakra-colors-gray-3)`}>
                   {commodityPrice - loanAmount} {UNIT}
                 </Text>
               </Flex>
               {/* Loan amount */}
               <Flex justify={'space-between'}>
-                <Text color={COLORS.secondaryTextColor}>Loan amount</Text>
-                <Text color={COLORS.secondaryTextColor}>
+                <Text color={`var(--chakra-colors-gray-3)`}>Loan amount</Text>
+                <Text color={`var(--chakra-colors-gray-3)`}>
                   {loanAmount} {UNIT}
                 </Text>
               </Flex>
               {/* Interest fee */}
               <Flex justify={'space-between'}>
-                <Text color={COLORS.secondaryTextColor}>Interest fee</Text>
-                <Text color={COLORS.secondaryTextColor}>
+                <Text color={`var(--chakra-colors-gray-3)`}>Interest fee</Text>
+                <Text color={`var(--chakra-colors-gray-3)`}>
                   {getPlanPer(installmentValue)
                     .multipliedBy(installmentValue)
                     .minus(loanAmount)
@@ -343,7 +336,7 @@ const NftAssetDetail = () => {
                   {UNIT}
                 </Text>
               </Flex>
-              <Divider color={COLORS.borderColor} />
+              <Divider color={`var(--chakra-colors-gray-2)`} />
               {/* Total repayment */}
               <Flex justify={'space-between'}>
                 <Text fontSize={'md'} fontWeight='bold'>

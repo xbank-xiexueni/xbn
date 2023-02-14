@@ -15,7 +15,6 @@ import { useContext, type FunctionComponent } from 'react'
 
 import { SvgComponent } from '@/components'
 import { TransactionContext } from '@/context/TransactionContext'
-import COLORS from '@/utils/Colors'
 
 type IndexProps = {
   visible: boolean
@@ -69,8 +68,8 @@ const Index: FunctionComponent<IndexProps> = ({ visible, handleClose }) => {
                 <Spinner
                   thickness='2px'
                   speed='1s'
-                  emptyColor={COLORS.secondaryBgc}
-                  color={COLORS.primaryColor}
+                  emptyColor={`gray.5`}
+                  color={`blue.1`}
                   w='52px'
                   h={'52px'}
                 />

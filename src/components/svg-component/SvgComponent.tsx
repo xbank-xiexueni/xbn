@@ -1,4 +1,4 @@
-import { Box, type BoxProps } from '@chakra-ui/react'
+import { Box, type BoxProps, chakra } from '@chakra-ui/react'
 import { type FunctionComponent } from 'react'
 
 const SvgComponent: FunctionComponent<
@@ -14,9 +14,9 @@ const SvgComponent: FunctionComponent<
 }) => {
   return (
     <Box {...rest}>
-      <svg className='icon' aria-hidden='true' fontSize={svgSize}>
-        <use xlinkHref={`#${svgId}`} />
-      </svg>
+      <chakra.svg className='icon' aria-hidden='true' fontSize={svgSize}>
+        <chakra.use xlinkHref={`#${svgId}`} />
+      </chakra.svg>
     </Box>
   )
 }

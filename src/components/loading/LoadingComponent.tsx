@@ -1,7 +1,5 @@
 import { Flex, Spinner } from '@chakra-ui/react'
 
-import COLORS from '@/utils/Colors'
-
 const Index = ({ loading }: { loading: boolean }) => {
   if (!loading) {
     return null
@@ -22,7 +20,7 @@ const Index = ({ loading }: { loading: boolean }) => {
         thickness='4px'
         speed='0.65s'
         emptyColor='gray.200'
-        color={COLORS.primaryColor}
+        color='blue.1'
         size='xl'
         mt={20}
       />

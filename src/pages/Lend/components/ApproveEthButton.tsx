@@ -29,7 +29,6 @@ import {
 
 import { SvgComponent } from '@/components'
 import { TransactionContext } from '@/context/TransactionContext'
-import COLORS from '@/utils/Colors'
 import { UNIT } from '@/utils/constants'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
@@ -38,7 +37,7 @@ import { UNIT } from '@/utils/constants'
 // }) => {
 //   return (
 //     <Box textAlign={'center'}>
-//       <Text fontWeight={'medium'} color={COLORS.secondaryTextColor}>
+//       <Text fontWeight={'medium'} color={`var(--chakra-colors-gray-3)`}>
 //         {label}
 //       </Text>
 //       <Flex alignItems={'center'} mt={2} justify='center'>
@@ -111,7 +110,7 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
             {/* <Flex
               py={8}
               px={9}
-              bg={COLORS.secondaryBgc}
+              bg={`var(--chakra-colors-gray-5)`}
               borderRadius={16}
               justify='space-between'
             >
@@ -137,21 +136,21 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
                     setFlag(false)
                     setAmount(v)
                   }}
-                  errorBorderColor={COLORS.errorColor}
+                  errorBorderColor='red.1'
                   isInvalid={isError}
                   // lineHeight='60px'
                   borderRadius={8}
-                  borderColor={COLORS.secondaryTextColor}
+                  borderColor='gray.3'
                   placeholder='Enter the approve ETH amount...'
                 >
                   <NumberInputField
                     h='60px'
                     px={8}
                     _focus={{
-                      borderColor: COLORS.primaryColor,
+                      borderColor: 'blue.1',
                     }}
                     _focusVisible={{
-                      boxShadow: `0 0 0 1px ${COLORS.primaryColor}`,
+                      boxShadow: `0 0 0 1px var(--chakra-colors-blue-1)`,
                     }}
                   />
                 </NumberInput>
@@ -164,7 +163,7 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
               </InputGroup>
 
               {isError && (
-                <Text mt={2} color={COLORS.errorColor}>
+                <Text mt={2} color='red.1'>
                   Insufficient funds，Maximum input: {balance}
                 </Text>
               )}

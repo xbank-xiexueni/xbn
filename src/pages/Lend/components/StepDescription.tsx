@@ -1,8 +1,5 @@
-import { Box, Flex, Heading, Tag, Text } from '@chakra-ui/react'
+import { Box, Flex, Heading, Tag, Text, type BoxProps } from '@chakra-ui/react'
 
-import COLORS from '@/utils/Colors'
-
-import type { BoxProps } from '@chakra-ui/react'
 import type { FunctionComponent } from 'react'
 
 const StepDescription: FunctionComponent<
@@ -18,7 +15,7 @@ const StepDescription: FunctionComponent<
     <Box {...rest}>
       <Flex mb={5} alignItems='center'>
         <Tag
-          bg={COLORS.primaryColor}
+          bg='blue.1'
           color='white'
           borderRadius={'50%'}
           mr={4}
@@ -28,9 +25,11 @@ const StepDescription: FunctionComponent<
         >
           {step}
         </Tag>
-        <Heading size={'md'}>{title}</Heading>
+        <Heading size={'md'} color='black.1'>
+          {title}
+        </Heading>
       </Flex>
-      <Text color={COLORS.secondaryTextColor}>{text}</Text>
+      <Text color='gray.3'>{text}</Text>
     </Box>
   )
 }

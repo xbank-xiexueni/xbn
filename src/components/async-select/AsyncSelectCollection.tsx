@@ -4,7 +4,6 @@ import { useCallback } from 'react'
 import AsyncSelect from 'react-select/async'
 
 import { apiGetActiveCollection } from '@/api'
-import COLORS from '@/utils/Colors'
 
 import type { GroupBase, Props } from 'react-select'
 
@@ -51,7 +50,7 @@ function AsyncSelectCollection<
         width: 240,
         colors: {
           ...theme.colors,
-          primary: COLORS.primaryColor,
+          primary: `var(--chakra-colors-blue-1)`,
         },
       })}
       styles={{
@@ -63,8 +62,10 @@ function AsyncSelectCollection<
         }),
         option: (baseStyles, state) => ({
           ...baseStyles,
-          backgroundColor: state.isSelected ? COLORS.secondaryColor : 'white',
-          color: COLORS.textColor,
+          backgroundColor: state.isSelected
+            ? `var(--chakra-colors-blue-2)`
+            : 'white',
+          color: `var(--chakra-colors-black-1)`,
         }),
       }}
       components={{

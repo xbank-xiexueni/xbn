@@ -1,7 +1,5 @@
 import { Box, Flex, Image, Text } from '@chakra-ui/react'
 
-import COLORS from '@/utils/Colors'
-
 import defaultEmptyIcon from '@/assets/empty.svg'
 
 import type { FunctionComponent, ReactElement } from 'react'
@@ -16,12 +14,7 @@ const EmptyTableComponent: FunctionComponent<{
       <Flex justify={'center'} mb={4}>
         <Image src={icon || defaultEmptyIcon} />
       </Flex>
-      <Text
-        color={COLORS.secondaryTextColor}
-        mb={6}
-        fontSize='sm'
-        fontWeight={'700'}
-      >
+      <Text color='gray.3' mb={6} fontSize='sm' fontWeight={'700'}>
         {description || 'no Data yet...'}
       </Text>
       {action && action()}

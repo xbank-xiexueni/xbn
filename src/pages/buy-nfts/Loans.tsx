@@ -23,7 +23,6 @@ import {
 } from '@/components'
 import type { ColumnProps } from '@/components/table/Table'
 import { TransactionContext } from '@/context/TransactionContext'
-import COLORS from '@/utils/Colors'
 
 import CollectionListItem from './components/CollectionListItem'
 
@@ -146,7 +145,7 @@ const Loans = () => {
 
       <Flex justify={'space-between'} mt={4}>
         <Box
-          border={`1px solid ${COLORS.borderColor}`}
+          border={`1px solid var(--chakra-colors-gray-2)`}
           borderRadius={12}
           p={6}
           w={{
@@ -167,12 +166,12 @@ const Loans = () => {
               px={4}
               alignItems='center'
               borderRadius={8}
-              border={`1px solid ${COLORS.borderColor}`}
+              border={`1px solid var(--chakra-colors-gray-2)`}
               cursor='pointer'
               onClick={() => {
                 setSelectCollection(-1)
               }}
-              bg={selectCollection === -1 ? COLORS.secondaryColor : 'white'}
+              bg={selectCollection === -1 ? 'blue.2' : 'white'}
             >
               <Text fontSize={'sm'} fontWeight='700'>
                 All my Collections
@@ -228,11 +227,7 @@ const Loans = () => {
                     fixedRight: true,
                     render: () => (
                       <Box px={3} bg='white' borderRadius={8}>
-                        <Text
-                          color={COLORS.primaryColor}
-                          fontSize='sm'
-                          fontWeight={'700'}
-                        >
+                        <Text color='blue.1' fontSize='sm' fontWeight={'700'}>
                           Repay
                         </Text>
                       </Box>
@@ -251,7 +246,7 @@ const Loans = () => {
                       styles={{
                         fontSize: '18px',
                         fontWeight: 500,
-                        color: COLORS.secondaryTextColor,
+                        color: `var(--chakra-colors-gray-3)`,
                       }}
                       query='(Paid Off)'
                     >
@@ -272,7 +267,7 @@ const Loans = () => {
                       styles={{
                         fontSize: '18px',
                         fontWeight: 500,
-                        color: COLORS.secondaryTextColor,
+                        color: `var(--chakra-colors-gray-3)`,
                       }}
                       query='(Overdue)'
                     >

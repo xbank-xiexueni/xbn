@@ -22,7 +22,6 @@ import {
   MarketNftListCard,
   // Select
 } from '@/components'
-import COLORS from '@/utils/Colors'
 
 import TEST_IMG from '@/assets/test-img.svg'
 
@@ -81,10 +80,13 @@ const Market = () => {
             <Text
               fontSize={'sm'}
               fontWeight='500'
-              color={COLORS.secondaryTextColor}
+              color={`var(--chakra-colors-gray-3)`}
             >
               <Highlight
-                styles={{ color: COLORS.errorColor, fontWeight: 500 }}
+                styles={{
+                  color: `var(--chakra-colors-red-1)`,
+                  fontWeight: 500,
+                }}
                 query='-900%'
               >
                 24h -900%
@@ -125,7 +127,7 @@ const Market = () => {
       </GridItem>
       <GridItem
         area={'nav'}
-        border={`1px solid ${COLORS.borderColor}`}
+        border={`1px solid var(--chakra-colors-gray-2)`}
         borderRadius={12}
         p={6}
       >

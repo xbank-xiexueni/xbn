@@ -11,16 +11,14 @@ import {
   Tag,
 } from '@chakra-ui/react'
 
-import COLORS from '@/utils/Colors'
-
 import type { FunctionComponent } from 'react'
 
 const MortgagedTag = () => (
   <Tag
     variant={'outline'}
-    color={COLORS.errorColor}
-    borderColor={COLORS.errorColor}
-    boxShadow={`inset 0 0 0px 1px ${COLORS.errorColor}`}
+    color='red.1'
+    borderColor='red.1'
+    boxShadow={`inset 0 0 0px 1px var(--chakra-colors-red-1)`}
     p={2}
     borderRadius={8}
   >
@@ -53,12 +51,12 @@ const MyAssetNftListCard: FunctionComponent<
           <MortgagedTag />
         </Flex>
       </CardBody>
-      <Divider color={COLORS.borderColor} px={4} />
+      <Divider color='gray.2' px={4} />
       <CardFooter
         p={4}
         justify={'center'}
         alignItems='center'
-        bg={'#165DFF'}
+        bg='blue.3'
         borderBottomRadius={16}
         mt={5}
       >

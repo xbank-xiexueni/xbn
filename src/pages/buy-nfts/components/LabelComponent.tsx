@@ -1,8 +1,6 @@
 import { Box, Flex, Heading, Skeleton, type BoxProps } from '@chakra-ui/react'
 import { type FunctionComponent } from 'react'
 
-import COLORS from '@/utils/Colors'
-
 const LabelComponent: FunctionComponent<
   BoxProps & { label: string; loading?: boolean; isEmpty?: boolean }
 > = ({ label, children, loading, isEmpty, ...rest }) => {
@@ -14,12 +12,7 @@ const LabelComponent: FunctionComponent<
 
       {loading && <Skeleton h='100px' borderRadius={16} />}
       {!loading && isEmpty && (
-        <Flex
-          alignItems={'center'}
-          justify='center'
-          color={COLORS.secondaryTextColor}
-          py={6}
-        >
+        <Flex alignItems={'center'} justify='center' color='gray.3' py={6}>
           no data yet...
         </Flex>
       )}

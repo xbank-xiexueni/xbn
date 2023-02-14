@@ -1,7 +1,6 @@
 import { Box, Flex, Heading, Text, type BoxProps } from '@chakra-ui/react'
 
 import { NftOrigin, SvgComponent } from '@/components'
-import COLORS from '@/utils/Colors'
 
 import type { FunctionComponent } from 'react'
 
@@ -25,7 +24,7 @@ const DetailComponent: FunctionComponent<
       <Heading fontSize={'40px'}>{name2}</Heading>
       {/* 价格 */}
       <Flex
-        bg={COLORS.secondaryBgc}
+        bg='gray.5'
         alignItems='end'
         borderRadius={16}
         p={5}

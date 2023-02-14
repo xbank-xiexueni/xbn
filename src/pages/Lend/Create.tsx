@@ -5,7 +5,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import { LpBaseRateTable, Select, SvgComponent } from '@/components'
 import AsyncSelectCollection from '@/components/async-select/AsyncSelectCollection'
-import COLORS from '@/utils/Colors'
 import {
   SUB_RESPONSIVE_MAX_W,
   TENORS,
@@ -56,7 +55,7 @@ const Create = () => {
             <Heading size={'lg'} mb={2}>
               Create New Pool
             </Heading>
-            <Text color={COLORS.secondaryTextColor}>
+            <Text color='gray.3'>
               Determine the Tenor length for which potential borrowers can open
               a loan against. We commonly see a 14-days Tenor.
             </Text>

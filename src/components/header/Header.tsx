@@ -19,7 +19,6 @@ import { Link, useLocation } from 'react-router-dom'
 
 import Icon from '@/assets/logo.png'
 import { TransactionContext } from '@/context/TransactionContext'
-import COLORS from '@/utils/Colors'
 import { RESPONSIVE_MAX_W } from '@/utils/constants'
 
 import { ConnectWalletModal, SvgComponent } from '..'
@@ -84,11 +83,7 @@ const Header = () => {
                   }
                   _focus={{ bg: 'transparent' }}
                   _hover={{ bg: 'transparent' }}
-                  color={
-                    activePath === 'LEND'
-                      ? COLORS.primaryColor
-                      : COLORS.textColor
-                  }
+                  color={activePath === 'LEND' ? 'blue.1' : 'black.1'}
                 >
                   Lend
                 </Button>
@@ -102,7 +97,7 @@ const Header = () => {
                   ].map((item) => (
                     <Flex
                       key={item}
-                      borderBottomColor={COLORS.secondaryBgc}
+                      borderBottomColor='gray.5'
                       gap={1}
                       px={3}
                       py={2}
@@ -112,9 +107,9 @@ const Header = () => {
                         <Text
                           fontSize='md'
                           _hover={{
-                            color: COLORS.primaryColor,
+                            color: `blue.1`,
                           }}
-                          color={COLORS.textColor}
+                          color='black.1'
                         >
                           {item}
                         </Text>
@@ -142,11 +137,7 @@ const Header = () => {
                   }
                   _focus={{ bg: 'transparent' }}
                   _hover={{ bg: 'transparent' }}
-                  color={
-                    activePath === 'BUY_NFTS'
-                      ? COLORS.primaryColor
-                      : COLORS.textColor
-                  }
+                  color={activePath === 'BUY_NFTS' ? `blue.1` : `black.1`}
                 >
                   Buy NFTs
                 </Button>
@@ -160,7 +151,7 @@ const Header = () => {
                   ].map((item) => (
                     <Flex
                       key={item}
-                      borderBottomColor={COLORS.secondaryBgc}
+                      borderBottomColor={`gray.5`}
                       px={3}
                       py={2}
                       gap={1}
@@ -170,9 +161,9 @@ const Header = () => {
                         <Text
                           fontSize='md'
                           _hover={{
-                            color: COLORS.primaryColor,
+                            color: `blue.1`,
                           }}
-                          color={COLORS.textColor}
+                          color={`black.1`}
                         >
                           {item}
                         </Text>

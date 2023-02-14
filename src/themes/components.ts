@@ -1,5 +1,3 @@
-import COLORS from '@/utils/Colors'
-
 const components = {
   Button: {
     // // 1. We can update the base styles
@@ -19,55 +17,55 @@ const components = {
     // 3. We can add a new visual variant
     variants: {
       secondary: {
-        bg: COLORS.secondaryColor,
-        color: COLORS.primaryColor,
+        bg: 'blue.2',
+        color: 'blue.1',
         _hover: {
-          bg: COLORS.primaryColor,
+          bg: 'blue.1',
           color: 'white',
         },
       },
       primary: {
         // 这么写是为了 hover over 不会突变
         bg: 'linear-gradient(225deg, #0000FF 0%, #0000FF 100%)',
-        // bg: COLORS.primaryColor,
+        // bg: 'blue.1',
         color: 'white',
         _disabled: {
-          bg: COLORS.tipTextColor,
+          bg: 'gray.1',
         },
         _hover: {
           bg: 'linear-gradient(225deg, #0000FF 0%, #9500E0 100%)',
           _disabled: {
-            bg: COLORS.tipTextColor,
+            bg: 'gray.1',
           },
         },
       },
       other: {
-        bg: '#165DFF',
-        // bg: COLORS.primaryColor,
+        bg: 'blue.3',
+        // bg: 'blue.1',
         color: 'white',
         _disabled: {
-          bg: COLORS.tipTextColor,
+          bg: 'gray.1',
         },
         _hover: {
           _disabled: {
-            bg: COLORS.tipTextColor,
+            bg: 'gray.1',
           },
         },
       },
       primaryLink: {
         bg: 'white',
-        color: COLORS.primaryColor,
+        color: 'blue.1',
         _hover: {
           opacity: 0.5,
         },
         borderRadius: 8,
       },
       link: {
-        color: COLORS.primaryColor,
+        color: 'blue.1',
       },
       outline: {
-        borderColor: COLORS.primaryColor,
-        color: COLORS.primaryColor,
+        borderColor: 'blue.1',
+        color: 'blue.1',
       },
       // // 5. We can add responsive variants
       // sm: {

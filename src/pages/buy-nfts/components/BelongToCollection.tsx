@@ -9,7 +9,6 @@ import {
 import { type FunctionComponent } from 'react'
 
 import { SvgComponent } from '@/components'
-import COLORS from '@/utils/Colors'
 import { UNIT } from '@/utils/constants'
 
 const BelongToCollection: FunctionComponent<
@@ -30,13 +29,7 @@ const BelongToCollection: FunctionComponent<
       <Heading size={'lg'} mb={4}>
         Collection
       </Heading>
-      <Flex
-        alignItems={'center'}
-        p={4}
-        borderRadius={16}
-        bg={COLORS.secondaryBgc}
-        gap={4}
-      >
+      <Flex alignItems={'center'} p={4} borderRadius={16} bg='gray.5' gap={4}>
         <Image src={img} w='72px' h='72px' />
         <Box>
           <Flex>

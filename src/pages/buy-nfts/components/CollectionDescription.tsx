@@ -11,7 +11,6 @@ import isEmpty from 'lodash/isEmpty'
 import { useState, type FunctionComponent, type ReactElement } from 'react'
 
 import { SvgComponent } from '@/components'
-import COLORS from '@/utils/Colors'
 
 const CollectionDescription: FunctionComponent<{
   data?: {
@@ -62,24 +61,19 @@ const CollectionDescription: FunctionComponent<{
             {isVerified && <SvgComponent svgId='icon-verified-fill' />}
           </Flex>
 
-          <Text
-            color={COLORS.secondaryTextColor}
-            mt={2}
-            fontSize={'md'}
-            fontWeight='medium'
-          >
+          <Text color='gray.3' mt={2} fontSize={'md'} fontWeight='medium'>
             {show ? description : `${description.substring(0, 80)}`}
             {description?.length > 80 && !show && '...'}
             {description?.length > 80 && (
               <Box
                 as='a'
-                color={COLORS.primaryColor}
+                color='blue.1'
                 onClick={() => setShow((prev) => !prev)}
                 cursor='pointer'
                 fontWeight={700}
                 borderRadius='50%'
                 _hover={{
-                  bg: COLORS.secondaryBgc,
+                  bg: 'gray.5',
                 }}
                 p={3}
               >
@@ -102,7 +96,7 @@ const CollectionDescription: FunctionComponent<{
             </Flex>
 
             {typeof label === 'string' ? (
-              <Text color={COLORS.infoTextColor}>{label}</Text>
+              <Text color='gray.4'>{label}</Text>
             ) : (
               label
             )}

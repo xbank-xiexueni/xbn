@@ -14,7 +14,6 @@ import slice from 'lodash/slice'
 import { type FunctionComponent, useMemo, useState } from 'react'
 
 import StepDescription from '@/pages/Lend/components/StepDescription'
-import COLORS from '@/utils/Colors'
 import { COLLATERALS, LP_BASE_RATE, TENORS } from '@/utils/constants'
 
 const TOP_SLIDER_STEPS = [0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6]
@@ -75,7 +74,7 @@ const LpBaseRateTable: FunctionComponent<{
   ])
 
   return (
-    <Card mb={8} bg={COLORS.secondaryBgc} borderRadius={'16px'} p={8}>
+    <Card mb={8} bg='gray.5' borderRadius={'16px'} p={8}>
       <Flex wrap={'wrap'}>
         {description && (
           <StepDescription
@@ -107,11 +106,7 @@ const LpBaseRateTable: FunctionComponent<{
                 borderWidth={1}
                 borderColor='white'
                 mt={-1}
-                bg={
-                  sliderTopValue > item
-                    ? COLORS.primaryColor
-                    : COLORS.tipTextColor
-                }
+                bg={sliderTopValue > item ? `blue.1` : `gray.1`}
               />
             </SliderMark>
           ))}
@@ -121,7 +116,7 @@ const LpBaseRateTable: FunctionComponent<{
             mt={4}
             ml='-2.5'
             fontSize='sm'
-            color={COLORS.secondaryTextColor}
+            color={`gray.3`}
           >
             min
           </SliderMark>
@@ -130,7 +125,7 @@ const LpBaseRateTable: FunctionComponent<{
             ml='-2.5'
             fontSize='sm'
             mt={4}
-            color={COLORS.secondaryTextColor}
+            color={`gray.3`}
           >
             max
           </SliderMark>
@@ -146,16 +141,16 @@ const LpBaseRateTable: FunctionComponent<{
             {sliderTopValue}%
           </SliderMark> */}
 
-          <SliderTrack bg={COLORS.tipTextColor}>
+          <SliderTrack bg={`gray.1`}>
             <SliderFilledTrack
-              // bg={COLORS.secondaryColor}
-              bgGradient={`linear-gradient(90deg,#fff,${COLORS.primaryColor})`}
+              // bg={`var(--chakra-colors-blue-2)`}
+              bgGradient={`linear-gradient(90deg,#fff,var(--chakra-colors-blue-1))`}
             />
           </SliderTrack>
           <SliderThumb
             boxSize={6}
             borderWidth={5}
-            borderColor={COLORS.primaryColor}
+            borderColor={`blue.1`}
             _focus={{
               boxShadow: 'none',
             }}
@@ -184,7 +179,7 @@ const LpBaseRateTable: FunctionComponent<{
                   alignItems={'center'}
                   justify='center'
                   h='40px'
-                  borderBottom={`1px solid ${COLORS.borderColor}`}
+                  borderBottom={`1px solid var(--chakra-colors-gray-2)`}
                 >
                   <Text
                     textAlign={'center'}
@@ -207,7 +202,7 @@ const LpBaseRateTable: FunctionComponent<{
                   /* eslint-disable */
                   borderBottom={
                     index !== tableData?.length - 1
-                      ? `1px solid ${COLORS.borderColor}`
+                      ? `1px solid var(--chakra-colors-gray-2)`
                       : 'none'
                   }
                 >
@@ -226,11 +221,7 @@ const LpBaseRateTable: FunctionComponent<{
                           textAlign={'center'}
                           fontSize='xs'
                           fontWeight={i === 0 ? 'bold' : 'normal'}
-                          color={
-                            i === 0
-                              ? COLORS.textColor
-                              : COLORS.secondaryTextColor
-                          }
+                          color={i === 0 ? `black.1` : `gray.3`}
                         >
                           {value}%
                         </Text>
@@ -255,13 +246,13 @@ const LpBaseRateTable: FunctionComponent<{
               setSliderRightValue(target)
             }}
           >
-            <SliderTrack bg={COLORS.tipTextColor}>
-              <SliderFilledTrack bg={COLORS.primaryColor} />
+            <SliderTrack bg={`gray.1`}>
+              <SliderFilledTrack bg={`blue.1`} />
             </SliderTrack>
             <SliderThumb
               boxSize={4}
               borderWidth={'2px'}
-              borderColor={COLORS.primaryColor}
+              borderColor={`blue.1`}
               _focus={{
                 boxShadow: 'none',
               }}
@@ -283,13 +274,13 @@ const LpBaseRateTable: FunctionComponent<{
               setSliderBottomValue(target)
             }}
           >
-            <SliderTrack bg={COLORS.tipTextColor}>
-              <SliderFilledTrack bg={COLORS.primaryColor} />
+            <SliderTrack bg={`gray.1`}>
+              <SliderFilledTrack bg={`blue.1`} />
             </SliderTrack>
             <SliderThumb
               boxSize={4}
               borderWidth={'2px'}
-              borderColor={COLORS.primaryColor}
+              borderColor={`blue.1`}
               _focus={{
                 boxShadow: 'none',
               }}

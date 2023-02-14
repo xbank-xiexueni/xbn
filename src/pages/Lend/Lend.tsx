@@ -41,7 +41,6 @@ import {
 import type { ColumnProps } from '@/components/table/Table'
 // import { TransactionContext } from '@/context/TransactionContext'
 import { TransactionContext } from '@/context/TransactionContext'
-import COLORS from '@/utils/Colors'
 
 import CollectionListItem from '../buy-nfts/components/CollectionListItem'
 
@@ -246,7 +245,7 @@ const Lend = () => {
         return (
           <Flex alignItems='center' gap={2}>
             <Text
-              color={COLORS.secondaryTextColor}
+              color='gray.3'
               onClick={() => {
                 navigate('/lend/loans')
                 setSelectKeyForOpenLoans(id as number)
@@ -257,7 +256,7 @@ const Lend = () => {
             </Text>
             {/* <Link to={`/lend/pools/edit/${id}`}>
               <Text
-                color={COLORS.primaryColor}
+                color={'blue.1'}
                 py={3}
                 px={4}
                 borderRadius={8}
@@ -352,7 +351,7 @@ const Lend = () => {
                 cursor='pointer'
                 onClick={() => setShowSearch(true)}
                 _hover={{
-                  bg: COLORS.secondaryBgc,
+                  bg: `var(--chakra-colors-gray-5)`,
                 }}
               >
                 <Image src={IconSearch} />
@@ -374,7 +373,7 @@ const Lend = () => {
 
         <TabList
           _active={{
-            color: COLORS.primaryColor,
+            color: 'blue.1',
             fontWeight: 'bold',
           }}
         >
@@ -383,9 +382,9 @@ const Lend = () => {
             px={2}
             pb={5}
             _selected={{
-              color: COLORS.primaryColor,
+              color: 'blue.1',
               borderBottomWidth: 2,
-              borderColor: COLORS.primaryColor,
+              borderColor: 'blue.1',
             }}
             fontWeight='bold'
           >
@@ -396,15 +395,15 @@ const Lend = () => {
             px={2}
             pb={5}
             _selected={{
-              color: COLORS.primaryColor,
+              color: 'blue.1',
               borderBottomWidth: 2,
-              borderColor: COLORS.primaryColor,
+              borderColor: 'blue.1',
             }}
             fontWeight='bold'
           >
             My Pools&nbsp;
             <Tag
-              bg={COLORS.primaryColor}
+              bg={'blue.1'}
               color='white'
               borderRadius={15}
               fontSize={'xs'}
@@ -418,9 +417,9 @@ const Lend = () => {
             px={2}
             pb={5}
             _selected={{
-              color: COLORS.primaryColor,
+              color: 'blue.1',
               borderBottomWidth: 2,
-              borderColor: COLORS.primaryColor,
+              borderColor: 'blue.1',
             }}
             fontWeight='bold'
           >
@@ -507,7 +506,7 @@ const Lend = () => {
           <TabPanel p={0}>
             <Flex justify={'space-between'} mt={4}>
               <Box
-                border={`1px solid ${COLORS.borderColor}`}
+                border={`1px solid var(--chakra-colors-gray-2)`}
                 borderRadius={12}
                 p={6}
                 w={{
@@ -528,14 +527,10 @@ const Lend = () => {
                     px={4}
                     alignItems='center'
                     borderRadius={8}
-                    border={`1px solid ${COLORS.borderColor}`}
+                    border={`1px solid var(--chakra-colors-gray-2)`}
                     cursor='pointer'
                     onClick={() => setSelectKeyForOpenLoans(-1)}
-                    bg={
-                      selectKeyForOpenLoans === -1
-                        ? COLORS.secondaryColor
-                        : 'white'
-                    }
+                    bg={selectKeyForOpenLoans === -1 ? 'blue.2' : 'white'}
                   >
                     <Text fontSize={'sm'} fontWeight='700'>
                       All my Collections
@@ -582,7 +577,7 @@ const Lend = () => {
                             styles={{
                               fontSize: '18px',
                               fontWeight: 500,
-                              color: COLORS.secondaryTextColor,
+                              color: `var(--chakra-colors-gray-3)`,
                             }}
                             query='(Paid Off)'
                           >
@@ -602,7 +597,7 @@ const Lend = () => {
                             styles={{
                               fontSize: '18px',
                               fontWeight: 500,
-                              color: COLORS.secondaryTextColor,
+                              color: `var(--chakra-colors-gray-3)`,
                             }}
                             query='(Overdue)'
                           >

@@ -2,7 +2,6 @@ import { Flex, Image, Text } from '@chakra-ui/react'
 import { useMemo, type FunctionComponent } from 'react'
 
 import { SvgComponent } from '@/components'
-import COLORS from '@/utils/Colors'
 
 import IconX2y2 from '@/assets/icon-x2y2.svg'
 
@@ -42,11 +41,7 @@ const NftOrigin: FunctionComponent<{ type: 1 | 2 | 3 }> = ({ type }) => {
   return (
     <Flex gap={1}>
       {img}
-      <Text
-        fontSize={'14px'}
-        fontWeight={500}
-        color={COLORS.secondaryTextColor}
-      >
+      <Text fontSize={'14px'} fontWeight={500} color='gray.3'>
         {name}
       </Text>
     </Flex>

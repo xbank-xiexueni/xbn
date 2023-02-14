@@ -7,7 +7,6 @@ import {
 } from '@chakra-ui/react'
 
 import { SvgComponent } from '@/components'
-import COLORS from '@/utils/Colors'
 
 import type { FunctionComponent } from 'react'
 
@@ -45,11 +44,13 @@ const index: FunctionComponent<
         isInvalid={isInvalid}
         _focusVisible={{
           boxShadow: `0 0 0 1px ${
-            isInvalid ? COLORS.errorColor : COLORS.primaryColor
+            isInvalid
+              ? `var(--chakra-colors-red-1)`
+              : `var(--chakra-colors-blue-1)`
           }`,
           ..._focusVisible,
         }}
-        borderColor={isInvalid ? COLORS.errorColor : COLORS.borderColor}
+        borderColor={isInvalid ? 'red.1' : 'gray.2'}
       />
     </InputGroup>
   )
