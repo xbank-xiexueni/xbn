@@ -14,6 +14,7 @@ const LoansForBuyer = lazy(() => import('./pages/buy-nfts/Loans'))
 // nft detail
 const NftAssetDetail = lazy(() => import('./pages/buy-nfts/NftAssetDetail'))
 
+const NotFound = lazy(() => import('./pages/404'))
 function App() {
   return (
     <>
@@ -128,6 +129,14 @@ function App() {
             }
           />
         </Route> */}
+        <Route
+          element={
+            <Suspense fallback={<>...</>}>
+              <NotFound />
+            </Suspense>
+          }
+          path='*'
+        />
       </Routes>
     </>
   )
