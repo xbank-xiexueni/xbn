@@ -10,7 +10,7 @@ import {
   // Flex,
   SimpleGrid,
 } from '@chakra-ui/react'
-import range from 'lodash/range'
+import range from 'lodash-es/range'
 
 import {
   MyAssetNftListCard,

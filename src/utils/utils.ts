@@ -1,6 +1,6 @@
-import random from 'lodash/random'
-import range from 'lodash/range'
-import sampleSize from 'lodash/sampleSize'
+import random from 'lodash-es/random'
+import range from 'lodash-es/range'
+import sampleSize from 'lodash-es/sampleSize'
 
 function generateList(l: number): Promise<Record<string, string>[]> {
   const res = range(l || 10).map((item) => ({

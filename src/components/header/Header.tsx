@@ -12,7 +12,7 @@ import {
   IconButton,
   useDisclosure,
 } from '@chakra-ui/react'
-import kebabCase from 'lodash/kebabCase'
+import kebabCase from 'lodash-es/kebabCase'
 import { useContext, useMemo } from 'react'
 import Jazzicon from 'react-jazzicon'
 import { Link, useLocation } from 'react-router-dom'

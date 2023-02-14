@@ -21,12 +21,12 @@ const index: FunctionComponent<
   placeholder,
   borderRadius,
   h,
-  leftIcon,
-  leftIconProps,
+  // leftIcon,
+  // leftIconProps,
   isInvalid,
   _focusVisible,
-  rightIcon,
-  rightIconProps,
+  // rightIcon,
+  // rightIconProps,
   ...rest
 }) => {
   return (

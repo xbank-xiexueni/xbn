@@ -7,7 +7,7 @@ import {
   HStack,
   Skeleton,
 } from '@chakra-ui/react'
-import isEmpty from 'lodash/isEmpty'
+import isEmpty from 'lodash-es/isEmpty'
 import { useState, type FunctionComponent, type ReactElement } from 'react'
 
 import { SvgComponent } from '@/components'

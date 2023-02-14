@@ -10,7 +10,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { ethers } from 'ethers'
-import isEmpty from 'lodash/isEmpty'
+import isEmpty from 'lodash-es/isEmpty'
 import {
   useEffect,
   useState,

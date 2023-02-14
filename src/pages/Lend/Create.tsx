@@ -1,5 +1,5 @@
 import { Box, Button, Container, Flex, Heading, Text } from '@chakra-ui/react'
-import isEmpty from 'lodash/isEmpty'
+import isEmpty from 'lodash-es/isEmpty'
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 

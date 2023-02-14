@@ -8,8 +8,8 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
-import groupBy from 'lodash/groupBy'
-import isEmpty from 'lodash/isEmpty'
+import groupBy from 'lodash-es/groupBy'
+import isEmpty from 'lodash-es/isEmpty'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 // import { useNavigate } from 'react-router-dom'
 

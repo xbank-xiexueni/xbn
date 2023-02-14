@@ -10,7 +10,7 @@ import {
   Flex,
   Box,
 } from '@chakra-ui/react'
-import isEmpty from 'lodash/isEmpty'
+import isEmpty from 'lodash-es/isEmpty'
 import { useState, type ReactElement } from 'react'
 
 import { LoadingComponent, EmptyTableComponent, SvgComponent } from '..'

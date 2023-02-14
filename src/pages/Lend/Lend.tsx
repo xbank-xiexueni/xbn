@@ -15,10 +15,10 @@ import {
   Highlight,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
-// import debounce from 'lodash/debounce'
+// import debounce from 'lodash-es/debounce'
 import { type Dictionary } from 'lodash'
-import groupBy from 'lodash/groupBy'
-import isEmpty from 'lodash/isEmpty'
+import groupBy from 'lodash-es/groupBy'
+import isEmpty from 'lodash-es/isEmpty'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 

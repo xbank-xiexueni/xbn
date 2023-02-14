@@ -24,6 +24,7 @@ const MarketNftListCard: FunctionComponent<
   } & CardProps
 > = ({ data, ...rest }) => {
   const [show, setShow] = useState(false)
+  console.log(data, 'MarketNftListCard')
   return (
     <Card
       {...rest}

@@ -31,6 +31,7 @@ const MyAssetNftListCard: FunctionComponent<
     data: any
   } & CardProps
 > = ({ data, ...rest }) => {
+  console.log(data, 'MyAssetNftListCard')
   return (
     <Card {...rest}>
       <CardBody p={0}>

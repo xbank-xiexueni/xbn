@@ -10,7 +10,7 @@ import {
   Highlight,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
-import isEmpty from 'lodash/isEmpty'
+import isEmpty from 'lodash-es/isEmpty'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 

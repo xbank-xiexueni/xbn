@@ -19,8 +19,8 @@ import {
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
-import isEmpty from 'lodash/isEmpty'
-import range from 'lodash/range'
+import isEmpty from 'lodash-es/isEmpty'
+import range from 'lodash-es/range'
 import { useCallback, useContext, useEffect, useState } from 'react'
 
 import TestImage from '@/assets/IMAGE.png'

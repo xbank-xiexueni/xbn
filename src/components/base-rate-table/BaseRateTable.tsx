@@ -10,7 +10,7 @@ import {
   Box,
   SlideFade,
 } from '@chakra-ui/react'
-import slice from 'lodash/slice'
+import slice from 'lodash-es/slice'
 import { type FunctionComponent, useMemo, useState } from 'react'
 
 import { COLLATERALS, LP_BASE_RATE, TENORS } from '@/constants'
