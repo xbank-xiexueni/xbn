@@ -156,9 +156,8 @@ const Lend = () => {
   // -1 代表全选
   const [selectKeyForOpenLoans, setSelectKeyForOpenLoans] = useState(-1)
   const fetchLoans = useMemo(() => {
-    console.log(selectKeyForOpenLoans)
     return apiGetLpLoans
-  }, [selectKeyForOpenLoans])
+  }, [])
   const { loading: loansLoading } = useRequest(fetchLoans, {
     onSuccess: (data) => {
       setLoansData({

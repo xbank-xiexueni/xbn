@@ -1,7 +1,7 @@
 import { Flex, Text } from '@chakra-ui/react'
 
 import { SvgComponent } from '@/components'
-import { UNIT } from '@/utils/constants'
+import { UNIT } from '@/constants'
 
 import type { FunctionComponent } from 'react'
 

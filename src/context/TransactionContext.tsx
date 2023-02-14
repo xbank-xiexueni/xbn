@@ -19,7 +19,7 @@ import {
   useCallback,
 } from 'react'
 
-import { contractABI, contractAddress } from '../utils/constants'
+import { contractABI, contractAddress } from '@/constants'
 
 export const TransactionContext = createContext({
   connectWallet: () => {},

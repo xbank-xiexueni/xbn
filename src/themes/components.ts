@@ -5,6 +5,7 @@ const components = {
       fontWeight: 'bold', // Normally, it is "semibold"
       borderRadius: '50px',
       opacity: 1,
+      lineHeight: 2,
     },
     // // 2. We can add a new button size or extend existing
     // sizes: {
@@ -41,7 +42,6 @@ const components = {
       },
       other: {
         bg: 'blue.3',
-        // bg: 'blue.1',
         color: 'white',
         _disabled: {
           bg: 'gray.1',

@@ -25,9 +25,9 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 
 import TestImage from '@/assets/IMAGE.png'
 import { ConnectWalletModal, SvgComponent } from '@/components'
+import { COLLATERALS, UNIT } from '@/constants'
 import { TransactionContext } from '@/context/TransactionContext'
 import { amortizationCalByDays } from '@/utils/calculation'
-import { COLLATERALS, UNIT } from '@/utils/constants'
 
 import test from '@/assets/test-img.svg'
 
@@ -270,13 +270,7 @@ const NftAssetDetail = () => {
 
         {/* Repayment Plan */}
         <LabelComponent label='Repayment Plan'>
-          <VStack
-            bg={`var(--chakra-colors-gray-5)`}
-            py={6}
-            px={4}
-            borderRadius={12}
-            spacing={4}
-          >
+          <VStack bg='gray.5' py={6} px={4} borderRadius={12} spacing={4}>
             <PlanItem value={'20'} label='Down payment on today' />
 
             {range(installmentValue).map((value, index) => (
@@ -295,7 +289,7 @@ const NftAssetDetail = () => {
         <LabelComponent label='Trading Information' borderBottom={'none'}>
           {loanAmount && (
             <Flex
-              border={`1px solid ${`var(--chakra-colors-gray-1)`}`}
+              border={`1px solid var(--chakra-colors-gray-1)`}
               py={6}
               px={4}
               borderRadius={12}
@@ -304,31 +298,29 @@ const NftAssetDetail = () => {
             >
               {/* Commodity price */}
               <Flex justify={'space-between'}>
-                <Text color={`var(--chakra-colors-gray-3)`}>
-                  Commodity price
-                </Text>
-                <Text color={`var(--chakra-colors-gray-3)`}>
+                <Text color='gray.3'>Commodity price</Text>
+                <Text color='gray.3'>
                   {commodityPrice} {UNIT}
                 </Text>
               </Flex>
               {/* Down payment */}
               <Flex justify={'space-between'}>
-                <Text color={`var(--chakra-colors-gray-3)`}>Down payment</Text>
-                <Text color={`var(--chakra-colors-gray-3)`}>
+                <Text color='gray.3'>Down payment</Text>
+                <Text color='gray.3'>
                   {commodityPrice - loanAmount} {UNIT}
                 </Text>
               </Flex>
               {/* Loan amount */}
               <Flex justify={'space-between'}>
-                <Text color={`var(--chakra-colors-gray-3)`}>Loan amount</Text>
-                <Text color={`var(--chakra-colors-gray-3)`}>
+                <Text color='gray.3'>Loan amount</Text>
+                <Text color='gray.3'>
                   {loanAmount} {UNIT}
                 </Text>
               </Flex>
               {/* Interest fee */}
               <Flex justify={'space-between'}>
-                <Text color={`var(--chakra-colors-gray-3)`}>Interest fee</Text>
-                <Text color={`var(--chakra-colors-gray-3)`}>
+                <Text color='gray.3'>Interest fee</Text>
+                <Text color='gray.3'>
                   {getPlanPer(installmentValue)
                     .multipliedBy(installmentValue)
                     .minus(loanAmount)
@@ -336,7 +328,7 @@ const NftAssetDetail = () => {
                   {UNIT}
                 </Text>
               </Flex>
-              <Divider color={`var(--chakra-colors-gray-2)`} />
+              <Divider color='gray.2' />
               {/* Total repayment */}
               <Flex justify={'space-between'}>
                 <Text fontSize={'md'} fontWeight='bold'>

@@ -9,7 +9,7 @@ import {
 import { type FunctionComponent } from 'react'
 
 import { SvgComponent } from '@/components'
-import { UNIT } from '@/utils/constants'
+import { UNIT } from '@/constants'
 
 const BelongToCollection: FunctionComponent<
   BoxProps & {

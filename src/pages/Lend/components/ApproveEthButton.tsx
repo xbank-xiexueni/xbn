@@ -28,8 +28,8 @@ import {
 } from 'react'
 
 import { SvgComponent } from '@/components'
+import { UNIT } from '@/constants'
 import { TransactionContext } from '@/context/TransactionContext'
-import { UNIT } from '@/utils/constants'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
 //   label,

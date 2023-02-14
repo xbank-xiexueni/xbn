@@ -1,16 +1,18 @@
-import { Box, Flex, Image, Text } from '@chakra-ui/react'
+import { Box, type BoxProps, Flex, Image, Text } from '@chakra-ui/react'
 
 import defaultEmptyIcon from '@/assets/empty.svg'
 
 import type { FunctionComponent, ReactElement } from 'react'
 
-const EmptyTableComponent: FunctionComponent<{
-  icon?: string
-  description?: string
-  action?: () => ReactElement
-}> = ({ icon, description, action }) => {
+const EmptyTableComponent: FunctionComponent<
+  {
+    icon?: string
+    description?: string
+    action?: () => ReactElement
+  } & BoxProps
+> = ({ icon, description, action, ...rest }) => {
   return (
-    <Box textAlign={'center'} my={20}>
+    <Box textAlign={'center'} my={20} {...rest}>
       <Flex justify={'center'} mb={4}>
         <Image src={icon || defaultEmptyIcon} />
       </Flex>

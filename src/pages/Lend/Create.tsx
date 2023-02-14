@@ -12,7 +12,7 @@ import {
   INITIAL_COLLATERAL,
   INITIAL_TENOR,
   STEPS_DESCRIPTIONS,
-} from '@/utils/constants'
+} from '@/constants'
 
 import ApproveEthButton from './components/ApproveEthButton'
 import CardWithBg from './components/CardWithBg'

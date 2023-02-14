@@ -1,7 +1,7 @@
 import { Container } from '@chakra-ui/react'
 
 import { Footer, Header } from '@/components'
-import { RESPONSIVE_MAX_W } from '@/utils/constants'
+import { RESPONSIVE_MAX_W } from '@/constants'
 
 const RootLayout: React.FC<{ children: React.ReactElement }> = ({
   children,

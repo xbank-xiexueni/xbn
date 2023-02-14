@@ -13,8 +13,8 @@ import {
 import slice from 'lodash/slice'
 import { type FunctionComponent, useMemo, useState } from 'react'
 
+import { COLLATERALS, LP_BASE_RATE, TENORS } from '@/constants'
 import StepDescription from '@/pages/Lend/components/StepDescription'
-import { COLLATERALS, LP_BASE_RATE, TENORS } from '@/utils/constants'
 
 const TOP_SLIDER_STEPS = [0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6]
 

@@ -18,8 +18,8 @@ import Jazzicon from 'react-jazzicon'
 import { Link, useLocation } from 'react-router-dom'
 
 import Icon from '@/assets/logo.png'
+import { RESPONSIVE_MAX_W } from '@/constants'
 import { TransactionContext } from '@/context/TransactionContext'
-import { RESPONSIVE_MAX_W } from '@/utils/constants'
 
 import { ConnectWalletModal, SvgComponent } from '..'
 
