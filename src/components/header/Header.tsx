@@ -50,7 +50,7 @@ const Header = () => {
       100%)'
         h={1}
       />
-      <Container bg='#FFFFFF' maxW={RESPONSIVE_MAX_W}>
+      <Container bg='white' maxW={RESPONSIVE_MAX_W}>
         <Flex justify={'space-between'} h={74} alignItems='center'>
           <Flex alignItems={'center'}>
             <Flex gap={2} onClick={() => {}} alignItems='center'>
