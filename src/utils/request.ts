@@ -18,6 +18,8 @@ request.interceptors.request.use(
   async (config) => {
     return {
       ...config,
+      baseURL:
+        'https://www.fastmock.site/mock/9b1763038152f49675038983b826d34e',
     }
   },
   (error) => {
