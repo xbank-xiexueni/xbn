@@ -1,5 +1,5 @@
 import {
-  Table,
+  Table as ChakraTable,
   TableContainer,
   Tbody,
   Td,
@@ -43,7 +43,7 @@ export type MyTableProps = TableProps & {
   tableTitle?: () => ReactElement
 }
 
-const Index: FunctionComponent<MyTableProps> = ({
+const Table: FunctionComponent<MyTableProps> = ({
   columns,
   data,
   onSort,
@@ -63,7 +63,7 @@ const Index: FunctionComponent<MyTableProps> = ({
       <TableContainer position={'relative'} maxW={maxW || '100%'}>
         {<LoadingComponent loading={loading} />}
 
-        <Table
+        <ChakraTable
           variant='unstyled'
           style={{
             borderCollapse: 'collapse',
@@ -268,7 +268,7 @@ const Index: FunctionComponent<MyTableProps> = ({
               ))
             )}
           </Tbody>
-        </Table>
+        </ChakraTable>
       </TableContainer>
       <Flex justify={'center'} my={8}>
         {!!caption && !loading && caption()}
@@ -277,4 +277,4 @@ const Index: FunctionComponent<MyTableProps> = ({
   )
 }
 
-export default Index
+export default Table

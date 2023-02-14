@@ -21,7 +21,7 @@ import {
   SvgComponent,
   TableList,
 } from '@/components'
-import type { ColumnProps } from '@/components/table/Table'
+import type { ColumnProps } from '@/components/table'
 import { TransactionContext } from '@/context/TransactionContext'
 
 import CollectionListItem from './components/CollectionListItem'

@@ -1,10 +1,10 @@
 import { Box } from '@chakra-ui/react'
 
-import Table, { type MyTableProps } from '@/components/table/Table'
+import Table, { type MyTableProps } from '@/components/table'
 
 import type { FunctionComponent } from 'react'
 
-const OpenLoansTables: FunctionComponent<{
+const TableList: FunctionComponent<{
   tables: MyTableProps[]
 }> = ({ tables }) => {
   return (
@@ -16,4 +16,4 @@ const OpenLoansTables: FunctionComponent<{
   )
 }
 
-export default OpenLoansTables
+export default TableList

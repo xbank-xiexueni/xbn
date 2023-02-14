@@ -38,7 +38,7 @@ import {
   EmptyTableComponent,
   SvgComponent,
 } from '@/components'
-import type { ColumnProps } from '@/components/table/Table'
+import type { ColumnProps } from '@/components/table'
 // import { TransactionContext } from '@/context/TransactionContext'
 import { TransactionContext } from '@/context/TransactionContext'
 
