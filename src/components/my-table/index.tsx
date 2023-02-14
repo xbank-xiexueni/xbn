@@ -13,7 +13,7 @@ import {
 import isEmpty from 'lodash-es/isEmpty'
 import { useState, type ReactElement } from 'react'
 
-import { LoadingComponent, EmptyTableComponent, SvgComponent } from '..'
+import { LoadingComponent, EmptyComponent, SvgComponent } from '..'
 import '../my-table/table.less'
 
 export interface ColumnProps {
@@ -62,6 +62,12 @@ const MyTable = ({
       {!!tableTitle && tableTitle()}
       <TableContainer position={'relative'} maxW={maxW || '100%'}>
         {<LoadingComponent loading={loading} />}
+        {/* 为了让  EmptyComponent 居中*/}
+        {isEmpty(data) && (
+          <Box left={0} right={0} top={10} bottom={0} pos='absolute'>
+            {emptyRender ? emptyRender() : <EmptyComponent />}
+          </Box>
+        )}
 
         <ChakraTable
           variant='unstyled'
@@ -182,13 +188,11 @@ const MyTable = ({
           </Thead>
           <Tbody>
             {isEmpty(data) ? (
-              <Tr>
-                <Td colSpan={columns.length}>
-                  {emptyRender ? emptyRender() : <EmptyTableComponent />}
-                </Td>
+              <Tr h='240px'>
+                <Td colSpan={columns.length} />
               </Tr>
             ) : (
-              data.map((item) => (
+              data?.map((item) => (
                 <Tr
                   key={JSON.stringify(item)}
                   bg='gray.5'

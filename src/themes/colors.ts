@@ -2,6 +2,7 @@ const colors = {
   transparent: 'transparent',
   black: {
     1: '#00000F',
+    2: 'rgba(27, 34, 44, 0.4)',
   },
   white: '#fff',
   gray: {

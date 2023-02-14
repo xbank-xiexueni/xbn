@@ -224,10 +224,7 @@ const NftAssetDetail = () => {
                   >
                     <Text fontWeight={700}>{value} Days</Text>
                     <Text fontWeight={500} fontSize='xs' color='blue.1'>
-                      <Highlight
-                        query={'APR'}
-                        styles={{ color: `var(--chakra-colors-black-1)` }}
-                      >
+                      <Highlight query={'APR'} styles={{ color: `black.1` }}>
                         {`${29 + index} % APR`}
                       </Highlight>
                     </Text>

@@ -4,7 +4,7 @@ import defaultEmptyIcon from '@/assets/empty.svg'
 
 import type { FunctionComponent, ReactElement } from 'react'
 
-const EmptyTableComponent: FunctionComponent<
+const EmptyComponent: FunctionComponent<
   {
     icon?: string
     description?: string
@@ -24,4 +24,4 @@ const EmptyTableComponent: FunctionComponent<
   )
 }
 
-export default EmptyTableComponent
+export default EmptyComponent

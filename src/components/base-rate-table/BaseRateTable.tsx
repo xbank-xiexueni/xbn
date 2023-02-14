@@ -179,7 +179,8 @@ const LpBaseRateTable: FunctionComponent<{
                   alignItems={'center'}
                   justify='center'
                   h='40px'
-                  borderBottom={`1px solid var(--chakra-colors-gray-2)`}
+                  borderBottomColor='gray.2'
+                  borderBottomWidth={1}
                 >
                   <Text
                     textAlign={'center'}

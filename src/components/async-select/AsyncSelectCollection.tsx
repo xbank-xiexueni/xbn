@@ -6,7 +6,7 @@ import AsyncSelect from 'react-select/async'
 
 import { apiGetActiveCollection } from '@/api'
 
-import EmptyTableComponent from '../EmptyTableComponent'
+import EmptyComponent from '../EmptyComponent'
 
 function AsyncSelectCollection<
   Option,
@@ -114,7 +114,7 @@ function AsyncSelectCollection<
       }}
       components={{
         IndicatorSeparator: () => null,
-        NoOptionsMessage: () => <EmptyTableComponent my={0} mt={4} />,
+        NoOptionsMessage: () => <EmptyComponent my={0} mt={4} />,
       }}
       // @ts-ignore
       formatOptionLabel={({ col2, id }: Option) => (

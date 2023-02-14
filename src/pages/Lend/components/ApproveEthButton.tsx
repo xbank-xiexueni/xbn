@@ -89,7 +89,7 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
         onClose={onClose}
         isCentered
       >
-        <ModalOverlay bg='rgba(27, 34, 44, 0.4)' />
+        <ModalOverlay bg='black.2' />
         <ModalContent maxW='576px' px={10}>
           <ModalHeader
             pt={10}

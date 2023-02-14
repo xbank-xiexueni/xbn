@@ -30,7 +30,7 @@ const Index: FunctionComponent<IndexProps> = ({ visible, handleClose }) => {
 
   return (
     <Modal onClose={handleClose} isOpen={visible} isCentered>
-      <ModalOverlay bg='rgba(27, 34, 44, 0.4)' />
+      <ModalOverlay bg='black.2' />
       <ModalContent>
         {!connectLoading && !currentAccount && (
           <ModalHeader>Connect Wallet</ModalHeader>

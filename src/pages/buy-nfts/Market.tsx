@@ -84,7 +84,7 @@ const Market = () => {
             >
               <Highlight
                 styles={{
-                  color: `var(--chakra-colors-red-1)`,
+                  color: `red.1`,
                   fontWeight: 500,
                 }}
                 query='-900%'

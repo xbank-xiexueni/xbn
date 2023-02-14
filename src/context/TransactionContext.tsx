@@ -94,7 +94,8 @@ export const TransactionsProvider = ({
     ethereum.on('accountsChanged', function (accounts: string[]) {
       // 一旦切换账号这里就会执行
       if (isEmpty(accounts)) {
-        setCurrentAccount('')
+        // setCurrentAccount('')
+        window.location.reload()
         return
       }
     })

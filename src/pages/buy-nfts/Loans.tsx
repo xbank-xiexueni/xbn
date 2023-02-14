@@ -17,6 +17,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { apiGetBuyerLoans } from '@/api/buyer'
 import {
   ConnectWalletModal,
+  EmptyComponent,
   LoadingComponent,
   SvgComponent,
   TableList,
@@ -163,37 +164,42 @@ const Loans = () => {
 
           <List spacing={4} mt={4} position='relative'>
             <LoadingComponent loading={false} />
-            <Flex
-              justify={'space-between'}
-              py={3}
-              px={4}
-              alignItems='center'
-              borderRadius={8}
-              border={`1px solid var(--chakra-colors-gray-2)`}
-              cursor='pointer'
-              onClick={() => {
-                setSelectCollection(-1)
-              }}
-              bg={selectCollection === -1 ? 'blue.2' : 'white'}
-            >
-              <Text fontSize={'sm'} fontWeight='700'>
-                All my Collections
-              </Text>
-              {selectCollection === -1 ? (
-                <SvgComponent svgId='icon-checked' />
-              ) : (
-                <Text fontSize={'sm'}>{10}</Text>
-              )}
-            </Flex>
-            {collectionList.map((item: any) => (
-              <CollectionListItem
-                data={{ ...item }}
-                key={item.id}
-                onClick={() => setSelectCollection(item.id)}
-                isActive={selectCollection === item.id}
-                count={getCollectionLength(item.id)}
-              />
-            ))}
+            {isEmpty(collectionList) && <EmptyComponent />}
+            {!isEmpty(collectionList) && (
+              <Flex
+                justify={'space-between'}
+                py={3}
+                px={4}
+                alignItems='center'
+                borderRadius={8}
+                border={`1px solid var(--chakra-colors-gray-2)`}
+                cursor='pointer'
+                onClick={() => {
+                  setSelectCollection(-1)
+                }}
+                bg={selectCollection === -1 ? 'blue.2' : 'white'}
+              >
+                <Text fontSize={'sm'} fontWeight='700'>
+                  All my Collections
+                </Text>
+                {selectCollection === -1 ? (
+                  <SvgComponent svgId='icon-checked' />
+                ) : (
+                  <Text fontSize={'sm'}>{10}</Text>
+                )}
+              </Flex>
+            )}
+
+            {!isEmpty(collectionList) &&
+              collectionList.map((item: any) => (
+                <CollectionListItem
+                  data={{ ...item }}
+                  key={item.id}
+                  onClick={() => setSelectCollection(item.id)}
+                  isActive={selectCollection === item.id}
+                  count={getCollectionLength(item.id)}
+                />
+              ))}
           </List>
         </Box>
         <Box
@@ -229,7 +235,17 @@ const Loans = () => {
                     key: 'id',
                     fixedRight: true,
                     render: () => (
-                      <Box px={3} bg='white' borderRadius={8}>
+                      <Box
+                        px={3}
+                        bg='white'
+                        borderRadius={8}
+                        cursor='pointer'
+                        onClick={() => {
+                          interceptFn(() => {
+                            console.log('11')
+                          })
+                        }}
+                      >
                         <Text color='blue.1' fontSize='sm' fontWeight={'700'}>
                           Repay
                         </Text>
@@ -249,7 +265,7 @@ const Loans = () => {
                       styles={{
                         fontSize: '18px',
                         fontWeight: 500,
-                        color: `var(--chakra-colors-gray-3)`,
+                        color: `gray.3`,
                       }}
                       query='(Paid Off)'
                     >
@@ -270,7 +286,7 @@ const Loans = () => {
                       styles={{
                         fontSize: '18px',
                         fontWeight: 500,
-                        color: `var(--chakra-colors-gray-3)`,
+                        color: `gray.3`,
                       }}
                       query='(Overdue)'
                     >

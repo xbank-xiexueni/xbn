@@ -35,7 +35,7 @@ import {
   MyTable,
   LoadingComponent,
   TableList,
-  EmptyTableComponent,
+  EmptyComponent,
   SvgComponent,
 } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
@@ -459,7 +459,7 @@ const Lend = () => {
               }}
               emptyRender={() => {
                 return (
-                  <EmptyTableComponent
+                  <EmptyComponent
                     action={() => {
                       return (
                         <Button
@@ -482,14 +482,15 @@ const Lend = () => {
             <MyTable
               loading={myPoolsLoading}
               columns={myPoolsColumns}
-              data={myPoolsData?.list || []}
+              // data={myPoolsData?.list || []}
+              data={[]}
               onSort={(args: any) => {
                 console.log(args)
                 handleFetchMyPools()
               }}
               emptyRender={() => {
                 return (
-                  <EmptyTableComponent
+                  <EmptyComponent
                     action={() => {
                       return (
                         <Button
@@ -526,34 +527,39 @@ const Lend = () => {
 
                 <List spacing={4} mt={4} position='relative'>
                   <LoadingComponent loading={myPoolsLoading} />
-                  <Flex
-                    justify={'space-between'}
-                    py={3}
-                    px={4}
-                    alignItems='center'
-                    borderRadius={8}
-                    border={`1px solid var(--chakra-colors-gray-2)`}
-                    cursor='pointer'
-                    onClick={() => setSelectKeyForOpenLoans(-1)}
-                    bg={selectKeyForOpenLoans === -1 ? 'blue.2' : 'white'}
-                  >
-                    <Text fontSize={'sm'} fontWeight='700'>
-                      All my Collections
-                    </Text>
-                    {selectKeyForOpenLoans === -1 ? (
-                      <SvgComponent svgId='icon-checked' />
-                    ) : (
-                      <Text fontSize={'sm'}>{myPoolsData.list?.length}</Text>
-                    )}
-                  </Flex>
-                  {myPoolsData.list.map((item: any) => (
-                    <CollectionListItem
-                      data={{ ...item }}
-                      key={JSON.stringify(item)}
-                      onClick={() => setSelectKeyForOpenLoans(item.id)}
-                      isActive={selectKeyForOpenLoans === item.id}
-                    />
-                  ))}
+                  {isEmpty(myPoolsData.list) && <EmptyComponent />}
+                  {!isEmpty(myPoolsData.list) && (
+                    <Flex
+                      justify={'space-between'}
+                      py={3}
+                      px={4}
+                      alignItems='center'
+                      borderRadius={8}
+                      border={`1px solid var(--chakra-colors-gray-2)`}
+                      cursor='pointer'
+                      onClick={() => setSelectKeyForOpenLoans(-1)}
+                      bg={selectKeyForOpenLoans === -1 ? 'blue.2' : 'white'}
+                    >
+                      <Text fontSize={'sm'} fontWeight='700'>
+                        All my Collections
+                      </Text>
+                      {selectKeyForOpenLoans === -1 ? (
+                        <SvgComponent svgId='icon-checked' />
+                      ) : (
+                        <Text fontSize={'sm'}>{myPoolsData.list?.length}</Text>
+                      )}
+                    </Flex>
+                  )}
+
+                  {!isEmpty(myPoolsData.list) &&
+                    myPoolsData.list.map((item: any) => (
+                      <CollectionListItem
+                        data={{ ...item }}
+                        key={JSON.stringify(item)}
+                        onClick={() => setSelectKeyForOpenLoans(item.id)}
+                        isActive={selectKeyForOpenLoans === item.id}
+                      />
+                    ))}
                 </List>
               </Box>
               <Box
@@ -582,7 +588,7 @@ const Lend = () => {
                             styles={{
                               fontSize: '18px',
                               fontWeight: 500,
-                              color: `var(--chakra-colors-gray-3)`,
+                              color: `gray.3`,
                             }}
                             query='(Paid Off)'
                           >
@@ -602,7 +608,7 @@ const Lend = () => {
                             styles={{
                               fontSize: '18px',
                               fontWeight: 500,
-                              color: `var(--chakra-colors-gray-3)`,
+                              color: `gray.3`,
                             }}
                             query='(Overdue)'
                           >
