@@ -19,7 +19,7 @@ const DetailComponent: FunctionComponent<
       {/* 名称*/}
       <Flex alignItems={'baseline'}>
         <Text fontWeight={'500'}>{name1}</Text>
-        {verified && <SvgComponent svgId='icon-verified' />}
+        {verified && <SvgComponent svgId='icon-verified-fill' />}
       </Flex>
       <Heading fontSize={'40px'}>{name2}</Heading>
       {/* 价格 */}

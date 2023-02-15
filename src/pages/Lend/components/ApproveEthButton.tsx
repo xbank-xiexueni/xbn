@@ -17,6 +17,7 @@ import {
   NumberInputField,
   NumberInput,
   useToast,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import {
@@ -63,8 +64,8 @@ const ApproveEthButton: FunctionComponent<
     }
   }
 > = ({ children, ...rest }) => {
-  const { isOpen, onOpen, onClose, getBalance, balance, currentAccount } =
-    useWallet()
+  const { getBalance, balance, currentAccount } = useWallet()
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const [amount, setAmount] = useState('')
   const [flag, setFlag] = useState(true)
 
@@ -104,7 +105,7 @@ const ApproveEthButton: FunctionComponent<
         // allowCollateralContract
         '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
         // poolAmount
-        1,
+        amount,
         // poolMaximumPercentage,
         450,
         // uint32 poolMaximumDays,
@@ -129,8 +130,12 @@ const ApproveEthButton: FunctionComponent<
       })
       setIsLoading(false)
     }
-    // return
   }, [amount, currentAccount, toast])
+
+  const handleClose = useCallback(() => {
+    if (isLoading) return
+    onClose()
+  }, [onClose, isLoading])
 
   return (
     <>
@@ -142,7 +147,7 @@ const ApproveEthButton: FunctionComponent<
         initialFocusRef={initialRef}
         finalFocusRef={finalRef}
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={handleClose}
         isCentered
       >
         <ModalOverlay bg='black.2' />
@@ -157,7 +162,7 @@ const ApproveEthButton: FunctionComponent<
             <Text>Approve {UNIT}</Text>
             <SvgComponent
               svgId='icon-close'
-              onClick={onClose}
+              onClick={handleClose}
               cursor='pointer'
             />
           </ModalHeader>
@@ -198,6 +203,7 @@ const ApproveEthButton: FunctionComponent<
                   borderRadius={8}
                   borderColor='gray.3'
                   placeholder='Enter the approve ETH amount...'
+                  isDisabled={isLoading}
                 >
                   <NumberInputField
                     h='60px'

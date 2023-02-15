@@ -36,7 +36,7 @@ const BelongToCollection: FunctionComponent<
             <Text fontSize={'18px'} fontWeight='bold'>
               {name}
             </Text>
-            {verified && <SvgComponent svgId='icon-verified' />}
+            {verified && <SvgComponent svgId='icon-verified-fill' />}
           </Flex>
 
           <Text fontSize={'18px'} fontWeight='bold'>

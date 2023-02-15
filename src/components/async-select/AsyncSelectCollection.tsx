@@ -6,7 +6,7 @@ import AsyncSelect from 'react-select/async'
 
 import { apiGetActiveCollection } from '@/api'
 
-import { EmptyComponent } from '..'
+import { EmptyComponent, SvgComponent } from '..'
 
 function AsyncSelectCollection<
   Option,
@@ -39,6 +39,7 @@ function AsyncSelectCollection<
   )
   return (
     <AsyncSelect
+      menuIsOpen
       isLoading={loading}
       defaultOptions
       // @ts-ignore
@@ -58,13 +59,14 @@ function AsyncSelectCollection<
           return {
             ...base,
             borderRadius: 8,
-            borderWidth: 1,
-            borderColor: 'var(--chakra-colors-blue-1)',
-            boxShadow: '0px 2px 8px var(--chakra-colors-blue-2)',
+            border: '1px solid var(--chakra-colors-blue-1)',
+            boxShadow:
+              '-2px 2px 8px -6px var(--chakra-colors-blue-1), 2px 2px 8px -6px var(--chakra-colors-blue-1)',
             borderTop: 'none',
             borderTopLeftRadius: 0,
             borderTopRightRadius: 0,
             backgroundColor: 'white',
+            paddingTop: 20,
           }
         },
         menu(base) {
@@ -72,7 +74,7 @@ function AsyncSelectCollection<
             ...base,
             border: 'none',
             borderRadius: 0,
-            top: '70%',
+            top: '68%',
             boxShadow: 'none',
           }
         },
@@ -86,7 +88,7 @@ function AsyncSelectCollection<
               : 'var(--chakra-colors-blue-4)'
           }`,
           boxShadow: isFocused
-            ? '0px 2px 8px var(--chakra-colors-blue-2)'
+            ? '-1px -1px 8px -6px var(--chakra-colors-blue-1), 1px -1px 8px -6px var(--chakra-colors-blue-1)'
             : 'none',
           height: 44,
           backgroundColor: 'white',
@@ -120,7 +122,8 @@ function AsyncSelectCollection<
       formatOptionLabel={({ col2, id }: Option) => (
         <Flex alignItems={'center'} key={id}>
           <Box w={4} h={4} bg='pink' />
-          ----{col2}
+          ----名称是{col2}
+          {id % 2 === 0 && <SvgComponent svgId='icon-verified-fill' />}
         </Flex>
       )}
       {...rest}
