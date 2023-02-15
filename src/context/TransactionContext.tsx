@@ -1,14 +1,4 @@
-import {
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  Text,
-  useDisclosure,
-  useToast,
-} from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import isEmpty from 'lodash-es/isEmpty'
 import {
@@ -52,8 +42,6 @@ export const TransactionsProvider = ({
   const toast = useToast()
   const [currentAccount, setCurrentAccount] = useState('')
   const [balance, setBalance] = useState(0)
-
-  const { isOpen, onClose } = useDisclosure()
 
   const [connectLoading, setConnectLoading] = useState(false)
 
@@ -257,18 +245,6 @@ export const TransactionsProvider = ({
       }}
     >
       {children}
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Modal Title</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text fontWeight='bold' mb='1rem'>
-              You can scroll the content behind the modal
-            </Text>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
     </TransactionContext.Provider>
   )
 }

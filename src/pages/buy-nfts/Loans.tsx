@@ -1,16 +1,8 @@
-import {
-  Box,
-  Heading,
-  List,
-  Flex,
-  Text,
-  Highlight,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Box, Heading, List, Flex, Text, Highlight } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 // import { useNavigate } from 'react-router-dom'
 
 // import { SearchInput } from '@/components'
@@ -23,7 +15,7 @@ import {
   TableList,
 } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
-import { TransactionContext } from '@/context/TransactionContext'
+import { useWallet } from '@/hooks'
 
 import CollectionListItem from './components/CollectionListItem'
 
@@ -77,21 +69,7 @@ export const loansForBuyerColumns: ColumnProps[] = [
 
 const Loans = () => {
   // const navigate = useNavigate()
-  const { currentAccount } = useContext(TransactionContext)
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const interceptFn = useCallback(
-    (fn?: () => void) => {
-      // 判断是否连接钱包
-      if (!currentAccount) {
-        onOpen()
-        return
-      }
-      if (fn) {
-        fn()
-      }
-    },
-    [currentAccount, onOpen],
-  )
+  const { isOpen, onClose, interceptFn, currentAccount } = useWallet()
 
   useEffect(() => interceptFn(), [interceptFn])
 

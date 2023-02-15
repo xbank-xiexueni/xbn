@@ -11,15 +11,13 @@ import {
   Heading,
   Tag,
   List,
-  useDisclosure,
   Highlight,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 // import debounce from 'lodash-es/debounce'
-import { type Dictionary } from 'lodash'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import {
@@ -40,7 +38,7 @@ import {
 } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
 // import { TransactionContext } from '@/context/TransactionContext'
-import { TransactionContext } from '@/context/TransactionContext'
+import { useWallet } from '@/hooks'
 
 import CollectionListItem from '../buy-nfts/components/CollectionListItem'
 
@@ -50,24 +48,12 @@ import {
   loansForLendColumns,
 } from './constants'
 
+type Dictionary<T> = Record<string, T>
+
 const Lend = () => {
-  const { currentAccount } = useContext(TransactionContext)
   const [tabKey, setTabKey] = useState<0 | 1 | 2>()
 
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const interceptFn = useCallback(
-    (fn?: () => void) => {
-      // 判断是否连接钱包
-      if (!currentAccount) {
-        onOpen()
-        return
-      }
-      if (fn) {
-        fn()
-      }
-    },
-    [currentAccount, onOpen],
-  )
+  const { isOpen, onClose, interceptFn, currentAccount } = useWallet()
 
   // const [showSearch, setShowSearch] = useState(false)
 
@@ -482,8 +468,7 @@ const Lend = () => {
             <MyTable
               loading={myPoolsLoading}
               columns={myPoolsColumns}
-              // data={myPoolsData?.list || []}
-              data={[]}
+              data={myPoolsData?.list || []}
               onSort={(args: any) => {
                 console.log(args)
                 handleFetchMyPools()

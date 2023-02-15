@@ -1,5 +1,4 @@
 import {
-  useDisclosure,
   Modal,
   ModalBody,
   ModalOverlay,
@@ -19,7 +18,6 @@ import {
   NumberInput,
 } from '@chakra-ui/react'
 import {
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -29,7 +27,7 @@ import {
 
 import { SvgComponent } from '@/components'
 import { UNIT } from '@/constants'
-import { TransactionContext } from '@/context/TransactionContext'
+import { useWallet } from '@/hooks'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
 //   label,
@@ -54,8 +52,7 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
   children,
   ...rest
 }) => {
-  const { getBalance, balance } = useContext(TransactionContext)
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen, onOpen, onClose, getBalance, balance } = useWallet()
   const [amount, setAmount] = useState('')
   const [flag, setFlag] = useState(true)
 

@@ -15,18 +15,17 @@ import {
   Highlight,
   VStack,
   Divider,
-  useDisclosure,
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
 import isEmpty from 'lodash-es/isEmpty'
 import range from 'lodash-es/range'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import TestImage from '@/assets/IMAGE.png'
 import { ConnectWalletModal, SvgComponent } from '@/components'
 import { COLLATERALS, UNIT } from '@/constants'
-import { TransactionContext } from '@/context/TransactionContext'
+import { useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 
 import test from '@/assets/test-img.svg'
@@ -38,21 +37,7 @@ import PlanItem from './components/PlanItem'
 import RadioCard from './components/RadioCard'
 
 const NftAssetDetail = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const { currentAccount } = useContext(TransactionContext)
-  const interceptFn = useCallback(
-    (fn?: () => void) => {
-      // 判断是否连接钱包
-      if (!currentAccount) {
-        onOpen()
-        return
-      }
-      if (fn) {
-        fn()
-      }
-    },
-    [currentAccount, onOpen],
-  )
+  const { isOpen, onClose, interceptFn } = useWallet()
   // const { id } = useParams()
   const [
     commodityPrice,

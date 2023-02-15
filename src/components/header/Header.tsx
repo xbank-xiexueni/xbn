@@ -10,7 +10,6 @@ import {
   PopoverContent,
   PopoverBody,
   IconButton,
-  useDisclosure,
 } from '@chakra-ui/react'
 import kebabCase from 'lodash-es/kebabCase'
 import { useContext, useMemo } from 'react'
@@ -20,6 +19,7 @@ import { Link, useLocation } from 'react-router-dom'
 import Icon from '@/assets/logo.png'
 import { RESPONSIVE_MAX_W } from '@/constants'
 import { TransactionContext } from '@/context/TransactionContext'
+import { useWallet } from '@/hooks'
 
 import { ConnectWalletModal, SvgComponent } from '..'
 
@@ -28,7 +28,7 @@ const Header = () => {
 
   const { pathname } = useLocation()
 
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen, onClose, onOpen } = useWallet()
 
   const activePath = useMemo((): 'LEND' | 'BUY_NFTS' | 'SELL_NFTS' | '' => {
     if (pathname.startsWith('/lend')) {

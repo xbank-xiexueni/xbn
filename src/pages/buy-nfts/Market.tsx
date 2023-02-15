@@ -8,11 +8,10 @@ import {
   // Flex,
   SimpleGrid,
   Highlight,
-  useDisclosure,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import isEmpty from 'lodash-es/isEmpty'
-import { useMemo, useState, useContext, useCallback } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { apiGetActiveCollection } from '@/api'
@@ -24,7 +23,7 @@ import {
   MarketNftListCard,
   // Select
 } from '@/components'
-import { TransactionContext } from '@/context/TransactionContext'
+import { useWallet } from '@/hooks'
 
 import TEST_IMG from '@/assets/test-img.svg'
 
@@ -33,21 +32,7 @@ import CollectionListItem from './components/CollectionListItem'
 
 const Market = () => {
   const navigate = useNavigate()
-  const { currentAccount } = useContext(TransactionContext)
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const interceptFn = useCallback(
-    (fn?: () => void) => {
-      // 判断是否连接钱包
-      if (!currentAccount) {
-        onOpen()
-        return
-      }
-      if (fn) {
-        fn()
-      }
-    },
-    [currentAccount, onOpen],
-  )
+  const { isOpen, onClose, interceptFn } = useWallet()
 
   const [selectCollection, setSelectCollection] = useState<number>()
   const { data: collectionData, loading: collectionLoading } = useRequest(
