@@ -39,7 +39,6 @@ function AsyncSelectCollection<
   )
   return (
     <AsyncSelect
-      menuIsOpen
       isLoading={loading}
       defaultOptions
       // @ts-ignore
