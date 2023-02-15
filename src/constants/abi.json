@@ -1,390 +1,1356 @@
 [
   {
-    "constant": true,
-    "inputs": [],
-    "name": "name",
-    "outputs": [{ "name": "", "type": "string" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [{ "name": "_upgradedAddress", "type": "address" }],
-    "name": "deprecate",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
     "inputs": [
-      { "name": "_spender", "type": "address" },
-      { "name": "_value", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "addrs",
+        "type": "address"
+      }
     ],
-    "name": "approve",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "deprecated",
-    "outputs": [{ "name": "", "type": "bool" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [{ "name": "_evilUser", "type": "address" }],
-    "name": "addBlackList",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "totalSupply",
-    "outputs": [{ "name": "", "type": "uint256" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      { "name": "_from", "type": "address" },
-      { "name": "_to", "type": "address" },
-      { "name": "_value", "type": "uint256" }
-    ],
-    "name": "transferFrom",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "upgradedAddress",
-    "outputs": [{ "name": "", "type": "address" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [{ "name": "", "type": "address" }],
-    "name": "balances",
-    "outputs": [{ "name": "", "type": "uint256" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "decimals",
-    "outputs": [{ "name": "", "type": "uint256" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "maximumFee",
-    "outputs": [{ "name": "", "type": "uint256" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "_totalSupply",
-    "outputs": [{ "name": "", "type": "uint256" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [],
-    "name": "unpause",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [{ "name": "_maker", "type": "address" }],
-    "name": "getBlackListStatus",
-    "outputs": [{ "name": "", "type": "bool" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      { "name": "", "type": "address" },
-      { "name": "", "type": "address" }
-    ],
-    "name": "allowed",
-    "outputs": [{ "name": "", "type": "uint256" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "paused",
-    "outputs": [{ "name": "", "type": "bool" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [{ "name": "who", "type": "address" }],
-    "name": "balanceOf",
-    "outputs": [{ "name": "", "type": "uint256" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [],
-    "name": "pause",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getOwner",
-    "outputs": [{ "name": "", "type": "address" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "owner",
-    "outputs": [{ "name": "", "type": "address" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "symbol",
-    "outputs": [{ "name": "", "type": "string" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      { "name": "_to", "type": "address" },
-      { "name": "_value", "type": "uint256" }
-    ],
-    "name": "transfer",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      { "name": "newBasisPoints", "type": "uint256" },
-      { "name": "newMaxFee", "type": "uint256" }
-    ],
-    "name": "setParams",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [{ "name": "amount", "type": "uint256" }],
-    "name": "issue",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [{ "name": "amount", "type": "uint256" }],
-    "name": "redeem",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      { "name": "_owner", "type": "address" },
-      { "name": "_spender", "type": "address" }
-    ],
-    "name": "allowance",
-    "outputs": [{ "name": "remaining", "type": "uint256" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "basisPointsRate",
-    "outputs": [{ "name": "", "type": "uint256" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [{ "name": "", "type": "address" }],
-    "name": "isBlackListed",
-    "outputs": [{ "name": "", "type": "bool" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [{ "name": "_clearedUser", "type": "address" }],
-    "name": "removeBlackList",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "MAX_UINT",
-    "outputs": [{ "name": "", "type": "uint256" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [{ "name": "newOwner", "type": "address" }],
-    "name": "transferOwnership",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [{ "name": "_blackListedUser", "type": "address" }],
-    "name": "destroyBlackFunds",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "name": "_initialSupply", "type": "uint256" },
-      { "name": "_name", "type": "string" },
-      { "name": "_symbol", "type": "string" },
-      { "name": "_decimals", "type": "uint256" }
-    ],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
   {
     "anonymous": false,
-    "inputs": [{ "indexed": false, "name": "amount", "type": "uint256" }],
-    "name": "Issue",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [{ "indexed": false, "name": "amount", "type": "uint256" }],
-    "name": "Redeem",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [{ "indexed": false, "name": "newAddress", "type": "address" }],
-    "name": "Deprecate",
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "supportERC20Denomination",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "lenderAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "borrowerAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lenderSupportAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "borrowerAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "FundsArrived",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": false, "name": "feeBasisPoints", "type": "uint256" },
-      { "indexed": false, "name": "maxFee", "type": "uint256" }
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "loanID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "supportERC20Denomination",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "nftCollateralContract",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nftCollateralID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "totalRepayment",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      }
     ],
-    "name": "Params",
+    "name": "LoanCreated",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": false, "name": "_blackListedUser", "type": "address" },
-      { "indexed": false, "name": "_balance", "type": "uint256" }
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "loanID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "nftCollateralContract",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nftCollateralID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      }
     ],
-    "name": "DestroyedBlackFunds",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [{ "indexed": false, "name": "_user", "type": "address" }],
-    "name": "AddedBlackList",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [{ "indexed": false, "name": "_user", "type": "address" }],
-    "name": "RemovedBlackList",
+    "name": "LoanLiquidated",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": true, "name": "owner", "type": "address" },
-      { "indexed": true, "name": "spender", "type": "address" },
-      { "indexed": false, "name": "value", "type": "uint256" }
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "loanID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "nftCollateralContract",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nftCollateralID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      }
     ],
-    "name": "Approval",
+    "name": "LoanOverdued",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": true, "name": "from", "type": "address" },
-      { "indexed": true, "name": "to", "type": "address" },
-      { "indexed": false, "name": "value", "type": "uint256" }
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "loanID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "supportERC20Denomination",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "nftCollateralContract",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nftCollateralID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "repayAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      }
     ],
-    "name": "Transfer",
+    "name": "LoanRepayed",
     "type": "event"
   },
-  { "anonymous": false, "inputs": [], "name": "Pause", "type": "event" },
-  { "anonymous": false, "inputs": [], "name": "Unpause", "type": "event" }
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "loanID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "nftCollateralContract",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nftCollateralID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "repayAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "LoanRepayed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "poolID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "allowCollateralContract",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "supportERC20Denomination",
+        "type": "address"
+      }
+    ],
+    "name": "PoolCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "end",
+        "type": "uint32"
+      }
+    ],
+    "name": "WrongTimeRepay",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "repayedAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "repayAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "_calRepayedTimes",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalRepayment",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "interest",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "repayTimes",
+        "type": "uint32"
+      }
+    ],
+    "name": "_calRepaymentAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "startTime",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "duration",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "repayTimes",
+        "type": "uint32"
+      }
+    ],
+    "name": "_calRepaymentPeriod",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "repayedTimes",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "period",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "startTime",
+        "type": "uint32"
+      }
+    ],
+    "name": "_checkIsTimeToRepay",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "poolID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "comodityPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "oracleFloorPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "borrowerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "loadPrincipalAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalRepayment",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanInterestRate",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanDuration",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "repayTimes",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftCollateralID",
+        "type": "uint256"
+      }
+    ],
+    "name": "beginLoan",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "ownerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "supportERC20Denomination",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "allowCollateralContract",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "poolAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "poolMaximumPercentage",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "poolMaximumDays",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "poolMaximumInterestRate",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanTimeConcessionFlexibility",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanRatioPreferentialFlexibility",
+        "type": "uint32"
+      }
+    ],
+    "name": "createPool",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAdminAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "loanID",
+        "type": "uint256"
+      }
+    ],
+    "name": "getLoan",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "loanID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "poolID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "poolMaximumPercentage",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "poolMaximumDays",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "poolInterestRate",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanTimeConcessionFlexibility",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanRatioPreferentialFlexibility",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "lenderAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "borrowerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "loadPrincipalAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalRepayment",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "repayedAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanStatus",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "loanInterest",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanInterestRate",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanStartTime",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanDuration",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "repayTimes",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "commodityPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "oracleFloorPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "nftCollateralContract",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "nftCollateralID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "loanERC20Denomination",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "activity",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct XBankStruct.Loan",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "poolID",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPool",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "poolID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "ownerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "allowCollateralContract",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "supportERC20Denomination",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "poolAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "poolUsedAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanCount",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "poolMaximumPercentage",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "poolMaximumDays",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "poolMaximumInterestRate",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanTimeConcessionFlexibility",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanRatioPreferentialFlexibility",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bool",
+            "name": "activity",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct XBankStruct.Pool",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "loanID",
+        "type": "uint256"
+      }
+    ],
+    "name": "liquidateOverdue",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "listLoan",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "loanID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "poolID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "poolMaximumPercentage",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "poolMaximumDays",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "poolInterestRate",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanTimeConcessionFlexibility",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanRatioPreferentialFlexibility",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "lenderAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "borrowerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "loadPrincipalAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalRepayment",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "repayedAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanStatus",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "loanInterest",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanInterestRate",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanStartTime",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanDuration",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "repayTimes",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "commodityPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "oracleFloorPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "nftCollateralContract",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "nftCollateralID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "loanERC20Denomination",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "activity",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct XBankStruct.Loan[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "listPool",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "poolID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "ownerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "allowCollateralContract",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "supportERC20Denomination",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "poolAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "poolUsedAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanCount",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "poolMaximumPercentage",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "poolMaximumDays",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "poolMaximumInterestRate",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanTimeConcessionFlexibility",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "loanRatioPreferentialFlexibility",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bool",
+            "name": "activity",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct XBankStruct.Pool[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "loanIDToLoan",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "loanID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "poolID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "poolMaximumPercentage",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "poolMaximumDays",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "poolInterestRate",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanTimeConcessionFlexibility",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanRatioPreferentialFlexibility",
+        "type": "uint32"
+      },
+      {
+        "internalType": "address",
+        "name": "lenderAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "borrowerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "loadPrincipalAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalRepayment",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "repayedAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanStatus",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "loanInterest",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanInterestRate",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanStartTime",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanDuration",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "repayTimes",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "commodityPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "oracleFloorPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "nftCollateralContract",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftCollateralID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "loanERC20Denomination",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "activity",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "poolIDToPool",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "poolID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "ownerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "allowCollateralContract",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "supportERC20Denomination",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "poolAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "poolUsedAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanCount",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "poolMaximumPercentage",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "poolMaximumDays",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "poolMaximumInterestRate",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanTimeConcessionFlexibility",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanRatioPreferentialFlexibility",
+        "type": "uint32"
+      },
+      {
+        "internalType": "bool",
+        "name": "activity",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "loanID",
+        "type": "uint256"
+      }
+    ],
+    "name": "repayLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addrs",
+        "type": "address"
+      }
+    ],
+    "name": "setAdminAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalNumLoans",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalNumPools",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "poolID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lenderSupportAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "borrowerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "borrowerAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "transferFrom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "poolID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "poolAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "updatePool",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
 ]

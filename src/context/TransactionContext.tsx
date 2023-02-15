@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { ethers } from 'ethers'
+import { ethers, utils } from 'ethers'
 import isEmpty from 'lodash-es/isEmpty'
 import {
   useEffect,
@@ -9,30 +9,15 @@ import {
   useCallback,
 } from 'react'
 
-import { contractABI, contractAddress } from '@/constants'
-
 export const TransactionContext = createContext({
   connectWallet: () => {},
   getBalance: () => {},
   currentAccount: '',
   balance: 0,
-  getBalanceFromContract: () => {},
   connectLoading: false,
 })
 
 const { ethereum } = window
-
-const createEthereumContract = () => {
-  const provider = new ethers.providers.Web3Provider(ethereum)
-  const signer = provider.getSigner()
-  const transactionsContract = new ethers.Contract(
-    contractAddress,
-    contractABI,
-    signer,
-  )
-
-  return transactionsContract
-}
 
 export const TransactionsProvider = ({
   children,
@@ -94,7 +79,7 @@ export const TransactionsProvider = ({
     const provider = new ethers.providers.Web3Provider(ethereum)
 
     const currentBalance = await provider.getBalance(currentAccount)
-    setBalance(currentBalance.toNumber())
+    setBalance(Number(utils.formatEther(currentBalance._hex)))
   }, [currentAccount])
 
   const checkIfWalletIsConnect = useCallback(async () => {
@@ -184,44 +169,6 @@ export const TransactionsProvider = ({
   //   }
   // }
 
-  const getBalanceFromContract = useCallback(async () => {
-    try {
-      if (!!ethereum) {
-        const transactionsContract = createEthereumContract()
-        // const parsedAmount = ethers.utils.parseEther(amount)
-
-        // await ethereum.request({
-        //   method: 'eth_sendTransaction',
-        //   params: [
-        //     {
-        //       from: currentAccount,
-        //       to: addressTo,
-        //       gas: '0x5208',
-        //       value: parsedAmount._hex,
-        //     },
-        //   ],
-        // })
-
-        const res = await transactionsContract.balanceOf(
-          '0x388C818CA8B9251b393131C08a736A67ccB19297',
-        )
-
-        const decimals = await transactionsContract.decimals()
-
-        console.log(`Loading - ${res}-${decimals}`)
-        // await transactionHash.wait()
-        // console.log(`Success - ${transactionHash.hash}`)
-        // setIsLoading(false)
-      } else {
-        console.log('No ethereum object')
-      }
-    } catch (error) {
-      console.log(error)
-
-      throw new Error('No ethereum object')
-    }
-  }, [])
-
   useEffect(() => {
     checkIfWalletIsConnect()
     // checkIfTransactionsExists()
@@ -241,7 +188,6 @@ export const TransactionsProvider = ({
         // sendTransaction,
         // handleChange,
         // formData,
-        getBalanceFromContract,
       }}
     >
       {children}

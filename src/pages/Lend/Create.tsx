@@ -154,6 +154,13 @@ You can also use the small sliders on the right and bottom of the table to adjus
               w='240px'
               h='52px'
               isDisabled={isEmpty(selectCollection)}
+              data={{
+                poolMaximumPercentage: 450,
+                poolMaximumDays: 1,
+                poolMaximumInterestRate: 1,
+                loanTimeConcessionFlexibility: 1,
+                loanRatioPreferentialFlexibility: 1,
+              }}
             >
               Confirm
             </ApproveEthButton>

@@ -16,8 +16,11 @@ import {
   InputRightElement,
   NumberInputField,
   NumberInput,
+  useToast,
 } from '@chakra-ui/react'
+import { ethers } from 'ethers'
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -28,6 +31,7 @@ import {
 import { SvgComponent } from '@/components'
 import { UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
+import createEthereumContract from '@/utils/createEthereumContract'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
 //   label,
@@ -48,11 +52,19 @@ import { useWallet } from '@/hooks'
 //   )
 // }
 
-const ApproveEthButton: FunctionComponent<ButtonProps> = ({
-  children,
-  ...rest
-}) => {
-  const { isOpen, onOpen, onClose, getBalance, balance } = useWallet()
+const ApproveEthButton: FunctionComponent<
+  ButtonProps & {
+    data: {
+      poolMaximumPercentage: number
+      poolMaximumDays: number
+      poolMaximumInterestRate: number
+      loanTimeConcessionFlexibility: number
+      loanRatioPreferentialFlexibility: number
+    }
+  }
+> = ({ children, ...rest }) => {
+  const { isOpen, onOpen, onClose, getBalance, balance, currentAccount } =
+    useWallet()
   const [amount, setAmount] = useState('')
   const [flag, setFlag] = useState(true)
 
@@ -72,6 +84,53 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
   useEffect(() => {
     getBalance()
   }, [getBalance])
+  const [isLoading, setIsLoading] = useState(false)
+  const toast = useToast()
+
+  const onConfirm = useCallback(async () => {
+    const parsedAmount = ethers.utils.parseEther(amount.toString())
+    console.log(
+      '🚀 ~ file: ApproveEthButton.tsx:92 ~ onConfirm ~ parsedAmount',
+      parsedAmount,
+    )
+
+    const transactionsContract = createEthereumContract()
+    try {
+      setIsLoading(true)
+      const transactionHash = await transactionsContract.createPool(
+        currentAccount,
+        // supportERC20Denomination
+        '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
+        // allowCollateralContract
+        '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
+        // poolAmount
+        1,
+        // poolMaximumPercentage,
+        450,
+        // uint32 poolMaximumDays,
+        1,
+        // uint32 poolMaximumInterestRate,
+        1,
+        // uint32 loanTimeConcessionFlexibility,
+        1,
+        // uint32 loanRatioPreferentialFlexibility
+        1,
+      )
+      console.log(`Loading - ${transactionHash.hash}`)
+      await transactionHash.wait()
+      console.log(`Success - ${transactionHash.hash}`)
+      setIsLoading(false)
+    } catch (error: any) {
+      console.log(error?.message, error?.code, error?.data)
+      toast({
+        status: 'error',
+        title: error?.code,
+        duration: 5000,
+      })
+      setIsLoading(false)
+    }
+    // return
+  }, [amount, currentAccount, toast])
 
   return (
     <>
@@ -161,7 +220,7 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
 
               {isError && (
                 <Text mt={2} color='red.1'>
-                  Insufficient funds，Maximum input: {balance}
+                  Insufficient funds, Maximum input: {balance}
                 </Text>
               )}
             </FormControl>
@@ -176,6 +235,8 @@ const ApproveEthButton: FunctionComponent<ButtonProps> = ({
             mx={10}
             h='52px'
             isDisabled={isError || !Number(amount)}
+            onClick={onConfirm}
+            isLoading={isLoading}
           >
             Approve
           </Button>

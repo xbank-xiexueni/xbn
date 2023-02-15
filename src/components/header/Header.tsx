@@ -12,23 +12,21 @@ import {
   IconButton,
 } from '@chakra-ui/react'
 import kebabCase from 'lodash-es/kebabCase'
-import { useContext, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import Jazzicon from 'react-jazzicon'
 import { Link, useLocation } from 'react-router-dom'
 
 import Icon from '@/assets/logo.png'
 import { RESPONSIVE_MAX_W } from '@/constants'
-import { TransactionContext } from '@/context/TransactionContext'
 import { useWallet } from '@/hooks'
+import createEthereumContract from '@/utils/createEthereumContract'
 
 import { ConnectWalletModal, SvgComponent } from '..'
 
 const Header = () => {
-  const { currentAccount } = useContext(TransactionContext)
-
   const { pathname } = useLocation()
 
-  const { isOpen, onClose, onOpen } = useWallet()
+  const { isOpen, onClose, onOpen, currentAccount } = useWallet()
 
   const activePath = useMemo((): 'LEND' | 'BUY_NFTS' | 'SELL_NFTS' | '' => {
     if (pathname.startsWith('/lend')) {
@@ -42,6 +40,12 @@ const Header = () => {
     }
     return ''
   }, [pathname])
+
+  const testClick = useCallback(async () => {
+    const transactionsContract = createEthereumContract()
+    const res = await transactionsContract.listPool()
+    console.log(transactionsContract, 'transactionsContract', res)
+  }, [])
 
   return (
     <Box position={'sticky'} top={0} zIndex={21}>
@@ -175,7 +179,7 @@ const Header = () => {
             </Popover>
           </Flex>
 
-          <Flex gap={6} alignItems='center'>
+          <Flex gap={6} alignItems='center' onClick={testClick}>
             {!!currentAccount ? (
               <Jazzicon
                 diameter={30}

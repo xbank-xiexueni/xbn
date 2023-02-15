@@ -1,6 +1,6 @@
 export { default as contractABI } from './contractABI'
 
-export const contractAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7'
+export const contractAddress = '0x3ed06e155eb4135ecc1591142cce51c90b0d1047'
 
 export const RESPONSIVE_MAX_W = {
   xl: 1408,
