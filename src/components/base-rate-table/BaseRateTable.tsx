@@ -175,7 +175,7 @@ const LpBaseRateTable: FunctionComponent<{
               ].map((item) => (
                 <Flex
                   key={item}
-                  w='20%'
+                  w={`${(1 / (colCount || 1)) * 100}%`}
                   alignItems={'center'}
                   justify='center'
                   h='40px'
@@ -213,10 +213,10 @@ const LpBaseRateTable: FunctionComponent<{
                         /* eslint-disable */
                         key={`${value}-${i}`}
                         /* eslint-disable */
-                        w='20%'
                         alignItems={'center'}
                         justify='center'
                         h='40px'
+                        w={`${(1 / (colCount || 1)) * 100}%`}
                       >
                         <Text
                           textAlign={'center'}
