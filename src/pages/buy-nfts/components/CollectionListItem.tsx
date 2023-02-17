@@ -27,7 +27,7 @@ const CollectionListItem: FunctionComponent<{
       bg={isActive ? 'blue.2' : 'white'}
       onClick={onClick}
     >
-      <Flex alignItems={'center'}>
+      <Flex alignItems={'center'} gap={2}>
         <Image src={img} w={6} h={6} />
         <Text fontSize={'sm'}>
           {name}

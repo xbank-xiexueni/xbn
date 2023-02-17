@@ -187,6 +187,7 @@ const Lend = () => {
       dataIndex: 'col1',
       key: 'col1',
       align: 'left',
+      width: 320,
       render: (
         _: Record<string, string | number | boolean>,
         value: string | number | boolean,
@@ -194,7 +195,14 @@ const Lend = () => {
         <Flex alignItems={'center'} gap={2}>
           <Image src={_.img as string} h={12} w={12} borderRadius={12} />
           {/* <Box w={10} h={10} bg='pink' borderRadius={4} /> */}
-          <Text>{value}</Text>
+          <Text>
+            {`${value}`.length > 20
+              ? `${`${value}`.substring(0, 20)}...`
+              : value}
+          </Text>
+          {`${value}`.length % 2 === 0 && (
+            <SvgComponent svgId='icon-verified-fill' />
+          )}
         </Flex>
       ),
     },
@@ -203,6 +211,7 @@ const Lend = () => {
       dataIndex: 'col2',
       key: 'col2',
       align: 'right',
+      thAlign: 'right',
       render: (
         _: Record<string, string | number | boolean>,
         value: string | number | boolean,
@@ -213,6 +222,7 @@ const Lend = () => {
       dataIndex: 'col3',
       key: 'col3',
       align: 'right',
+      thAlign: 'right',
       render: (
         _: Record<string, string | number | boolean>,
         value: string | number | boolean,
@@ -224,6 +234,7 @@ const Lend = () => {
       dataIndex: 'col4',
       key: 'col4',
       align: 'center',
+      thAlign: 'center',
       render: (
         _: Record<string, string | number | boolean>,
         value: string | number | boolean,
@@ -234,6 +245,7 @@ const Lend = () => {
       dataIndex: 'col5',
       key: 'col5',
       align: 'right',
+      thAlign: 'right',
       render: (
         _: Record<string, string | number | boolean>,
         value: string | number | boolean,

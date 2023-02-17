@@ -73,13 +73,16 @@ export const loansForLendColumns: ColumnProps[] = [
     dataIndex: 'col1',
     key: 'col1',
     align: 'left',
+    width: 160,
     render: (
       _: Record<string, string | number | boolean>,
       value: string | number | boolean,
     ) => (
       <Flex alignItems={'center'} gap={2}>
         <Image src={_.img as string} w={10} h={10} borderRadius={4} />
-        <Text>{value}</Text>
+        <Text>
+          {`${value}`?.length > 8 ? `${`${value}`.substring(0, 8)}...` : value}
+        </Text>
       </Flex>
     ),
   },
@@ -103,6 +106,8 @@ export const loansForLendColumns: ColumnProps[] = [
     title: 'Borrower',
     dataIndex: 'col3',
     key: 'col3',
+    thAlign: 'right',
+    align: 'right',
     render: (
       _: Record<string, string | number | boolean>,
       value: string | number | boolean,
@@ -118,11 +123,15 @@ export const loansForLendColumns: ColumnProps[] = [
   {
     title: 'Start time',
     dataIndex: 'col7',
+    thAlign: 'right',
+    align: 'right',
     key: 'col7',
   },
   {
     title: 'Loan value',
     dataIndex: 'col4',
+    align: 'right',
+    thAlign: 'right',
     key: 'col4',
     render: (
       _: Record<string, string | number | boolean>,
@@ -136,6 +145,8 @@ export const loansForLendColumns: ColumnProps[] = [
   {
     title: 'Duration',
     dataIndex: 'col5',
+    align: 'right',
+    thAlign: 'right',
     key: 'col5',
     render: (
       _: Record<string, string | number | boolean>,
@@ -145,7 +156,9 @@ export const loansForLendColumns: ColumnProps[] = [
   {
     title: 'Interest',
     dataIndex: 'col6',
+    align: 'right',
     key: 'col6',
+    thAlign: 'right',
     render: (
       _: Record<string, string | number | boolean>,
       value: string | number | boolean,

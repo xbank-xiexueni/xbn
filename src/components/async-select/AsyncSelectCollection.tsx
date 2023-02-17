@@ -1,12 +1,30 @@
 import { Flex, Image } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import { useCallback } from 'react'
-import { type GroupBase, type Props } from 'react-select'
+import {
+  components,
+  type GroupBase,
+  type OptionProps,
+  type Props,
+} from 'react-select'
 import AsyncSelect from 'react-select/async'
 
 import { apiGetActiveCollection } from '@/api'
 
 import { EmptyComponent, SvgComponent } from '..'
+
+const Option = ({ children, isSelected, ...props }: OptionProps<any>) => {
+  return (
+    <components.Option isSelected={isSelected} {...props}>
+      <Flex justify={'space-between'} alignItems='center'>
+        {children}
+        <SvgComponent
+          svgId={isSelected ? 'icon-radio-active' : 'icon-radio-inactive'}
+        />
+      </Flex>
+    </components.Option>
+  )
+}
 
 function AsyncSelectCollection<
   Option,
@@ -39,6 +57,7 @@ function AsyncSelectCollection<
   )
   return (
     <AsyncSelect
+      menuIsOpen
       isLoading={loading}
       defaultOptions
       // @ts-ignore
@@ -60,7 +79,7 @@ function AsyncSelectCollection<
             borderRadius: 8,
             border: '1px solid var(--chakra-colors-blue-1)',
             boxShadow:
-              '-2px 2px 8px -6px var(--chakra-colors-blue-1), 2px 2px 8px -6px var(--chakra-colors-blue-1)',
+              '-2px 1px 4px -3px var(--chakra-colors-blue-1),2px 2px 3px -3px var(--chakra-colors-blue-1)',
             borderTop: 'none',
             borderTopLeftRadius: 0,
             borderTopRightRadius: 0,
@@ -87,7 +106,7 @@ function AsyncSelectCollection<
               : 'var(--chakra-colors-blue-4)'
           }`,
           boxShadow: isFocused
-            ? '-1px -1px 8px -6px var(--chakra-colors-blue-1), 1px -1px 8px -6px var(--chakra-colors-blue-1)'
+            ? '-2px 1px 4px -3px var(--chakra-colors-blue-1), 2px -2px 4px -3px var(--chakra-colors-blue-1)'
             : 'none',
           height: 44,
           backgroundColor: 'white',
@@ -116,12 +135,13 @@ function AsyncSelectCollection<
       components={{
         IndicatorSeparator: () => null,
         NoOptionsMessage: () => <EmptyComponent my={0} mt={4} />,
+        Option,
       }}
       // @ts-ignore
-      formatOptionLabel={({ col2, id, img }: Option) => (
-        <Flex alignItems={'center'} key={id}>
+      formatOptionLabel={({ col1, id, img }: Option) => (
+        <Flex alignItems={'center'} key={id} gap={2}>
           <Image src={img} w={4} h={4} />
-          ----名称是{col2}
+          {`${col1}`.length > 10 ? `${`${col1}`.substring(0, 10)}...` : col1}
           {id % 2 === 0 && <SvgComponent svgId='icon-verified-fill' />}
         </Flex>
       )}

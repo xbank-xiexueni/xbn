@@ -245,6 +245,7 @@ const MyTable = ({
                               : ''
                           }
                           py={4}
+                          w={width}
                           paddingInlineStart={6}
                           paddingInlineEnd={6}
                           // display={'table-cell'}
