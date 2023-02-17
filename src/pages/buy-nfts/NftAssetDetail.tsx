@@ -112,8 +112,8 @@ const NftAssetDetail = () => {
         {/* 价格 名称 */}
         <DetailComponent
           data={{
-            name1: 'xxx',
-            name2: 'sssssssss',
+            name1: 'collection name',
+            name2: 'asset name',
             price: `${commodityPrice}`,
             verified: true,
           }}
@@ -253,7 +253,10 @@ const NftAssetDetail = () => {
         {/* Repayment Plan */}
         <LabelComponent label='Repayment Plan'>
           <VStack bg='gray.5' py={6} px={4} borderRadius={12} spacing={4}>
-            <PlanItem value={'20'} label='Down payment on today' />
+            <PlanItem
+              value={(commodityPrice - (loanAmount || 0))?.toString()}
+              label='Down payment on today'
+            />
 
             {range(installmentValue).map((value, index) => (
               <PlanItem

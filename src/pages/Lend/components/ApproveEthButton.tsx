@@ -121,6 +121,11 @@ const ApproveEthButton: FunctionComponent<
       await transactionHash.wait()
       console.log(`Success - ${transactionHash.hash}`)
       setIsLoading(false)
+      const currentListPool = await transactionsContract.listPool()
+      console.log(
+        '🚀 ~ file: ApproveEthButton.tsx:125 ~ onConfirm ~ currentListPool',
+        currentListPool,
+      )
     } catch (error: any) {
       console.log(error?.message, error?.code, error?.data)
       toast({

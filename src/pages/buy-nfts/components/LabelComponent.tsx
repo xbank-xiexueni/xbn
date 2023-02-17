@@ -5,7 +5,13 @@ const LabelComponent: FunctionComponent<
   BoxProps & { label: string; loading?: boolean; isEmpty?: boolean }
 > = ({ label, children, loading, isEmpty, ...rest }) => {
   return (
-    <Box borderBottom='1px solid #E9EDF3' mt={'44px'} pb={'44px'} {...rest}>
+    <Box
+      borderBottomColor={'gray.2'}
+      borderBottomWidth={1}
+      mt={'44px'}
+      pb={'44px'}
+      {...rest}
+    >
       <Heading mb={5} size='lg'>
         {label}
       </Heading>
