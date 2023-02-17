@@ -3,9 +3,9 @@
   src: url(./assets/font/fontello.ttf);
 }
 
-/* html {
+html {
   -webkit-tap-highlight-color: transparent;
-} */
+}
 
 .icon {
   width: 1em;

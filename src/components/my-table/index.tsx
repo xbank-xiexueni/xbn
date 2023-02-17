@@ -164,7 +164,7 @@ const MyTable = ({
                           ? `-4px 0 5px -3px var(--chakra-colors-gray-2)`
                           : ''
                       }
-                      py={3}
+                      py={4}
                       paddingInlineStart={6}
                       paddingInlineEnd={6}
                     >
@@ -244,7 +244,7 @@ const MyTable = ({
                               ? `-4px 0 5px -3px var(--chakra-colors-gray-2)`
                               : ''
                           }
-                          py={3}
+                          py={4}
                           paddingInlineStart={6}
                           paddingInlineEnd={6}
                           // display={'table-cell'}

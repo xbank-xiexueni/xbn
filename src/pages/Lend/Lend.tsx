@@ -12,6 +12,7 @@ import {
   Tag,
   List,
   Highlight,
+  Image,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 // import debounce from 'lodash-es/debounce'
@@ -35,6 +36,7 @@ import {
   TableList,
   EmptyComponent,
   SvgComponent,
+  EthText,
 } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
 // import { TransactionContext } from '@/context/TransactionContext'
@@ -190,7 +192,8 @@ const Lend = () => {
         value: string | number | boolean,
       ) => (
         <Flex alignItems={'center'} gap={2}>
-          <Box w={10} h={10} bg='pink' borderRadius={4} />
+          <Image src={_.img as string} h={12} w={12} borderRadius={12} />
+          {/* <Box w={10} h={10} bg='pink' borderRadius={4} /> */}
           <Text>{value}</Text>
         </Flex>
       ),
@@ -199,29 +202,53 @@ const Lend = () => {
       title: 'Est. Floor*',
       dataIndex: 'col2',
       key: 'col2',
+      align: 'right',
+      render: (
+        _: Record<string, string | number | boolean>,
+        value: string | number | boolean,
+      ) => <EthText>{value}</EthText>,
     },
     {
       title: 'TVL (USD)',
       dataIndex: 'col3',
       key: 'col3',
+      align: 'right',
+      render: (
+        _: Record<string, string | number | boolean>,
+        value: string | number | boolean,
+      ) => <EthText>{value}</EthText>,
       // sortable: true,
     },
     {
       title: 'Collateral Factor',
       dataIndex: 'col4',
       key: 'col4',
+      align: 'center',
+      render: (
+        _: Record<string, string | number | boolean>,
+        value: string | number | boolean,
+      ) => <Text>{value} %</Text>,
     },
     {
       title: 'Tenor',
       dataIndex: 'col5',
       key: 'col5',
+      align: 'right',
+      render: (
+        _: Record<string, string | number | boolean>,
+        value: string | number | boolean,
+      ) => <Text>{value} days</Text>,
     },
     {
       title: 'Interest',
       dataIndex: 'col6',
       key: 'col6',
+      render: (
+        _: Record<string, string | number | boolean>,
+        value: string | number | boolean,
+      ) => <Text>{value}% APR</Text>,
     },
-    { title: 'Loans', dataIndex: 'col7', key: 'col7' },
+    { title: 'Loans', dataIndex: 'col7', key: 'col7', align: 'center' },
     {
       title: '',
       dataIndex: 'id',

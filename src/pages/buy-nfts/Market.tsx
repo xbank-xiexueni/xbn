@@ -144,7 +144,7 @@ const Market = () => {
 
           {collectionData?.data?.list.map((item: any) => (
             <CollectionListItem
-              data={{ id: item.id, name: item.col2 }}
+              data={{ id: item.id, name: item.col2, img: item.img }}
               key={item.id}
               onClick={() => setSelectCollection(item.id)}
               isActive={selectCollection === item.id}

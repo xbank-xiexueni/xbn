@@ -1,4 +1,4 @@
-import { Flex, ListItem, Box, Text } from '@chakra-ui/react'
+import { Flex, ListItem, Text, Image } from '@chakra-ui/react'
 
 import { SvgComponent } from '@/components'
 
@@ -9,7 +9,7 @@ const CollectionListItem: FunctionComponent<{
   onClick?: () => void
   isActive?: boolean
   count?: number
-}> = ({ data: { id, name }, onClick, isActive, count }) => {
+}> = ({ data: { id, name, img }, onClick, isActive, count }) => {
   return (
     <ListItem
       key={id}
@@ -28,7 +28,7 @@ const CollectionListItem: FunctionComponent<{
       onClick={onClick}
     >
       <Flex alignItems={'center'}>
-        <Box w={6} h={6} bg='gray.600' mr={4} />
+        <Image src={img} w={6} h={6} />
         <Text fontSize={'sm'}>
           {name}
           &nbsp;

@@ -1,4 +1,4 @@
-import { Box, Flex } from '@chakra-ui/react'
+import { Flex, Image } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import { useCallback } from 'react'
 import { type GroupBase, type Props } from 'react-select'
@@ -118,9 +118,9 @@ function AsyncSelectCollection<
         NoOptionsMessage: () => <EmptyComponent my={0} mt={4} />,
       }}
       // @ts-ignore
-      formatOptionLabel={({ col2, id }: Option) => (
+      formatOptionLabel={({ col2, id, img }: Option) => (
         <Flex alignItems={'center'} key={id}>
-          <Box w={4} h={4} bg='pink' />
+          <Image src={img} w={4} h={4} />
           ----名称是{col2}
           {id % 2 === 0 && <SvgComponent svgId='icon-verified-fill' />}
         </Flex>

@@ -1,4 +1,12 @@
-import { Box, Heading, List, Flex, Text, Highlight } from '@chakra-ui/react'
+import {
+  Box,
+  Heading,
+  List,
+  Flex,
+  Text,
+  Highlight,
+  Image,
+} from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
@@ -31,7 +39,7 @@ export const loansForBuyerColumns: ColumnProps[] = [
       value: string | number | boolean,
     ) => (
       <Flex alignItems={'center'} gap={2}>
-        <Box w={10} h={10} bg='pink' borderRadius={4} />
+        <Image src={_.img as string} w={10} h={10} borderRadius={4} />
         <Text>{value}</Text>
       </Flex>
     ),
@@ -40,11 +48,33 @@ export const loansForBuyerColumns: ColumnProps[] = [
     title: 'Lender',
     dataIndex: 'col2',
     key: 'col2',
+    render: (
+      _: Record<string, string | number | boolean>,
+      value: string | number | boolean,
+    ) => (
+      <Text>
+        {value.toString().substring(0, 5)}...
+        {value
+          .toString()
+          .substring(value.toString().length - 4, value.toString().length)}
+      </Text>
+    ),
   },
   {
     title: 'Borrower',
     dataIndex: 'col3',
     key: 'col3',
+    render: (
+      _: Record<string, string | number | boolean>,
+      value: string | number | boolean,
+    ) => (
+      <Text>
+        {value.toString().substring(0, 5)}...
+        {value
+          .toString()
+          .substring(value.toString().length - 4, value.toString().length)}
+      </Text>
+    ),
   },
   {
     title: 'Start time',
@@ -55,11 +85,23 @@ export const loansForBuyerColumns: ColumnProps[] = [
     title: 'Loan value',
     dataIndex: 'col4',
     key: 'col4',
+    render: (
+      _: Record<string, string | number | boolean>,
+      value: string | number | boolean,
+    ) => (
+      <Text>
+        {value} {UNIT}
+      </Text>
+    ),
   },
   {
     title: 'Duration',
     dataIndex: 'col5',
     key: 'col5',
+    render: (
+      _: Record<string, string | number | boolean>,
+      value: string | number | boolean,
+    ) => <Text>{value} days</Text>,
   },
   {
     title: 'Interest',
@@ -108,12 +150,13 @@ const Loans = () => {
     if (isEmpty(arr)) {
       return []
     }
-    const res: { id: number; name: string }[] = []
+    const res: { id: number; name: string; img: string }[] = []
     arr.forEach((element: any) => {
       if (isEmpty(res.find((i) => i.id === element.collectionId))) {
         res.push({
           id: element.collectionId,
           name: element.collectionName,
+          img: element.collectionImg,
         })
       }
     })
@@ -208,8 +251,8 @@ const Loans = () => {
                   ...loansForBuyerColumns,
                   {
                     title: 'next payment date',
-                    dataIndex: 'col8',
-                    key: 'col8',
+                    dataIndex: 'col10',
+                    key: 'col10',
                   },
                   {
                     title: 'amount',

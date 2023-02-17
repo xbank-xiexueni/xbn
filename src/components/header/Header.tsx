@@ -42,10 +42,11 @@ const Header = () => {
   }, [pathname])
 
   const testClick = useCallback(async () => {
+    if (!currentAccount) return
     const transactionsContract = createEthereumContract()
     const res = await transactionsContract.listPool()
     console.log(transactionsContract, 'transactionsContract', res)
-  }, [])
+  }, [currentAccount])
 
   return (
     <Box position={'sticky'} top={0} zIndex={21}>

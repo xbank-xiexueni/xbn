@@ -1,7 +1,8 @@
-import { Box, Flex, Text } from '@chakra-ui/react'
+import { Box, Flex, Text, Image } from '@chakra-ui/react'
 import { Link } from 'react-router-dom'
 
 import type { ColumnProps } from '@/components/my-table'
+import { UNIT } from '@/constants'
 
 export const activeCollectionColumns: ColumnProps[] = [
   {
@@ -77,7 +78,7 @@ export const loansForLendColumns: ColumnProps[] = [
       value: string | number | boolean,
     ) => (
       <Flex alignItems={'center'} gap={2}>
-        <Box w={10} h={10} bg='pink' borderRadius={4} />
+        <Image src={_.img as string} w={10} h={10} borderRadius={4} />
         <Text>{value}</Text>
       </Flex>
     ),
@@ -86,25 +87,68 @@ export const loansForLendColumns: ColumnProps[] = [
     title: 'Lender',
     dataIndex: 'col2',
     key: 'col2',
+    render: (
+      _: Record<string, string | number | boolean>,
+      value: string | number | boolean,
+    ) => (
+      <Text>
+        {value.toString().substring(0, 5)}...
+        {value
+          .toString()
+          .substring(value.toString().length - 4, value.toString().length)}
+      </Text>
+    ),
   },
   {
     title: 'Borrower',
     dataIndex: 'col3',
     key: 'col3',
+    render: (
+      _: Record<string, string | number | boolean>,
+      value: string | number | boolean,
+    ) => (
+      <Text>
+        {value.toString().substring(0, 5)}...
+        {value
+          .toString()
+          .substring(value.toString().length - 4, value.toString().length)}
+      </Text>
+    ),
+  },
+  {
+    title: 'Start time',
+    dataIndex: 'col7',
+    key: 'col7',
   },
   {
     title: 'Loan value',
     dataIndex: 'col4',
     key: 'col4',
+    render: (
+      _: Record<string, string | number | boolean>,
+      value: string | number | boolean,
+    ) => (
+      <Text>
+        {value} {UNIT}
+      </Text>
+    ),
   },
   {
     title: 'Duration',
     dataIndex: 'col5',
     key: 'col5',
+    render: (
+      _: Record<string, string | number | boolean>,
+      value: string | number | boolean,
+    ) => <Text>{value} days</Text>,
   },
   {
     title: 'Interest',
     dataIndex: 'col6',
     key: 'col6',
+    render: (
+      _: Record<string, string | number | boolean>,
+      value: string | number | boolean,
+    ) => <Text>{value} ETH</Text>,
   },
 ]
