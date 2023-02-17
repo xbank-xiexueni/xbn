@@ -1,6 +1,7 @@
-export { default as contractABI } from './contractABI'
+export { xBankContractAbi, wethContractAbi } from './contractABI'
 
-export const contractAddress = '0x3ed06e155eb4135ecc1591142cce51c90b0d1047'
+export const xBankContractAddress = '0x3ed06e155eb4135ecc1591142cce51c90b0d1047'
+export const wethContractAddress = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 
 export const RESPONSIVE_MAX_W = {
   xl: 1408,

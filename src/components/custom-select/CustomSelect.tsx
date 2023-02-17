@@ -29,13 +29,18 @@ function CustomSelect<
         },
       })}
       styles={{
+        placeholder: (base) => ({
+          ...base,
+          color: 'var(--chakra-colors-black-1)',
+          fontWeight: 700,
+        }),
         menuList(base) {
           return {
             ...base,
             borderRadius: 8,
             border: '1px solid var(--chakra-colors-blue-1)',
             boxShadow:
-              '-2px 2px 8px -6px var(--chakra-colors-blue-1), 2px 2px 8px -6px var(--chakra-colors-blue-1)',
+              '-2px 1px 4px -3px var(--chakra-colors-blue-1),2px 2px 3px -3px var(--chakra-colors-blue-1)',
             borderTop: 'none',
             borderTopLeftRadius: 0,
             borderTopRightRadius: 0,
@@ -55,6 +60,7 @@ function CustomSelect<
         control: (baseStyles, { isFocused }) => ({
           ...baseStyles,
           width: 240,
+          fontWeight: 700,
           borderRadius: 8,
           border: `1px solid ${
             isFocused
@@ -62,7 +68,7 @@ function CustomSelect<
               : 'var(--chakra-colors-blue-4)'
           }`,
           boxShadow: isFocused
-            ? '-1px -1px 8px -6px var(--chakra-colors-blue-1), 1px -1px 8px -6px var(--chakra-colors-blue-1)'
+            ? '-2px 1px 4px -3px var(--chakra-colors-blue-1), 2px -2px 4px -3px var(--chakra-colors-blue-1)'
             : 'none',
           height: 44,
           backgroundColor: 'white',
@@ -79,6 +85,8 @@ function CustomSelect<
             ? 'var(--chakra-colors-gray-5)'
             : 'white',
           color: `var(--chakra-colors-black-1)`,
+          fontSize: 14,
+          fontWeight: 500,
 
           ':active': {
             ...baseStyles[':active'],

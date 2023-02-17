@@ -33,7 +33,7 @@ export const TransactionsProvider = ({
   // const getAllTransactions = async () => {
   //   try {
   //     if (ethereum) {
-  //       const transactionsContract = createEthereumContract();
+  //       const transactionsContract = createXBankContract();
 
   //       const availableTransactions =
   //         await transactionsContract.getAllTransactions();
@@ -135,7 +135,7 @@ export const TransactionsProvider = ({
   // const sendTransaction = async () => {
   //   try {
   //     if (!!ethereum) {
-  //       const transactionsContract = createEthereumContract()
+  //       const transactionsContract = createXBankContract()
   //       // const parsedAmount = ethers.utils.parseEther(amount)
 
   //       // await ethereum.request({

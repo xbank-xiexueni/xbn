@@ -1,19 +1,14 @@
 import { Flex, Image } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import { useCallback } from 'react'
-import {
-  components,
-  type GroupBase,
-  type OptionProps,
-  type Props,
-} from 'react-select'
+import { components, type GroupBase, type Props } from 'react-select'
 import AsyncSelect from 'react-select/async'
 
 import { apiGetActiveCollection } from '@/api'
 
 import { EmptyComponent, SvgComponent } from '..'
 
-const Option = ({ children, isSelected, ...props }: OptionProps<any>) => {
+const Option = ({ children, isSelected, ...props }: any) => {
   return (
     <components.Option isSelected={isSelected} {...props}>
       <Flex justify={'space-between'} alignItems='center'>
@@ -35,30 +30,28 @@ function AsyncSelectCollection<
 }: Props<Option, IsMulti, Group> & {
   // loadOptions: (inputValue: string) => Promise<Record<string, string>[]>
 }) {
-  const { loading, runAsync: handleFetchActiveCollections } = useRequest(
-    apiGetActiveCollection,
-    {
-      manual: true,
-    },
-  )
+  const { loading, data } = useRequest(apiGetActiveCollection)
 
   const promiseOptions = useCallback(
-    (inputValue: string) => {
-      console.log(inputValue, 'inputValue')
-      return new Promise<any[]>((resolve) => {
-        handleFetchActiveCollections()
-          .then((res: { data: { list: any[] | PromiseLike<any[]> } }) => {
-            resolve(res.data.list)
-          })
-          .catch((err: any) => console.log(err))
-      })
-    },
-    [handleFetchActiveCollections],
+    (inputValue: string) =>
+      new Promise<any[]>((resolve) => {
+        if (!inputValue) {
+          return
+        }
+        resolve(
+          data?.data?.list?.filter((i: any) =>
+            i.col1.toLowerCase().includes(inputValue.toLowerCase()),
+          ),
+        )
+      }),
+    [data],
   )
+
   return (
     <AsyncSelect
       isLoading={loading}
-      defaultOptions
+      defaultOptions={data?.data?.list}
+      cacheOptions
       // @ts-ignore
       isOptionSelected={(item, select) => item.id === select}
       loadOptions={promiseOptions}
@@ -72,6 +65,11 @@ function AsyncSelectCollection<
         },
       })}
       styles={{
+        placeholder: (base) => ({
+          ...base,
+          color: 'var(--chakra-colors-black-1)',
+          fontWeight: 700,
+        }),
         menuList(base) {
           return {
             ...base,
@@ -98,6 +96,7 @@ function AsyncSelectCollection<
         control: (baseStyles, { isFocused }) => ({
           ...baseStyles,
           width: 240,
+          fontWeight: 700,
           borderRadius: 8,
           border: `1px solid ${
             isFocused
@@ -122,6 +121,8 @@ function AsyncSelectCollection<
             ? 'var(--chakra-colors-gray-5)'
             : 'white',
           color: `var(--chakra-colors-black-1)`,
+          fontSize: 14,
+          fontWeight: 500,
 
           ':active': {
             ...baseStyles[':active'],

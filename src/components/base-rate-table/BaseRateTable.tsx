@@ -73,6 +73,9 @@ const LpBaseRateTable: FunctionComponent<{
     sliderTopValue,
   ])
 
+  const [bottomTipVisible, setBottomTipVisible] = useState(false)
+  const [rightTipVisible, setRightTipVisible] = useState(false)
+
   return (
     <Card mb={8} bg='gray.5' borderRadius={'16px'} p={8}>
       <Flex wrap={'wrap'}>
@@ -171,7 +174,7 @@ const LpBaseRateTable: FunctionComponent<{
             <Flex>
               {[
                 'Collateral Factor/ Tenor',
-                ...currentTenors.map((i) => `${i} Day`),
+                ...currentTenors.map((i) => `${i} Days`),
               ].map((item) => (
                 <Flex
                   key={item}
@@ -234,40 +237,58 @@ const LpBaseRateTable: FunctionComponent<{
             })}
           </Box>
 
-          <Slider
-            orientation='vertical'
-            direction='ltr'
-            defaultValue={1}
-            min={RIGHT_SLIDER_STEPS[0]}
-            max={RIGHT_SLIDER_STEPS[RIGHT_SLIDER_STEPS.length - 1]}
-            h='132px'
-            step={0.5}
-            onChange={(target) => {
-              // setSliderValue(target)
-              setSliderRightValue(target)
-            }}
+          <Flex
+            flexDir={'column'}
+            alignItems='center'
+            gap={1}
+            onMouseEnter={() => setRightTipVisible(true)}
+            onMouseLeave={() => setRightTipVisible(false)}
           >
-            <SliderTrack bg={`gray.1`}>
-              <SliderFilledTrack bg={`blue.1`} />
-            </SliderTrack>
-            <SliderThumb
-              boxSize={4}
-              borderWidth={'2px'}
-              borderColor={`blue.1`}
-              _focus={{
-                boxShadow: 'none',
+            {rightTipVisible && <Box color={'gray.4'}>-</Box>}
+            <Slider
+              orientation='vertical'
+              direction='ltr'
+              defaultValue={1}
+              min={RIGHT_SLIDER_STEPS[0]}
+              max={RIGHT_SLIDER_STEPS[RIGHT_SLIDER_STEPS.length - 1]}
+              h='132px'
+              step={0.5}
+              onChange={(target) => {
+                // setSliderValue(target)
+                setSliderRightValue(target)
               }}
-            />
-          </Slider>
+            >
+              <SliderTrack bg={`gray.1`}>
+                <SliderFilledTrack bg={`blue.1`} />
+              </SliderTrack>
+              <SliderThumb
+                boxSize={4}
+                borderWidth={'2px'}
+                borderColor={`blue.1`}
+                _focus={{
+                  boxShadow: 'none',
+                }}
+              />
+            </Slider>
+            {rightTipVisible && <Box color={'gray.4'}>+</Box>}
+          </Flex>
         </Flex>
       </Flex>
       <Flex justify={'center'} mt={5}>
-        <Flex alignItems={'center'}>
-          {/* <Button variant='ghost'>-</Button> */}
+        <Flex
+          alignItems={'center'}
+          gap={2}
+          justify='center'
+          onMouseEnter={() => setBottomTipVisible(true)}
+          onMouseLeave={() => setBottomTipVisible(false)}
+          h='30px'
+        >
+          {bottomTipVisible && <Box color={'gray.4'}>-</Box>}
+
           <Slider
             min={BOTTOM_SLIDER_STEPS[0]}
             max={BOTTOM_SLIDER_STEPS[BOTTOM_SLIDER_STEPS.length - 1]}
-            w='132px'
+            w='140px'
             step={0.2}
             defaultValue={1}
             mt={1}
@@ -287,7 +308,7 @@ const LpBaseRateTable: FunctionComponent<{
               }}
             />
           </Slider>
-          {/* <Button variant='ghost'>+</Button> */}
+          {bottomTipVisible && <Box color={'gray.4'}>+</Box>}
         </Flex>
       </Flex>
     </Card>

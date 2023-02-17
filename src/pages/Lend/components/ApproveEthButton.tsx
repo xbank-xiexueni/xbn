@@ -32,7 +32,7 @@ import {
 import { SvgComponent } from '@/components'
 import { UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
-import createEthereumContract from '@/utils/createEthereumContract'
+import { createWethContract, createXBankContract } from '@/utils/createContract'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
 //   label,
@@ -63,7 +63,14 @@ const ApproveEthButton: FunctionComponent<
       loanRatioPreferentialFlexibility: number
     }
   }
-> = ({ children, ...rest }) => {
+> = ({ children, data, ...rest }) => {
+  const {
+    poolMaximumPercentage,
+    poolMaximumDays,
+    poolMaximumInterestRate,
+    loanTimeConcessionFlexibility,
+    loanRatioPreferentialFlexibility,
+  } = data
   const { getBalance, balance, currentAccount } = useWallet()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [amount, setAmount] = useState('')
@@ -89,39 +96,46 @@ const ApproveEthButton: FunctionComponent<
   const toast = useToast()
 
   const onConfirm = useCallback(async () => {
-    const parsedAmount = ethers.utils.parseEther(amount.toString())
-    console.log(
-      '🚀 ~ file: ApproveEthButton.tsx:92 ~ onConfirm ~ parsedAmount',
-      parsedAmount,
-    )
+    const parsedAmount = ethers.utils.parseEther(amount)
 
-    const transactionsContract = createEthereumContract()
+    const wethContract = createWethContract()
+    console.log(
+      '🚀 ~ file: ApproveEthButton.tsx:102 ~ onConfirm ~ wethContract',
+      wethContract,
+    )
+    console.log(
+      '🚀 ~ file: ApproveEthButton.tsx:103 ~ onConfirm ~ res',
+      await wethContract.name(),
+    )
+    return
+
+    const xBankContract = createXBankContract()
     try {
       setIsLoading(true)
-      const transactionHash = await transactionsContract.createPool(
+      const transactionHash = await xBankContract.createPool(
         currentAccount,
         // supportERC20Denomination
         '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
         // allowCollateralContract
         '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
         // poolAmount
-        1,
+        parsedAmount.toString(),
         // poolMaximumPercentage,
-        450,
+        poolMaximumPercentage * 100,
         // uint32 poolMaximumDays,
-        1,
+        poolMaximumDays,
         // uint32 poolMaximumInterestRate,
-        1,
+        poolMaximumInterestRate * 100,
         // uint32 loanTimeConcessionFlexibility,
-        1,
+        loanTimeConcessionFlexibility * 10000,
         // uint32 loanRatioPreferentialFlexibility
-        1,
+        loanRatioPreferentialFlexibility * 10000,
       )
       console.log(`Loading - ${transactionHash.hash}`)
       await transactionHash.wait()
       console.log(`Success - ${transactionHash.hash}`)
       setIsLoading(false)
-      const currentListPool = await transactionsContract.listPool()
+      const currentListPool = await xBankContract.listPool()
       console.log(
         '🚀 ~ file: ApproveEthButton.tsx:125 ~ onConfirm ~ currentListPool',
         currentListPool,
@@ -135,7 +149,16 @@ const ApproveEthButton: FunctionComponent<
       })
       setIsLoading(false)
     }
-  }, [amount, currentAccount, toast])
+  }, [
+    amount,
+    currentAccount,
+    toast,
+    poolMaximumPercentage,
+    poolMaximumDays,
+    poolMaximumInterestRate,
+    loanRatioPreferentialFlexibility,
+    loanTimeConcessionFlexibility,
+  ])
 
   const handleClose = useCallback(() => {
     if (isLoading) return

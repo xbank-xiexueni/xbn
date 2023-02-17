@@ -19,7 +19,7 @@ import { Link, useLocation } from 'react-router-dom'
 import Icon from '@/assets/logo.png'
 import { RESPONSIVE_MAX_W } from '@/constants'
 import { useWallet } from '@/hooks'
-import createEthereumContract from '@/utils/createEthereumContract'
+import { createXBankContract } from '@/utils/createContract'
 
 import { ConnectWalletModal, SvgComponent } from '..'
 
@@ -43,7 +43,7 @@ const Header = () => {
 
   const testClick = useCallback(async () => {
     if (!currentAccount) return
-    const transactionsContract = createEthereumContract()
+    const transactionsContract = createXBankContract()
     const res = await transactionsContract.listPool()
     console.log(transactionsContract, 'transactionsContract', res)
   }, [currentAccount])
