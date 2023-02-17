@@ -16,6 +16,10 @@ import { useState, type ReactElement } from 'react'
 import { LoadingComponent, EmptyComponent, SvgComponent } from '..'
 import '../my-table/table.less'
 
+type ColumnRenderType = (
+  arg0: Record<string, string | boolean | number>,
+  arg1: string | boolean | number,
+) => ReactElement
 export interface ColumnProps {
   title: string
   dataIndex: string
@@ -25,10 +29,7 @@ export interface ColumnProps {
   // thead
   thAlign?: 'left' | 'right' | 'center'
   width?: number
-  render?: (
-    arg0: Record<string, string | boolean | number>,
-    arg1: string | boolean | number,
-  ) => ReactElement
+  render?: ColumnRenderType
   sortable?: boolean
   fixedRight?: boolean
 }

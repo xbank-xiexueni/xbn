@@ -105,7 +105,7 @@ const ApproveEthButton: FunctionComponent<
         // allowCollateralContract
         '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
         // poolAmount
-        amount,
+        1,
         // poolMaximumPercentage,
         450,
         // uint32 poolMaximumDays,

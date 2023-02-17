@@ -15,6 +15,7 @@ import {
   TableList,
 } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
+import { UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
 
 import CollectionListItem from './components/CollectionListItem'
@@ -64,6 +65,14 @@ export const loansForBuyerColumns: ColumnProps[] = [
     title: 'Interest',
     dataIndex: 'col6',
     key: 'col6',
+    render: (
+      _: Record<string, string | boolean | number>,
+      value: string | boolean | number,
+    ) => (
+      <Text>
+        {value} {UNIT}
+      </Text>
+    ),
   },
 ]
 
@@ -203,9 +212,17 @@ const Loans = () => {
                     key: 'col8',
                   },
                   {
-                    title: 'next payment date',
+                    title: 'amount',
                     dataIndex: 'col9',
                     key: 'col9',
+                    render: (
+                      _: Record<string, string | boolean | number>,
+                      value: string | boolean | number,
+                    ) => (
+                      <Text>
+                        {value} {UNIT}
+                      </Text>
+                    ),
                   },
                   {
                     title: '',
