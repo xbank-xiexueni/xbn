@@ -12,7 +12,7 @@ const Index = ({ loading }: { loading: boolean }) => {
       top={0}
       bottom={0}
       bg='rgba(27, 34, 44, 0.1)'
-      borderRadius={4}
+      borderRadius={16}
       justify={'center'}
       zIndex={10}
     >

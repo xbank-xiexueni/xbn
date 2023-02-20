@@ -12,6 +12,7 @@ const request = axios.create({
     appKey: '',
     appversion: '',
   },
+  // timeout: 10000,
 })
 
 request.interceptors.request.use(

@@ -191,20 +191,25 @@ const Lend = () => {
       render: (
         _: Record<string, string | number | boolean>,
         value: string | number | boolean,
-      ) => (
-        <Flex alignItems={'center'} gap={2}>
-          <Image src={_.img as string} h={12} w={12} borderRadius={12} />
-          {/* <Box w={10} h={10} bg='pink' borderRadius={4} /> */}
-          <Text>
-            {`${value}`.length > 20
-              ? `${`${value}`.substring(0, 20)}...`
-              : value}
-          </Text>
-          {`${value}`.length % 2 === 0 && (
-            <SvgComponent svgId='icon-verified-fill' />
-          )}
-        </Flex>
-      ),
+      ) => {
+        const isVerified = Number(_.id) % 2 === 0
+        return (
+          <Flex alignItems={'center'} gap={2}>
+            <Image src={_.img as string} h={12} w={12} borderRadius={12} />
+            {/* <Box w={10} h={10} bg='pink' borderRadius={4} /> */}
+            <Text
+              w={isVerified ? '60%' : '75%'}
+              display='inline-block'
+              overflow='hidden'
+              whiteSpace='nowrap'
+              textOverflow='ellipsis'
+            >
+              {value}
+            </Text>
+            {isVerified && <SvgComponent svgId='icon-verified-fill' />}
+          </Flex>
+        )
+      },
     },
     {
       title: 'Est. Floor*',

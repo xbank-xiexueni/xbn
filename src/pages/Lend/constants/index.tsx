@@ -77,14 +77,22 @@ export const loansForLendColumns: ColumnProps[] = [
     render: (
       _: Record<string, string | number | boolean>,
       value: string | number | boolean,
-    ) => (
-      <Flex alignItems={'center'} gap={2}>
-        <Image src={_.img as string} w={10} h={10} borderRadius={4} />
-        <Text>
-          {`${value}`?.length > 8 ? `${`${value}`.substring(0, 8)}...` : value}
-        </Text>
-      </Flex>
-    ),
+    ) => {
+      return (
+        <Flex alignItems={'center'} gap={2}>
+          <Image src={_.img as string} w={10} h={10} borderRadius={4} />
+          <Text
+            w={'80%'}
+            display='inline-block'
+            overflow='hidden'
+            whiteSpace='nowrap'
+            textOverflow='ellipsis'
+          >
+            {value}
+          </Text>
+        </Flex>
+      )
+    },
   },
   {
     title: 'Lender',

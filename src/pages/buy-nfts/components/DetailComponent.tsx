@@ -1,4 +1,11 @@
-import { Box, Flex, Heading, Text, type BoxProps } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  Heading,
+  Skeleton,
+  Text,
+  type BoxProps,
+} from '@chakra-ui/react'
 
 import { NftOrigin, SvgComponent } from '@/components'
 
@@ -12,8 +19,12 @@ const DetailComponent: FunctionComponent<
       price: string
       verified: boolean
     }
+    loading?: boolean
   }
-> = ({ data: { name1, name2, price, verified } }) => {
+> = ({ data: { name1, name2, price, verified }, loading }) => {
+  if (loading) {
+    return <Skeleton h={200} borderRadius={16} />
+  }
   return (
     <Box mt={8}>
       {/* 名称*/}

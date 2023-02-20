@@ -15,16 +15,21 @@ import {
   Highlight,
   VStack,
   Divider,
+  Skeleton,
 } from '@chakra-ui/react'
+import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
+import { filter, minBy } from 'lodash-es'
 import isEmpty from 'lodash-es/isEmpty'
+import min from 'lodash-es/min'
 import range from 'lodash-es/range'
 import { useCallback, useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 
-import TestImage from '@/assets/IMAGE.png'
+import { apiGetAssetDetail, apiGetPoolsByAssets } from '@/api'
 import { ConnectWalletModal, SvgComponent } from '@/components'
-import { COLLATERALS, UNIT } from '@/constants'
+import { COLLATERALS, TENORS, UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 
@@ -36,46 +41,138 @@ import LabelComponent from './components/LabelComponent'
 import PlanItem from './components/PlanItem'
 import RadioCard from './components/RadioCard'
 
+const FIXED_NUM = 4
+
+enum LOAN_DAYS_ENUM {
+  Loan7Days = 7,
+  Loan14Days = 14,
+  Loan30Days = 30,
+  Loan60Days = 60,
+  Loan90Days = 90,
+}
+
+type PoolType = {
+  poolID?: number
+  poolApr?: number
+  poolDays?: LOAN_DAYS_ENUM
+}
 const NftAssetDetail = () => {
   const { isOpen, onClose, interceptFn } = useWallet()
-  // const { id } = useParams()
-  const [
-    commodityPrice,
-    // srCommodityPrice
-  ] = useState(90)
+  const { id } = useParams()
+  const [commodityPrice, srCommodityPrice] = useState<BigNumber>()
+  const [detail, setDetail] = useState({
+    asset: '',
+    collection: '',
+    image: '',
+  })
+  const { loading: detailLoading } = useRequest(apiGetAssetDetail, {
+    ready: !!id,
+    defaultParams: [{ id: id as string }],
+    onSuccess: (_data) => {
+      const { data } = _data
+      srCommodityPrice(BigNumber(min([data.price, data.oraclePrice])))
+      setDetail({
+        image: data?.image,
+        asset: data.name,
+        collection: 'collection name',
+      })
+    },
+    debounceWait: 100,
+  })
+
   const [sliderValue, setSliderValue] = useState(COLLATERALS[4])
-  const [loanAmount, setLoanAmount] = useState<number>()
+  const [loanAmount, setLoanAmount] = useState<BigNumber>()
 
   useEffect(() => {
     if (!commodityPrice) return
-    setLoanAmount((commodityPrice * sliderValue) / 100)
+    setLoanAmount(commodityPrice.multipliedBy(sliderValue).dividedBy(100))
   }, [sliderValue, commodityPrice])
 
-  // loan periods
-  const [
-    periodOptions,
-    // setPeriodOptions
-  ] = useState<(7 | 14 | 30 | 60 | 90)[]>([7, 14, 30, 60, 90])
-  const [periodValue, setPeriodValue] = useState<7 | 14 | 30 | 60 | 90>(7)
+  const [pools, setPools] = useState<PoolType[]>([])
+
+  const [selectPool, setSelectPool] = useState<PoolType>()
+
+  const { loading: filterLoading, data: poolsData } = useRequest(
+    apiGetPoolsByAssets,
+    {
+      defaultParams: [{ id: id as string }],
+      ready: !!id,
+      debounceWait: 100,
+    },
+  )
+
+  useEffect(() => {
+    if (isEmpty(poolsData)) {
+      return
+    }
+    const {
+      data: { list },
+    } = poolsData
+    const filteredPools = filter(list, (item) => {
+      return (
+        item.poolMaximumPercentage >= sliderValue && loanAmount?.lte(item.price)
+      )
+    })
+    const currentPools: PoolType[] = []
+    for (let index = 0; index < TENORS.length; index++) {
+      const item = TENORS[index]
+      const currentFilterPools = filteredPools.filter(
+        (i) => i.poolMaximumDays >= item,
+      )
+      if (isEmpty(currentFilterPools)) break
+      const currentPool = minBy(
+        currentFilterPools.map(
+          ({
+            poolID,
+            poolMaximumInterestRate,
+            poolMaximumDays,
+            loanTimeConcessionFlexibility,
+            poolMaximumPercentage,
+            loanRatioPreferentialFlexibility,
+          }) => {
+            return {
+              poolID,
+              poolApr:
+                poolMaximumInterestRate -
+                (TENORS.indexOf(poolMaximumDays) - index) *
+                  loanTimeConcessionFlexibility -
+                ((poolMaximumPercentage - sliderValue) / 10) *
+                  loanRatioPreferentialFlexibility,
+              poolDays: item,
+            }
+          },
+        ),
+        (i) => i.poolApr,
+      )
+      if (!currentPool) break
+      currentPools.push(currentPool)
+    }
+    setPools(currentPools)
+    setSelectPool(currentPools?.length > 1 ? currentPools[1] : currentPools[0])
+  }, [poolsData, sliderValue, loanAmount])
 
   // number of installments
-  const [installmentOptions, setInstallmentOptions] = useState<(1 | 2 | 3)[]>([
-    1, 2, 3,
-  ])
+  const [installmentOptions, setInstallmentOptions] = useState<(1 | 2 | 3)[]>()
   const [installmentValue, setInstallmentValue] = useState<1 | 2 | 3>(1)
 
   useEffect(() => {
-    if (!periodValue) return
-    if (periodValue === 7) {
-      setInstallmentOptions([1])
+    if (isEmpty(selectPool)) {
+      setInstallmentOptions([])
       return
     }
-    if (periodValue === 14) {
+    const { poolDays } = selectPool
+    if (poolDays === LOAN_DAYS_ENUM.Loan7Days) {
+      setInstallmentOptions([1])
+      setInstallmentValue(1)
+      return
+    }
+    setInstallmentValue(2)
+    if (poolDays === LOAN_DAYS_ENUM.Loan14Days) {
       setInstallmentOptions([1, 2])
       return
     }
     setInstallmentOptions([1, 2, 3])
-  }, [periodValue])
+  }, [selectPool])
 
   const handleClickPay = useCallback(() => {
     interceptFn(() => {
@@ -85,42 +182,58 @@ const NftAssetDetail = () => {
 
   const getPlanPer = useCallback(
     (value: number) => {
-      if (!loanAmount) return BigNumber(0)
-      return amortizationCalByDays(loanAmount, 0.29, periodValue, value)
+      if (!loanAmount || !selectPool?.poolDays || !selectPool.poolApr)
+        return BigNumber(0)
+      return amortizationCalByDays(
+        loanAmount?.toNumber(),
+        selectPool.poolApr / 100,
+        selectPool?.poolDays,
+        value,
+      )
     },
-    [periodValue, loanAmount],
+    [selectPool, loanAmount],
   )
 
   return (
     <SimpleGrid minChildWidth='600px' spacing='40px' mt={8} pb='100px'>
-      <Flex
-        flexWrap={'wrap'}
-        justify={{
-          lg: 'flex-start',
-          md: 'center',
-        }}
-        flexDirection={'column'}
-        w='600px'
-      >
-        <Image src={TestImage} />
-        <BelongToCollection
-          data={{ name: 'xxn', img: test, price: '1.78', verified: true }}
-        />
-      </Flex>
+      {detailLoading ? (
+        <Skeleton height={700} borderRadius={16} />
+      ) : (
+        <Flex
+          flexWrap={'wrap'}
+          justify={{
+            lg: 'flex-start',
+            md: 'center',
+          }}
+          flexDirection={'column'}
+          w='600px'
+        >
+          <Image src={detail?.image} borderRadius={20} />
+          <BelongToCollection
+            data={{
+              name: 'Collection name',
+              img: test,
+              price: '1.78',
+              verified: true,
+            }}
+          />
+        </Flex>
+      )}
 
       <Box>
         {/* 价格 名称 */}
         <DetailComponent
           data={{
-            name1: 'collection name',
-            name2: 'asset name',
-            price: `${commodityPrice}`,
+            name1: 'Collection name',
+            name2: detail?.asset,
+            price: commodityPrice?.toFormat(4) || '',
             verified: true,
           }}
+          loading={detailLoading}
         />
 
         {/* Down payment */}
-        <LabelComponent label='Down Payment'>
+        <LabelComponent label='Down Payment' loading={detailLoading}>
           <Flex
             p={4}
             pr={6}
@@ -129,18 +242,23 @@ const NftAssetDetail = () => {
             alignItems='center'
             gap={4}
           >
-            <Flex
-              py={3}
-              bg='gray.5'
-              borderRadius={8}
-              gap={1}
-              alignItems='baseline'
-              justify={'center'}
-              w='80px'
-            >
-              <SvgComponent svgId='icon-eth' svgSize='18px' />
-              <Text fontSize={'lg'}>{commodityPrice - (loanAmount || 0)}</Text>
-            </Flex>
+            {loanAmount && (
+              <Flex
+                py={3}
+                bg='gray.5'
+                borderRadius={8}
+                gap={1}
+                alignItems='center'
+                justify={'center'}
+                px={2}
+              >
+                <SvgComponent svgId='icon-eth' svgSize='20px' />
+                <Text fontSize={'lg'}>
+                  {commodityPrice?.minus(loanAmount).toFormat(FIXED_NUM)}
+                </Text>
+              </Flex>
+            )}
+
             <Divider orientation='vertical' h={6} />
             <Slider
               min={COLLATERALS[0]}
@@ -166,7 +284,6 @@ const NftAssetDetail = () => {
               ))}
               <SliderTrack bg='gray.1'>
                 <SliderFilledTrack
-                  // bg={`var(--chakra-colors-blue-2)`}
                   bgGradient={`linear-gradient(90deg,#fff,var(--chakra-colors-blue-1))`}
                 />
               </SliderTrack>
@@ -188,29 +305,39 @@ const NftAssetDetail = () => {
             </Text>
             <SvgComponent svgId='icon-eth' svgSize='12px' />
             <Text fontSize={'xs'} fontWeight='500'>
-              {loanAmount}
+              {loanAmount?.toFormat(FIXED_NUM)}
             </Text>
           </Flex>
         </LabelComponent>
 
         {/* Loan Period */}
-        <LabelComponent label='Loan Period' isEmpty={isEmpty(periodOptions)}>
+        <LabelComponent
+          label='Loan Period'
+          isEmpty={isEmpty(selectPool)}
+          loading={filterLoading}
+        >
           <HStack gap={2}>
-            {periodOptions.map((value, index) => {
+            {pools.map(({ poolID, poolApr, poolDays }) => {
               return (
                 <Flex
-                  key={value}
-                  w={`${100 / periodOptions.length}%`}
+                  key={`${poolID}-${poolApr}-${poolDays}`}
+                  w={`${100 / pools.length}%`}
                   maxW={136}
                 >
                   <RadioCard
-                    onClick={() => setPeriodValue(value)}
-                    isActive={value === periodValue}
+                    onClick={() =>
+                      setSelectPool({
+                        poolApr,
+                        poolID,
+                        poolDays,
+                      })
+                    }
+                    isActive={selectPool?.poolDays === poolDays}
                   >
-                    <Text fontWeight={700}>{value} Days</Text>
+                    <Text fontWeight={700}>{poolDays} Days</Text>
                     <Text fontWeight={500} fontSize='xs' color='blue.1'>
                       <Highlight query={'APR'} styles={{ color: `black.1` }}>
-                        {`${29 + index} % APR`}
+                        {`${poolApr?.toFixed(4)} % APR`}
                       </Highlight>
                     </Text>
                   </RadioCard>
@@ -224,9 +351,10 @@ const NftAssetDetail = () => {
         <LabelComponent
           label='Number of installments'
           isEmpty={isEmpty(installmentOptions)}
+          loading={filterLoading}
         >
           <HStack gap={4}>
-            {installmentOptions.map((value) => {
+            {installmentOptions?.map((value) => {
               return (
                 <Flex
                   key={value}
@@ -239,7 +367,7 @@ const NftAssetDetail = () => {
                   >
                     <Text fontWeight={700}>Pay in {value} installments</Text>
                     <Text fontWeight={500} fontSize='xs'>
-                      {loanAmount && getPlanPer(value).toFixed(4)}
+                      {loanAmount && getPlanPer(value).toFixed(FIXED_NUM)}
                       &nbsp;
                       {UNIT}/per
                     </Text>
@@ -251,28 +379,43 @@ const NftAssetDetail = () => {
         </LabelComponent>
 
         {/* Repayment Plan */}
-        <LabelComponent label='Repayment Plan'>
-          <VStack bg='gray.5' py={6} px={4} borderRadius={12} spacing={4}>
-            <PlanItem
-              value={(commodityPrice - (loanAmount || 0))?.toString()}
-              label='Down payment on today'
-            />
-
-            {range(installmentValue).map((value, index) => (
+        {commodityPrice && loanAmount && (
+          <LabelComponent
+            label='Repayment Plan'
+            isEmpty={isEmpty(selectPool)}
+            loading={filterLoading}
+          >
+            <VStack bg='gray.5' py={6} px={4} borderRadius={12} spacing={4}>
               <PlanItem
-                value={getPlanPer(installmentValue).toFixed(4)}
-                label={dayjs()
-                  .add((periodValue / installmentValue) * (index + 1), 'days')
-                  .format('YYYY/MM/DD')}
-                key={value}
+                value={commodityPrice.minus(loanAmount).toFormat(FIXED_NUM)}
+                label='Down payment on today'
               />
-            ))}
-          </VStack>
-        </LabelComponent>
+
+              {range(installmentValue).map((value, index) => (
+                <PlanItem
+                  value={getPlanPer(installmentValue).toFixed(FIXED_NUM)}
+                  label={dayjs()
+                    .add(
+                      ((selectPool?.poolDays || 0) / installmentValue) *
+                        (index + 1),
+                      'days',
+                    )
+                    .format('YYYY/MM/DD')}
+                  key={value}
+                />
+              ))}
+            </VStack>
+          </LabelComponent>
+        )}
 
         {/* Trading Information */}
-        <LabelComponent label='Trading Information' borderBottom={'none'}>
-          {loanAmount && (
+        <LabelComponent
+          label='Trading Information'
+          borderBottom={'none'}
+          loading={filterLoading}
+          isEmpty={isEmpty(pools)}
+        >
+          {loanAmount && commodityPrice && (
             <Flex
               border={`1px solid var(--chakra-colors-gray-1)`}
               py={6}
@@ -285,21 +428,21 @@ const NftAssetDetail = () => {
               <Flex justify={'space-between'}>
                 <Text color='gray.3'>Commodity price</Text>
                 <Text color='gray.3'>
-                  {commodityPrice} {UNIT}
+                  {commodityPrice?.toFormat(FIXED_NUM)} {UNIT}
                 </Text>
               </Flex>
               {/* Down payment */}
               <Flex justify={'space-between'}>
                 <Text color='gray.3'>Down payment</Text>
                 <Text color='gray.3'>
-                  {commodityPrice - loanAmount} {UNIT}
+                  {commodityPrice.minus(loanAmount).toFormat(FIXED_NUM)} {UNIT}
                 </Text>
               </Flex>
               {/* Loan amount */}
               <Flex justify={'space-between'}>
                 <Text color='gray.3'>Loan amount</Text>
                 <Text color='gray.3'>
-                  {loanAmount} {UNIT}
+                  {loanAmount.toFormat(FIXED_NUM)} {UNIT}
                 </Text>
               </Flex>
               {/* Interest fee */}
@@ -309,7 +452,7 @@ const NftAssetDetail = () => {
                   {getPlanPer(installmentValue)
                     .multipliedBy(installmentValue)
                     .minus(loanAmount)
-                    .toFixed(4)}
+                    .toFixed(FIXED_NUM)}
                   {UNIT}
                 </Text>
               </Flex>
@@ -324,7 +467,7 @@ const NftAssetDetail = () => {
                     .multipliedBy(installmentValue)
                     .minus(loanAmount)
                     .plus(commodityPrice)
-                    .toFixed(4)}
+                    .toFixed(FIXED_NUM)}
                   {UNIT}
                 </Text>
               </Flex>
@@ -334,7 +477,13 @@ const NftAssetDetail = () => {
                   Floor breakeven
                 </Text>
                 <Text fontSize={'md'} fontWeight='bold'>
-                  xxx {UNIT}
+                  {/* {getPlanPer(installmentValue)
+                    .multipliedBy(installmentValue)
+                    .minus(loanAmount)
+                    .plus(commodityPrice)
+                    .toFixed(FIXED_NUM)}
+                  {UNIT} */}
+                  xxx
                 </Text>
               </Flex>
             </Flex>
@@ -348,10 +497,12 @@ const NftAssetDetail = () => {
           h='60px'
           w='100%'
           onClick={handleClickPay}
-          disabled={!loanAmount}
+          isDisabled={
+            !loanAmount || detailLoading || filterLoading || isEmpty(selectPool)
+          }
         >
           <Text fontWeight={'400'}>Down payment</Text>&nbsp;
-          {commodityPrice - (loanAmount || 0)} {UNIT}
+          {commodityPrice?.minus(loanAmount || 0).toFormat(FIXED_NUM)} {UNIT}
         </Button>
       </Box>
 

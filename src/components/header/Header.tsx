@@ -14,7 +14,7 @@ import {
 import kebabCase from 'lodash-es/kebabCase'
 import { useCallback, useMemo } from 'react'
 import Jazzicon from 'react-jazzicon'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import Icon from '@/assets/logo.png'
 import { RESPONSIVE_MAX_W } from '@/constants'
@@ -25,6 +25,7 @@ import { ConnectWalletModal, SvgComponent } from '..'
 
 const Header = () => {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
 
   const { isOpen, onClose, onOpen, currentAccount } = useWallet()
 
@@ -45,6 +46,8 @@ const Header = () => {
     if (!currentAccount) return
     const transactionsContract = createXBankContract()
     const res = await transactionsContract.listPool()
+    // const wethContract = createWethContract()
+    // const res = await wethContract.name()
     console.log(transactionsContract, 'transactionsContract', res)
   }, [currentAccount])
 
@@ -57,7 +60,13 @@ const Header = () => {
       />
       <Container bg='white' maxW={RESPONSIVE_MAX_W}>
         <Flex justify={'space-between'} h={74} alignItems='center'>
-          <Flex alignItems={'center'}>
+          <Flex
+            alignItems={'center'}
+            onClick={() => {
+              navigate('/lend/my-pools')
+            }}
+            cursor='pointer'
+          >
             <Flex gap={2} onClick={() => {}} alignItems='center'>
               <Image src={Icon} h={25} alt='icon' loading='lazy' />
             </Flex>
@@ -100,15 +109,14 @@ const Header = () => {
                     'My Pools',
                     'Loans',
                   ].map((item) => (
-                    <Flex
-                      key={item}
-                      borderBottomColor='gray.5'
-                      gap={1}
-                      px={3}
-                      py={2}
-                      flexDir='column'
-                    >
-                      <Link to={`/lend/${kebabCase(item)}`}>
+                    <Link to={`/lend/${kebabCase(item)}`} key={item}>
+                      <Flex
+                        borderBottomColor='gray.5'
+                        gap={1}
+                        px={3}
+                        py={2}
+                        flexDir='column'
+                      >
                         <Text
                           fontSize='md'
                           _hover={{
@@ -118,8 +126,8 @@ const Header = () => {
                         >
                           {item}
                         </Text>
-                      </Link>
-                    </Flex>
+                      </Flex>
+                    </Link>
                   ))}
                 </PopoverBody>
               </PopoverContent>
@@ -154,15 +162,14 @@ const Header = () => {
                     //  'My assets',
                     'Loans',
                   ].map((item) => (
-                    <Flex
-                      key={item}
-                      borderBottomColor={`gray.5`}
-                      px={3}
-                      py={2}
-                      gap={1}
-                      flexDir='column'
-                    >
-                      <Link to={`/buy-nfts/${kebabCase(item)}`}>
+                    <Link to={`/buy-nfts/${kebabCase(item)}`} key={item}>
+                      <Flex
+                        borderBottomColor={`gray.5`}
+                        px={3}
+                        py={2}
+                        gap={1}
+                        flexDir='column'
+                      >
                         <Text
                           fontSize='md'
                           _hover={{
@@ -172,8 +179,8 @@ const Header = () => {
                         >
                           {item}
                         </Text>
-                      </Link>
-                    </Flex>
+                      </Flex>
+                    </Link>
                   ))}
                 </PopoverBody>
               </PopoverContent>
@@ -192,7 +199,7 @@ const Header = () => {
                 aria-label=''
                 onClick={onOpen}
                 bg='white'
-                disabled={!!currentAccount}
+                isDisabled={!!currentAccount}
                 // display={{
                 //   sm: 'none',
                 //   md: 'none',

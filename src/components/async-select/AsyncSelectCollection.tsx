@@ -75,8 +75,8 @@ function AsyncSelectCollection<
             ...base,
             borderRadius: 8,
             border: '1px solid var(--chakra-colors-blue-1)',
-            boxShadow:
-              '-2px 1px 4px -3px var(--chakra-colors-blue-1),2px 2px 3px -3px var(--chakra-colors-blue-1)',
+            // boxShadow:
+            //   '-2px 1px 4px -3px var(--chakra-colors-blue-1),2px 2px 3px -3px var(--chakra-colors-blue-1)',
             borderTop: 'none',
             borderTopLeftRadius: 0,
             borderTopRightRadius: 0,
@@ -89,7 +89,7 @@ function AsyncSelectCollection<
             ...base,
             border: 'none',
             borderRadius: 0,
-            top: '68%',
+            top: '65%',
             boxShadow: 'none',
           }
         },
@@ -103,9 +103,10 @@ function AsyncSelectCollection<
               ? 'var(--chakra-colors-blue-1)'
               : 'var(--chakra-colors-blue-4)'
           }`,
-          boxShadow: isFocused
-            ? '-2px 1px 4px -3px var(--chakra-colors-blue-1), 2px -2px 4px -3px var(--chakra-colors-blue-1)'
-            : 'none',
+          boxShadow: 'none',
+          // boxShadow: isFocused
+          //   ? '-2px 1px 4px -3px var(--chakra-colors-blue-1), 2px -2px 4px -3px var(--chakra-colors-blue-1)'
+          //   : 'none',
           height: 44,
           backgroundColor: 'white',
           ':hover': {

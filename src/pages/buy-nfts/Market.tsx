@@ -14,8 +14,7 @@ import isEmpty from 'lodash-es/isEmpty'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { apiGetActiveCollection } from '@/api'
-import { apiGetCollectionDetail } from '@/api/buyer'
+import { apiGetActiveCollection, apiGetCollectionDetail } from '@/api'
 import {
   ConnectWalletModal,
   LoadingComponent,
@@ -144,7 +143,7 @@ const Market = () => {
 
           {collectionData?.data?.list.map((item: any) => (
             <CollectionListItem
-              data={{ id: item.id, name: item.col2, img: item.img }}
+              data={{ id: item.id, name: item.col1, img: item.img }}
               key={item.id}
               onClick={() => setSelectCollection(item.id)}
               isActive={selectCollection === item.id}
@@ -172,7 +171,7 @@ const Market = () => {
           <LoadingComponent loading={detailLoading} />
           {detailData?.data?.list?.map((item: any) => (
             <MarketNftListCard
-              data={{}}
+              data={{ name: 'xxn' }}
               key={item.id}
               onClick={() => {
                 interceptFn(() => {

@@ -99,13 +99,19 @@ const ApproveEthButton: FunctionComponent<
     const parsedAmount = ethers.utils.parseEther(amount)
 
     const wethContract = createWethContract()
-    console.log(
-      '🚀 ~ file: ApproveEthButton.tsx:102 ~ onConfirm ~ wethContract',
-      wethContract,
+
+    const approveHash = await wethContract.approve(
+      currentAccount,
+      parsedAmount.toString(),
     )
+
+    console.log(`Loading - ${approveHash?.hash}`)
+    await approveHash.wait()
+    console.log(`Success - ${approveHash?.hash}`, approveHash)
+    const toAddress = approveHash?.to
     console.log(
-      '🚀 ~ file: ApproveEthButton.tsx:103 ~ onConfirm ~ res',
-      await wethContract.name(),
+      '🚀 ~ file: ApproveEthButton.tsx:112 ~ onConfirm ~ toAddress',
+      toAddress,
     )
     return
 

@@ -22,9 +22,9 @@ const MarketNftListCard: FunctionComponent<
     // temp
     data: any
   } & CardProps
-> = ({ data, ...rest }) => {
+> = ({ data: { name }, ...rest }) => {
   const [show, setShow] = useState(false)
-  console.log(data, 'MarketNftListCard')
+  // console.log(data, 'MarketNftListCard')
   return (
     <Card
       {...rest}
@@ -49,7 +49,7 @@ const MarketNftListCard: FunctionComponent<
 
         <Stack mt={3} spacing={2} px={4} mb={2}>
           <Text color={`gray.3`} fontSize='sm'>
-            Azuki #6671
+            {name}
           </Text>
           <Flex justify={'space-between'} alignItems='center'>
             <Text fontSize={'sm'}>aaaa</Text>

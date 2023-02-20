@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 // import { useNavigate } from 'react-router-dom'
 
 // import { SearchInput } from '@/components'
-import { apiGetBuyerLoans } from '@/api/buyer'
+import { apiGetBuyerLoans } from '@/api'
 import {
   ConnectWalletModal,
   EmptyComponent,

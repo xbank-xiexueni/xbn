@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc && vite build",
+    "build:production": "tsc && vite build --mode  production",
+    "build:staging": "tsc && vite build --mode staging",
     "dev": "vite --host",
     "lint": "npm run lint:js && tsc",
     "lint-staged": "lint-staged",

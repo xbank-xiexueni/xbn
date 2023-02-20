@@ -30,7 +30,9 @@ const StepDescription: FunctionComponent<
           {title}
         </Heading>
       </Flex>
-      <Text color='gray.3'>{text}</Text>
+      <Text color='gray.3' fontWeight={'500'}>
+        {text}
+      </Text>
     </Box>
   )
 }
