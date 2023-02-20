@@ -1,8 +1,8 @@
 export { xBankContractAbi, wethContractAbi } from './contractABI'
 
 console.log(import.meta.env)
-export const xBankContractAddress = '0x3ed06e155eb4135ecc1591142cce51c90b0d1047'
-export const wethContractAddress = '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6'
+export const xBankContractAddress = import.meta.env.VITE_XBANK_CONTRACT_ADDRESS
+export const wethContractAddress = import.meta.env.VITE_WETH_CONTRACT_ADDRESS
 
 export const RESPONSIVE_MAX_W = {
   xl: 1408,
