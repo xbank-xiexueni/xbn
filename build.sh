@@ -6,3 +6,4 @@ if [ "$CF_PAGES_BRANCH" == "production" ]; then  # Run the "production" script i
 else  # Else run the dev script  npm run devfi
   yarn build --mode staging
 
+fi
