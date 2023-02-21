@@ -3,7 +3,7 @@ import isEmpty from 'lodash-es/isEmpty'
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { LpBaseRateTable, Select, SvgComponent } from '@/components'
+import { BaseRateTable, Select, SvgComponent } from '@/components'
 import AsyncSelectCollection from '@/components/async-select/AsyncSelectCollection'
 import {
   SUB_RESPONSIVE_MAX_W,
@@ -12,6 +12,7 @@ import {
   INITIAL_COLLATERAL,
   INITIAL_TENOR,
   STEPS_DESCRIPTIONS,
+  LP_BASE_RATE,
 } from '@/constants'
 
 import ApproveEthButton from './components/ApproveEthButton'
@@ -25,6 +26,17 @@ const Create = () => {
   const [selectCollateral, setSelectCollateral] = useState(INITIAL_COLLATERAL)
   const [selectTenor, setSelectTenor] = useState(INITIAL_TENOR)
   const [selectCollection, setSelectCollection] = useState({ ...state })
+
+  const [rateData, setRateData] = useState<{
+    poolMaximumInterestRate: number
+    loanRatioPreferentialFlexibility: number
+    loanTimeConcessionFlexibility: number
+  }>({
+    poolMaximumInterestRate:
+      LP_BASE_RATE[`${INITIAL_TENOR}-${INITIAL_COLLATERAL}`],
+    loanRatioPreferentialFlexibility: 1,
+    loanTimeConcessionFlexibility: 1,
+  })
 
   return (
     <Container maxW={SUB_RESPONSIVE_MAX_W}>
@@ -136,18 +148,34 @@ const Create = () => {
               />
             </Flex>
           </CardWithBg>
-          <Box mb={4}>
-            <LpBaseRateTable
-              selectCollateral={selectCollateral}
-              selectTenor={selectTenor}
-              description={{
+          <CardWithBg mb={8} bg='gray.5'>
+            <StepDescription
+              data={{
+                step: 4,
                 title: 'Set the interest rate for each loan condition',
                 text: `According to the limit value of the loan conditions set in steps 1 and 2, the system refers to the historical order data to generate a suggested loan interest rate for you, and the funds approved by you under this interest rate are expected to generate income soon.
 If the current loan conditions and suggested interest rates do not meet your expectations, you can adjust the loan interest rate through the big slider below, and all interest rate values in the table will increase or decrease
 You can also use the small sliders on the right and bottom of the table to adjust the impact of changes in the two factors of COLLATERALS fat and loan duration on the interest rate.`,
               }}
             />
-          </Box>
+            <BaseRateTable
+              selectCollateral={selectCollateral}
+              selectTenor={selectTenor}
+              onChange={(
+                poolMaximumInterestRate,
+                loanRatioPreferentialFlexibility,
+                loanTimeConcessionFlexibility,
+              ) => {
+                setRateData((prev) => ({
+                  ...prev,
+                  poolMaximumInterestRate,
+                  loanRatioPreferentialFlexibility,
+                  loanTimeConcessionFlexibility,
+                }))
+              }}
+            />
+          </CardWithBg>
+
           <Flex justify={'center'} mb={10}>
             <ApproveEthButton
               variant={'primary'}
@@ -155,11 +183,10 @@ You can also use the small sliders on the right and bottom of the table to adjus
               h='52px'
               isDisabled={isEmpty(selectCollection)}
               data={{
-                poolMaximumPercentage: 450,
-                poolMaximumDays: 1,
-                poolMaximumInterestRate: 1,
-                loanTimeConcessionFlexibility: 1,
-                loanRatioPreferentialFlexibility: 1,
+                poolMaximumPercentage: selectCollateral,
+                poolMaximumDays: selectTenor,
+                allowCollateralContract: selectCollection?.name,
+                ...rateData,
               }}
             >
               Confirm

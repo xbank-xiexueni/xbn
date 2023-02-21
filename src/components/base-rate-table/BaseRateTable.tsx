@@ -1,5 +1,4 @@
 import {
-  Card,
   Flex,
   Slider,
   SliderFilledTrack,
@@ -14,7 +13,6 @@ import slice from 'lodash-es/slice'
 import { type FunctionComponent, useMemo, useState } from 'react'
 
 import { COLLATERALS, LP_BASE_RATE, TENORS } from '@/constants'
-import StepDescription from '@/pages/Lend/components/StepDescription'
 
 const TOP_SLIDER_STEPS = [0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6]
 
@@ -22,11 +20,15 @@ const RIGHT_SLIDER_STEPS = [0, 0.5, 1, 1.5, 2]
 
 const BOTTOM_SLIDER_STEPS = [0, 0.5, 1, 1.5, 2]
 
-const LpBaseRateTable: FunctionComponent<{
+const BaseRateTable: FunctionComponent<{
   selectTenor: number
   selectCollateral: number
-  description?: { title: string; text: string }
-}> = ({ selectCollateral, selectTenor, description }) => {
+  onChange?: (
+    poolMaximumInterestRate: number,
+    loanRatioPreferentialFlexibility: number,
+    loanTimeConcessionFlexibility: number,
+  ) => void
+}> = ({ selectCollateral, selectTenor, onChange }) => {
   const baseRate = useMemo((): number => {
     return LP_BASE_RATE[`${selectTenor}-${selectCollateral}`]
   }, [selectTenor, selectCollateral])
@@ -77,17 +79,8 @@ const LpBaseRateTable: FunctionComponent<{
   const [rightTipVisible, setRightTipVisible] = useState(false)
 
   return (
-    <Card mb={8} bg='gray.5' borderRadius={'16px'} p={8}>
-      <Flex wrap={'wrap'}>
-        {description && (
-          <StepDescription
-            data={{
-              step: 4,
-              ...description,
-            }}
-          />
-        )}
-
+    <>
+      <Flex>
         <Slider
           defaultValue={1}
           min={TOP_SLIDER_STEPS[0]}
@@ -97,6 +90,8 @@ const LpBaseRateTable: FunctionComponent<{
           mx={12}
           onChange={(target) => {
             setSliderTopValue(target)
+            if (!onChange) return
+            onChange(baseRate * target, sliderRightValue, sliderBottomValue)
           }}
           mb={8}
         >
@@ -160,118 +155,120 @@ const LpBaseRateTable: FunctionComponent<{
           />
           <SlideFade />
         </Slider>
+      </Flex>
 
-        <Flex justify={'flex-end'} w='100%' alignItems={'center'} gap={8}>
-          <Box
-            bg='white'
-            borderRadius={2}
-            padding={2}
-            mt={6}
-            w='660px'
-            id='base-rate-table'
-            pos={'relative'}
-          >
-            <Flex>
-              {[
-                'Collateral Factor/ Tenor',
-                ...currentTenors.map((i) => `${i} Days`),
-              ].map((item) => (
-                <Flex
-                  key={item}
-                  w={`${(1 / (colCount || 1)) * 100}%`}
-                  alignItems={'center'}
-                  justify='center'
-                  h='40px'
-                  borderBottomColor='gray.2'
-                  borderBottomWidth={1}
+      <Flex justify={'flex-end'} w='100%' alignItems={'center'} gap={8}>
+        <Box
+          bg='white'
+          borderRadius={2}
+          padding={2}
+          mt={6}
+          w='660px'
+          id='base-rate-table'
+          pos={'relative'}
+        >
+          <Flex>
+            {[
+              'Collateral Factor/ Tenor',
+              ...currentTenors.map((i) => `${i} Days`),
+            ].map((item) => (
+              <Flex
+                key={item}
+                w={`${(1 / (colCount || 1)) * 100}%`}
+                alignItems={'center'}
+                justify='center'
+                h='40px'
+                borderBottomColor='gray.2'
+                borderBottomWidth={1}
+              >
+                <Text
+                  textAlign={'center'}
+                  fontSize='xs'
+                  fontWeight={'bold'}
+                  lineHeight='12px'
                 >
-                  <Text
-                    textAlign={'center'}
-                    fontSize='xs'
-                    fontWeight={'bold'}
-                    lineHeight='12px'
-                  >
-                    {item}
-                  </Text>
-                </Flex>
-              ))}
-            </Flex>
-
-            {/* table */}
-            {tableData.map((row, index) => {
-              return (
-                <Flex
-                  /* eslint-disable */
-                  key={`${JSON.stringify(row)}-${index}`}
-                  /* eslint-disable */
-                  borderBottom={
-                    index !== tableData?.length - 1
-                      ? `1px solid var(--chakra-colors-gray-2)`
-                      : 'none'
-                  }
-                >
-                  {[currentCollaterals[index], ...row]?.map(
-                    (value: string, i: number) => (
-                      <Flex
-                        /* eslint-disable */
-                        key={`${value}-${i}`}
-                        /* eslint-disable */
-                        alignItems={'center'}
-                        justify='center'
-                        h='40px'
-                        w={`${(1 / (colCount || 1)) * 100}%`}
-                      >
-                        <Text
-                          textAlign={'center'}
-                          fontSize='xs'
-                          fontWeight={i === 0 ? 'bold' : 'normal'}
-                          color={i === 0 ? `black.1` : `gray.3`}
-                        >
-                          {value}%
-                        </Text>
-                      </Flex>
-                    ),
-                  )}
-                </Flex>
-              )
-            })}
-          </Box>
-
-          <Flex
-            flexDir={'column'}
-            alignItems='center'
-            gap={1}
-            onMouseEnter={() => setRightTipVisible(true)}
-            onMouseLeave={() => setRightTipVisible(false)}
-          >
-            {rightTipVisible && <Box color={'gray.4'}>-</Box>}
-            <Slider
-              orientation='vertical'
-              direction='ltr'
-              defaultValue={1}
-              min={RIGHT_SLIDER_STEPS[0]}
-              max={RIGHT_SLIDER_STEPS[RIGHT_SLIDER_STEPS.length - 1]}
-              h='132px'
-              step={0.5}
-              onChange={(target) => {
-                // setSliderValue(target)
-                setSliderRightValue(target)
-              }}
-            >
-              <SliderTrack bg={`gray.1`}>
-                <SliderFilledTrack bg={`blue.1`} />
-              </SliderTrack>
-              <SliderThumb
-                boxSize={4}
-                borderWidth={'2px'}
-                borderColor={`blue.1`}
-                _focus={{
-                  boxShadow: 'none',
-                }}
-              />
-            </Slider>
-            {rightTipVisible && <Box color={'gray.4'}>+</Box>}
+                  {item}
+                </Text>
+              </Flex>
+            ))}
           </Flex>
+
+          {/* table */}
+          {tableData.map((row, index) => {
+            return (
+              <Flex
+                /* eslint-disable */
+                key={`${JSON.stringify(row)}-${index}`}
+                /* eslint-disable */
+                borderBottom={
+                  index !== tableData?.length - 1
+                    ? `1px solid var(--chakra-colors-gray-2)`
+                    : 'none'
+                }
+              >
+                {[currentCollaterals[index], ...row]?.map(
+                  (value: string, i: number) => (
+                    <Flex
+                      /* eslint-disable */
+                      key={`${value}-${i}`}
+                      /* eslint-disable */
+                      alignItems={'center'}
+                      justify='center'
+                      h='40px'
+                      w={`${(1 / (colCount || 1)) * 100}%`}
+                    >
+                      <Text
+                        textAlign={'center'}
+                        fontSize='xs'
+                        fontWeight={i === 0 ? 'bold' : 'normal'}
+                        color={i === 0 ? `black.1` : `gray.3`}
+                      >
+                        {value}%
+                      </Text>
+                    </Flex>
+                  ),
+                )}
+              </Flex>
+            )
+          })}
+        </Box>
+
+        <Flex
+          flexDir={'column'}
+          alignItems='center'
+          gap={1}
+          onMouseEnter={() => setRightTipVisible(true)}
+          onMouseLeave={() => setRightTipVisible(false)}
+        >
+          {rightTipVisible && <Box color={'gray.4'}>-</Box>}
+          <Slider
+            orientation='vertical'
+            direction='ltr'
+            defaultValue={1}
+            min={RIGHT_SLIDER_STEPS[0]}
+            max={RIGHT_SLIDER_STEPS[RIGHT_SLIDER_STEPS.length - 1]}
+            h='132px'
+            step={0.5}
+            onChange={(target) => {
+              // setSliderValue(target)
+              setSliderRightValue(target)
+              if (!onChange) return
+              onChange(baseRate * sliderTopValue, target, sliderBottomValue)
+            }}
+          >
+            <SliderTrack bg={`gray.1`}>
+              <SliderFilledTrack bg={`blue.1`} />
+            </SliderTrack>
+            <SliderThumb
+              boxSize={4}
+              borderWidth={'2px'}
+              borderColor={`blue.1`}
+              _focus={{
+                boxShadow: 'none',
+              }}
+            />
+          </Slider>
+          {rightTipVisible && <Box color={'gray.4'}>+</Box>}
         </Flex>
       </Flex>
       <Flex justify={'center'} mt={5}>
@@ -294,6 +291,8 @@ const LpBaseRateTable: FunctionComponent<{
             mt={1}
             onChange={(target) => {
               setSliderBottomValue(target)
+              if (!onChange) return
+              onChange(baseRate * sliderTopValue, sliderRightValue, target)
             }}
           >
             <SliderTrack bg={`gray.1`}>
@@ -311,8 +310,8 @@ const LpBaseRateTable: FunctionComponent<{
           {bottomTipVisible && <Box color={'gray.4'}>+</Box>}
         </Flex>
       </Flex>
-    </Card>
+    </>
   )
 }
 
-export default LpBaseRateTable
+export default BaseRateTable

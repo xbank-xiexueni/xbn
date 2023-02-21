@@ -28,9 +28,10 @@ import {
   useState,
   type FunctionComponent,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { SvgComponent } from '@/components'
-import { UNIT } from '@/constants'
+import { UNIT, XBANK_CONTRACT_ADDRESS } from '@/constants'
 import { useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
 
@@ -61,6 +62,7 @@ const ApproveEthButton: FunctionComponent<
       poolMaximumInterestRate: number
       loanTimeConcessionFlexibility: number
       loanRatioPreferentialFlexibility: number
+      allowCollateralContract: string
     }
   }
 > = ({ children, data, ...rest }) => {
@@ -70,8 +72,10 @@ const ApproveEthButton: FunctionComponent<
     poolMaximumInterestRate,
     loanTimeConcessionFlexibility,
     loanRatioPreferentialFlexibility,
+    // allowCollateralContract,
   } = data
-  const { getBalance, balance, currentAccount } = useWallet()
+  const { getBalance } = useWallet()
+  const navigate = useNavigate()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [amount, setAmount] = useState('')
   const [flag, setFlag] = useState(true)
@@ -79,53 +83,54 @@ const ApproveEthButton: FunctionComponent<
   const initialRef = useRef(null)
   const finalRef = useRef(null)
 
+  const [currentBalance, setCurrentBalance] = useState(0)
+
+  useEffect(() => {
+    getBalance().then((res) => setCurrentBalance(res))
+  }, [getBalance])
+
   const isError = useMemo((): boolean => {
     //  amount < balance + Has been lent
     if (amount) {
       const NumberAmount = Number(amount)
-      return NumberAmount > balance
+      return NumberAmount > currentBalance
     } else {
       return !flag
     }
-  }, [amount, balance, flag])
+  }, [amount, currentBalance, flag])
 
-  useEffect(() => {
-    getBalance()
-  }, [getBalance])
   const [isLoading, setIsLoading] = useState(false)
   const toast = useToast()
 
   const onConfirm = useCallback(async () => {
-    const parsedAmount = ethers.utils.parseEther(amount)
-
-    const wethContract = createWethContract()
-
-    const approveHash = await wethContract.approve(
-      currentAccount,
-      parsedAmount.toString(),
-    )
-
-    console.log(`Loading - ${approveHash?.hash}`)
-    await approveHash.wait()
-    console.log(`Success - ${approveHash?.hash}`, approveHash)
-    const toAddress = approveHash?.to
-    console.log(
-      '🚀 ~ file: ApproveEthButton.tsx:112 ~ onConfirm ~ toAddress',
-      toAddress,
-    )
-    return
-
-    const xBankContract = createXBankContract()
+    setIsLoading(true)
+    /**
+     * 平均总耗时：
+     * 1676961248463 - 1676961180777 =  67686 ms ≈ 1min
+     */
+    console.log(new Date().getTime(), '----------------start')
     try {
-      setIsLoading(true)
+      const parsedWeiAmount = ethers.utils.parseEther(amount)?.toString()
+      const wethContract = createWethContract()
+
+      const approveHash = await wethContract.approve(
+        XBANK_CONTRACT_ADDRESS,
+        parsedWeiAmount,
+      )
+
+      await approveHash.wait()
+      const supportERC20Denomination = approveHash?.to
+      // const supportERC20Denomination = WETH_CONTRACT_ADDRESS
+
+      const xBankContract = createXBankContract()
       const transactionHash = await xBankContract.createPool(
-        currentAccount,
         // supportERC20Denomination
-        '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
+        supportERC20Denomination,
+        // allowCollateralContract
         // allowCollateralContract
         '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
         // poolAmount
-        parsedAmount.toString(),
+        parsedWeiAmount,
         // poolMaximumPercentage,
         poolMaximumPercentage * 100,
         // uint32 poolMaximumDays,
@@ -137,15 +142,11 @@ const ApproveEthButton: FunctionComponent<
         // uint32 loanRatioPreferentialFlexibility
         loanRatioPreferentialFlexibility * 10000,
       )
-      console.log(`Loading - ${transactionHash.hash}`)
       await transactionHash.wait()
-      console.log(`Success - ${transactionHash.hash}`)
       setIsLoading(false)
-      const currentListPool = await xBankContract.listPool()
-      console.log(
-        '🚀 ~ file: ApproveEthButton.tsx:125 ~ onConfirm ~ currentListPool',
-        currentListPool,
-      )
+      console.log(new Date().getTime(), '----------------end')
+      onClose()
+      navigate('/lend/my-pools')
     } catch (error: any) {
       console.log(error?.message, error?.code, error?.data)
       toast({
@@ -157,13 +158,15 @@ const ApproveEthButton: FunctionComponent<
     }
   }, [
     amount,
-    currentAccount,
     toast,
     poolMaximumPercentage,
     poolMaximumDays,
     poolMaximumInterestRate,
     loanRatioPreferentialFlexibility,
     loanTimeConcessionFlexibility,
+    // allowCollateralContract,
+    onClose,
+    navigate,
   ])
 
   const handleClose = useCallback(() => {
@@ -260,7 +263,7 @@ const ApproveEthButton: FunctionComponent<
 
               {isError && (
                 <Text mt={2} color='red.1'>
-                  Insufficient funds, Maximum input: {balance}
+                  Insufficient funds, Maximum input: {currentBalance}
                 </Text>
               )}
             </FormControl>

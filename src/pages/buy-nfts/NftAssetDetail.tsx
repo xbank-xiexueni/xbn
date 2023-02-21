@@ -208,7 +208,7 @@ const NftAssetDetail = () => {
           flexDirection={'column'}
           w='600px'
         >
-          <Image src={detail?.image} borderRadius={20} />
+          <Image src={detail?.image} borderRadius={20} h='600px' />
           <BelongToCollection
             data={{
               name: 'Collection name',

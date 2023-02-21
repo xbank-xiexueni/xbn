@@ -45,10 +45,13 @@ const Header = () => {
   const testClick = useCallback(async () => {
     if (!currentAccount) return
     const transactionsContract = createXBankContract()
-    const res = await transactionsContract.listPool()
+    const listPool = await transactionsContract.listPool()
+    const listLoan = await transactionsContract.listLoan()
     // const wethContract = createWethContract()
     // const res = await wethContract.name()
-    console.log(transactionsContract, 'transactionsContract', res)
+    console.log('transactionsContract', transactionsContract)
+    console.log('listPool', listPool)
+    console.log('listLoan', listLoan)
   }, [currentAccount])
 
   return (

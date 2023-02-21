@@ -462,11 +462,6 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "borrowerAddress",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
         "name": "loadPrincipalAmount",
         "type": "uint256"
@@ -510,11 +505,6 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "ownerAddress",
-        "type": "address"
-      },
       {
         "internalType": "address",
         "name": "supportERC20Denomination",
@@ -853,7 +843,7 @@
         "type": "uint256"
       }
     ],
-    "name": "liquidateOverdue",
+    "name": "liquidateLoan",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1316,7 +1306,7 @@
     ],
     "name": "repayLoan",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -1368,16 +1358,6 @@
       {
         "internalType": "uint256",
         "name": "lenderSupportAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "borrowerAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "borrowerAmount",
         "type": "uint256"
       }
     ],
@@ -1467,5 +1447,9 @@
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]

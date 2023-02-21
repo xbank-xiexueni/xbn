@@ -1,11 +1,11 @@
-export { xBankContractAbi, wethContractAbi } from './contractABI'
+export { XBANK_CONTRACT_ABI, WETH_CONTRACT_ABI } from './contractABI'
 
-console.log(import.meta.env)
-export const xBankContractAddress = import.meta.env.VITE_XBANK_CONTRACT_ADDRESS
-export const wethContractAddress = import.meta.env.VITE_WETH_CONTRACT_ADDRESS
+export const XBANK_CONTRACT_ADDRESS = import.meta.env
+  .VITE_XBANK_CONTRACT_ADDRESS
+export const WETH_CONTRACT_ADDRESS = import.meta.env.VITE_WETH_CONTRACT_ADDRESS
 
 export const RESPONSIVE_MAX_W = {
-  xl: 1408,
+  xl: 1376,
   lg: 968,
   md: 768,
   sm: '85%',
@@ -83,7 +83,7 @@ export const STEPS_DESCRIPTIONS = [
   },
   {
     title: 'Select Collateral Factor',
-    text: 'Indicate the Colleteral Factor % which will help determine how much liquidity (Ethereum) borrowers can receive against the desired NFT collection. The higher the %, the more liquidity they can pull out of the pool. We typically recommend a 50% Collateral Factor.',
+    text: 'Indicate the Collateral Factor % which will help determine how much liquidity (Ethereum) borrowers can receive against the desired NFT collection. The higher the %, the more liquidity they can pull out of the pool. We typically recommend a 50% Collateral Factor.',
   },
   {
     title: 'Set the interest rate for each loan condition',

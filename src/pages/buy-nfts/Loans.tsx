@@ -25,6 +25,7 @@ import {
 import type { ColumnProps } from '@/components/my-table'
 import { UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
+import { createXBankContract } from '@/utils/createContract'
 
 import CollectionListItem from './components/CollectionListItem'
 
@@ -120,7 +121,8 @@ export const loansForBuyerColumns: ColumnProps[] = [
 
 const Loans = () => {
   // const navigate = useNavigate()
-  const { isOpen, onClose, interceptFn, currentAccount } = useWallet()
+  const { isOpen, onClose, interceptFn, currentAccount, getBalance } =
+    useWallet()
 
   useEffect(() => interceptFn(), [interceptFn])
 
@@ -279,8 +281,17 @@ const Loans = () => {
                         borderRadius={8}
                         cursor='pointer'
                         onClick={() => {
-                          interceptFn(() => {
-                            console.log('11')
+                          interceptFn(async () => {
+                            const xBankContract = createXBankContract()
+                            const currentBalance = await getBalance()
+                            console.log(
+                              '🚀 ~ file: Loans.tsx:291 ~ interceptFn ~ currentBalance',
+                              currentBalance,
+                            )
+                            return
+                            const repaymentAmount =
+                              await xBankContract.getRepaymentAmount(1)
+                            console.log('repaymentAmount', repaymentAmount)
                           })
                         }}
                       >

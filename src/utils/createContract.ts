@@ -1,10 +1,10 @@
 import { ethers } from 'ethers'
 
 import {
-  xBankContractAbi,
-  xBankContractAddress,
-  wethContractAbi,
-  wethContractAddress,
+  XBANK_CONTRACT_ABI,
+  XBANK_CONTRACT_ADDRESS,
+  WETH_CONTRACT_ABI,
+  WETH_CONTRACT_ADDRESS,
 } from '@/constants'
 
 const { ethereum } = window
@@ -12,8 +12,8 @@ const createXBankContract = () => {
   const provider = new ethers.providers.Web3Provider(ethereum)
   const signer = provider.getSigner()
   const transactionsContract = new ethers.Contract(
-    xBankContractAddress,
-    xBankContractAbi,
+    XBANK_CONTRACT_ADDRESS,
+    XBANK_CONTRACT_ABI,
     signer,
   )
 
@@ -24,8 +24,8 @@ const createWethContract = () => {
   const provider = new ethers.providers.Web3Provider(ethereum)
   const signer = provider.getSigner()
   const contract = new ethers.Contract(
-    wethContractAddress,
-    wethContractAbi,
+    WETH_CONTRACT_ADDRESS,
+    WETH_CONTRACT_ABI,
     signer,
   )
 

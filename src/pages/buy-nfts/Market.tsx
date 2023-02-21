@@ -167,7 +167,7 @@ const Market = () => {
             ]}
           />
         </Flex> */}
-        <SimpleGrid minChildWidth='233px' spacing={'16px'} position='relative'>
+        <SimpleGrid spacing={4} position='relative' columns={4}>
           <LoadingComponent loading={detailLoading} />
           {detailData?.data?.list?.map((item: any) => (
             <MarketNftListCard

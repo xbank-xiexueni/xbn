@@ -192,13 +192,11 @@ const Lend = () => {
         _: Record<string, string | number | boolean>,
         value: string | number | boolean,
       ) => {
-        const isVerified = Number(_.id) % 2 === 0
+        const isVerified = true
         return (
-          <Flex alignItems={'center'} gap={2}>
+          <Flex alignItems={'center'} gap={2} w='100%'>
             <Image src={_.img as string} h={12} w={12} borderRadius={12} />
-            {/* <Box w={10} h={10} bg='pink' borderRadius={4} /> */}
             <Text
-              w={isVerified ? '60%' : '75%'}
               display='inline-block'
               overflow='hidden'
               whiteSpace='nowrap'
@@ -265,7 +263,13 @@ const Lend = () => {
         value: string | number | boolean,
       ) => <Text>{value}% APR</Text>,
     },
-    { title: 'Loans', dataIndex: 'col7', key: 'col7', align: 'center' },
+    {
+      title: 'Loans',
+      dataIndex: 'col7',
+      key: 'col7',
+      align: 'center',
+      thAlign: 'center',
+    },
     {
       title: '',
       dataIndex: 'id',

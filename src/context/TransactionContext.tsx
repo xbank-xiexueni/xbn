@@ -11,9 +11,8 @@ import {
 
 export const TransactionContext = createContext({
   connectWallet: () => {},
-  getBalance: () => {},
+  getBalance: async () => 0,
   currentAccount: '',
-  balance: 0,
   connectLoading: false,
 })
 
@@ -26,7 +25,6 @@ export const TransactionsProvider = ({
 }) => {
   const toast = useToast()
   const [currentAccount, setCurrentAccount] = useState('')
-  const [balance, setBalance] = useState(0)
 
   const [connectLoading, setConnectLoading] = useState(false)
 
@@ -75,11 +73,11 @@ export const TransactionsProvider = ({
   }, [])
 
   const getBalance = useCallback(async () => {
-    if (!currentAccount || !ethereum) return
+    if (!currentAccount || !ethereum) return 0
     const provider = new ethers.providers.Web3Provider(ethereum)
 
     const currentBalance = await provider.getBalance(currentAccount)
-    setBalance(Number(utils.formatEther(currentBalance._hex)))
+    return Number(utils.formatEther(currentBalance._hex))
   }, [currentAccount])
 
   const checkIfWalletIsConnect = useCallback(async () => {
@@ -180,7 +178,6 @@ export const TransactionsProvider = ({
         // transactionCount,
         connectWallet,
         getBalance,
-        balance,
         // transactions,
         currentAccount,
         connectLoading,
