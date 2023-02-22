@@ -12,7 +12,7 @@ const Index = () => {
       alignItems={'center'}
     >
       <Heading>oops, Page not found</Heading>
-      <Button variant={'primary'} h='40px' onClick={() => navigate('lend')}>
+      <Button variant={'primary'} h='40px' onClick={() => navigate('lending')}>
         Back to Index
       </Button>
     </Flex>

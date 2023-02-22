@@ -27,10 +27,10 @@ const Header = () => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
-  const { isOpen, onClose, onOpen, currentAccount } = useWallet()
+  const { isOpen, onClose, onOpen, currentAccount, getBalance } = useWallet()
 
   const activePath = useMemo((): 'LEND' | 'BUY_NFTS' | 'SELL_NFTS' | '' => {
-    if (pathname.startsWith('/lend')) {
+    if (pathname.startsWith('/lending')) {
       return 'LEND'
     }
     if (pathname.startsWith('/buy-nfts')) {
@@ -43,6 +43,7 @@ const Header = () => {
   }, [pathname])
 
   const testClick = useCallback(async () => {
+    getBalance(currentAccount)
     if (!currentAccount) return
     const transactionsContract = createXBankContract()
     const listPool = await transactionsContract.listPool()
@@ -52,7 +53,7 @@ const Header = () => {
     console.log('transactionsContract', transactionsContract)
     console.log('listPool', listPool)
     console.log('listLoan', listLoan)
-  }, [currentAccount])
+  }, [currentAccount, getBalance])
 
   return (
     <Box position={'sticky'} top={0} zIndex={21}>
@@ -66,7 +67,7 @@ const Header = () => {
           <Flex
             alignItems={'center'}
             onClick={() => {
-              navigate('/lend/my-pools')
+              navigate('/lending/my-pools')
             }}
             cursor='pointer'
           >
@@ -112,7 +113,7 @@ const Header = () => {
                     'My Pools',
                     'Loans',
                   ].map((item) => (
-                    <Link to={`/lend/${kebabCase(item)}`} key={item}>
+                    <Link to={`/lending/${kebabCase(item)}`} key={item}>
                       <Flex
                         borderBottomColor='gray.5'
                         gap={1}
@@ -190,7 +191,16 @@ const Header = () => {
             </Popover>
           </Flex>
 
-          <Flex gap={6} alignItems='center' onClick={testClick}>
+          <Flex
+            gap={6}
+            alignItems='center'
+            onClick={testClick}
+            display={{
+              sm: 'none',
+              md: 'none',
+              lg: 'flex',
+            }}
+          >
             {!!currentAccount ? (
               <Jazzicon
                 diameter={30}
@@ -215,29 +225,23 @@ const Header = () => {
             )}
           </Flex>
 
-          {/* <Popover isLazy trigger='click' placement='bottom-end'>
-            <PopoverTrigger>
-              <Button
-                variant={'ghost'}
-                fontSize={'xl'}
-                display={{
-                  md: 'block',
-                  lg: 'none',
-                }}
-              >
-                三
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent>
-              <PopoverHeader fontWeight='semibold'>
-                Popover placement
-              </PopoverHeader>
-              <PopoverBody>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore.
-              </PopoverBody>
-            </PopoverContent>
-          </Popover> */}
+          {/* <Menu>
+            <MenuButton
+              as={IconButton}
+              aria-label='Options'
+              icon={<HamburgerIcon />}
+              variant='outline'
+              display={{
+                md: 'block',
+                lg: 'none',
+              }}
+            />
+            <MenuList>
+              <MenuItem icon={<AddIcon />} command='⌘T'>
+                New Tab
+              </MenuItem>
+            </MenuList>
+          </Menu> */}
         </Flex>
       </Container>
 

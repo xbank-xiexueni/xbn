@@ -1,18 +1,24 @@
-import { Flex, Text, Image } from '@chakra-ui/react'
+import { Flex, Text } from '@chakra-ui/react'
 
-import { SvgComponent } from '@/components'
+import type { CollectionListItemType } from '@/api'
+import { ImageWithFallback, SvgComponent } from '@/components'
 
 import type { FunctionComponent } from 'react'
 
 const CollectionListItem: FunctionComponent<{
-  data: any
+  data: CollectionListItemType
   onClick?: () => void
   isActive?: boolean
   count?: number
-}> = ({ data: { id, name, img }, onClick, isActive, count }) => {
+}> = ({
+  data: { contract_addr, name, image_url, safelist_request_status },
+  onClick,
+  isActive,
+  count,
+}) => {
   return (
     <Flex
-      key={id}
+      key={contract_addr}
       px={4}
       py={3}
       alignItems={'center'}
@@ -27,7 +33,7 @@ const CollectionListItem: FunctionComponent<{
       onClick={onClick}
     >
       <Flex alignItems={'center'} gap={1} w='80%'>
-        <Image src={img} w={6} h={6} />
+        <ImageWithFallback src={image_url} w={6} h={6} borderRadius={8} />
         <Text
           fontSize={'sm'}
           display='inline-block'
@@ -38,7 +44,9 @@ const CollectionListItem: FunctionComponent<{
           {name}
           &nbsp;
         </Text>
-        <SvgComponent svgId='icon-verified-fill' />
+        {safelist_request_status === 'verified' && (
+          <SvgComponent svgId='icon-verified-fill' />
+        )}
       </Flex>
       {isActive ? (
         <SvgComponent svgId='icon-checked' />

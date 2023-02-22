@@ -58,10 +58,10 @@ const BaseRateTable: FunctionComponent<{
       const forMapArr = [...currentTenors]
       arr[i] = forMapArr.map((_, index) => {
         const res =
-          (baseRate -
-            ((rowCount - i - 1) * sliderRightValue +
-              (colCount - index - 1) * sliderBottomValue)) *
-          sliderTopValue
+          baseRate * sliderTopValue -
+          ((rowCount - i - 1) * sliderRightValue +
+            (colCount - index - 1) * sliderBottomValue)
+
         return floor(res, 2)
       })
     }

@@ -18,15 +18,12 @@ export default defineConfig({
   server: {
     open: true,
     port: 8000,
-    watch: {
-      usePolling: true,
-    },
     proxy: {
-      '/api': {
+      '^/lending/api': {
         // mock
-        target:
-          'https://www.fastmock.site/mock/9b1763038152f49675038983b826d34e/api',
+        target: 'https://xbank.global',
         changeOrigin: true,
+        secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },

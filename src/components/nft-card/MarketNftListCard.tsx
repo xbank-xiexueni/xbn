@@ -6,14 +6,13 @@ import {
   type CardProps,
   Divider,
   Flex,
-  Image,
   Stack,
   Text,
   Button,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 
-import { NftOrigin, SvgComponent } from '@/components'
+import { ImageWithFallback, NftOrigin, SvgComponent } from '@/components'
 
 import type { FunctionComponent } from 'react'
 
@@ -38,11 +37,17 @@ const MarketNftListCard: FunctionComponent<
     >
       <CardBody p={0}>
         <Box bg='gray.100'>
-          <Image
+          <ImageWithFallback
             src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80'
             alt='Green double couch with wooden legs'
             borderTopRadius={'lg'}
-            h='233px'
+            h={{
+              xl: '233px',
+              lg: '200px',
+              md: '160px',
+              sm: '50%',
+            }}
+            w='100%'
             fit='contain'
           />
         </Box>

@@ -1,70 +1,79 @@
 import {
   Flex,
   Box,
-  Image,
   Text,
   Heading,
-  HStack,
+  // HStack,
   Skeleton,
 } from '@chakra-ui/react'
 import isEmpty from 'lodash-es/isEmpty'
-import { useState, type FunctionComponent, type ReactElement } from 'react'
+import { useState, type FunctionComponent } from 'react'
 
-import { SvgComponent } from '@/components'
+import { EmptyComponent, ImageWithFallback, SvgComponent } from '@/components'
 
 const CollectionDescription: FunctionComponent<{
   data?: {
     isVerified?: boolean
-    titleImage?: string
-    title?: string
+    name?: string
     description?: string
-    img?: string
-    keys?: {
-      value: string
-      label: string | ReactElement
-      isEth?: boolean
-    }[]
+    image_url?: string
+    // keys?: {
+    //   value: string
+    //   label: string | ReactElement
+    //   isEth?: boolean
+    // }[]
   }
   loading?: boolean
 }> = ({ data, loading }) => {
   const [show, setShow] = useState(false)
-  if (isEmpty(data) || loading) {
+  if (loading) {
     return (
       <Flex flexDirection={'column'} mb={12}>
         <Flex mb={4} gap={3}>
           <Skeleton h='108px' w='108px' borderRadius={8} />
           <Skeleton h='108px' w={'500px'} borderRadius={16} />
         </Flex>
-        <Skeleton h='100px' borderRadius={16} />
+        {/* <Skeleton h='100px' borderRadius={16} /> */}
       </Flex>
     )
   }
+  if (isEmpty(data)) {
+    return <EmptyComponent />
+  }
   const {
-    title = '',
+    name = '',
     description = '',
-    img = '',
-    keys = [],
+    image_url = '',
+    // keys = [],
     isVerified = false,
   } = data
 
   return (
     <Box mb={12}>
       <Flex gap={5} mb={8}>
-        <Box minW='108px'>
-          <Image src={img} />
-        </Box>
+        <ImageWithFallback
+          src={image_url}
+          borderRadius={16}
+          fit='contain'
+          w='108px'
+          h='108px'
+          bg='gray.100'
+        />
         <Box>
           <Flex>
-            <Heading fontSize={'3xl'} display='flex'>
-              {title}
+            <Heading
+              fontSize={{ lg: '3xl', md: 'xl', sm: 'xl' }}
+              display='flex'
+            >
+              {name}
             </Heading>
             {isVerified && <SvgComponent svgId='icon-verified-fill' />}
           </Flex>
 
           <Text color='gray.3' mt={2} fontSize={'md'} fontWeight='medium'>
-            {show ? description : `${description.substring(0, 80)}`}
-            {description?.length > 80 && !show && '...'}
-            {description?.length > 80 && (
+            {show ? description : `${description.substring(0, 200)}`}
+            {description?.length > 200 && !show && '...'}
+            {description?.length > 200 && (
               <Box
                 as='a'
                 color='blue.1'
@@ -83,7 +92,7 @@ const CollectionDescription: FunctionComponent<{
           </Text>
         </Box>
       </Flex>
-
+      {/* 
       <HStack spacing={10}>
         {keys.map(({ label, value, isEth }) => (
           <Flex key={`${label}`} flexDir='column' alignItems='center'>
@@ -102,7 +111,7 @@ const CollectionDescription: FunctionComponent<{
             )}
           </Flex>
         ))}
-      </HStack>
+      </HStack> */}
     </Box>
   )
 }

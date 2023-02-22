@@ -4,14 +4,16 @@ import axios from 'axios'
 // import { decrypt } from './decrypt'
 // import { PWD } from '@consts/crypt'
 
+const { MODE, VITE_BASE_URL } = import.meta.env
+
 const { toast } = createStandaloneToast()
 
 const request = axios.create({
   baseURL: '',
-  headers: {
-    appKey: '',
-    appversion: '',
-  },
+  // headers: {
+  //   appKey: '',
+  //   appversion: '',
+  // },
   // timeout: 10000,
 })
 
@@ -19,8 +21,7 @@ request.interceptors.request.use(
   async (config) => {
     return {
       ...config,
-      baseURL:
-        'https://www.fastmock.site/mock/9b1763038152f49675038983b826d34e',
+      baseURL: MODE === 'development' ? config.baseURL : VITE_BASE_URL,
     }
   },
   (error) => {
@@ -34,8 +35,24 @@ request.interceptors.request.use(
   },
 )
 
-request.interceptors.response.use((resp) => {
-  return resp
-})
+request.interceptors.response.use(
+  (resp) => {
+    return resp
+  },
+  (error) => {
+    const {
+      response: { status },
+    } = error
+    if (status >= 500) {
+      toast({
+        title: 'Oops, something went wrong',
+        status: 'error',
+        isClosable: true,
+        id: 'error-toast',
+      })
+    }
+    throw error
+  },
+)
 
 export default request

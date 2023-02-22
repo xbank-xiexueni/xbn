@@ -6,10 +6,11 @@ import {
   type CardProps,
   Divider,
   Flex,
-  Image,
   Text,
   Tag,
 } from '@chakra-ui/react'
+
+import { ImageWithFallback } from '..'
 
 import type { FunctionComponent } from 'react'
 
@@ -36,7 +37,7 @@ const MyAssetNftListCard: FunctionComponent<
     <Card {...rest}>
       <CardBody p={0}>
         <Box bg='gray.100' borderTopRadius={16}>
-          <Image
+          <ImageWithFallback
             src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80'
             alt='Green double couch with wooden legs'
             borderTopRadius={'lg'}

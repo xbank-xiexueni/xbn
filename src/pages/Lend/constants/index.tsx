@@ -1,6 +1,7 @@
-import { Box, Flex, Text, Image } from '@chakra-ui/react'
+import { Box, Flex, Text } from '@chakra-ui/react'
 import { Link } from 'react-router-dom'
 
+import { ImageWithFallback } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
 import { UNIT } from '@/constants'
 
@@ -10,10 +11,7 @@ export const activeCollectionColumns: ColumnProps[] = [
     dataIndex: 'name',
     key: 'name',
     align: 'left',
-    render: (
-      _: Record<string, string | number | boolean>,
-      value: string | number | boolean,
-    ) => (
+    render: (_: Record<string, any>, value: any) => (
       <Flex alignItems={'center'} gap={2}>
         <Box w={10} h={10} bg='pink' borderRadius={4} />
         <Text>{value}</Text>
@@ -48,7 +46,7 @@ export const activeCollectionColumns: ColumnProps[] = [
     align: 'right',
     thAlign: 'right',
     fixedRight: true,
-    render: (data: Record<string, string | number | boolean>) => {
+    render: (data: Record<string, any>) => {
       return (
         <Flex
           _hover={{
@@ -58,7 +56,7 @@ export const activeCollectionColumns: ColumnProps[] = [
           px={3}
           borderRadius={8}
         >
-          <Link to={`/lend/my-pools/create`} state={data}>
+          <Link to={`/lending/my-pools/create`} state={data}>
             <Text>Supply</Text>
           </Link>
         </Flex>
@@ -74,13 +72,15 @@ export const loansForLendColumns: ColumnProps[] = [
     key: 'col1',
     align: 'left',
     width: 160,
-    render: (
-      _: Record<string, string | number | boolean>,
-      value: string | number | boolean,
-    ) => {
+    render: (_: Record<string, any>, value: any) => {
       return (
         <Flex alignItems={'center'} gap={2}>
-          <Image src={_.img as string} w={10} h={10} borderRadius={4} />
+          <ImageWithFallback
+            src={_.img as string}
+            w={10}
+            h={10}
+            borderRadius={4}
+          />
           <Text
             w={'80%'}
             display='inline-block'
@@ -98,10 +98,7 @@ export const loansForLendColumns: ColumnProps[] = [
     title: 'Lender',
     dataIndex: 'col2',
     key: 'col2',
-    render: (
-      _: Record<string, string | number | boolean>,
-      value: string | number | boolean,
-    ) => (
+    render: (_: Record<string, any>, value: any) => (
       <Text>
         {value.toString().substring(0, 5)}...
         {value
@@ -116,10 +113,7 @@ export const loansForLendColumns: ColumnProps[] = [
     key: 'col3',
     thAlign: 'right',
     align: 'right',
-    render: (
-      _: Record<string, string | number | boolean>,
-      value: string | number | boolean,
-    ) => (
+    render: (_: Record<string, any>, value: any) => (
       <Text>
         {value.toString().substring(0, 5)}...
         {value
@@ -141,10 +135,7 @@ export const loansForLendColumns: ColumnProps[] = [
     align: 'right',
     thAlign: 'right',
     key: 'col4',
-    render: (
-      _: Record<string, string | number | boolean>,
-      value: string | number | boolean,
-    ) => (
+    render: (_: Record<string, any>, value: any) => (
       <Text>
         {value} {UNIT}
       </Text>
@@ -156,10 +147,7 @@ export const loansForLendColumns: ColumnProps[] = [
     align: 'right',
     thAlign: 'right',
     key: 'col5',
-    render: (
-      _: Record<string, string | number | boolean>,
-      value: string | number | boolean,
-    ) => <Text>{value} days</Text>,
+    render: (_: Record<string, any>, value: any) => <Text>{value} days</Text>,
   },
   {
     title: 'Interest',
@@ -167,9 +155,6 @@ export const loansForLendColumns: ColumnProps[] = [
     align: 'right',
     key: 'col6',
     thAlign: 'right',
-    render: (
-      _: Record<string, string | number | boolean>,
-      value: string | number | boolean,
-    ) => <Text>{value} ETH</Text>,
+    render: (_: Record<string, any>, value: any) => <Text>{value} ETH</Text>,
   },
 ]

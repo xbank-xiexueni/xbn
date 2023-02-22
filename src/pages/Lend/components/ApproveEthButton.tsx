@@ -72,9 +72,9 @@ const ApproveEthButton: FunctionComponent<
     poolMaximumInterestRate,
     loanTimeConcessionFlexibility,
     loanRatioPreferentialFlexibility,
-    // allowCollateralContract,
+    allowCollateralContract,
   } = data
-  const { getBalance } = useWallet()
+  const { getBalance, currentAccount } = useWallet()
   const navigate = useNavigate()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [amount, setAmount] = useState('')
@@ -86,8 +86,8 @@ const ApproveEthButton: FunctionComponent<
   const [currentBalance, setCurrentBalance] = useState(0)
 
   useEffect(() => {
-    getBalance().then((res) => setCurrentBalance(res))
-  }, [getBalance])
+    getBalance(currentAccount).then((res) => setCurrentBalance(res))
+  }, [getBalance, currentAccount])
 
   const isError = useMemo((): boolean => {
     //  amount < balance + Has been lent
@@ -127,8 +127,8 @@ const ApproveEthButton: FunctionComponent<
         // supportERC20Denomination
         supportERC20Denomination,
         // allowCollateralContract
-        // allowCollateralContract
-        '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
+        allowCollateralContract,
+        // '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
         // poolAmount
         parsedWeiAmount,
         // poolMaximumPercentage,
@@ -146,7 +146,7 @@ const ApproveEthButton: FunctionComponent<
       setIsLoading(false)
       console.log(new Date().getTime(), '----------------end')
       onClose()
-      navigate('/lend/my-pools')
+      navigate('/lending/my-pools')
     } catch (error: any) {
       console.log(error?.message, error?.code, error?.data)
       toast({
@@ -164,7 +164,7 @@ const ApproveEthButton: FunctionComponent<
     poolMaximumInterestRate,
     loanRatioPreferentialFlexibility,
     loanTimeConcessionFlexibility,
-    // allowCollateralContract,
+    allowCollateralContract,
     onClose,
     navigate,
   ])

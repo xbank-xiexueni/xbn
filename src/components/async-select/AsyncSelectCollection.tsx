@@ -1,12 +1,12 @@
-import { Flex, Image } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import { useCallback } from 'react'
-import { components, type GroupBase, type Props } from 'react-select'
+import { components } from 'react-select'
 import AsyncSelect from 'react-select/async'
 
-import { apiGetActiveCollection } from '@/api'
+import { apiGetActiveCollection, type CollectionListItemType } from '@/api'
 
-import { EmptyComponent, SvgComponent } from '..'
+import { EmptyComponent, ImageWithFallback, SvgComponent } from '..'
 
 const Option = ({ children, isSelected, ...props }: any) => {
   return (
@@ -21,39 +21,41 @@ const Option = ({ children, isSelected, ...props }: any) => {
   )
 }
 
-function AsyncSelectCollection<
-  Option,
-  IsMulti extends boolean = false,
-  Group extends GroupBase<Option> = GroupBase<Option>,
->({
-  ...rest
-}: Props<Option, IsMulti, Group> & {
-  // loadOptions: (inputValue: string) => Promise<Record<string, string>[]>
-}) {
-  const { loading, data } = useRequest(apiGetActiveCollection)
+function AsyncSelectCollection({ ...rest }) {
+  const { loading, data: collectionsData } = useRequest(
+    apiGetActiveCollection,
+    {
+      debounceWait: 100,
+      retryCount: 5,
+    },
+  )
 
   const promiseOptions = useCallback(
     (inputValue: string) =>
-      new Promise<any[]>((resolve) => {
-        if (!inputValue) {
+      new Promise<CollectionListItemType[]>((resolve) => {
+        if (loading) {
           return
         }
-        resolve(
-          data?.data?.list?.filter((i: any) =>
-            i.col1.toLowerCase().includes(inputValue.toLowerCase()),
-          ),
-        )
+        if (!inputValue) {
+          return
+        } else {
+          resolve(
+            collectionsData?.data?.filter((i: CollectionListItemType) =>
+              i.name.toLowerCase().includes(inputValue.toLowerCase()),
+            ) || [],
+          )
+        }
       }),
-    [data],
+    [collectionsData, loading],
   )
 
   return (
     <AsyncSelect
       isLoading={loading}
-      defaultOptions={data?.data?.list}
+      defaultOptions={collectionsData?.data || []}
       cacheOptions
       // @ts-ignore
-      isOptionSelected={(item, select) => item.id === select}
+      isOptionSelected={(item, select) => item.contract_addr === select}
       loadOptions={promiseOptions}
       theme={(theme) => ({
         ...theme,
@@ -139,11 +141,18 @@ function AsyncSelectCollection<
         Option,
       }}
       // @ts-ignore
-      formatOptionLabel={({ col1, id, img }: Option) => (
-        <Flex alignItems={'center'} key={id} gap={2} pl={1}>
-          <Image src={img} w={5} h={5} borderRadius={4} />
-          {`${col1}`.length > 10 ? `${`${col1}`.substring(0, 10)}...` : col1}
-          {id % 2 === 0 && <SvgComponent svgId='icon-verified-fill' />}
+      formatOptionLabel={({
+        name,
+        contract_addr,
+        image_url,
+        safelist_request_status,
+      }: CollectionListItemType) => (
+        <Flex alignItems={'center'} key={contract_addr} gap={2} pl={1}>
+          <ImageWithFallback src={image_url} w={5} h={5} borderRadius={4} />
+          {name?.length > 10 ? `${name?.substring(0, 10)}...` : name}
+          {safelist_request_status === 'verified' && (
+            <SvgComponent svgId='icon-verified-fill' />
+          )}
         </Flex>
       )}
       {...rest}

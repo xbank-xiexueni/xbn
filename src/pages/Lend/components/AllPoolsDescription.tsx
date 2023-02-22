@@ -4,8 +4,9 @@ import {
   Heading,
   // HStack,
   Text,
-  Image,
 } from '@chakra-ui/react'
+
+import { ImageWithFallback } from '@/components'
 
 import type { ReactElement, FunctionComponent } from 'react'
 
@@ -80,7 +81,7 @@ const AllPoolsDescription: FunctionComponent<{
           ))}
         </HStack> */}
       </Box>
-      <Image
+      <ImageWithFallback
         src={img}
         w={{
           sm: '100%',
@@ -90,5 +91,28 @@ const AllPoolsDescription: FunctionComponent<{
     </Flex>
   )
 }
+
+/**
+ * 
+ *  keys: [
+              {
+                label: 'Collections',
+                value: '51',
+              },
+              {
+                label: 'Historical Lent Out',
+                value: (
+                  <Flex alignItems={'center'}>
+                    <SvgComponent svgId='icon-eth' height={8} />
+                    <Heading fontSize={'3xl'}>1,859.8</Heading>
+                  </Flex>
+                ),
+              },
+              {
+                label: 'Total Value Locked',
+                value: '$1.35M',
+              },
+            ],
+ */
 
 export default AllPoolsDescription

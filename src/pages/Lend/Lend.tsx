@@ -12,10 +12,10 @@ import {
   Tag,
   List,
   Highlight,
-  Image,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 // import debounce from 'lodash-es/debounce'
+import { ethers } from 'ethers'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
 import { useEffect, useMemo, useState } from 'react'
@@ -24,7 +24,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import {
   apiGetLpLoans,
   // apiGetActiveCollection,
-  apiGetMyPools,
+  apiGetPools,
+  type PoolsListItemType,
 } from '@/api'
 import ImgLend from '@/assets/LEND.png'
 import {
@@ -37,6 +38,7 @@ import {
   EmptyComponent,
   SvgComponent,
   EthText,
+  ImageWithFallback,
 } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
 // import { TransactionContext } from '@/context/TransactionContext'
@@ -95,22 +97,24 @@ const Lend = () => {
   // }, [handleFetchActiveCollections])
 
   // my pools
-  const [myPoolsData, setMyPoolsData] = useState({
-    list: [],
-  })
+  const [myPoolsData, setMyPoolsData] = useState<PoolsListItemType[]>([])
 
-  const { loading: myPoolsLoading, run: handleFetchMyPools } = useRequest(
-    apiGetMyPools,
-    {
-      onSuccess: (data: { data: { list: any } }) => {
-        setMyPoolsData({
-          list: data?.data?.list,
-        })
-      },
-      ready: !!currentAccount,
-      debounceWait: 100,
+  const { loading: myPoolsLoading } = useRequest(apiGetPools, {
+    onSuccess: ({ data }) => {
+      if (isEmpty(data)) return
+      setMyPoolsData(data)
     },
-  )
+    ready: !!currentAccount,
+    debounceWait: 10,
+    defaultParams: [
+      {
+        owner_address: currentAccount,
+      },
+    ],
+    onError: (error) => {
+      console.log('🚀 ~ file: Lend.tsx:123 ~ Lend ~ error:', error)
+    },
+  })
   // const [myPoolsSearch, setSearchForMyPools] = useState('')
   // const handleSearchMyPools = useMemo(() => {
   //   const searchFn = async (value: string) => {
@@ -124,35 +128,29 @@ const Lend = () => {
   // open loans
   // 左侧 collections
   // const [allMyPoolsList, setAllMyPoolsList] = useState([])
-  // const { loading: loading3 } = useRequest(apiGetMyPools, {
+  // const { loading: loading3 } = useRequest(apiGetPools, {
   //   onSuccess: (data: { data: { list: any } }) => {
   //     setAllMyPoolsList(data?.data?.list)
   //   },
   //   ready: !!currentAccount && tabKey === 1,
   // })
   // 三个表格的请求
-  const [loansData, setLoansData] = useState<{
-    data: Dictionary<any[]>
-  }>({
-    data: {
-      1: [],
-      2: [],
-      3: [],
-    },
+  const [loansData, setLoansData] = useState<Dictionary<any[]>>({
+    1: [],
+    2: [],
+    3: [],
   })
 
   // -1 代表全选
-  const [selectKeyForOpenLoans, setSelectKeyForOpenLoans] = useState(-1)
+  const [selectKeyForOpenLoans, setSelectKeyForOpenLoans] = useState<number>()
   const fetchLoans = useMemo(() => {
     return apiGetLpLoans
   }, [])
   const { loading: loansLoading } = useRequest(fetchLoans, {
-    onSuccess: (data) => {
-      setLoansData({
-        data: groupBy(data.data.list, 'status'),
-      })
+    onSuccess: ({ data }) => {
+      setLoansData(groupBy(data, 'status'))
     },
-    ready: tabKey === 1 && !!currentAccount,
+    ready: tabKey === 1 && !!currentAccount && false,
     refreshDeps: [selectKeyForOpenLoans],
   })
 
@@ -162,12 +160,12 @@ const Lend = () => {
   useEffect(() => {
     setTabKey(() => {
       switch (pathname) {
-        // case '/lend/pools':
+        // case '/lending/pools':
         //   return 0
-        case '/lend/my-pools':
+        case '/lending/my-pools':
           interceptFn()
           return 0
-        case '/lend/loans':
+        case '/lending/loans':
           interceptFn()
           return 1
         default:
@@ -184,27 +182,32 @@ const Lend = () => {
   const myPoolsColumns: ColumnProps[] = [
     {
       title: 'Collection',
-      dataIndex: 'col1',
-      key: 'col1',
+      dataIndex: 'collection_info',
+      key: 'collection_info',
       align: 'left',
       width: 320,
-      render: (
-        _: Record<string, string | number | boolean>,
-        value: string | number | boolean,
-      ) => {
-        const isVerified = true
+      render: (_: Record<string, any>, value: any) => {
+        const { image_url, name, safelist_request_status } = value
         return (
           <Flex alignItems={'center'} gap={2} w='100%'>
-            <Image src={_.img as string} h={12} w={12} borderRadius={12} />
+            {/* <Box h={12} w={12} borderRadius={12} bg='pink' /> */}
+            <ImageWithFallback
+              src={image_url}
+              h={12}
+              w={12}
+              borderRadius={12}
+            />
             <Text
               display='inline-block'
               overflow='hidden'
               whiteSpace='nowrap'
               textOverflow='ellipsis'
             >
-              {value}
+              {name}
             </Text>
-            {isVerified && <SvgComponent svgId='icon-verified-fill' />}
+            {safelist_request_status === 'verified' && (
+              <SvgComponent svgId='icon-verified-fill' />
+            )}
           </Flex>
         )
       },
@@ -215,85 +218,74 @@ const Lend = () => {
       key: 'col2',
       align: 'right',
       thAlign: 'right',
-      render: (
-        _: Record<string, string | number | boolean>,
-        value: string | number | boolean,
-      ) => <EthText>{value}</EthText>,
+      render: (_: Record<string, any>, value: any) => (
+        <EthText>{value}</EthText>
+      ),
     },
     {
       title: 'TVL (USD)',
-      dataIndex: 'col3',
-      key: 'col3',
+      dataIndex: 'pool_amount',
+      key: 'pool_amount',
       align: 'right',
       thAlign: 'right',
-      render: (
-        _: Record<string, string | number | boolean>,
-        value: string | number | boolean,
-      ) => <EthText>{value}</EthText>,
-      // sortable: true,
+      render: (_: Record<string, any>, value: any) => (
+        <EthText>{ethers.utils.formatEther(value as number)}</EthText>
+      ),
     },
     {
       title: 'Collateral Factor',
-      dataIndex: 'col4',
-      key: 'col4',
+      dataIndex: 'pool_maximum_percentage',
+      key: 'pool_maximum_percentage',
       align: 'center',
       thAlign: 'center',
-      render: (
-        _: Record<string, string | number | boolean>,
-        value: string | number | boolean,
-      ) => <Text>{value} %</Text>,
+      render: (_: Record<string, any>, value: any) => (
+        <Text>{Number(value) / 100} %</Text>
+      ),
     },
     {
       title: 'Tenor',
-      dataIndex: 'col5',
-      key: 'col5',
+      dataIndex: 'pool_maximum_days',
+      key: 'pool_maximum_days',
       align: 'right',
       thAlign: 'right',
-      render: (
-        _: Record<string, string | number | boolean>,
-        value: string | number | boolean,
-      ) => <Text>{value} days</Text>,
+      render: (_: Record<string, any>, value: any) => <Text>{value} days</Text>,
     },
     {
       title: 'Interest',
-      dataIndex: 'col6',
-      key: 'col6',
-      render: (
-        _: Record<string, string | number | boolean>,
-        value: string | number | boolean,
-      ) => <Text>{value}% APR</Text>,
+      dataIndex: 'pool_maximum_interest_rate',
+      key: 'pool_maximum_interest_rate',
+      render: (_: Record<string, any>, value: any) => (
+        <Text>{Number(value) / 100}% APR</Text>
+      ),
     },
     {
       title: 'Loans',
-      dataIndex: 'col7',
-      key: 'col7',
+      dataIndex: 'loan_count',
+      key: 'loan_count',
       align: 'center',
       thAlign: 'center',
     },
     {
       title: '',
-      dataIndex: 'id',
-      key: 'id',
+      dataIndex: 'pool_id',
+      key: 'pool_id',
       align: 'right',
       fixedRight: true,
       thAlign: 'right',
-      render: (
-        _: Record<string, string | number | boolean>,
-        value: string | number | boolean,
-      ) => {
+      render: (_: Record<string, any>, value: any) => {
         return (
           <Flex alignItems='center' gap={2}>
             <Text
               color='gray.3'
               onClick={() => {
-                navigate('/lend/loans')
+                navigate('/lending/loans')
                 setSelectKeyForOpenLoans(value as number)
               }}
               cursor='pointer'
             >
               Details
             </Text>
-            {/* <Link to={`/lend/pools/edit/${id}`}>
+            {/* <Link to={`/lending/pools/edit/${id}`}>
               <Text
                 color={'blue.1'}
                 py={3}
@@ -312,7 +304,6 @@ const Lend = () => {
 
   return (
     <>
-      {/* <Button isDisabled>调用啦</Button> */}
       <Box my={10}>
         <AllPoolsDescription
           data={{
@@ -320,25 +311,6 @@ const Lend = () => {
             title: 'Lend',
             description:
               'Provide funds to support NFT installment, obtain interest or collateral.',
-            keys: [
-              {
-                label: 'Collections',
-                value: '51',
-              },
-              {
-                label: 'Historical Lent Out',
-                value: (
-                  <Flex alignItems={'center'}>
-                    <SvgComponent svgId='icon-eth' height={8} />
-                    <Heading fontSize={'3xl'}>1,859.8</Heading>
-                  </Flex>
-                ),
-              },
-              {
-                label: 'Total Value Locked',
-                value: '$1.35M',
-              },
-            ],
           }}
         />
       </Box>
@@ -350,13 +322,13 @@ const Lend = () => {
         onChange={(key) => {
           switch (key) {
             // case 0:
-            //   navigate('/lend/pools')
+            //   navigate('/lending/pools')
             //   break
             case 0:
-              navigate('/lend/my-pools')
+              navigate('/lending/my-pools')
               break
             case 1:
-              navigate('/lend/loans')
+              navigate('/lending/loans')
               break
 
             default:
@@ -393,15 +365,15 @@ const Lend = () => {
                   bg: `var(--chakra-colors-gray-5)`,
                 }}
               >
-                <Image src={IconSearch} />
+                <ImageWithFallback src={IconSearch} />
               </Flex>
             )} */}
-            {!isEmpty(myPoolsData?.list) && (
+            {!isEmpty(myPoolsData) && (
               <Button
                 variant={'secondary'}
                 minW='200px'
                 onClick={() =>
-                  interceptFn(() => navigate('/lend/my-pools/create'))
+                  interceptFn(() => navigate('/lending/my-pools/create'))
                 }
               >
                 + Creative new pool
@@ -441,15 +413,17 @@ const Lend = () => {
             fontWeight='bold'
           >
             My Pools&nbsp;
-            <Tag
-              bg={'blue.1'}
-              color='white'
-              borderRadius={15}
-              fontSize={'xs'}
-              h={5}
-            >
-              {myPoolsData?.list?.length}
-            </Tag>
+            {!isEmpty(myPoolsData) && (
+              <Tag
+                bg={'blue.1'}
+                color='white'
+                borderRadius={15}
+                fontSize={'xs'}
+                h={5}
+              >
+                {myPoolsData?.length}
+              </Tag>
+            )}
           </Tab>
           <Tab
             pt={4}
@@ -500,7 +474,7 @@ const Lend = () => {
                           variant={'secondary'}
                           minW='200px'
                           onClick={() =>
-                            interceptFn(() => navigate('/lend/my-pools/create'))
+                            interceptFn(() => navigate('/lending/my-pools/create'))
                           }
                         >
                           + Creative new pool
@@ -516,11 +490,11 @@ const Lend = () => {
             <MyTable
               loading={myPoolsLoading}
               columns={myPoolsColumns}
-              data={myPoolsData?.list || []}
-              onSort={(args: any) => {
-                console.log(args)
-                handleFetchMyPools()
-              }}
+              data={myPoolsData || []}
+              // onSort={(args: any) => {
+              //   console.log(args)
+              //   handleFetchMyPools({ address: currentAccount })
+              // }}
               emptyRender={() => {
                 return (
                   <EmptyComponent
@@ -530,7 +504,9 @@ const Lend = () => {
                           variant={'secondary'}
                           minW='200px'
                           onClick={() =>
-                            interceptFn(() => navigate('/lend/my-pools/create'))
+                            interceptFn(() =>
+                              navigate('/lending/my-pools/create'),
+                            )
                           }
                         >
                           + Creative new pool
@@ -543,7 +519,7 @@ const Lend = () => {
             />
           </TabPanel>
           <TabPanel p={0}>
-            <Flex justify={'space-between'} mt={4}>
+            <Flex justify={'space-between'} mt={4} flexWrap='wrap'>
               <Box
                 border={`1px solid var(--chakra-colors-gray-2)`}
                 borderRadius={12}
@@ -551,6 +527,7 @@ const Lend = () => {
                 w={{
                   lg: '25%',
                   md: '30%',
+                  sm: '100%',
                 }}
               >
                 <Heading size={'md'} mb={4}>
@@ -560,8 +537,8 @@ const Lend = () => {
 
                 <List spacing={4} mt={4} position='relative'>
                   <LoadingComponent loading={myPoolsLoading} />
-                  {isEmpty(myPoolsData.list) && <EmptyComponent />}
-                  {!isEmpty(myPoolsData.list) && (
+                  {isEmpty(myPoolsData) && <EmptyComponent />}
+                  {!isEmpty(myPoolsData) && (
                     <Flex
                       justify={'space-between'}
                       py={3}
@@ -570,27 +547,34 @@ const Lend = () => {
                       borderRadius={8}
                       border={`1px solid var(--chakra-colors-gray-2)`}
                       cursor='pointer'
-                      onClick={() => setSelectKeyForOpenLoans(-1)}
-                      bg={selectKeyForOpenLoans === -1 ? 'blue.2' : 'white'}
+                      onClick={() => setSelectKeyForOpenLoans(undefined)}
+                      bg={
+                        selectKeyForOpenLoans === undefined ? 'blue.2' : 'white'
+                      }
                     >
                       <Text fontSize={'sm'} fontWeight='700'>
                         All my Collections
                       </Text>
-                      {selectKeyForOpenLoans === -1 ? (
+                      {!selectKeyForOpenLoans ? (
                         <SvgComponent svgId='icon-checked' />
                       ) : (
-                        <Text fontSize={'sm'}>{myPoolsData.list?.length}</Text>
+                        <Text fontSize={'sm'}>{myPoolsData?.length}</Text>
                       )}
                     </Flex>
                   )}
 
-                  {!isEmpty(myPoolsData.list) &&
-                    myPoolsData.list.map((item: any) => (
+                  {!isEmpty(myPoolsData) &&
+                    myPoolsData.map((item: PoolsListItemType) => (
                       <CollectionListItem
-                        data={{ ...item }}
-                        key={JSON.stringify(item)}
-                        onClick={() => setSelectKeyForOpenLoans(item.id)}
-                        isActive={selectKeyForOpenLoans === item.id}
+                        data={{
+                          contract_addr: item.allow_collateral_contract,
+                          image_url: '',
+                          name: '',
+                          safelist_request_status: 'verified',
+                        }}
+                        key={item.pool_id}
+                        onClick={() => setSelectKeyForOpenLoans(item.pool_id)}
+                        isActive={selectKeyForOpenLoans === item.pool_id}
                       />
                     ))}
                 </List>
@@ -599,6 +583,7 @@ const Lend = () => {
                 w={{
                   lg: '72%',
                   md: '65%',
+                  sm: '100%',
                 }}
               >
                 <TableList
@@ -611,7 +596,7 @@ const Lend = () => {
                       ),
                       columns: loansForLendColumns,
                       loading: loansLoading,
-                      data: loansData?.data[1],
+                      data: loansData[1],
                       key: '1',
                     },
                     {
@@ -630,7 +615,7 @@ const Lend = () => {
                         </Heading>
                       ),
                       columns: loansForLendColumns,
-                      data: loansData?.data[2],
+                      data: loansData[2],
                       loading: loansLoading,
                       key: '2',
                     },
@@ -650,7 +635,7 @@ const Lend = () => {
                         </Heading>
                       ),
                       columns: loansForLendColumns,
-                      data: loansData?.data[3],
+                      data: loansData[3],
                       loading: loansLoading,
                       key: '3',
                     },

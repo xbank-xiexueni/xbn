@@ -11,7 +11,13 @@ import {
 
 export const TransactionContext = createContext({
   connectWallet: () => {},
-  getBalance: async () => 0,
+  getBalance: async (address: string) => {
+    console.log(
+      '🚀 ~ file: TransactionContext.tsx:15 ~ getBalance: ~ address:',
+      address,
+    )
+    return 0
+  },
   currentAccount: '',
   connectLoading: false,
 })
@@ -72,13 +78,14 @@ export const TransactionsProvider = ({
     })
   }, [])
 
-  const getBalance = useCallback(async () => {
-    if (!currentAccount || !ethereum) return 0
+  const getBalance = useCallback(async (address: string) => {
+    if (!ethereum) return 0
     const provider = new ethers.providers.Web3Provider(ethereum)
 
-    const currentBalance = await provider.getBalance(currentAccount)
+    const currentBalance = await provider.getBalance(address)
+
     return Number(utils.formatEther(currentBalance._hex))
-  }, [currentAccount])
+  }, [])
 
   const checkIfWalletIsConnect = useCallback(async () => {
     try {

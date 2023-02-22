@@ -35,7 +35,7 @@ export interface ColumnProps {
 }
 export type MyTableProps = TableProps & {
   columns: ColumnProps[]
-  data: Record<string, string>[]
+  data: Record<string, any>[]
   onSort?: (arg: { direction: string; field: string }) => void
   loading?: boolean
   caption?: () => ReactElement

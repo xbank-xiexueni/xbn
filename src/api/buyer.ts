@@ -6,8 +6,8 @@ export const apiGetBuyerLoans = async (params: any) => {
   })
 }
 
-export const apiGetCollectionDetail = async (id: string | number) => {
-  return await request.get(`/api/collection/${id}`)
+export const apiGetAssetsByCollection = async (id: string) => {
+  return await request.get(`/api/assets/${id}`)
 }
 
 export const apiGetAssetDetail = async ({ id }: { id: string | number }) => {

@@ -3,6 +3,7 @@ import isEmpty from 'lodash-es/isEmpty'
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
+import type { CollectionListItemType } from '@/api'
 import { BaseRateTable, Select, SvgComponent } from '@/components'
 import AsyncSelectCollection from '@/components/async-select/AsyncSelectCollection'
 import {
@@ -25,7 +26,8 @@ const Create = () => {
   const { state } = useLocation()
   const [selectCollateral, setSelectCollateral] = useState(INITIAL_COLLATERAL)
   const [selectTenor, setSelectTenor] = useState(INITIAL_TENOR)
-  const [selectCollection, setSelectCollection] = useState({ ...state })
+  const [selectCollection, setSelectCollection] =
+    useState<CollectionListItemType>({ ...state })
 
   const [rateData, setRateData] = useState<{
     poolMaximumInterestRate: number
@@ -83,7 +85,7 @@ const Create = () => {
               />
               <AsyncSelectCollection
                 placeholder='Please select'
-                onChange={(e) => setSelectCollection(e)}
+                onChange={(e: CollectionListItemType) => setSelectCollection(e)}
                 defaultValue={state}
               />
               {/* {isEmpty(params) ? <InputSearch /> : params.collectionId} */}
@@ -190,7 +192,7 @@ const Create = () => {
               data={{
                 poolMaximumPercentage: selectCollateral,
                 poolMaximumDays: selectTenor,
-                allowCollateralContract: selectCollection?.name,
+                allowCollateralContract: selectCollection?.contract_addr,
                 ...rateData,
               }}
             >

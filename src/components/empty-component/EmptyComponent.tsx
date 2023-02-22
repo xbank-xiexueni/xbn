@@ -1,6 +1,8 @@
-import { Box, type BoxProps, Flex, Image, Text } from '@chakra-ui/react'
+import { Box, type BoxProps, Flex, Text } from '@chakra-ui/react'
 
 import defaultEmptyIcon from '@/assets/empty.svg'
+
+import { ImageWithFallback } from '..'
 
 import type { FunctionComponent, ReactElement } from 'react'
 
@@ -14,7 +16,7 @@ const EmptyComponent: FunctionComponent<
   return (
     <Box textAlign={'center'} my={20} {...rest}>
       <Flex justify={'center'} mb={4}>
-        <Image src={icon || defaultEmptyIcon} />
+        <ImageWithFallback src={icon || defaultEmptyIcon} />
       </Flex>
       <Text color='gray.3' mb={6} fontSize='sm' fontWeight={'700'}>
         {description || 'no Data yet...'}

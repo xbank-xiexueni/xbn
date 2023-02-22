@@ -1,7 +1,5 @@
 import {
   Box,
-  SimpleGrid,
-  Image,
   Text,
   Flex,
   Button,
@@ -16,24 +14,30 @@ import {
   VStack,
   Divider,
   Skeleton,
+  Alert,
+  AlertIcon,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
-import { filter, minBy } from 'lodash-es'
+import { ethers } from 'ethers'
+import { floor, minBy } from 'lodash-es'
 import isEmpty from 'lodash-es/isEmpty'
 import min from 'lodash-es/min'
 import range from 'lodash-es/range'
 import { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 
-import { apiGetAssetDetail, apiGetPoolsByAssets } from '@/api'
-import { ConnectWalletModal, SvgComponent } from '@/components'
+import type { PoolsListItemType } from '@/api'
+import { apiGetAssetDetail, apiGetPools } from '@/api'
+import {
+  ConnectWalletModal,
+  ImageWithFallback,
+  SvgComponent,
+} from '@/components'
 import { COLLATERALS, TENORS, UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
-
-import test from '@/assets/test-img.svg'
 
 import BelongToCollection from './components/BelongToCollection'
 import DetailComponent from './components/DetailComponent'
@@ -59,25 +63,30 @@ type PoolType = {
 const NftAssetDetail = () => {
   const { isOpen, onClose, interceptFn } = useWallet()
   const { id } = useParams()
-  const [commodityPrice, srCommodityPrice] = useState<BigNumber>()
+  const { state: collectionData } = useLocation()
+
+  const [commodityPrice, setCommodityPrice] = useState<BigNumber>()
   const [detail, setDetail] = useState({
     asset: '',
-    collection: '',
     image: '',
   })
+  const [notFound, setNotFound] = useState(false)
   const { loading: detailLoading } = useRequest(apiGetAssetDetail, {
     ready: !!id,
     defaultParams: [{ id: id as string }],
-    onSuccess: (_data) => {
-      const { data } = _data
-      srCommodityPrice(BigNumber(min([data.price, data.oraclePrice])))
+    onSuccess: ({ data }) => {
+      setCommodityPrice(BigNumber(min([data.price, data.oraclePrice])))
       setDetail({
         image: data?.image,
         asset: data.name,
-        collection: 'collection name',
       })
     },
     debounceWait: 100,
+    onError: ({ response: { status } }: any) => {
+      if (status === 404) {
+        setNotFound(true)
+      }
+    },
   })
 
   const [sliderValue, setSliderValue] = useState(COLLATERALS[4])
@@ -91,53 +100,91 @@ const NftAssetDetail = () => {
   const [pools, setPools] = useState<PoolType[]>([])
 
   const [selectPool, setSelectPool] = useState<PoolType>()
+  const [filterPools, setFilterPools] = useState<PoolsListItemType[]>([])
 
-  const { loading: filterLoading, data: poolsData } = useRequest(
-    apiGetPoolsByAssets,
-    {
-      defaultParams: [{ id: id as string }],
-      ready: !!id,
-      debounceWait: 100,
+  const [filterLoading, setFilterLoading] = useState(false)
+
+  const { loading: getPoolLoading } = useRequest(apiGetPools, {
+    defaultParams: [
+      {
+        allow_collateral_contract: collectionData?.contract_addr,
+      },
+    ],
+    ready: !!id && !!collectionData?.contract_addr,
+    debounceWait: 100,
+    onSuccess: async ({ data }) => {
+      if (!data) return
+      const _filter: PoolsListItemType[] = []
+      const taskPromises = data.map((item) => {
+        return window?.ethereum
+          .request({
+            method: 'eth_getBalance',
+            params: [item.owner_address, 'latest'],
+          })
+          .then((res: string) => {
+            const currentBalance = Number(ethers.utils.formatEther(res))
+            console.log(
+              '🚀 ~ file: NftAssetDetail.tsx:137 ~ .then ~ currentBalance:',
+              item.pool_maximum_percentage / 100 >= sliderValue,
+              loanAmount?.lte(currentBalance),
+            )
+
+            if (
+              item.pool_maximum_percentage / 100 >= sliderValue &&
+              loanAmount?.lte(currentBalance)
+            ) {
+              _filter.push(item)
+              console.log(_filter, '1212')
+            }
+          })
+          .catch((error: any) => {
+            console.log(
+              '🚀 ~ file: NftAssetDetail.tsx:150 ~ .then ~ error:',
+              error,
+            )
+          })
+      })
+      setFilterLoading(true)
+      await Promise.all(taskPromises)
+      console.log(_filter, 'before')
+      setFilterPools(_filter)
+      setFilterLoading(false)
     },
-  )
+  })
 
   useEffect(() => {
-    if (isEmpty(poolsData)) {
+    if (isEmpty(filterPools)) {
       return
     }
-    const {
-      data: { list },
-    } = poolsData
-    const filteredPools = filter(list, (item) => {
-      return (
-        item.poolMaximumPercentage >= sliderValue && loanAmount?.lte(item.price)
-      )
-    })
+
+    //0.000001
     const currentPools: PoolType[] = []
     for (let index = 0; index < TENORS.length; index++) {
       const item = TENORS[index]
-      const currentFilterPools = filteredPools.filter(
-        (i) => i.poolMaximumDays >= item,
+      const currentFilterPools = filterPools.filter(
+        (i) => i.pool_maximum_days >= item,
       )
       if (isEmpty(currentFilterPools)) break
       const currentPool = minBy(
         currentFilterPools.map(
           ({
-            poolID,
-            poolMaximumInterestRate,
-            poolMaximumDays,
-            loanTimeConcessionFlexibility,
-            poolMaximumPercentage,
-            loanRatioPreferentialFlexibility,
+            pool_id,
+            pool_maximum_interest_rate,
+            pool_maximum_days,
+            loan_time_concession_flexibility,
+            pool_maximum_percentage,
+            loan_ratio_preferential_flexibility,
           }) => {
+            const rate = pool_maximum_interest_rate / 100
+            const timeFlex = loan_time_concession_flexibility / 10000
+            const ratioFlex = loan_ratio_preferential_flexibility / 10000
+            const percentage = pool_maximum_percentage / 100
             return {
-              poolID,
+              pool_id,
               poolApr:
-                poolMaximumInterestRate -
-                (TENORS.indexOf(poolMaximumDays) - index) *
-                  loanTimeConcessionFlexibility -
-                ((poolMaximumPercentage - sliderValue) / 10) *
-                  loanRatioPreferentialFlexibility,
+                rate -
+                (TENORS.indexOf(pool_maximum_days) - index) * timeFlex -
+                ((percentage - sliderValue) / 10) * ratioFlex,
               poolDays: item,
             }
           },
@@ -149,7 +196,7 @@ const NftAssetDetail = () => {
     }
     setPools(currentPools)
     setSelectPool(currentPools?.length > 1 ? currentPools[1] : currentPools[0])
-  }, [poolsData, sliderValue, loanAmount])
+  }, [sliderValue, filterPools])
 
   // number of installments
   const [installmentOptions, setInstallmentOptions] = useState<(1 | 2 | 3)[]>()
@@ -194,40 +241,79 @@ const NftAssetDetail = () => {
     [selectPool, loanAmount],
   )
 
+  if (notFound)
+    return (
+      <Alert status='error' justifyContent={'space-between'}>
+        <Flex>
+          <AlertIcon />
+          not found
+        </Flex>
+
+        <Link to='/buy-nfts/market'>
+          <Text color='black.1'>go to Market</Text>
+        </Link>
+      </Alert>
+    )
   return (
-    <SimpleGrid minChildWidth='600px' spacing='40px' mt={8} pb='100px'>
+    <Flex
+      justify={{
+        lg: 'space-between',
+        md: 'center',
+      }}
+      alignItems='flex-start'
+      flexWrap={{ lg: 'nowrap', md: 'wrap', sm: 'wrap' }}
+      gap={10}
+    >
       {detailLoading ? (
         <Skeleton height={700} borderRadius={16} />
       ) : (
         <Flex
-          flexWrap={'wrap'}
           justify={{
-            lg: 'flex-start',
-            md: 'center',
+            xl: 'flex-start',
+            lg: 'center',
+          }}
+          alignItems={{
+            xl: 'flex-start',
+            lg: 'center',
+          }}
+          w={{
+            xl: '600px',
+            lg: '450px',
+            md: '80%',
+            sm: '100%',
           }}
           flexDirection={'column'}
-          w='600px'
         >
-          <Image src={detail?.image} borderRadius={20} h='600px' />
+          <ImageWithFallback
+            src={detail?.image}
+            borderRadius={20}
+            boxSize={{
+              xl: '600px',
+              lg: '380px',
+              md: '100%',
+            }}
+          />
           <BelongToCollection
             data={{
-              name: 'Collection name',
-              img: test,
-              price: '1.78',
-              verified: true,
+              ...collectionData,
             }}
           />
         </Flex>
       )}
 
-      <Box>
+      <Box
+        w={{
+          lg: '600px',
+          md: '100%',
+        }}
+      >
         {/* 价格 名称 */}
         <DetailComponent
           data={{
-            name1: 'Collection name',
+            name1: collectionData?.name,
             name2: detail?.asset,
             price: commodityPrice?.toFormat(4) || '',
-            verified: true,
+            verified: collectionData?.safelist_request_status === 'verified',
           }}
           loading={detailLoading}
         />
@@ -314,14 +400,15 @@ const NftAssetDetail = () => {
         <LabelComponent
           label='Loan Period'
           isEmpty={isEmpty(selectPool)}
-          loading={filterLoading}
+          loading={filterLoading || getPoolLoading}
         >
-          <HStack gap={2}>
+          <Flex gap={2} flexWrap='wrap'>
             {pools.map(({ poolID, poolApr, poolDays }) => {
               return (
                 <Flex
                   key={`${poolID}-${poolApr}-${poolDays}`}
                   w={`${100 / pools.length}%`}
+                  minW='137px'
                   maxW={136}
                 >
                   <RadioCard
@@ -337,21 +424,21 @@ const NftAssetDetail = () => {
                     <Text fontWeight={700}>{poolDays} Days</Text>
                     <Text fontWeight={500} fontSize='xs' color='blue.1'>
                       <Highlight query={'APR'} styles={{ color: `black.1` }}>
-                        {`${poolApr?.toFixed(4)} % APR`}
+                        {`${poolApr && floor(poolApr, 4)} % APR`}
                       </Highlight>
                     </Text>
                   </RadioCard>
                 </Flex>
               )
             })}
-          </HStack>
+          </Flex>
         </LabelComponent>
 
         {/* Number of installments */}
         <LabelComponent
           label='Number of installments'
           isEmpty={isEmpty(installmentOptions)}
-          loading={filterLoading}
+          loading={filterLoading || getPoolLoading}
         >
           <HStack gap={4}>
             {installmentOptions?.map((value) => {
@@ -383,7 +470,7 @@ const NftAssetDetail = () => {
           <LabelComponent
             label='Repayment Plan'
             isEmpty={isEmpty(selectPool)}
-            loading={filterLoading}
+            loading={filterLoading || getPoolLoading}
           >
             <VStack bg='gray.5' py={6} px={4} borderRadius={12} spacing={4}>
               <PlanItem
@@ -412,7 +499,7 @@ const NftAssetDetail = () => {
         <LabelComponent
           label='Trading Information'
           borderBottom={'none'}
-          loading={filterLoading}
+          loading={filterLoading || getPoolLoading}
           isEmpty={isEmpty(pools)}
         >
           {loanAmount && commodityPrice && (
@@ -498,7 +585,11 @@ const NftAssetDetail = () => {
           w='100%'
           onClick={handleClickPay}
           isDisabled={
-            !loanAmount || detailLoading || filterLoading || isEmpty(selectPool)
+            !loanAmount ||
+            detailLoading ||
+            filterLoading ||
+            isEmpty(selectPool) ||
+            getPoolLoading
           }
         >
           <Text fontWeight={'400'}>Down payment</Text>&nbsp;
@@ -507,7 +598,7 @@ const NftAssetDetail = () => {
       </Box>
 
       <ConnectWalletModal visible={isOpen} handleClose={onClose} />
-    </SimpleGrid>
+    </Flex>
   )
 }
 

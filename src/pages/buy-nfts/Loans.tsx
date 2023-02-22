@@ -1,12 +1,4 @@
-import {
-  Box,
-  Heading,
-  List,
-  Flex,
-  Text,
-  Highlight,
-  Image,
-} from '@chakra-ui/react'
+import { Box, Heading, List, Flex, Text, Highlight } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
@@ -18,6 +10,7 @@ import { apiGetBuyerLoans } from '@/api'
 import {
   ConnectWalletModal,
   EmptyComponent,
+  ImageWithFallback,
   LoadingComponent,
   SvgComponent,
   TableList,
@@ -35,12 +28,14 @@ export const loansForBuyerColumns: ColumnProps[] = [
     dataIndex: 'col1',
     key: 'col1',
     align: 'left',
-    render: (
-      _: Record<string, string | number | boolean>,
-      value: string | number | boolean,
-    ) => (
+    render: (_: Record<string, any>, value: any) => (
       <Flex alignItems={'center'} gap={2}>
-        <Image src={_.img as string} w={10} h={10} borderRadius={4} />
+        <ImageWithFallback
+          src={_.img as string}
+          w={10}
+          h={10}
+          borderRadius={4}
+        />
         <Text>{value}</Text>
       </Flex>
     ),
@@ -49,10 +44,7 @@ export const loansForBuyerColumns: ColumnProps[] = [
     title: 'Lender',
     dataIndex: 'col2',
     key: 'col2',
-    render: (
-      _: Record<string, string | number | boolean>,
-      value: string | number | boolean,
-    ) => (
+    render: (_: Record<string, any>, value: any) => (
       <Text>
         {value.toString().substring(0, 5)}...
         {value
@@ -65,10 +57,7 @@ export const loansForBuyerColumns: ColumnProps[] = [
     title: 'Borrower',
     dataIndex: 'col3',
     key: 'col3',
-    render: (
-      _: Record<string, string | number | boolean>,
-      value: string | number | boolean,
-    ) => (
+    render: (_: Record<string, any>, value: any) => (
       <Text>
         {value.toString().substring(0, 5)}...
         {value
@@ -86,10 +75,7 @@ export const loansForBuyerColumns: ColumnProps[] = [
     title: 'Loan value',
     dataIndex: 'col4',
     key: 'col4',
-    render: (
-      _: Record<string, string | number | boolean>,
-      value: string | number | boolean,
-    ) => (
+    render: (_: Record<string, any>, value: any) => (
       <Text>
         {value} {UNIT}
       </Text>
@@ -99,19 +85,13 @@ export const loansForBuyerColumns: ColumnProps[] = [
     title: 'Duration',
     dataIndex: 'col5',
     key: 'col5',
-    render: (
-      _: Record<string, string | number | boolean>,
-      value: string | number | boolean,
-    ) => <Text>{value} days</Text>,
+    render: (_: Record<string, any>, value: any) => <Text>{value} days</Text>,
   },
   {
     title: 'Interest',
     dataIndex: 'col6',
     key: 'col6',
-    render: (
-      _: Record<string, string | boolean | number>,
-      value: string | boolean | number,
-    ) => (
+    render: (_: Record<string, any>, value: any) => (
       <Text>
         {value} {UNIT}
       </Text>
@@ -131,7 +111,7 @@ const Loans = () => {
   // -1 代表全选
 
   const { loading, data } = useRequest(apiGetBuyerLoans, {
-    ready: !!currentAccount,
+    ready: !!currentAccount && false,
     debounceWait: 100,
   })
 
@@ -260,10 +240,7 @@ const Loans = () => {
                     title: 'amount',
                     dataIndex: 'col9',
                     key: 'col9',
-                    render: (
-                      _: Record<string, string | boolean | number>,
-                      value: string | boolean | number,
-                    ) => (
+                    render: (_: Record<string, any>, value: any) => (
                       <Text>
                         {value} {UNIT}
                       </Text>
@@ -283,7 +260,9 @@ const Loans = () => {
                         onClick={() => {
                           interceptFn(async () => {
                             const xBankContract = createXBankContract()
-                            const currentBalance = await getBalance()
+                            const currentBalance = await getBalance(
+                              currentAccount,
+                            )
                             console.log(
                               '🚀 ~ file: Loans.tsx:291 ~ interceptFn ~ currentBalance',
                               currentBalance,
