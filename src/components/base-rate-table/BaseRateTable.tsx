@@ -9,6 +9,7 @@ import {
   Box,
   SlideFade,
 } from '@chakra-ui/react'
+import floor from 'lodash-es/floor'
 import slice from 'lodash-es/slice'
 import { type FunctionComponent, useMemo, useState } from 'react'
 
@@ -61,7 +62,7 @@ const BaseRateTable: FunctionComponent<{
             ((rowCount - i - 1) * sliderRightValue +
               (colCount - index - 1) * sliderBottomValue)) *
           sliderTopValue
-        return res === ~~res ? res : res.toFixed(2)
+        return floor(res, 2)
       })
     }
     return arr
@@ -160,11 +161,10 @@ const BaseRateTable: FunctionComponent<{
       <Flex justify={'flex-end'} w='100%' alignItems={'center'} gap={8}>
         <Box
           bg='white'
-          borderRadius={2}
+          borderRadius={8}
           padding={2}
           mt={6}
           w='660px'
-          id='base-rate-table'
           pos={'relative'}
         >
           <Flex>

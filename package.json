@@ -6,6 +6,7 @@
   "scripts": {
     "build:production": "tsc && vite build --mode  production",
     "build:staging": "tsc && vite build --mode staging",
+    "compress": "node tinyfy.js",
     "dev": "vite --host",
     "lint": "npm run lint:js && tsc",
     "lint-staged": "lint-staged",
@@ -62,6 +63,7 @@
     "husky": ">=6",
     "lint-staged": ">=10",
     "lodash-es": "^4.17.21",
+    "tinify": "^1.7.1",
     "typescript": "^4.9.3",
     "vite": "^4.0.0"
   },

@@ -140,8 +140,8 @@ function AsyncSelectCollection<
       }}
       // @ts-ignore
       formatOptionLabel={({ col1, id, img }: Option) => (
-        <Flex alignItems={'center'} key={id} gap={2}>
-          <Image src={img} w={4} h={4} />
+        <Flex alignItems={'center'} key={id} gap={2} pl={1}>
+          <Image src={img} w={5} h={5} borderRadius={4} />
           {`${col1}`.length > 10 ? `${`${col1}`.substring(0, 10)}...` : col1}
           {id % 2 === 0 && <SvgComponent svgId='icon-verified-fill' />}
         </Flex>

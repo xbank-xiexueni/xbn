@@ -109,7 +109,9 @@ const Create = () => {
                   label: `${INITIAL_TENOR} Days`,
                   value: INITIAL_TENOR,
                 }}
-                img={<SvgComponent svgId='icon-calendar' ml={3} />}
+                img={
+                  <SvgComponent svgId='icon-calendar' ml={3} svgSize={'20px'} />
+                }
                 onChange={(e) => setSelectTenor(e?.value as number)}
                 options={TENORS?.map((item) => ({
                   label: `${item} Days`,
@@ -134,7 +136,13 @@ const Create = () => {
               <Select
                 placeholder='Please select'
                 // w={'240px'}
-                img={<SvgComponent svgId='icon-intersect' ml={3} />}
+                img={
+                  <SvgComponent
+                    svgId='icon-intersect'
+                    ml={3}
+                    svgSize={'20px'}
+                  />
+                }
                 defaultValue={{
                   label: `${INITIAL_COLLATERAL} %`,
                   value: INITIAL_COLLATERAL,
@@ -152,10 +160,7 @@ const Create = () => {
             <StepDescription
               data={{
                 step: 4,
-                title: 'Set the interest rate for each loan condition',
-                text: `According to the limit value of the loan conditions set in steps 1 and 2, the system refers to the historical order data to generate a suggested loan interest rate for you, and the funds approved by you under this interest rate are expected to generate income soon.
-If the current loan conditions and suggested interest rates do not meet your expectations, you can adjust the loan interest rate through the big slider below, and all interest rate values in the table will increase or decrease
-You can also use the small sliders on the right and bottom of the table to adjust the impact of changes in the two factors of COLLATERALS fat and loan duration on the interest rate.`,
+                ...STEPS_DESCRIPTIONS[3],
               }}
             />
             <BaseRateTable
