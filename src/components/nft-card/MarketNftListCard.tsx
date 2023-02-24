@@ -9,15 +9,14 @@ import {
   Text,
   Button,
 } from '@chakra-ui/react'
-import { ethers } from 'ethers'
 import { useMemo, type FunctionComponent } from 'react'
 
 import type { AssetListItemType } from '@/api'
 import { ImageWithFallback, SvgComponent } from '@/components'
+import wei2Eth from '@/utils/wei2Eth'
 
 const MarketNftListCard: FunctionComponent<
   {
-    // temp
     data: AssetListItemType & Record<string, string | number | undefined>
   } & CardProps
 > = ({
@@ -30,7 +29,7 @@ const MarketNftListCard: FunctionComponent<
       return '--'
     }
 
-    const eth = ethers.utils.formatEther(ethers.BigNumber.from(order_price))
+    const eth = wei2Eth(order_price)
     return (Number(eth) * (10000 - Number(highestRate))) / 10000
   }, [order_price, highestRate])
   return (

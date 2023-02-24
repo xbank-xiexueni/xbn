@@ -1,12 +1,16 @@
+import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import type BigNumber from 'bignumber.js'
-
-const wei2Eth = (wei: BigNumber) => {
+const wei2Eth = (wei: BigNumber | number | string) => {
   try {
-    return ethers.utils.formatEther(
-      ethers.BigNumber.from(wei.toNumber().toString()),
-    )
+    let weiStr = wei
+    if (BigNumber.isBigNumber(weiStr)) {
+      weiStr = weiStr.toNumber().toString()
+    }
+    if (typeof weiStr === 'number') {
+      weiStr = wei.toString()
+    }
+    return ethers.utils.formatEther(ethers.BigNumber.from(weiStr))
   } catch (error) {
     console.log('🚀 ~ file: wei2Eth.ts:7 ~ wei2Eth ~ error:', error)
     return '--'

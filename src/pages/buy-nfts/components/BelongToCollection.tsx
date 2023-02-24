@@ -1,10 +1,10 @@
 import { Box, type BoxProps, Heading, Flex, Text } from '@chakra-ui/react'
-import { ethers } from 'ethers'
 import { type FunctionComponent } from 'react'
 
 import type { CollectionListItemType } from '@/api'
 import { ImageWithFallback, SvgComponent } from '@/components'
 import { UNIT } from '@/constants'
+import wei2Eth from '@/utils/wei2Eth'
 
 const BelongToCollection: FunctionComponent<
   BoxProps & {
@@ -40,9 +40,7 @@ const BelongToCollection: FunctionComponent<
           </Flex>
 
           <Text fontSize={'18px'} fontWeight='bold'>
-            {ethers.utils.formatEther(
-              ethers.BigNumber.from(lowestPrice.toString()),
-            )}
+            {wei2Eth(lowestPrice)}
             &nbsp;
             {UNIT}
           </Text>

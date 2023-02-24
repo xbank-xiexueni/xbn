@@ -38,6 +38,7 @@ import {
 } from '@/constants'
 import { useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
+import wei2Eth from '@/utils/wei2Eth'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
 //   label,
@@ -86,14 +87,6 @@ const ApproveEthButton: FunctionComponent<
 
   const initialRef = useRef(null)
   const finalRef = useRef(null)
-  console.log(
-    poolMaximumPercentage,
-    poolMaximumDays,
-    poolMaximumInterestRate,
-    loanTimeConcessionFlexibility,
-    loanRatioPreferentialFlexibility,
-    allowCollateralContract,
-  )
 
   const [currentBalance, setCurrentBalance] = useState(0)
 
@@ -111,11 +104,11 @@ const ApproveEthButton: FunctionComponent<
     }
   }, [amount, currentBalance, flag])
 
-  const [isLoading, setIsLoading] = useState(false)
+  const [approveLoading, setApproveLoading] = useState(false)
+  const [createLoading, setCreateLoading] = useState(false)
   const toast = useToast()
 
   const onConfirm = useCallback(async () => {
-    setIsLoading(true)
     /**
      * 平均总耗时：
      * 1676961248463 - 1676961180777 =  67686 ms ≈ 1min
@@ -124,15 +117,17 @@ const ApproveEthButton: FunctionComponent<
     try {
       const parsedWeiAmount = ethers.utils.parseEther(amount)?.toString()
       const wethContract = createWethContract()
+      setApproveLoading(true)
       const _allowance = await wethContract.allowance(
         currentAccount,
         XBANK_CONTRACT_ADDRESS,
       )
-      const allowanceEth = ethers.utils.formatEther(_allowance)
+      const allowanceEth = wei2Eth(_allowance._hex)
       /**
        * 如果 allowanceEth < amount 再进行  approve
        */
       if (Number(allowanceEth) < Number(amount)) {
+        console.log('经过了 approve 阶段')
         const approveAmount = ethers.utils
           .parseEther((Number(amount) - Number(allowanceEth)).toString())
           ?.toString()
@@ -143,6 +138,8 @@ const ApproveEthButton: FunctionComponent<
         )
         await approveHash.wait()
       }
+      setApproveLoading(false)
+      setCreateLoading(true)
 
       // const supportERC20Denomination = approveHash?.to
       const supportERC20Denomination = WETH_CONTRACT_ADDRESS
@@ -168,7 +165,7 @@ const ApproveEthButton: FunctionComponent<
         loanRatioPreferentialFlexibility,
       )
       await transactionHash.wait()
-      setIsLoading(false)
+      setCreateLoading(false)
       console.log(new Date().getTime(), '----------------end')
       onClose()
       navigate('/lending/my-pools')
@@ -179,7 +176,8 @@ const ApproveEthButton: FunctionComponent<
         title: error?.code,
         duration: 5000,
       })
-      setIsLoading(false)
+      setCreateLoading(false)
+      setApproveLoading(false)
     }
   }, [
     amount,
@@ -196,9 +194,9 @@ const ApproveEthButton: FunctionComponent<
   ])
 
   const handleClose = useCallback(() => {
-    if (isLoading) return
+    if (approveLoading || createLoading) return
     onClose()
-  }, [onClose, isLoading])
+  }, [onClose, approveLoading, createLoading])
 
   return (
     <>
@@ -266,7 +264,7 @@ const ApproveEthButton: FunctionComponent<
                   borderRadius={8}
                   borderColor='gray.3'
                   placeholder='Enter the approve ETH amount...'
-                  isDisabled={isLoading}
+                  isDisabled={approveLoading || createLoading}
                 >
                   <NumberInputField
                     h='60px'
@@ -305,7 +303,10 @@ const ApproveEthButton: FunctionComponent<
             h='52px'
             isDisabled={isError || !Number(amount)}
             onClick={onConfirm}
-            isLoading={isLoading}
+            loadingText={
+              approveLoading ? 'approving' : createLoading ? 'creating' : ''
+            }
+            isLoading={approveLoading || createLoading}
           >
             Approve
           </Button>

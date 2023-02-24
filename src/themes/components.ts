@@ -39,6 +39,9 @@ const components = {
             bg: 'gray.1',
           },
         },
+        _loading: {
+          color: 'gray.3',
+        },
       },
       other: {
         bg: 'blue.3',

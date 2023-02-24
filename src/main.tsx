@@ -20,7 +20,7 @@ createRoot(rootElement as HTMLElement).render(
       <ChakraProvider theme={theme}>
         <BrowserRouter>
           <RootLayout>
-            <PhotoProvider maskOpacity={0.4} bannerVisible={false}>
+            <PhotoProvider maskOpacity={0.4} bannerVisible={false} maskClosable>
               <App />
             </PhotoProvider>
           </RootLayout>

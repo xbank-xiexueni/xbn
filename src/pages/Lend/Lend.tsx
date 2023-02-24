@@ -15,7 +15,6 @@ import {
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 // import debounce from 'lodash-es/debounce'
-import { ethers } from 'ethers'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
 import { useEffect, useState } from 'react'
@@ -43,6 +42,7 @@ import {
 import type { ColumnProps } from '@/components/my-table'
 // import { TransactionContext } from '@/context/TransactionContext'
 import { useWallet } from '@/hooks'
+import wei2Eth from '@/utils/wei2Eth'
 
 import CollectionListItem from '../buy-nfts/components/CollectionListItem'
 
@@ -242,9 +242,7 @@ const Lend = () => {
       align: 'right',
       thAlign: 'right',
       render: (_: Record<string, any>, value: any) => (
-        <EthText>
-          {ethers.utils.formatEther(ethers.BigNumber.from(`${value}`))}
-        </EthText>
+        <EthText>{wei2Eth(value)}</EthText>
       ),
     },
     {
@@ -435,6 +433,8 @@ const Lend = () => {
                 borderRadius={15}
                 fontSize={'xs'}
                 h={5}
+                alignItems='center'
+                lineHeight={2}
               >
                 {myPoolsData?.length}
               </Tag>

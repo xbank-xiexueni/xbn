@@ -151,9 +151,9 @@ export const loansForLendColumns: ColumnProps[] = [
   },
   {
     title: 'Interest',
-    dataIndex: 'loan_interest',
+    dataIndex: 'pool_interest_rate',
     align: 'right',
-    key: 'loan_interest',
+    key: 'pool_interest_rate',
     thAlign: 'right',
     render: (_: Record<string, any>, value: any) => <Text>{value} ETH</Text>,
   },

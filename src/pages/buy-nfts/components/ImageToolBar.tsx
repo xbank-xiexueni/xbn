@@ -1,4 +1,4 @@
-import { Flex, Text } from '@chakra-ui/react'
+import { Flex, IconButton, Text } from '@chakra-ui/react'
 import numeral from 'numeral'
 import { PhotoView } from 'react-photo-view'
 
@@ -12,7 +12,7 @@ type ImageToolBarProps = {
   data: AssetListItemType
 }
 const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({
-  data: { image_original_url, likes },
+  data: { image_original_url, likes, name },
 }) => {
   return (
     <Flex
@@ -29,34 +29,26 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({
       <Flex alignItems={'center'} gap={1}>
         <SvgComponent svgId='like' />
         <Text fontWeight={'700'} color='black.1'>
-          {numeral(likes).format('0.00a')}
+          {numeral(likes).format('0.00 a')}
         </Text>
       </Flex>
       <Flex gap={2}>
-        <Flex
-          w={10}
-          h={10}
+        <IconButton
+          icon={<SvgComponent svgId='icon-download' />}
+          aria-label='download'
+          alignItems={'center'}
           bg='gray.5'
-          borderRadius={'40px'}
-          alignItems='center'
-          justify={'center'}
           onClick={() => {
-            downloadRemoteImg(image_original_url, 'xx')
+            downloadRemoteImg(image_original_url, name)
           }}
-        >
-          <SvgComponent svgId='icon-download' />
-        </Flex>
+        />
         <PhotoView src={image_original_url}>
-          <Flex
-            w={10}
-            h={10}
+          <IconButton
+            icon={<SvgComponent svgId='icon-expand' />}
+            aria-label='download'
+            alignItems={'center'}
             bg='gray.5'
-            borderRadius={'40px'}
-            alignItems='center'
-            justify={'center'}
-          >
-            <SvgComponent svgId='icon-expand' />
-          </Flex>
+          />
         </PhotoView>
       </Flex>
     </Flex>

@@ -17,9 +17,10 @@ import Jazzicon from 'react-jazzicon'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import Icon from '@/assets/logo.png'
-import { RESPONSIVE_MAX_W } from '@/constants'
+import { RESPONSIVE_MAX_W, XBANK_CONTRACT_ADDRESS } from '@/constants'
 import { useWallet } from '@/hooks'
-import { createXBankContract } from '@/utils/createContract'
+import { createWethContract, createXBankContract } from '@/utils/createContract'
+import wei2Eth from '@/utils/wei2Eth'
 
 import { ConnectWalletModal, SvgComponent } from '..'
 
@@ -45,13 +46,20 @@ const Header = () => {
   const testClick = useCallback(async () => {
     getBalance(currentAccount)
     if (!currentAccount) return
-    // const wethContract = createWethContract()
+    const wethContract = createWethContract()
 
     const transactionsContract = createXBankContract()
     const listPool = await transactionsContract.listPool()
     const listLoan = await transactionsContract.listLoan()
-    // const wethContract = createWethContract()
-    // const res = await wethContract.name()
+    const _allowance = await wethContract.allowance(
+      currentAccount,
+      XBANK_CONTRACT_ADDRESS,
+    )
+    const allowanceEth = wei2Eth(_allowance._hex)
+    console.log(
+      '🚀 ~ file: Header.tsx:59 ~ testClick ~ allowanceEth:',
+      allowanceEth,
+    )
     console.log('transactionsContract', transactionsContract)
     console.log('listPool', listPool)
     console.log('listLoan', listLoan)
