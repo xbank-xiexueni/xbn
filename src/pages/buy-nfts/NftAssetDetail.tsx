@@ -160,7 +160,6 @@ const NftAssetDetail = () => {
       const currentFilterPools = filterPools.filter(
         (i) => i.pool_maximum_days >= item,
       )
-      console.log(index === 0 ? currentFilterPools : '1111')
       if (isEmpty(currentFilterPools)) break
       const currentPool = minBy(
         currentFilterPools.map(
