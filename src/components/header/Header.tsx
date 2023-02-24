@@ -45,6 +45,8 @@ const Header = () => {
   const testClick = useCallback(async () => {
     getBalance(currentAccount)
     if (!currentAccount) return
+    // const wethContract = createWethContract()
+
     const transactionsContract = createXBankContract()
     const listPool = await transactionsContract.listPool()
     const listLoan = await transactionsContract.listLoan()

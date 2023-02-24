@@ -1,4 +1,8 @@
 export * from './lend'
 export * from './buyer'
 
-export type { CollectionListItemType, PoolsListItemType } from './api'
+export type {
+  CollectionListItemType,
+  PoolsListItemType,
+  AssetListItemType,
+} from './api'

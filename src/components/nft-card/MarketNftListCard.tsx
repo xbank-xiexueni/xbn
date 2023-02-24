@@ -2,7 +2,6 @@ import {
   Box,
   Card,
   CardBody,
-  CardFooter,
   type CardProps,
   Divider,
   Flex,
@@ -10,20 +9,30 @@ import {
   Text,
   Button,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { ethers } from 'ethers'
+import { useMemo, type FunctionComponent } from 'react'
 
-import { ImageWithFallback, NftOrigin, SvgComponent } from '@/components'
-
-import type { FunctionComponent } from 'react'
+import type { AssetListItemType } from '@/api'
+import { ImageWithFallback, SvgComponent } from '@/components'
 
 const MarketNftListCard: FunctionComponent<
   {
     // temp
-    data: any
+    data: AssetListItemType & Record<string, string | number | undefined>
   } & CardProps
-> = ({ data: { name }, ...rest }) => {
-  const [show, setShow] = useState(false)
-  // console.log(data, 'MarketNftListCard')
+> = ({
+  data: { name, image_thumbnail_url, highestRate, order_price },
+  ...rest
+}) => {
+  // const [show, setShow] = useState(false)
+  const formattedDownPayment = useMemo(() => {
+    if (!order_price || !highestRate) {
+      return '--'
+    }
+
+    const eth = ethers.utils.formatEther(ethers.BigNumber.from(order_price))
+    return (Number(eth) * (10000 - Number(highestRate))) / 10000
+  }, [order_price, highestRate])
   return (
     <Card
       {...rest}
@@ -31,14 +40,15 @@ const MarketNftListCard: FunctionComponent<
         boxShadow: `var(--chakra-colors-gray-1) 0px 0px 10px`,
       }}
       cursor='pointer'
-      onMouseOver={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
+      // onMouseOver={() => setShow(true)}
+      // onMouseLeave={() => setShow(false)}
       borderRadius={8}
+      border='none'
     >
       <CardBody p={0}>
-        <Box bg='gray.100'>
+        <Box bg='white'>
           <ImageWithFallback
-            src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80'
+            src={image_thumbnail_url}
             alt='Green double couch with wooden legs'
             borderTopRadius={'lg'}
             h={{
@@ -57,26 +67,28 @@ const MarketNftListCard: FunctionComponent<
             {name}
           </Text>
           <Flex justify={'space-between'} alignItems='center'>
-            <Text fontSize={'sm'}>aaaa</Text>
+            <Text fontSize={'sm'} fontWeight='700' color={'black'}>
+              Down Payment
+            </Text>
             <Flex alignItems={'center'} gap={1}>
               <SvgComponent svgId='icon-eth' w={2} />
-              <Text fontSize={'md'}>11.22</Text>
+              <Text fontSize={'md'}>&nbsp;{formattedDownPayment}</Text>
             </Flex>
           </Flex>
         </Stack>
       </CardBody>
       <Divider color={`gray.2`} />
-      {show ? (
-        <Button
-          borderRadius={8}
-          borderTopLeftRadius={0}
-          borderTopRightRadius={0}
-          variant='other'
-          h='56px'
-        >
-          Buy
-        </Button>
-      ) : (
+      {/* {show ? ( */}
+      <Button
+        borderRadius={8}
+        borderTopLeftRadius={0}
+        borderTopRightRadius={0}
+        variant='other'
+        h='56px'
+      >
+        Buy
+      </Button>
+      {/* ) : (
         <CardFooter
           p={4}
           justify={'space-between'}
@@ -93,7 +105,7 @@ const MarketNftListCard: FunctionComponent<
             </Text>
           </Flex>
         </CardFooter>
-      )}
+      )} */}
     </Card>
   )
 }

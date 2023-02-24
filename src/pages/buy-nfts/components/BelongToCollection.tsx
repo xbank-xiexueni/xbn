@@ -1,4 +1,5 @@
 import { Box, type BoxProps, Heading, Flex, Text } from '@chakra-ui/react'
+import { ethers } from 'ethers'
 import { type FunctionComponent } from 'react'
 
 import type { CollectionListItemType } from '@/api'
@@ -7,10 +8,10 @@ import { UNIT } from '@/constants'
 
 const BelongToCollection: FunctionComponent<
   BoxProps & {
-    data: CollectionListItemType
+    data: CollectionListItemType & Record<string, string | number>
   }
 > = ({
-  data: { name = '', image_url = '', safelist_request_status },
+  data: { name = '', image_url = '', safelist_request_status, lowestPrice },
   ...rest
 }) => {
   return (
@@ -39,7 +40,10 @@ const BelongToCollection: FunctionComponent<
           </Flex>
 
           <Text fontSize={'18px'} fontWeight='bold'>
-            1111
+            {ethers.utils.formatEther(
+              ethers.BigNumber.from(lowestPrice.toString()),
+            )}
+            &nbsp;
             {UNIT}
           </Text>
         </Box>

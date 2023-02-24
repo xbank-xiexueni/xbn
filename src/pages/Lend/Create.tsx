@@ -1,6 +1,6 @@
 import { Box, Button, Container, Flex, Heading, Text } from '@chakra-ui/react'
 import isEmpty from 'lodash-es/isEmpty'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import type { CollectionListItemType } from '@/api'
@@ -36,10 +36,18 @@ const Create = () => {
   }>({
     poolMaximumInterestRate:
       LP_BASE_RATE[`${INITIAL_TENOR}-${INITIAL_COLLATERAL}`],
-    loanRatioPreferentialFlexibility: 1,
-    loanTimeConcessionFlexibility: 1,
+    loanRatioPreferentialFlexibility: 100,
+    loanTimeConcessionFlexibility: 100,
   })
 
+  useEffect(() => {
+    setRateData({
+      poolMaximumInterestRate:
+        LP_BASE_RATE[`${selectTenor}-${selectCollateral}`],
+      loanRatioPreferentialFlexibility: 100,
+      loanTimeConcessionFlexibility: 100,
+    })
+  }, [selectCollateral, selectTenor])
   return (
     <Container maxW={SUB_RESPONSIVE_MAX_W}>
       <Flex
@@ -146,12 +154,12 @@ const Create = () => {
                   />
                 }
                 defaultValue={{
-                  label: `${INITIAL_COLLATERAL} %`,
+                  label: `${INITIAL_COLLATERAL / 100} %`,
                   value: INITIAL_COLLATERAL,
                 }}
                 onChange={(e) => setSelectCollateral(e?.value as number)}
                 options={COLLATERALS?.map((item) => ({
-                  label: `${item} %`,
+                  label: `${item / 100} %`,
                   value: item,
                 }))}
                 // options={[]}

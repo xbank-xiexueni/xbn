@@ -23,3 +23,25 @@ export type CollectionListItemType = {
   safelist_request_status?: 'not_requested' | 'verified'
   description?: string
 }
+
+export type AssetListItemType = {
+  id: number
+  asset_contract_address: string
+  token_id: string
+  image_url: string
+  image_preview_url: string
+  image_thumbnail_url: string
+  image_original_url: string
+  animation_url: string
+  animation_original_url: string
+  background_color: string
+  name: string
+  description: string
+  external_link: string
+  likes: number
+  order_chain: string
+  order_coin: string
+  order_price: string
+  created_at: string
+  updated_at: string
+}

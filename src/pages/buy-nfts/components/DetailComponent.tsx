@@ -7,7 +7,7 @@ import {
   type BoxProps,
 } from '@chakra-ui/react'
 
-import { NftOrigin, SvgComponent } from '@/components'
+import { SvgComponent } from '@/components'
 
 import type { FunctionComponent } from 'react'
 
@@ -44,13 +44,13 @@ const DetailComponent: FunctionComponent<
       >
         <Box>
           <Text>Price</Text>
-          <Flex alignItems={'baseline'} mt={1} gap={1}>
-            <SvgComponent svgId='icon-eth' svgSize='30px' />
+          <Flex alignItems={'center'} mt={1}>
+            <SvgComponent svgId='icon-eth' svgSize='32px' />
             <Heading size={'xl'}>{price}</Heading>
-            <Text fontSize={'xs'}>$123123</Text>
+            {/* <Text fontSize={'xs'}>$123123</Text> */}
           </Flex>
         </Box>
-        <NftOrigin type={1} />
+        {/* <NftOrigin type={1} /> */}
       </Flex>
     </Box>
   )

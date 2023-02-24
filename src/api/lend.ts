@@ -19,8 +19,12 @@ export const apiGetPools: (
   })
 }
 
-export const apiGetLpLoans = async (params: any) => {
-  return await request.get('/api/lp/loans', {
+export const apiGetLoans: (query: {
+  pool_id?: number
+  lender_address?: string
+  borrower_address?: string
+}) => Promise<AxiosResponse<any[]>> = async (params) => {
+  return await request.get('/lending/api/v1/loans', {
     params,
   })
 }

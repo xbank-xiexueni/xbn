@@ -96,8 +96,8 @@ export const loansForLendColumns: ColumnProps[] = [
   },
   {
     title: 'Lender',
-    dataIndex: 'col2',
-    key: 'col2',
+    dataIndex: 'lender_address',
+    key: 'lender_address',
     render: (_: Record<string, any>, value: any) => (
       <Text>
         {value.toString().substring(0, 5)}...
@@ -109,8 +109,8 @@ export const loansForLendColumns: ColumnProps[] = [
   },
   {
     title: 'Borrower',
-    dataIndex: 'col3',
-    key: 'col3',
+    dataIndex: 'borrower_address',
+    key: 'borrower_address',
     thAlign: 'right',
     align: 'right',
     render: (_: Record<string, any>, value: any) => (
@@ -124,17 +124,17 @@ export const loansForLendColumns: ColumnProps[] = [
   },
   {
     title: 'Start time',
-    dataIndex: 'col7',
+    dataIndex: 'loan_start_time',
     thAlign: 'right',
     align: 'right',
-    key: 'col7',
+    key: 'loan_start_time',
   },
   {
     title: 'Loan value',
-    dataIndex: 'col4',
+    dataIndex: 'total_repayment',
     align: 'right',
     thAlign: 'right',
-    key: 'col4',
+    key: 'total_repayment',
     render: (_: Record<string, any>, value: any) => (
       <Text>
         {value} {UNIT}
@@ -143,17 +143,17 @@ export const loansForLendColumns: ColumnProps[] = [
   },
   {
     title: 'Duration',
-    dataIndex: 'col5',
+    dataIndex: 'loan_duration',
     align: 'right',
     thAlign: 'right',
-    key: 'col5',
+    key: 'loan_duration',
     render: (_: Record<string, any>, value: any) => <Text>{value} days</Text>,
   },
   {
     title: 'Interest',
-    dataIndex: 'col6',
+    dataIndex: 'loan_interest',
     align: 'right',
-    key: 'col6',
+    key: 'loan_interest',
     thAlign: 'right',
     render: (_: Record<string, any>, value: any) => <Text>{value} ETH</Text>,
   },

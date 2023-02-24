@@ -18,11 +18,11 @@ import useRequest from 'ahooks/lib/useRequest'
 import { ethers } from 'ethers'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import {
-  apiGetLpLoans,
+  apiGetLoans,
   // apiGetActiveCollection,
   apiGetPools,
   type PoolsListItemType,
@@ -143,16 +143,29 @@ const Lend = () => {
 
   // -1 代表全选
   const [selectKeyForOpenLoans, setSelectKeyForOpenLoans] = useState<number>()
-  const fetchLoans = useMemo(() => {
-    return apiGetLpLoans
-  }, [])
-  const { loading: loansLoading } = useRequest(fetchLoans, {
-    onSuccess: ({ data }) => {
-      setLoansData(groupBy(data, 'status'))
+
+  const { loading: loansLoading, runAsync: fetchLoansByPool } = useRequest(
+    apiGetLoans,
+    {
+      onSuccess: ({ data }) => {
+        setLoansData(groupBy(data, 'loan_status'))
+      },
+      ready: tabKey === 1 && !!currentAccount,
+      refreshDeps: [selectKeyForOpenLoans],
+      defaultParams: [
+        {
+          lender_address: currentAccount,
+          pool_id: selectKeyForOpenLoans,
+        },
+      ],
     },
-    ready: tabKey === 1 && !!currentAccount && false,
-    refreshDeps: [selectKeyForOpenLoans],
-  })
+  )
+  useEffect(() => {
+    fetchLoansByPool({
+      lender_address: currentAccount,
+      pool_id: selectKeyForOpenLoans,
+    })
+  }, [selectKeyForOpenLoans, fetchLoansByPool, currentAccount])
 
   const { pathname } = useLocation()
   const navigate = useNavigate()
@@ -212,16 +225,16 @@ const Lend = () => {
         )
       },
     },
-    {
-      title: 'Est. Floor*',
-      dataIndex: 'col2',
-      key: 'col2',
-      align: 'right',
-      thAlign: 'right',
-      render: (_: Record<string, any>, value: any) => (
-        <EthText>{value}</EthText>
-      ),
-    },
+    // {
+    //   title: 'Est. Floor*',
+    //   dataIndex: 'col2',
+    //   key: 'col2',
+    //   align: 'right',
+    //   thAlign: 'right',
+    //   render: (_: Record<string, any>, value: any) => (
+    //     <EthText>{value}</EthText>
+    //   ),
+    // },
     {
       title: 'TVL (USD)',
       dataIndex: 'pool_amount',
@@ -229,7 +242,9 @@ const Lend = () => {
       align: 'right',
       thAlign: 'right',
       render: (_: Record<string, any>, value: any) => (
-        <EthText>{ethers.utils.formatEther(value as number)}</EthText>
+        <EthText>
+          {ethers.utils.formatEther(ethers.BigNumber.from(`${value}`))}
+        </EthText>
       ),
     },
     {

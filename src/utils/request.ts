@@ -17,23 +17,12 @@ const request = axios.create({
   // timeout: 10000,
 })
 
-request.interceptors.request.use(
-  async (config) => {
-    return {
-      ...config,
-      baseURL: MODE === 'development' ? config.baseURL : VITE_BASE_URL,
-    }
-  },
-  (error) => {
-    toast({
-      title: JSON.stringify(error.response.data),
-      status: 'error',
-      isClosable: true,
-      id: 'error-toast',
-    })
-    console.log('this is request error', error, error.response)
-  },
-)
+request.interceptors.request.use(async (config) => {
+  return {
+    ...config,
+    baseURL: MODE === 'development' ? config.baseURL : VITE_BASE_URL,
+  }
+})
 
 request.interceptors.response.use(
   (resp) => {
@@ -41,14 +30,25 @@ request.interceptors.response.use(
   },
   (error) => {
     const {
-      response: { status },
+      response: { status, data },
     } = error
     if (status >= 500) {
       toast({
         title: 'Oops, something went wrong',
         status: 'error',
         isClosable: true,
-        id: 'error-toast',
+        id: '5xx-error-toast',
+      })
+      return
+    }
+    if (status < 500 && status >= 400) {
+      const { code, message } = data
+      console.log('🚀 ~ file: request.ts:57 ~ code:', code)
+      toast({
+        title: message || 'Oops, something went wrong',
+        status: 'error',
+        isClosable: true,
+        id: '4xx-error-toast',
       })
     }
     throw error

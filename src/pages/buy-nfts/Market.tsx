@@ -1,5 +1,13 @@
-import { Box, Flex, Heading, List, SimpleGrid } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  GridItem,
+  Heading,
+  List,
+  SimpleGrid,
+} from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
+import { maxBy, minBy } from 'lodash-es'
 import isEmpty from 'lodash-es/isEmpty'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -7,6 +15,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   apiGetActiveCollection,
   apiGetAssetsByCollection,
+  apiGetPools,
   type CollectionListItemType,
 } from '@/api'
 import {
@@ -31,40 +40,69 @@ const Market = () => {
     image_url: string
     contract_addr: string
   }>()
-  const { data: collectionData, loading: collectionLoading } = useRequest(
-    apiGetActiveCollection,
+  const [collectionList, setCollectionList] = useState<
+    CollectionListItemType[]
+  >([])
+  const { loading: collectionLoading } = useRequest(apiGetActiveCollection, {
+    onSuccess: ({ data }) => {
+      if (isEmpty(data)) {
+        return
+      }
+      setCollectionList([...data])
+      setSelectCollection(data[0])
+    },
+    debounceWait: 100,
+  })
+  const [highestRate, setHighRate] = useState<number>()
+  const [lowestPrice, setLowestPrice] = useState<number>()
+
+  const { loading: poolsLoading, data: poolsData } = useRequest(
+    () =>
+      apiGetPools({
+        allow_collateral_contract: selectCollection?.contract_addr || '',
+      }),
     {
       onSuccess: ({ data }) => {
-        if (isEmpty(data)) {
-          return
-        }
-        setSelectCollection(data[0])
+        if (isEmpty(data)) return
+        const maxRate = maxBy(
+          data,
+          ({ pool_maximum_interest_rate }) => pool_maximum_interest_rate,
+        )?.pool_maximum_interest_rate
+        setHighRate(maxRate)
       },
+      ready: !!selectCollection?.contract_addr,
+      refreshDeps: [selectCollection?.contract_addr],
       debounceWait: 100,
     },
   )
 
-  const { loading: assetListLoading, data: assetData = { data: [{ id: 1 }] } } =
-    useRequest(
-      () => apiGetAssetsByCollection(selectCollection?.contract_addr as string),
-      {
-        ready: !!selectCollection?.contract_addr && false,
-        refreshDeps: [selectCollection?.contract_addr],
-        onSuccess: () => {
-          //
-        },
+  const { loading: assetListLoading, data: assetData } = useRequest(
+    () =>
+      apiGetAssetsByCollection({
+        asset_contract_address: selectCollection?.contract_addr,
+      }),
+    {
+      ready: !!selectCollection?.contract_addr,
+      refreshDeps: [selectCollection?.contract_addr],
+      onSuccess: ({ data }) => {
+        if (isEmpty(data)) return
+        const weiPrice = minBy(
+          data,
+          ({ order_price }) => order_price,
+        )?.order_price
+        setLowestPrice(Number(weiPrice))
       },
-    )
+    },
+  )
 
   return (
     <>
-      <Box mb={10} pt={15}>
+      <Box mb={10} mt={'60px'}>
         <Heading size={'2xl'}>Buy NFTs</Heading>
       </Box>
 
       <Flex
         mt={'10px'}
-        justify='space-between'
         flexWrap={{ lg: 'nowrap', md: 'wrap', sm: 'wrap' }}
         gap={9}
       >
@@ -78,7 +116,9 @@ const Market = () => {
             md: '100%',
             sm: '100%',
           }}
-          mb={10}
+          height={'76vh'}
+          // overflowY='auto'
+          // overflowX={'visible'}
         >
           <Heading size={'md'} mb={4}>
             Collections
@@ -87,11 +127,11 @@ const Market = () => {
 
           <List spacing={4} mt={4} position='relative'>
             <LoadingComponent loading={collectionLoading} />
-            {isEmpty(collectionData?.data) && !collectionLoading && (
+            {isEmpty(collectionList) && !collectionLoading && (
               <EmptyComponent />
             )}
 
-            {collectionData?.data?.map((item: CollectionListItemType) => (
+            {collectionList.map((item: CollectionListItemType) => (
               <CollectionListItem
                 data={{ ...item }}
                 key={item.contract_addr}
@@ -105,11 +145,12 @@ const Market = () => {
         </Box>
 
         <Box
-        // w={{
-        //   // xl: '',
-        //   lg: '65%',
-        //   md: '100%',
-        // }}
+          w={{
+            xl: '980px',
+            lg: '640px',
+            md: '100%',
+            sm: '100%',
+          }}
         >
           <CollectionDescription
             loading={collectionLoading}
@@ -130,28 +171,47 @@ const Market = () => {
         </Flex> */}
           <SimpleGrid
             spacing={4}
-            position='relative'
             columns={{
               xl: 4,
               lg: 3,
               md: 3,
               sm: 2,
             }}
+            height={'66vh'}
+            overflow='auto'
+            position={'relative'}
           >
-            <LoadingComponent loading={assetListLoading} />
-            {assetData?.data?.map((item: any) => (
-              <MarketNftListCard
-                data={{ name: 'xxn' }}
-                key={item.id}
-                onClick={() => {
-                  interceptFn(() => {
-                    navigate(`/asset/${item.id}`, {
-                      state: selectCollection,
-                    })
-                  })
+            <LoadingComponent loading={assetListLoading || poolsLoading} />
+            {isEmpty(assetData?.data) ? (
+              <GridItem
+                colSpan={{
+                  xl: 4,
+                  lg: 3,
+                  md: 3,
+                  sm: 2,
                 }}
-              />
-            ))}
+              >
+                <EmptyComponent />
+              </GridItem>
+            ) : (
+              assetData?.data?.map((item) => (
+                <MarketNftListCard
+                  data={{ ...item, highestRate }}
+                  key={item.token_id}
+                  onClick={() => {
+                    interceptFn(() => {
+                      navigate(`/asset/detail`, {
+                        state: {
+                          collection: { ...selectCollection, lowestPrice },
+                          poolsList: poolsData?.data,
+                          asset: item,
+                        },
+                      })
+                    })
+                  }}
+                />
+              ))
+            )}
           </SimpleGrid>
         </Box>
       </Flex>

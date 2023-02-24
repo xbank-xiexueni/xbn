@@ -87,6 +87,10 @@ const AllPoolsDescription: FunctionComponent<{
           sm: '100%',
           md: '440px',
         }}
+        h={{
+          sm: 'auto',
+          md: '218px',
+        }}
       />
     </Flex>
   )

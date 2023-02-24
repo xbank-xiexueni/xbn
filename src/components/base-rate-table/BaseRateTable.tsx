@@ -9,7 +9,6 @@ import {
   Box,
   SlideFade,
 } from '@chakra-ui/react'
-import floor from 'lodash-es/floor'
 import slice from 'lodash-es/slice'
 import { type FunctionComponent, useMemo, useState } from 'react'
 
@@ -17,9 +16,9 @@ import { COLLATERALS, LP_BASE_RATE, TENORS } from '@/constants'
 
 const TOP_SLIDER_STEPS = [0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6]
 
-const RIGHT_SLIDER_STEPS = [0, 0.5, 1, 1.5, 2]
+const RIGHT_SLIDER_STEPS = [0, 50, 100, 150, 200]
 
-const BOTTOM_SLIDER_STEPS = [0, 0.5, 1, 1.5, 2]
+const BOTTOM_SLIDER_STEPS = [0, 50, 100, 150, 200]
 
 const BaseRateTable: FunctionComponent<{
   selectTenor: number
@@ -35,8 +34,8 @@ const BaseRateTable: FunctionComponent<{
   }, [selectTenor, selectCollateral])
 
   const [sliderTopValue, setSliderTopValue] = useState(1)
-  const [sliderRightValue, setSliderRightValue] = useState(1)
-  const [sliderBottomValue, setSliderBottomValue] = useState(1)
+  const [sliderRightValue, setSliderRightValue] = useState(100)
+  const [sliderBottomValue, setSliderBottomValue] = useState(100)
 
   const colCount = useMemo(() => TENORS.indexOf(selectTenor) + 1, [selectTenor])
   const rowCount = useMemo(
@@ -62,7 +61,7 @@ const BaseRateTable: FunctionComponent<{
           ((rowCount - i - 1) * sliderRightValue +
             (colCount - index - 1) * sliderBottomValue)
 
-        return floor(res, 2)
+        return res
       })
     }
     return arr
@@ -223,7 +222,7 @@ const BaseRateTable: FunctionComponent<{
                         fontWeight={i === 0 ? 'bold' : 'normal'}
                         color={i === 0 ? `black.1` : `gray.3`}
                       >
-                        {value}%
+                        {Number(value) / 100}%
                       </Text>
                     </Flex>
                   ),
@@ -244,11 +243,11 @@ const BaseRateTable: FunctionComponent<{
           <Slider
             orientation='vertical'
             direction='ltr'
-            defaultValue={1}
+            defaultValue={100}
             min={RIGHT_SLIDER_STEPS[0]}
             max={RIGHT_SLIDER_STEPS[RIGHT_SLIDER_STEPS.length - 1]}
             h='132px'
-            step={0.5}
+            step={50}
             onChange={(target) => {
               // setSliderValue(target)
               setSliderRightValue(target)
@@ -286,8 +285,8 @@ const BaseRateTable: FunctionComponent<{
             min={BOTTOM_SLIDER_STEPS[0]}
             max={BOTTOM_SLIDER_STEPS[BOTTOM_SLIDER_STEPS.length - 1]}
             w='140px'
-            step={0.2}
-            defaultValue={1}
+            step={50}
+            defaultValue={100}
             mt={1}
             onChange={(target) => {
               setSliderBottomValue(target)

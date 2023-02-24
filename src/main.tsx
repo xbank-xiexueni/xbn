@@ -1,6 +1,8 @@
 import { ChakraProvider } from '@chakra-ui/react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { PhotoProvider } from 'react-photo-view'
+import 'react-photo-view/dist/react-photo-view.css'
 import { BrowserRouter } from 'react-router-dom'
 
 import '@/assets/iconfont/iconfont.js'
@@ -18,7 +20,9 @@ createRoot(rootElement as HTMLElement).render(
       <ChakraProvider theme={theme}>
         <BrowserRouter>
           <RootLayout>
-            <App />
+            <PhotoProvider maskOpacity={0.4} bannerVisible={false}>
+              <App />
+            </PhotoProvider>
           </RootLayout>
         </BrowserRouter>
       </ChakraProvider>

@@ -85,7 +85,8 @@ function App() {
 
         {/* asset */}
         <Route
-          path='/asset/:id'
+          path='/asset/detail'
+          // path='/asset/:asset_contract_address'
           element={
             <Suspense fallback={<Fallback />}>
               <NftAssetDetail />

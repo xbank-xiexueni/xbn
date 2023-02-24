@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 // import { useNavigate } from 'react-router-dom'
 
 // import { SearchInput } from '@/components'
-import { apiGetBuyerLoans } from '@/api'
+import { apiGetLoans } from '@/api'
 import {
   ConnectWalletModal,
   EmptyComponent,
@@ -106,19 +106,24 @@ const Loans = () => {
 
   useEffect(() => interceptFn(), [interceptFn])
 
-  const [selectCollection, setSelectCollection] = useState<number>(-1)
+  const [selectCollection, setSelectCollection] = useState<number>()
 
   // -1 代表全选
 
-  const { loading, data } = useRequest(apiGetBuyerLoans, {
+  const { loading, data } = useRequest(apiGetLoans, {
     ready: !!currentAccount && false,
     debounceWait: 100,
+    defaultParams: [
+      {
+        borrower_address: currentAccount,
+      },
+    ],
   })
 
   const currentCollectionLoans = useMemo(() => {
-    return data?.data?.list?.filter(
+    return data?.data?.filter(
       (item: any) =>
-        item.collectionId === selectCollection || selectCollection === -1,
+        item.collectionId === selectCollection || !selectCollection,
     )
   }, [data, selectCollection])
 
@@ -128,7 +133,7 @@ const Loans = () => {
   )
 
   const collectionList = useMemo(() => {
-    const arr = data?.data?.list || []
+    const arr = data?.data || []
     if (isEmpty(arr)) {
       return []
     }
@@ -147,8 +152,7 @@ const Loans = () => {
 
   const getCollectionLength = useCallback(
     (targetId: string) => {
-      return data?.data?.list?.filter((i: any) => i.collectionId === targetId)
-        .length
+      return data?.data?.filter((i: any) => i.collectionId === targetId).length
     },
     [data],
   )
@@ -187,14 +191,14 @@ const Loans = () => {
                 border={`1px solid var(--chakra-colors-gray-2)`}
                 cursor='pointer'
                 onClick={() => {
-                  setSelectCollection(-1)
+                  setSelectCollection(undefined)
                 }}
-                bg={selectCollection === -1 ? 'blue.2' : 'white'}
+                bg={!selectCollection ? 'blue.2' : 'white'}
               >
                 <Text fontSize={'sm'} fontWeight='700'>
                   All my Collections
                 </Text>
-                {selectCollection === -1 ? (
+                {!selectCollection ? (
                   <SvgComponent svgId='icon-checked' />
                 ) : (
                   <Text fontSize={'sm'}>{10}</Text>

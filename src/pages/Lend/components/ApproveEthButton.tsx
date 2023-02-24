@@ -31,7 +31,11 @@ import {
 import { useNavigate } from 'react-router-dom'
 
 import { SvgComponent } from '@/components'
-import { UNIT, XBANK_CONTRACT_ADDRESS } from '@/constants'
+import {
+  UNIT,
+  WETH_CONTRACT_ADDRESS,
+  XBANK_CONTRACT_ADDRESS,
+} from '@/constants'
 import { useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
 
@@ -82,6 +86,14 @@ const ApproveEthButton: FunctionComponent<
 
   const initialRef = useRef(null)
   const finalRef = useRef(null)
+  console.log(
+    poolMaximumPercentage,
+    poolMaximumDays,
+    poolMaximumInterestRate,
+    loanTimeConcessionFlexibility,
+    loanRatioPreferentialFlexibility,
+    allowCollateralContract,
+  )
 
   const [currentBalance, setCurrentBalance] = useState(0)
 
@@ -112,15 +124,28 @@ const ApproveEthButton: FunctionComponent<
     try {
       const parsedWeiAmount = ethers.utils.parseEther(amount)?.toString()
       const wethContract = createWethContract()
-
-      const approveHash = await wethContract.approve(
+      const _allowance = await wethContract.allowance(
+        currentAccount,
         XBANK_CONTRACT_ADDRESS,
-        parsedWeiAmount,
       )
+      const allowanceEth = ethers.utils.formatEther(_allowance)
+      /**
+       * 如果 allowanceEth < amount 再进行  approve
+       */
+      if (Number(allowanceEth) < Number(amount)) {
+        const approveAmount = ethers.utils
+          .parseEther((Number(amount) - Number(allowanceEth)).toString())
+          ?.toString()
 
-      await approveHash.wait()
-      const supportERC20Denomination = approveHash?.to
-      // const supportERC20Denomination = WETH_CONTRACT_ADDRESS
+        const approveHash = await wethContract.approve(
+          XBANK_CONTRACT_ADDRESS,
+          approveAmount,
+        )
+        await approveHash.wait()
+      }
+
+      // const supportERC20Denomination = approveHash?.to
+      const supportERC20Denomination = WETH_CONTRACT_ADDRESS
 
       const xBankContract = createXBankContract()
       const transactionHash = await xBankContract.createPool(
@@ -132,15 +157,15 @@ const ApproveEthButton: FunctionComponent<
         // poolAmount
         parsedWeiAmount,
         // poolMaximumPercentage,
-        poolMaximumPercentage * 100,
+        poolMaximumPercentage,
         // uint32 poolMaximumDays,
         poolMaximumDays,
         // uint32 poolMaximumInterestRate,
-        poolMaximumInterestRate * 100,
+        poolMaximumInterestRate,
         // uint32 loanTimeConcessionFlexibility,
-        loanTimeConcessionFlexibility * 10000,
+        loanTimeConcessionFlexibility,
         // uint32 loanRatioPreferentialFlexibility
-        loanRatioPreferentialFlexibility * 10000,
+        loanRatioPreferentialFlexibility,
       )
       await transactionHash.wait()
       setIsLoading(false)
@@ -167,6 +192,7 @@ const ApproveEthButton: FunctionComponent<
     allowCollateralContract,
     onClose,
     navigate,
+    currentAccount,
   ])
 
   const handleClose = useCallback(() => {
