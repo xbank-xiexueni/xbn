@@ -75,10 +75,6 @@ const NftAssetDetail = () => {
   } = useLocation()
 
   const { collection, poolsList, asset: detail } = state || {}
-  console.log(
-    '🚀 ~ file: NftAssetDetail.tsx:79 ~ NftAssetDetail ~ collection:',
-    collection,
-  )
   const [usdPrice, setUsdPrice] = useState<BigNumber>()
 
   useRequest(apiGetXCurrency, {

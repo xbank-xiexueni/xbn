@@ -11,6 +11,7 @@ const ImageWithFallback: FunctionComponent<ImageProps> = ({
   height,
   width,
   borderRadius,
+  alt,
   ...rest
 }) => {
   return (
@@ -20,6 +21,7 @@ const ImageWithFallback: FunctionComponent<ImageProps> = ({
       height={height}
       width={width}
       borderRadius={borderRadius}
+      alt={alt || 'image'}
       {...rest}
       fallback={
         <Image
@@ -29,6 +31,7 @@ const ImageWithFallback: FunctionComponent<ImageProps> = ({
           height={height}
           width={width}
           borderRadius={borderRadius}
+          alt={alt || 'fallback'}
         />
       }
     />
