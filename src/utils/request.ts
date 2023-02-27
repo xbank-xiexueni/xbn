@@ -23,10 +23,19 @@ const request = axios.create({
   // timeout: 10000,
 })
 
-request.interceptors.request.use(async (config) => {
+request.interceptors.request.use(async ({ url, baseURL, ...config }) => {
+  let _baseURL = baseURL
+  if (MODE !== 'development') {
+    if (url === '/api/ver2/exchange/xcurrency/latest') {
+      _baseURL = 'https://xcr.tratao.com/'
+    } else {
+      _baseURL = VITE_BASE_URL
+    }
+  }
   return {
     ...config,
-    baseURL: MODE === 'development' ? config.baseURL : VITE_BASE_URL,
+    url,
+    baseURL: _baseURL,
   }
 })
 

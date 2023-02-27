@@ -18,3 +18,22 @@ export const apiGetAssetDetail: (query: {
     params,
   })
 }
+
+export const apiGetXCurrency: () => Promise<
+  AxiosResponse<{
+    resources: {
+      resource: {
+        fields: {
+          name: string
+          price: number
+        }
+      }
+    }[]
+  }>
+> = async () => {
+  return await request.get('/api/ver2/exchange/xcurrency/latest', {
+    headers: {
+      appkey: 'FAceBe8acE1A11e990a19F43a0Dae3f5',
+    },
+  })
+}

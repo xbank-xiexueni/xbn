@@ -27,6 +27,7 @@ import {
   // Select
 } from '@/components'
 import { useWallet } from '@/hooks'
+import wei2Eth from '@/utils/wei2Eth'
 
 import CollectionDescription from './components/CollectionDescription'
 import CollectionListItem from './components/CollectionListItem'
@@ -54,7 +55,7 @@ const Market = () => {
     debounceWait: 100,
   })
   const [highestRate, setHighRate] = useState<number>()
-  const [lowestPrice, setLowestPrice] = useState<number>()
+  const [lowestPrice, setLowestPrice] = useState<string>()
 
   const { loading: poolsLoading, data: poolsData } = useRequest(
     () =>
@@ -86,11 +87,11 @@ const Market = () => {
       refreshDeps: [selectCollection?.contract_addr],
       onSuccess: ({ data }) => {
         if (isEmpty(data)) return
-        const weiPrice = minBy(
-          data,
-          ({ order_price }) => order_price,
+        const weiPrice = minBy(data, ({ order_price }) =>
+          wei2Eth(order_price),
         )?.order_price
-        setLowestPrice(Number(weiPrice))
+        if (!weiPrice) return
+        setLowestPrice(wei2Eth(weiPrice))
       },
     },
   )
@@ -178,8 +179,9 @@ const Market = () => {
               sm: 2,
             }}
             height={'66vh'}
-            overflow='auto'
+            overflowY='auto'
             position={'relative'}
+            overflowX='hidden'
           >
             <LoadingComponent loading={assetListLoading || poolsLoading} />
             {isEmpty(assetData?.data) ? (

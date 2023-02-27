@@ -26,6 +26,11 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
+      '/api/ver2/': {
+        target: 'https://xcr.tratao.com',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   build: {

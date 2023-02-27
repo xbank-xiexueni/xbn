@@ -18,10 +18,11 @@ const DetailComponent: FunctionComponent<
       name2: string
       price: string
       verified: boolean
+      usdPrice?: string
     }
     loading?: boolean
   }
-> = ({ data: { name1, name2, price, verified }, loading }) => {
+> = ({ data: { name1, name2, price, verified, usdPrice }, loading }) => {
   if (loading) {
     return <Skeleton h={200} borderRadius={16} />
   }
@@ -44,10 +45,12 @@ const DetailComponent: FunctionComponent<
       >
         <Box>
           <Text>Price</Text>
-          <Flex alignItems={'center'} mt={1}>
+          <Flex alignItems={'end'} mt={1}>
             <SvgComponent svgId='icon-eth' svgSize='32px' />
-            <Heading size={'xl'}>{price}</Heading>
-            {/* <Text fontSize={'xs'}>$123123</Text> */}
+            <Heading fontSize={'32px'} lineHeight='36px'>
+              {price}
+            </Heading>
+            {!!usdPrice && <Text fontSize={'xs'}>&nbsp;$ {usdPrice}</Text>}
           </Flex>
         </Box>
         {/* <NftOrigin type={1} /> */}

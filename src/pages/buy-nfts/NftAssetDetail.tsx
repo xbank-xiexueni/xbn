@@ -24,10 +24,11 @@ import range from 'lodash-es/range'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import type {
-  AssetListItemType,
-  CollectionListItemType,
-  PoolsListItemType,
+import {
+  type AssetListItemType,
+  type CollectionListItemType,
+  type PoolsListItemType,
+  apiGetXCurrency,
 } from '@/api'
 import {
   ConnectWalletModal,
@@ -74,6 +75,32 @@ const NftAssetDetail = () => {
   } = useLocation()
 
   const { collection, poolsList, asset: detail } = state || {}
+  console.log(
+    '🚀 ~ file: NftAssetDetail.tsx:79 ~ NftAssetDetail ~ collection:',
+    collection,
+  )
+  const [usdPrice, setUsdPrice] = useState<BigNumber>()
+
+  useRequest(apiGetXCurrency, {
+    onSuccess: ({ data }) => {
+      if (!data || isEmpty(data)) return
+      const { resources } = data
+      const res = resources.find((item) => {
+        return item.resource.fields.name === 'USD/ETH'
+      })?.resource.fields.price
+      if (!res) return
+      setUsdPrice(BigNumber(1).dividedBy(Number(res)))
+    },
+    onError: (error) => {
+      console.log(
+        '🚀 ~ file: NftAssetDetail.tsx:87 ~ NftAssetDetail ~ error:',
+        error,
+      )
+    },
+    cacheKey: 'x-curr-latest',
+    staleTime: 1000 * 60 * 5,
+    debounceWait: 100,
+  })
 
   const commodityWeiPrice = useMemo(() => {
     if (!detail?.order_price) {
@@ -328,6 +355,11 @@ const NftAssetDetail = () => {
             name1: collection?.name,
             name2: detail?.name,
             price: wei2Eth(commodityWeiPrice),
+            usdPrice: usdPrice
+              ? usdPrice
+                  ?.multipliedBy(Number(wei2Eth(commodityWeiPrice)))
+                  .toFormat(4)
+              : '',
             verified: collection?.safelist_request_status === 'verified',
           }}
         />

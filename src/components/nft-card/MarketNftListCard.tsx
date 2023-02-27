@@ -8,8 +8,9 @@ import {
   Stack,
   Text,
   Button,
+  CardFooter,
 } from '@chakra-ui/react'
-import { useMemo, type FunctionComponent } from 'react'
+import { useMemo, useState, type FunctionComponent } from 'react'
 
 import type { AssetListItemType } from '@/api'
 import { ImageWithFallback, SvgComponent } from '@/components'
@@ -23,7 +24,7 @@ const MarketNftListCard: FunctionComponent<
   data: { name, image_thumbnail_url, highestRate, order_price },
   ...rest
 }) => {
-  // const [show, setShow] = useState(false)
+  const [show, setShow] = useState(false)
   const formattedDownPayment = useMemo(() => {
     if (!order_price || !highestRate) {
       return '--'
@@ -39,8 +40,8 @@ const MarketNftListCard: FunctionComponent<
         boxShadow: `var(--chakra-colors-gray-1) 0px 0px 10px`,
       }}
       cursor='pointer'
-      // onMouseOver={() => setShow(true)}
-      // onMouseLeave={() => setShow(false)}
+      onMouseOver={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
       borderRadius={8}
       border='none'
     >
@@ -51,7 +52,7 @@ const MarketNftListCard: FunctionComponent<
             alt='Green double couch with wooden legs'
             borderTopRadius={'lg'}
             h={{
-              xl: '233px',
+              xl: '230px',
               lg: '200px',
               md: '160px',
               sm: '50%',
@@ -77,17 +78,17 @@ const MarketNftListCard: FunctionComponent<
         </Stack>
       </CardBody>
       <Divider color={`gray.2`} />
-      {/* {show ? ( */}
-      <Button
-        borderRadius={8}
-        borderTopLeftRadius={0}
-        borderTopRightRadius={0}
-        variant='other'
-        h='56px'
-      >
-        Buy
-      </Button>
-      {/* ) : (
+      {show ? (
+        <Button
+          borderRadius={8}
+          borderTopLeftRadius={0}
+          borderTopRightRadius={0}
+          variant='other'
+          h='56px'
+        >
+          Buy
+        </Button>
+      ) : (
         <CardFooter
           p={4}
           justify={'space-between'}
@@ -95,16 +96,16 @@ const MarketNftListCard: FunctionComponent<
           h='56px'
         >
           <Flex alignItems={'center'} gap={1}>
-            <NftOrigin type={1} />
+            {/* <NftOrigin type={1} /> */}
           </Flex>
           <Flex alignItems={'center'} gap={1}>
             <SvgComponent svgId='icon-eth' w={2} />
             <Text fontSize={'sm'} color={`gray.3`}>
-              11.22
+              &nbsp; {wei2Eth(order_price)}
             </Text>
           </Flex>
         </CardFooter>
-      )} */}
+      )}
     </Card>
   )
 }

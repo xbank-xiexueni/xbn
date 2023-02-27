@@ -4,7 +4,6 @@ import { type FunctionComponent } from 'react'
 import type { CollectionListItemType } from '@/api'
 import { ImageWithFallback, SvgComponent } from '@/components'
 import { UNIT } from '@/constants'
-import wei2Eth from '@/utils/wei2Eth'
 
 const BelongToCollection: FunctionComponent<
   BoxProps & {
@@ -40,7 +39,7 @@ const BelongToCollection: FunctionComponent<
           </Flex>
 
           <Text fontSize={'18px'} fontWeight='bold'>
-            {wei2Eth(lowestPrice)}
+            {lowestPrice}
             &nbsp;
             {UNIT}
           </Text>
