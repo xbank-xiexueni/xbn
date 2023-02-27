@@ -158,6 +158,7 @@ const Lend = () => {
           pool_id: selectKeyForOpenLoans,
         },
       ],
+      debounceWait: 100,
     },
   )
   useEffect(() => {
