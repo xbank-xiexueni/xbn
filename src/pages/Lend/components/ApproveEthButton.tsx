@@ -126,11 +126,9 @@ const ApproveEthButton: FunctionComponent<
       /**
        * 如果 allowanceEth < amount 再进行  approve
        */
-      if (Number(allowanceEth) < Number(amount)) {
-        console.log('经过了 approve 阶段')
-        const approveAmount = ethers.utils
-          .parseEther((Number(amount) - Number(allowanceEth)).toString())
-          ?.toString()
+      if (Number(allowanceEth) !== Number(amount)) {
+        const approveAmount = ethers.utils.parseEther(amount)?.toString()
+        console.log('经过了 approve 阶段', approveAmount)
 
         const approveHash = await wethContract.approve(
           XBANK_CONTRACT_ADDRESS,
