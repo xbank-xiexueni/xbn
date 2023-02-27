@@ -11,13 +11,19 @@ import RootLayout from '@/layouts/RootLayout'
 import theme from '@/themes'
 
 import App from './App'
+import { TOAST_OPTION_CONFIG } from './constants'
 import './index.css'
 
 const rootElement = document.getElementById('root')
 createRoot(rootElement as HTMLElement).render(
-  <TransactionsProvider>
-    <StrictMode>
-      <ChakraProvider theme={theme}>
+  <StrictMode>
+    <ChakraProvider
+      theme={theme}
+      toastOptions={{
+        defaultOptions: { ...TOAST_OPTION_CONFIG },
+      }}
+    >
+      <TransactionsProvider>
         <BrowserRouter>
           <RootLayout>
             <PhotoProvider maskOpacity={0.4} bannerVisible={false} maskClosable>
@@ -25,7 +31,7 @@ createRoot(rootElement as HTMLElement).render(
             </PhotoProvider>
           </RootLayout>
         </BrowserRouter>
-      </ChakraProvider>
-    </StrictMode>
-  </TransactionsProvider>,
+      </TransactionsProvider>
+    </ChakraProvider>
+  </StrictMode>,
 )

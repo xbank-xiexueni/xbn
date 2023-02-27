@@ -108,9 +108,7 @@ const Loans = () => {
 
   const [selectCollection, setSelectCollection] = useState<number>()
 
-  // -1 代表全选
-
-  const { loading, data } = useRequest(apiGetLoans, {
+  const { loading, data, refresh } = useRequest(apiGetLoans, {
     ready: !!currentAccount && false,
     debounceWait: 100,
     defaultParams: [
@@ -252,10 +250,10 @@ const Loans = () => {
                   },
                   {
                     title: '',
-                    dataIndex: 'id',
-                    key: 'id',
+                    dataIndex: 'loan_id',
+                    key: 'loan_id',
                     fixedRight: true,
-                    render: () => (
+                    render: (_: Record<string, any>, value: any) => (
                       <Box
                         px={3}
                         bg='white'
@@ -271,10 +269,22 @@ const Loans = () => {
                               '🚀 ~ file: Loans.tsx:291 ~ interceptFn ~ currentBalance',
                               currentBalance,
                             )
-                            return
                             const repaymentAmount =
-                              await xBankContract.getRepaymentAmount(1)
+                              await xBankContract.getRepaymentAmount(value)
                             console.log('repaymentAmount', repaymentAmount)
+                            const repayHash = await xBankContract.repayLoan(
+                              value,
+                            )
+                            console.log(
+                              '🚀 ~ file: Loans.tsx:278 ~ interceptFn ~ repayHash:',
+                              repayHash,
+                            )
+                            await repayHash.wait()
+                            console.log(
+                              '🚀 ~ file: Loans.tsx:280 ~ interceptFn ~ repayHash:',
+                              repayHash,
+                            )
+                            refresh()
                           })
                         }}
                       >

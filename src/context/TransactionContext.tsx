@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { ethers, utils } from 'ethers'
-import isEmpty from 'lodash-es/isEmpty'
+// import isEmpty from 'lodash-es/isEmpty'
 import {
   useEffect,
   useState,
@@ -68,13 +68,15 @@ export const TransactionsProvider = ({
 
   useEffect(() => {
     if (!ethereum) return
-    ethereum.on('accountsChanged', function (accounts: string[]) {
+    ethereum.on('accountsChanged', function () // accounts: string[]
+    {
       // 一旦切换账号这里就会执行
-      if (isEmpty(accounts)) {
-        // setCurrentAccount('')
-        window.location.reload()
-        return
-      }
+      window.location.reload()
+      // if (isEmpty(accounts)) {
+      //   // setCurrentAccount('')
+      //   window.location.reload()
+      //   return
+      // }
     })
   }, [])
 

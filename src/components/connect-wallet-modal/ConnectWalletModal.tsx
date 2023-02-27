@@ -76,8 +76,8 @@ const Index: FunctionComponent<IndexProps> = ({ visible, handleClose }) => {
                 <SvgComponent
                   svgId='icon-metamask'
                   position='absolute'
-                  top={2.5}
-                  left={2.5}
+                  top={'9px'}
+                  left={'9px'}
                   svgSize='34px'
                 />
               </Box>

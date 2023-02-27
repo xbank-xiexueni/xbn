@@ -8,8 +8,6 @@ const wei2Eth = (wei: BigNumber | number | string) => {
       weiStr = weiStr.integerValue().toNumber().toString()
     } else if (typeof weiStr === 'number') {
       weiStr = wei.toString()
-    } else {
-      weiStr = wei
     }
 
     return ethers.utils.formatEther(ethers.BigNumber.from(weiStr))

@@ -1,3 +1,5 @@
+import type { UseToastOptions } from '@chakra-ui/react'
+
 export { XBANK_CONTRACT_ABI, WETH_CONTRACT_ABI } from './contractABI'
 
 export const XBANK_CONTRACT_ADDRESS = import.meta.env
@@ -94,3 +96,11 @@ If the current loan conditions and suggested interest rates do not meet your exp
 You can also use the small sliders on the right and bottom of the table to adjust the impact of changes in the two factors of collateral fat and loan duration on the interest rate.`,
   },
 ]
+
+export const TOAST_OPTION_CONFIG: UseToastOptions = {
+  position: 'top',
+  id: 'toast',
+  containerStyle: {
+    mt: 20,
+  },
+}
