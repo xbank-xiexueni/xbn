@@ -38,7 +38,6 @@ import {
 } from '@/constants'
 import { useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
-import wei2Eth from '@/utils/wei2Eth'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
 //   label,
@@ -114,25 +113,30 @@ const ApproveEthButton: FunctionComponent<
      * 1676961248463 - 1676961180777 =  67686 ms ≈ 1min
      */
     console.log(new Date().getTime(), '----------------start')
+    // 预计算
+    const UNIT256MAX_FOR_EQ =
+      '115792089237316195423570985008687907853269984665640564039457.584007913129639935'
+    const UNIT256MAX =
+      '115792089237316195423570985008687907853269984665640564039457584007913129639935'
     try {
       const parsedWeiAmount = ethers.utils.parseEther(amount)?.toString()
+
       const wethContract = createWethContract()
       setApproveLoading(true)
       const _allowance = await wethContract.allowance(
         currentAccount,
         XBANK_CONTRACT_ADDRESS,
       )
-      const allowanceEth = wei2Eth(_allowance._hex)
+      const allowanceEth = ethers.utils.formatEther(_allowance._hex)
       /**
        * 如果 allowanceEth < amount 再进行  approve
        */
-      if (Number(allowanceEth) !== Number(amount)) {
-        const approveAmount = ethers.utils.parseEther(amount)?.toString()
-        console.log('经过了 approve 阶段', approveAmount)
+      if (allowanceEth !== UNIT256MAX_FOR_EQ) {
+        console.log('approve 阶段')
 
         const approveHash = await wethContract.approve(
           XBANK_CONTRACT_ADDRESS,
-          approveAmount,
+          UNIT256MAX,
         )
         await approveHash.wait()
       }
