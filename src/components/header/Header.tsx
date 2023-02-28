@@ -20,7 +20,7 @@ import Icon from '@/assets/logo.png'
 import { RESPONSIVE_MAX_W, XBANK_CONTRACT_ADDRESS } from '@/constants'
 import { useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
-import wei2Eth from '@/utils/wei2Eth'
+import { wei2Eth } from '@/utils/unit-conversion'
 
 import { ConnectWalletModal, SvgComponent } from '..'
 
@@ -28,7 +28,7 @@ const Header = () => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
-  const { isOpen, onClose, onOpen, currentAccount, getBalance } = useWallet()
+  const { isOpen, onClose, onOpen, currentAccount } = useWallet()
 
   const activePath = useMemo((): 'LEND' | 'BUY_NFTS' | 'SELL_NFTS' | '' => {
     if (pathname.startsWith('/lending')) {
@@ -44,26 +44,37 @@ const Header = () => {
   }, [pathname])
 
   const testClick = useCallback(async () => {
-    getBalance(currentAccount)
     if (!currentAccount) return
+
     const wethContract = createWethContract()
 
-    const transactionsContract = createXBankContract()
-    const listPool = await transactionsContract.listPool()
-    const listLoan = await transactionsContract.listLoan()
-    const _allowance = await wethContract.allowance(
-      currentAccount,
-      XBANK_CONTRACT_ADDRESS,
+    const xBankContract = createXBankContract()
+    const listPool = await xBankContract.methods.listPool().call()
+    const listLoan = await xBankContract.methods.listLoan().call()
+    const _allowance = await wethContract.methods
+      .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
+      .call()
+    const repaymentAmount = await xBankContract.methods
+      .getRepaymentAmount('0')
+      .call()
+    const balanceOf = await wethContract.methods
+      .balanceOf(currentAccount)
+      .call()
+    console.log('🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:', balanceOf)
+    console.log(
+      '🚀 ~ file: Header.tsx:58 ~ testClick ~ repaymentAmount:',
+      repaymentAmount,
     )
-    const allowanceEth = wei2Eth(_allowance._hex)
+
+    const allowanceEth = wei2Eth(_allowance)
     console.log(
       '🚀 ~ file: Header.tsx:59 ~ testClick ~ allowanceEth:',
       allowanceEth,
     )
-    console.log('transactionsContract', transactionsContract)
+    console.log('transactionsContract', xBankContract)
     console.log('listPool', listPool)
     console.log('listLoan', listLoan)
-  }, [currentAccount, getBalance])
+  }, [currentAccount])
 
   return (
     <Box position={'sticky'} top={0} zIndex={21}>

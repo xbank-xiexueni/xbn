@@ -17,19 +17,19 @@ import {
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
-import { ethers } from 'ethers'
 import { floor, minBy } from 'lodash-es'
 import isEmpty from 'lodash-es/isEmpty'
 import range from 'lodash-es/range'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import {
-  type AssetListItemType,
-  type CollectionListItemType,
-  type PoolsListItemType,
-  apiGetXCurrency,
+import type {
+  LoanOrderDataType,
+  AssetListItemType,
+  CollectionListItemType,
+  PoolsListItemType,
 } from '@/api'
+import { apiGetXCurrency, apiPostLoanOrder } from '@/api'
 import {
   ConnectWalletModal,
   ImageWithFallback,
@@ -39,8 +39,8 @@ import {
 import { COLLATERALS, TENORS, UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
-import { createXBankContract } from '@/utils/createContract'
-import wei2Eth from '@/utils/wei2Eth'
+import { createWethContract, createXBankContract } from '@/utils/createContract'
+import { wei2Eth } from '@/utils/unit-conversion'
 
 import BelongToCollection from './components/BelongToCollection'
 import DetailComponent from './components/DetailComponent'
@@ -58,9 +58,9 @@ enum LOAN_DAYS_ENUM {
 }
 
 type PoolType = {
-  poolID?: number
-  poolApr?: number
-  poolDays?: LOAN_DAYS_ENUM
+  pool_id: number
+  pool_apr: number
+  pool_days: LOAN_DAYS_ENUM
 }
 const NftAssetDetail = () => {
   const { isOpen, onClose, onOpen, currentAccount } = useWallet()
@@ -111,15 +111,15 @@ const NftAssetDetail = () => {
 
       if (isEmpty(data)) return map
       const uniqAddress = [...new Set([...data?.map((i) => i.owner_address)])]
-      const taskPromises = uniqAddress.map((item: string) => {
-        return window?.ethereum
-          .request({
-            method: 'eth_getBalance',
-            params: [item, 'latest'],
-          })
+
+      const wethContract = createWethContract()
+
+      const taskPromises = uniqAddress.map(async (item: string) => {
+        return wethContract.methods
+          .balanceOf(item)
+          .call()
           .then((res: string) => {
-            const currentBalance = Number(ethers.utils.formatUnits(res, 'wei'))
-            map.set(item, currentBalance)
+            map.set(item, BigNumber(Number(res)))
           })
           .catch((error: Error) => {
             console.log(
@@ -131,12 +131,13 @@ const NftAssetDetail = () => {
       await Promise.all(taskPromises).catch((error) => {
         console.log('🚀 ~ file: NftAssetDetail.tsx:108 ~ error:', error)
       })
+      console.log(map)
       return map
     },
     [],
   )
 
-  const [sliderValue, setSliderValue] = useState(COLLATERALS[4])
+  const [sliderValue, setSliderValue] = useState(COLLATERALS[1])
   const loanWeiAmount = useMemo(() => {
     if (!commodityWeiPrice) return BigNumber(0)
     return commodityWeiPrice.multipliedBy(sliderValue).dividedBy(10000)
@@ -149,6 +150,7 @@ const NftAssetDetail = () => {
       }),
     {
       refreshDeps: [poolsList],
+      debounceWait: 100,
     },
   )
   const [selectPool, setSelectPool] = useState<PoolType>()
@@ -190,7 +192,7 @@ const NftAssetDetail = () => {
           }) => {
             return {
               pool_id,
-              poolApr:
+              pool_apr:
                 pool_maximum_interest_rate -
                 (TENORS.indexOf(pool_maximum_days) - index) *
                   loan_time_concession_flexibility -
@@ -198,11 +200,11 @@ const NftAssetDetail = () => {
                 // 4000 6000 => 1
                 ((pool_maximum_percentage - sliderValue) / 1000) *
                   loan_ratio_preferential_flexibility,
-              poolDays: item,
+              pool_days: item,
             }
           },
         ),
-        (i) => i.poolApr,
+        (i) => i.pool_apr,
       )
       if (!currentPool) break
       currentPools.push(currentPool)
@@ -221,14 +223,14 @@ const NftAssetDetail = () => {
       setInstallmentOptions([])
       return
     }
-    const { poolDays } = selectPool
-    if (poolDays === LOAN_DAYS_ENUM.Loan7Days) {
+    const { pool_days } = selectPool
+    if (pool_days === LOAN_DAYS_ENUM.Loan7Days) {
       setInstallmentOptions([1])
       setInstallmentValue(1)
       return
     }
     setInstallmentValue(2)
-    if (poolDays === LOAN_DAYS_ENUM.Loan14Days) {
+    if (pool_days === LOAN_DAYS_ENUM.Loan14Days) {
       setInstallmentOptions([1, 2])
       return
     }
@@ -237,13 +239,13 @@ const NftAssetDetail = () => {
 
   const getPlanPer = useCallback(
     (value: number) => {
-      if (!loanWeiAmount || !selectPool?.poolDays || !selectPool.poolApr) {
+      if (!loanWeiAmount || isEmpty(selectPool)) {
         return BigNumber(0)
       }
-      const { poolDays, poolApr } = selectPool
+      const { pool_days, pool_apr } = selectPool
       const loanEthAmount = Number(wei2Eth(loanWeiAmount))
-      const apr = poolApr / 10000
-      return amortizationCalByDays(loanEthAmount, apr, poolDays, value)
+      const apr = pool_apr / 10000
+      return amortizationCalByDays(loanEthAmount, apr, pool_days, value)
     },
     [selectPool, loanWeiAmount],
   )
@@ -253,19 +255,35 @@ const NftAssetDetail = () => {
   }, [commodityWeiPrice, loanWeiAmount])
 
   const [transferFromLoading, setTransferFromHashLoading] = useState(false)
+  const { runAsync: generateLoanOrder } = useRequest(apiPostLoanOrder, {
+    manual: true,
+  })
+  console.log(loanWeiAmount.toNumber())
 
   const handleClickPay = useCallback(async () => {
     if (!currentAccount) {
       onOpen()
       return
     }
-    // 一个 post 请求
-    setTransferFromHashLoading(true)
-    const xBankContract = createXBankContract()
     try {
-      const transferFromHash = await xBankContract.transferFrom(
-        selectPool?.poolID,
-        downPaymentWei.toNumber(),
+      if (!selectPool || isEmpty(selectPool)) {
+        return
+      }
+      const { pool_apr, pool_days, pool_id } = selectPool
+      console.log(
+        '🚀 ~ file: NftAssetDetail.tsx:273 ~ handleClickPay ~ selectPool:',
+        selectPool,
+        poolsList,
+      )
+      return
+      const { order_price, token_id } = detail
+      // 一个 post 请求
+      setTransferFromHashLoading(true)
+      const xBankContract = createXBankContract()
+      const transferFromHash = await xBankContract.methods.transferFrom(
+        10,
+        loanWeiAmount.toNumber(),
+        // downPaymentWei.toNumber(),
       )
       console.log(
         '🚀 ~ file: NftAssetDetail.tsx:247 ~ handleClickPay ~ transferFromHash:',
@@ -276,7 +294,30 @@ const NftAssetDetail = () => {
         '🚀 ~ file: NftAssetDetail.tsx:252 ~ handleClickPay ~ transferFromHash:',
         transferFromHash,
       )
+      return
       setTransferFromHashLoading(false)
+      return
+      const postParams: LoanOrderDataType = {
+        pool_id: pool_id,
+        borrower_address: currentAccount,
+        commodity_price: order_price,
+        oracle_floor_price: order_price,
+        load_principal_amount: downPaymentWei.toNumber(),
+        nft_collateral_id: token_id,
+        repay_times: installmentValue,
+        total_repayment: getPlanPer(installmentValue)
+          .multipliedBy(installmentValue)
+          .toNumber(),
+        loan_duration: dayjs().add(pool_days, 'days').unix(),
+        loan_interest_rate: pool_apr,
+      }
+      const res = await generateLoanOrder({
+        ...postParams,
+      })
+      console.log(
+        '🚀 ~ file: NftAssetDetail.tsx:317 ~ handleClickPay ~ res:',
+        res,
+      )
     } catch (error) {
       console.log(
         '🚀 ~ file: NftAssetDetail.tsx:254 ~ handleClickPay ~ error:',
@@ -284,7 +325,18 @@ const NftAssetDetail = () => {
       )
       setTransferFromHashLoading(false)
     }
-  }, [currentAccount, onOpen, downPaymentWei, selectPool])
+  }, [
+    currentAccount,
+    onOpen,
+    downPaymentWei,
+    selectPool,
+    generateLoanOrder,
+    detail,
+    installmentValue,
+    loanWeiAmount,
+    getPlanPer,
+    poolsList,
+  ])
 
   if (!state || isEmpty(state))
     return <NotFound title='Asset not found' backTo='/buy-nfts/market' />
@@ -443,10 +495,10 @@ const NftAssetDetail = () => {
           loading={fetching}
         >
           <Flex gap={2} flexWrap='wrap'>
-            {pools.map(({ poolID, poolApr, poolDays }) => {
+            {pools.map(({ pool_id, pool_apr, pool_days }) => {
               return (
                 <Flex
-                  key={`${poolID}-${poolApr}-${poolDays}`}
+                  key={`${pool_id}-${pool_apr}-${pool_days}`}
                   w={`${100 / pools.length}%`}
                   minW='137px'
                   maxW={136}
@@ -454,17 +506,17 @@ const NftAssetDetail = () => {
                   <RadioCard
                     onClick={() =>
                       setSelectPool({
-                        poolApr,
-                        poolID,
-                        poolDays,
+                        pool_apr,
+                        pool_id,
+                        pool_days,
                       })
                     }
-                    isActive={selectPool?.poolDays === poolDays}
+                    isActive={selectPool?.pool_days === pool_days}
                   >
-                    <Text fontWeight={700}>{poolDays} Days</Text>
+                    <Text fontWeight={700}>{pool_days} Days</Text>
                     <Text fontWeight={500} fontSize='xs' color='blue.1'>
                       <Highlight query={'APR'} styles={{ color: `black.1` }}>
-                        {`${poolApr && floor(poolApr / 100, 4)} % APR`}
+                        {`${pool_apr && floor(pool_apr / 100, 4)} % APR`}
                       </Highlight>
                     </Text>
                   </RadioCard>
@@ -523,7 +575,7 @@ const NftAssetDetail = () => {
                   value={getPlanPer(installmentValue).toFormat()}
                   label={dayjs()
                     .add(
-                      ((selectPool?.poolDays || 0) / installmentValue) *
+                      ((selectPool?.pool_days || 0) / installmentValue) *
                         (index + 1),
                       'days',
                     )
@@ -627,7 +679,7 @@ const NftAssetDetail = () => {
           h='60px'
           w='100%'
           onClick={handleClickPay}
-          isDisabled={loanWeiAmount.eq(0) || fetching || isEmpty(selectPool)}
+          // isDisabled={loanWeiAmount.eq(0) || fetching || isEmpty(selectPool)}
           isLoading={transferFromLoading}
         >
           <Text fontWeight={'400'}>Down payment</Text>&nbsp;

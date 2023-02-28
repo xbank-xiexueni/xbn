@@ -14,7 +14,7 @@ import { useMemo, useState, type FunctionComponent } from 'react'
 
 import type { AssetListItemType } from '@/api'
 import { ImageWithFallback, SvgComponent } from '@/components'
-import wei2Eth from '@/utils/wei2Eth'
+import { wei2Eth } from '@/utils/unit-conversion'
 
 const MarketNftListCard: FunctionComponent<
   {

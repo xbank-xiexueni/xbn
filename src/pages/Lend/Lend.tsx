@@ -42,7 +42,7 @@ import {
 import type { ColumnProps } from '@/components/my-table'
 // import { TransactionContext } from '@/context/TransactionContext'
 import { useWallet } from '@/hooks'
-import wei2Eth from '@/utils/wei2Eth'
+import { wei2Eth } from '@/utils/unit-conversion'
 
 import CollectionListItem from '../buy-nfts/components/CollectionListItem'
 

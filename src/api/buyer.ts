@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-import type { AssetListItemType } from '.'
+import type { AssetListItemType, LoanOrderDataType } from '.'
 import type { AxiosResponse } from 'axios'
 
 export const apiGetAssetsByCollection: (query: {
@@ -16,6 +16,14 @@ export const apiGetAssetDetail: (query: {
 }) => Promise<AxiosResponse<any>> = async (params) => {
   return await request.get(`/lending/api/v1/nft/assets`, {
     params,
+  })
+}
+
+export const apiPostLoanOrder: (
+  data: LoanOrderDataType,
+) => Promise<AxiosResponse<any>> = async (data) => {
+  return await request.post(`/lending/api/v1/loan-order`, {
+    data,
   })
 }
 

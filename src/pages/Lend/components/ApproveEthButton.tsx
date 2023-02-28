@@ -19,7 +19,6 @@ import {
   useToast,
   useDisclosure,
 } from '@chakra-ui/react'
-import { ethers } from 'ethers'
 import {
   useCallback,
   useEffect,
@@ -29,15 +28,13 @@ import {
   type FunctionComponent,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Web3 from 'web3'
 
 import { SvgComponent } from '@/components'
-import {
-  UNIT,
-  WETH_CONTRACT_ADDRESS,
-  XBANK_CONTRACT_ADDRESS,
-} from '@/constants'
+import { WETH_CONTRACT_ADDRESS, XBANK_CONTRACT_ADDRESS } from '@/constants'
 import { useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
+import { wei2Eth } from '@/utils/unit-conversion'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
 //   label,
@@ -90,8 +87,16 @@ const ApproveEthButton: FunctionComponent<
   const [currentBalance, setCurrentBalance] = useState(0)
 
   useEffect(() => {
-    getBalance(currentAccount).then((res) => setCurrentBalance(res))
+    const wethContract = createWethContract()
+    wethContract.methods
+      .balanceOf(currentAccount)
+      .call()
+      .then((res: string) => {
+        setCurrentBalance(Number(wei2Eth(res)))
+      })
   }, [getBalance, currentAccount])
+
+  console.log(currentBalance)
 
   const isError = useMemo((): boolean => {
     //  amount < balance + Has been lent
@@ -119,25 +124,26 @@ const ApproveEthButton: FunctionComponent<
     const UNIT256MAX =
       '115792089237316195423570985008687907853269984665640564039457584007913129639935'
     try {
-      const parsedWeiAmount = ethers.utils.parseEther(amount)?.toString()
+      const parsedWeiAmount = Web3.utils.toWei(amount, 'wei')
 
       const wethContract = createWethContract()
       setApproveLoading(true)
-      const _allowance = await wethContract.allowance(
-        currentAccount,
-        XBANK_CONTRACT_ADDRESS,
-      )
-      const allowanceEth = ethers.utils.formatEther(_allowance._hex)
+      const _allowance = await wethContract.methods
+        .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
+        .call()
+
+      const allowanceEth = wei2Eth(_allowance)
       /**
        * 如果 allowanceEth < amount 再进行  approve
        */
       if (allowanceEth !== UNIT256MAX_FOR_EQ) {
         console.log('approve 阶段')
 
-        const approveHash = await wethContract.approve(
-          XBANK_CONTRACT_ADDRESS,
-          UNIT256MAX,
-        )
+        const approveHash = await wethContract.methods
+          .approve(XBANK_CONTRACT_ADDRESS, UNIT256MAX)
+          .send({
+            from: currentAccount,
+          })
         await approveHash.wait()
       }
       setApproveLoading(false)
@@ -147,26 +153,29 @@ const ApproveEthButton: FunctionComponent<
       const supportERC20Denomination = WETH_CONTRACT_ADDRESS
 
       const xBankContract = createXBankContract()
-      const transactionHash = await xBankContract.createPool(
-        // supportERC20Denomination
-        supportERC20Denomination,
-        // allowCollateralContract
-        allowCollateralContract,
-        // '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
-        // poolAmount
-        parsedWeiAmount,
-        // poolMaximumPercentage,
-        poolMaximumPercentage,
-        // uint32 poolMaximumDays,
-        poolMaximumDays,
-        // uint32 poolMaximumInterestRate,
-        poolMaximumInterestRate,
-        // uint32 loanTimeConcessionFlexibility,
-        loanTimeConcessionFlexibility,
-        // uint32 loanRatioPreferentialFlexibility
-        loanRatioPreferentialFlexibility,
-      )
-      await transactionHash.wait()
+      await xBankContract.methods
+        .createPool(
+          // supportERC20Denomination
+          supportERC20Denomination,
+          // allowCollateralContract
+          allowCollateralContract,
+          // '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
+          // poolAmount
+          parsedWeiAmount,
+          // poolMaximumPercentage,
+          poolMaximumPercentage,
+          // uint32 poolMaximumDays,
+          poolMaximumDays,
+          // uint32 poolMaximumInterestRate,
+          poolMaximumInterestRate,
+          // uint32 loanTimeConcessionFlexibility,
+          loanTimeConcessionFlexibility,
+          // uint32 loanRatioPreferentialFlexibility
+          loanRatioPreferentialFlexibility,
+        )
+        .send({
+          from: currentAccount,
+        })
       setCreateLoading(false)
       console.log(new Date().getTime(), '----------------end')
       onClose()
@@ -176,6 +185,7 @@ const ApproveEthButton: FunctionComponent<
       toast({
         status: 'error',
         title: error?.code,
+        description: error?.message,
         duration: 5000,
       })
       setCreateLoading(false)
@@ -222,7 +232,7 @@ const ApproveEthButton: FunctionComponent<
             display={'flex'}
             justifyContent='space-between'
           >
-            <Text>Approve {UNIT}</Text>
+            <Text>Approve WETH</Text>
             <SvgComponent
               svgId='icon-close'
               onClick={handleClose}

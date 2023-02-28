@@ -269,21 +269,17 @@ const Loans = () => {
                               '🚀 ~ file: Loans.tsx:291 ~ interceptFn ~ currentBalance',
                               currentBalance,
                             )
-                            const repaymentAmount =
-                              await xBankContract.getRepaymentAmount(value)
+                            const repaymentAmount = await xBankContract.methods
+                              .getRepaymentAmount(value)
+                              .call()
                             console.log('repaymentAmount', repaymentAmount)
-                            const repayHash = await xBankContract.repayLoan(
-                              value,
-                            )
-                            console.log(
-                              '🚀 ~ file: Loans.tsx:278 ~ interceptFn ~ repayHash:',
-                              repayHash,
-                            )
-                            await repayHash.wait()
-                            console.log(
-                              '🚀 ~ file: Loans.tsx:280 ~ interceptFn ~ repayHash:',
-                              repayHash,
-                            )
+                            // 没写好
+                            // const repayHash = await xBankContract.methods
+                            //   .repayLoan(value)
+                            //   .seed({
+                            //     from: '',
+                            //   })
+
                             refresh()
                           })
                         }}

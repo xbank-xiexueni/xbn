@@ -27,7 +27,7 @@ import {
   // Select
 } from '@/components'
 import { useWallet } from '@/hooks'
-import wei2Eth from '@/utils/wei2Eth'
+import { wei2Eth } from '@/utils/unit-conversion'
 
 import CollectionDescription from './components/CollectionDescription'
 import CollectionListItem from './components/CollectionListItem'
