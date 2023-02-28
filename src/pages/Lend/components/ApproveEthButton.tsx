@@ -137,12 +137,11 @@ const ApproveEthButton: FunctionComponent<
       if (allowanceHex !== UNIT256MAX) {
         console.log('approve 阶段')
 
-        const approveHash = await wethContract.methods
+        await wethContract.methods
           .approve(XBANK_CONTRACT_ADDRESS, UNIT256MAX)
           .send({
             from: currentAccount,
           })
-        await approveHash.wait()
       }
       setApproveLoading(false)
       setCreateLoading(true)

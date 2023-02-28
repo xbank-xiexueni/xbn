@@ -289,7 +289,6 @@ const NftAssetDetail = () => {
         '🚀 ~ file: NftAssetDetail.tsx:247 ~ handleClickPay ~ transferFromHash:',
         transferFromHash,
       )
-      await transferFromHash.wait()
       console.log(
         '🚀 ~ file: NftAssetDetail.tsx:252 ~ handleClickPay ~ transferFromHash:',
         transferFromHash,
