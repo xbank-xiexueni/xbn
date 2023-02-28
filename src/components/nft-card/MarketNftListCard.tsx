@@ -46,7 +46,7 @@ const MarketNftListCard: FunctionComponent<
       border='none'
     >
       <CardBody p={0}>
-        <Box bg='white'>
+        <Box bg='white' borderTopRadius={'lg'}>
           <ImageWithFallback
             src={image_thumbnail_url}
             alt='Green double couch with wooden legs'
@@ -78,6 +78,7 @@ const MarketNftListCard: FunctionComponent<
         </Stack>
       </CardBody>
       <Divider color={`gray.2`} />
+
       {show ? (
         <Button
           borderRadius={8}

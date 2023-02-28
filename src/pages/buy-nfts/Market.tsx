@@ -68,8 +68,8 @@ const Market = () => {
         if (isEmpty(data)) return
         const maxRate = maxBy(
           data,
-          ({ pool_maximum_interest_rate }) => pool_maximum_interest_rate,
-        )?.pool_maximum_interest_rate
+          ({ pool_maximum_percentage }) => pool_maximum_percentage,
+        )?.pool_maximum_percentage
         setHighRate(maxRate)
       },
       ready: !!selectCollection?.contract_addr,
