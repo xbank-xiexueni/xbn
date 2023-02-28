@@ -70,9 +70,22 @@ const MarketNftListCard: FunctionComponent<
             <Text fontSize={'sm'} fontWeight='700' color={'black'}>
               Down Payment
             </Text>
-            <Flex alignItems={'center'} gap={1}>
+            <Flex
+              alignItems={'center'}
+              gap={1}
+              maxWidth='40%'
+              justify={'space-between'}
+            >
               <SvgComponent svgId='icon-eth' w={2} />
-              <Text fontSize={'md'}>&nbsp;{formattedDownPayment}</Text>
+              <Text
+                fontSize={'md'}
+                display='inline-block'
+                overflow='hidden'
+                whiteSpace='nowrap'
+                textOverflow='ellipsis'
+              >
+                &nbsp;{formattedDownPayment}
+              </Text>
             </Flex>
           </Flex>
         </Stack>
