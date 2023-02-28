@@ -94,9 +94,13 @@ const ApproveEthButton: FunctionComponent<
       .then((res: string) => {
         setCurrentBalance(Number(wei2Eth(res)))
       })
+      .catch((error: any) => {
+        console.log(
+          '🚀 ~ file: ApproveEthButton.tsx:98 ~ .then ~ error:',
+          error,
+        )
+      })
   }, [getBalance, currentAccount])
-
-  console.log(currentBalance)
 
   const isError = useMemo((): boolean => {
     //  amount < balance + Has been lent
@@ -124,8 +128,7 @@ const ApproveEthButton: FunctionComponent<
     const UNIT256MAX =
       '115792089237316195423570985008687907853269984665640564039457584007913129639935'
     try {
-      const parsedWeiAmount = Web3.utils.toWei(amount, 'wei')
-
+      const parsedWeiAmount = Web3.utils.toWei(amount, 'ether')
       const wethContract = createWethContract()
       setApproveLoading(true)
       const _allowance = await wethContract.methods
