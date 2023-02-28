@@ -123,10 +123,8 @@ const ApproveEthButton: FunctionComponent<
      */
     console.log(new Date().getTime(), '----------------start')
     // 预计算
-    const UNIT256MAX_FOR_EQ =
-      '115792089237316195423570985008687907853269984665640564039457.584007913129639935'
     const UNIT256MAX =
-      '115792089237316195423570985008687907853269984665640564039457584007913129639935'
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
     try {
       const parsedWeiAmount = Web3.utils.toWei(amount, 'ether')
       const wethContract = createWethContract()
@@ -135,11 +133,8 @@ const ApproveEthButton: FunctionComponent<
         .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
         .call()
 
-      const allowanceEth = wei2Eth(_allowance)
-      /**
-       * 如果 allowanceEth < amount 再进行  approve
-       */
-      if (allowanceEth !== UNIT256MAX_FOR_EQ) {
+      const allowanceHex = Web3.utils.toHex(_allowance)
+      if (allowanceHex !== UNIT256MAX) {
         console.log('approve 阶段')
 
         const approveHash = await wethContract.methods
