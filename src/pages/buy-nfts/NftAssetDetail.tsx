@@ -293,9 +293,6 @@ const NftAssetDetail = () => {
       const { order_price, token_id } = detail
       setTransferFromHashLoading(true)
       const xBankContract = createXBankContract()
-      // const estimate = await xBankContract.methods
-      //   .transferFrom(19, 100000000000)
-      //   .estimateGas()
 
       const transferFromHash = await xBankContract.methods
         .transferFrom(pool_id, loanWeiAmount.toNumber())
@@ -308,6 +305,7 @@ const NftAssetDetail = () => {
       console.log(transferFromHash, '111111111')
 
       setTransferFromHashLoading(false)
+      return
       const postParams: LoanOrderDataType = {
         pool_id: pool_id,
         borrower_address: currentAccount,

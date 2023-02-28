@@ -1,4 +1,4 @@
-import { ChakraProvider } from '@chakra-ui/react'
+import { Box, ChakraProvider, Spinner } from '@chakra-ui/react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { PhotoProvider } from 'react-photo-view'
@@ -26,7 +26,12 @@ createRoot(rootElement as HTMLElement).render(
       <TransactionsProvider>
         <BrowserRouter>
           <RootLayout>
-            <PhotoProvider maskOpacity={0.4} bannerVisible={false} maskClosable>
+            <PhotoProvider
+              maskOpacity={0.4}
+              bannerVisible={false}
+              maskClosable
+              loadingElement={<Spinner colorScheme={'blue'} color='blue.1' />}
+            >
               <App />
             </PhotoProvider>
           </RootLayout>
