@@ -1,5 +1,4 @@
 import { useToast } from '@chakra-ui/react'
-// import isEmpty from 'lodash-es/isEmpty'
 import {
   useEffect,
   useState,
@@ -8,6 +7,8 @@ import {
   useCallback,
 } from 'react'
 import Web3 from 'web3'
+
+import { createWeb3Provider } from '@/utils/createContract'
 
 export const TransactionContext = createContext({
   connectWallet: () => {},
@@ -81,8 +82,7 @@ export const TransactionsProvider = ({
   }, [])
 
   const getBalance = useCallback(async (address: string) => {
-    if (!ethereum) return 0
-    const provider = new Web3(window.ethereum)
+    const provider = createWeb3Provider()
 
     const currentBalance = await provider.eth.getBalance(address)
     console.log(

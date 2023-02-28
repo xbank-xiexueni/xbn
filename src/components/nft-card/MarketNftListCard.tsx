@@ -96,7 +96,9 @@ const MarketNftListCard: FunctionComponent<
           h='56px'
         >
           <Flex alignItems={'center'} gap={1}>
-            {/* <NftOrigin type={1} /> */}
+            <Text color={`gray.3`} fontSize='sm'>
+              Price
+            </Text>
           </Flex>
           <Flex alignItems={'center'} gap={1}>
             <SvgComponent svgId='icon-eth' w={2} />

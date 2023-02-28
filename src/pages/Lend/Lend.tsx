@@ -14,23 +14,15 @@ import {
   Highlight,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
-// import debounce from 'lodash-es/debounce'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import {
-  apiGetLoans,
-  // apiGetActiveCollection,
-  apiGetPools,
-  type PoolsListItemType,
-} from '@/api'
+import { apiGetLoans, apiGetPools, type PoolsListItemType } from '@/api'
 import ImgLend from '@/assets/LEND.png'
 import {
   ConnectWalletModal,
-  // SearchInput,
-  // Pagination,
   MyTable,
   LoadingComponent,
   TableList,
@@ -40,17 +32,13 @@ import {
   ImageWithFallback,
 } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
-// import { TransactionContext } from '@/context/TransactionContext'
 import { useWallet } from '@/hooks'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 import CollectionListItem from '../buy-nfts/components/CollectionListItem'
 
 import AllPoolsDescription from './components/AllPoolsDescription'
-import {
-  // activeCollectionColumns,
-  loansForLendColumns,
-} from './constants'
+import { loansForLendColumns } from './constants'
 
 type Dictionary<T> = Record<string, T>
 
@@ -136,9 +124,9 @@ const Lend = () => {
   // })
   // 三个表格的请求
   const [loansData, setLoansData] = useState<Dictionary<any[]>>({
+    0: [],
     1: [],
     2: [],
-    3: [],
   })
 
   // -1 代表全选
@@ -553,7 +541,9 @@ const Lend = () => {
 
                 <List spacing={4} mt={4} position='relative'>
                   <LoadingComponent loading={myPoolsLoading} />
-                  {isEmpty(myPoolsData) && <EmptyComponent />}
+                  {isEmpty(myPoolsData) && !myPoolsLoading && (
+                    <EmptyComponent />
+                  )}
                   {!isEmpty(myPoolsData) && (
                     <Flex
                       justify={'space-between'}
@@ -580,19 +570,18 @@ const Lend = () => {
                   )}
 
                   {!isEmpty(myPoolsData) &&
-                    myPoolsData.map((item: PoolsListItemType) => (
-                      <CollectionListItem
-                        data={{
-                          contract_addr: item.allow_collateral_contract,
-                          image_url: '',
-                          name: '',
-                          safelist_request_status: 'verified',
-                        }}
-                        key={item.pool_id}
-                        onClick={() => setSelectKeyForOpenLoans(item.pool_id)}
-                        isActive={selectKeyForOpenLoans === item.pool_id}
-                      />
-                    ))}
+                    myPoolsData.map(
+                      ({ pool_id, collection_info }: PoolsListItemType) => (
+                        <CollectionListItem
+                          data={{
+                            ...collection_info,
+                          }}
+                          key={pool_id}
+                          onClick={() => setSelectKeyForOpenLoans(pool_id)}
+                          isActive={selectKeyForOpenLoans === pool_id}
+                        />
+                      ),
+                    )}
                 </List>
               </Box>
               <Box
@@ -612,7 +601,7 @@ const Lend = () => {
                       ),
                       columns: loansForLendColumns,
                       loading: loansLoading,
-                      data: loansData[1],
+                      data: loansData[0],
                       key: '1',
                     },
                     {
@@ -631,7 +620,7 @@ const Lend = () => {
                         </Heading>
                       ),
                       columns: loansForLendColumns,
-                      data: loansData[2],
+                      data: loansData[1],
                       loading: loansLoading,
                       key: '2',
                     },
@@ -651,7 +640,7 @@ const Lend = () => {
                         </Heading>
                       ),
                       columns: loansForLendColumns,
-                      data: loansData[3],
+                      data: loansData[2],
                       loading: loansLoading,
                       key: '3',
                     },

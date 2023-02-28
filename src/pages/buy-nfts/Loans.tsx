@@ -1,33 +1,25 @@
-import { Box, Heading, List, Flex, Text, Highlight } from '@chakra-ui/react'
+import { Box, Heading, Flex, Text, Highlight, useToast } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
+import BigNumber from 'bignumber.js'
+import { unix } from 'dayjs'
 import groupBy from 'lodash-es/groupBy'
-import isEmpty from 'lodash-es/isEmpty'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-// import { useNavigate } from 'react-router-dom'
+import { useCallback, useEffect, useMemo } from 'react'
 
-// import { SearchInput } from '@/components'
 import { apiGetLoans } from '@/api'
-import {
-  ConnectWalletModal,
-  EmptyComponent,
-  ImageWithFallback,
-  LoadingComponent,
-  SvgComponent,
-  TableList,
-} from '@/components'
+import { ConnectWalletModal, ImageWithFallback, TableList } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
 import { UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
-import { createXBankContract } from '@/utils/createContract'
-
-import CollectionListItem from './components/CollectionListItem'
+import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
+import { wei2Eth } from '@/utils/unit-conversion'
 
 export const loansForBuyerColumns: ColumnProps[] = [
   {
     title: 'Asset',
-    dataIndex: 'col1',
-    key: 'col1',
+    dataIndex: 'nft_collateral_id',
+    key: 'nft_collateral_id',
     align: 'left',
+    width: 220,
     render: (_: Record<string, any>, value: any) => (
       <Flex alignItems={'center'} gap={2}>
         <ImageWithFallback
@@ -70,6 +62,9 @@ export const loansForBuyerColumns: ColumnProps[] = [
     title: 'Start time',
     dataIndex: 'loan_start_time',
     key: 'loan_start_time',
+    render: (_: Record<string, any>, value: any) => (
+      <Text>{unix(value).format('YYYY/MM/DD')}</Text>
+    ),
   },
   {
     title: 'Loan value',
@@ -77,7 +72,7 @@ export const loansForBuyerColumns: ColumnProps[] = [
     key: 'total_repayment',
     render: (_: Record<string, any>, value: any) => (
       <Text>
-        {value} {UNIT}
+        {wei2Eth(value)} {UNIT}
       </Text>
     ),
   },
@@ -85,7 +80,9 @@ export const loansForBuyerColumns: ColumnProps[] = [
     title: 'Duration',
     dataIndex: 'loan_duration',
     key: 'loan_duration',
-    render: (_: Record<string, any>, value: any) => <Text>{value} days</Text>,
+    render: (_: Record<string, any>, value: any) => (
+      <Text>{value / 24 / 60 / 60} days</Text>
+    ),
   },
   {
     title: 'Interest',
@@ -101,15 +98,16 @@ export const loansForBuyerColumns: ColumnProps[] = [
 
 const Loans = () => {
   // const navigate = useNavigate()
-  const { isOpen, onClose, interceptFn, currentAccount, getBalance } =
-    useWallet()
+  const { isOpen, onClose, interceptFn, currentAccount } = useWallet()
+
+  const toast = useToast()
 
   useEffect(() => interceptFn(), [interceptFn])
 
-  const [selectCollection, setSelectCollection] = useState<number>()
+  // const [selectCollection, setSelectCollection] = useState<number>()
 
   const { loading, data, refresh } = useRequest(apiGetLoans, {
-    ready: !!currentAccount && false,
+    ready: !!currentAccount,
     debounceWait: 100,
     defaultParams: [
       {
@@ -118,41 +116,88 @@ const Loans = () => {
     ],
   })
 
-  const currentCollectionLoans = useMemo(() => {
-    return data?.data?.filter(
-      (item: any) =>
-        item.collectionId === selectCollection || !selectCollection,
-    )
-  }, [data, selectCollection])
+  // const currentCollectionLoans = useMemo(() => {
+  //   return data?.data?.filter(
+  //     (item: any) =>
+  //       item.collectionId === selectCollection || !selectCollection,
+  //   )
+  // }, [data, selectCollection])
 
   const statuedLoans = useMemo(
-    () => groupBy(currentCollectionLoans, 'status'),
-    [currentCollectionLoans],
+    () =>
+      groupBy(
+        // currentCollectionLoans,
+        data?.data,
+        'loan_status',
+      ),
+    [data],
   )
 
-  const collectionList = useMemo(() => {
-    const arr = data?.data || []
-    if (isEmpty(arr)) {
-      return []
-    }
-    const res: { id: number; name: string; img: string }[] = []
-    arr.forEach((element: any) => {
-      if (isEmpty(res.find((i) => i.id === element.collectionId))) {
-        res.push({
-          id: element.collectionId,
-          name: element.collectionName,
-          img: element.collectionImg,
-        })
-      }
-    })
-    return res
-  }, [data])
+  // const collectionList = useMemo(() => {
+  //   const arr = data?.data || []
+  //   if (isEmpty(arr)) {
+  //     return []
+  //   }
+  //   const res: { id: number; name: string; img: string }[] = []
+  //   arr.forEach((element: any) => {
+  //     if (isEmpty(res.find((i) => i.id === element.collectionId))) {
+  //       res.push({
+  //         id: element.collectionId,
+  //         name: element.collectionName,
+  //         img: element.collectionImg,
+  //       })
+  //     }
+  //   })
+  //   return res
+  // }, [data])
 
-  const getCollectionLength = useCallback(
-    (targetId: string) => {
-      return data?.data?.filter((i: any) => i.collectionId === targetId).length
+  // const getCollectionLength = useCallback(
+  //   (targetId: string) => {
+  //     return data?.data?.filter((i: any) => i.collectionId === targetId).length
+  //   },
+  //   [data],
+  // )
+
+  const handleClickRepay = useCallback(
+    (loan_id: string) => {
+      interceptFn(async () => {
+        const xBankContract = createXBankContract()
+
+        // 1. 查看需要偿还的金额
+        const repaymentAmount = await xBankContract.methods
+          .getRepaymentAmount(loan_id)
+          .call()
+        const provider = createWeb3Provider()
+
+        const currentBalance = await provider.eth.getBalance(currentAccount)
+        if (BigNumber(currentBalance).lt(Number(repaymentAmount))) {
+          toast({
+            title: 'Insufficient balance',
+            status: 'warning',
+          })
+          return
+        }
+        console.log(
+          currentBalance,
+          repaymentAmount,
+          BigNumber(currentBalance).lt(Number(repaymentAmount)),
+        )
+
+        // 2. 转账到合约
+
+        // 3. 调用 xbank.repayLoan
+
+        // 没写完
+        // const repayHash = await xBankContract.methods
+        //   .repayLoan(loan_id)
+        //   .seed({
+        //     from: '',
+        //   })
+
+        refresh()
+      })
     },
-    [data],
+    [interceptFn, currentAccount, refresh, toast],
   )
 
   return (
@@ -162,7 +207,7 @@ const Loans = () => {
       </Heading>
 
       <Flex justify={'space-between'} mt={4}>
-        <Box
+        {/* <Box
           border={`1px solid var(--chakra-colors-gray-2)`}
           borderRadius={12}
           p={6}
@@ -174,7 +219,6 @@ const Loans = () => {
           <Heading size={'md'} mb={4}>
             Collections
           </Heading>
-          {/* <SearchInput placeholder='Collections...' /> */}
 
           <List spacing={4} mt={4} position='relative'>
             <LoadingComponent loading={false} />
@@ -215,12 +259,13 @@ const Loans = () => {
                 />
               ))}
           </List>
-        </Box>
+        </Box> */}
         <Box
-          w={{
-            lg: '72%',
-            md: '65%',
-          }}
+          // w={{
+          //   lg: '72%',
+          //   md: '65%',
+          // }}
+          w='100%'
         >
           <TableList
             tables={[
@@ -259,30 +304,7 @@ const Loans = () => {
                         bg='white'
                         borderRadius={8}
                         cursor='pointer'
-                        onClick={() => {
-                          interceptFn(async () => {
-                            const xBankContract = createXBankContract()
-                            const currentBalance = await getBalance(
-                              currentAccount,
-                            )
-                            console.log(
-                              '🚀 ~ file: Loans.tsx:291 ~ interceptFn ~ currentBalance',
-                              currentBalance,
-                            )
-                            const repaymentAmount = await xBankContract.methods
-                              .getRepaymentAmount(value)
-                              .call()
-                            console.log('repaymentAmount', repaymentAmount)
-                            // 没写好
-                            // const repayHash = await xBankContract.methods
-                            //   .repayLoan(value)
-                            //   .seed({
-                            //     from: '',
-                            //   })
-
-                            refresh()
-                          })
-                        }}
+                        onClick={() => handleClickRepay(value)}
                       >
                         <Text color='blue.1' fontSize='sm' fontWeight={'700'}>
                           Repay
@@ -293,7 +315,7 @@ const Loans = () => {
                 ],
 
                 loading: loading,
-                data: statuedLoans[1],
+                data: statuedLoans[0],
                 key: '1',
               },
               {
@@ -314,7 +336,7 @@ const Loans = () => {
 
                 columns: loansForBuyerColumns,
                 loading: loading,
-                data: statuedLoans[2],
+                data: statuedLoans[1],
                 key: '2',
               },
               {
@@ -334,7 +356,7 @@ const Loans = () => {
                 ),
                 columns: loansForBuyerColumns,
                 loading: loading,
-                data: statuedLoans[3],
+                data: statuedLoans[2],
                 key: '3',
               },
             ]}

@@ -13,12 +13,14 @@ import {
   Highlight,
   VStack,
   Divider,
+  useToast,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
-import { floor, minBy } from 'lodash-es'
+import floor from 'lodash-es/floor'
 import isEmpty from 'lodash-es/isEmpty'
+import minBy from 'lodash-es/minBy'
 import range from 'lodash-es/range'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -73,6 +75,7 @@ const NftAssetDetail = () => {
       asset: AssetListItemType
     }
   } = useLocation()
+  const toast = useToast()
 
   const { collection, poolsList, asset: detail } = state || {}
   const [usdPrice, setUsdPrice] = useState<BigNumber>()
@@ -131,7 +134,6 @@ const NftAssetDetail = () => {
       await Promise.all(taskPromises).catch((error) => {
         console.log('🚀 ~ file: NftAssetDetail.tsx:108 ~ error:', error)
       })
-      console.log(map)
       return map
     },
     [],
@@ -238,7 +240,7 @@ const NftAssetDetail = () => {
   }, [selectPool])
 
   const getPlanPer = useCallback(
-    (value: number) => {
+    (value: 1 | 2 | 3) => {
       if (!loanWeiAmount || isEmpty(selectPool)) {
         return BigNumber(0)
       }
@@ -258,7 +260,25 @@ const NftAssetDetail = () => {
   const { runAsync: generateLoanOrder } = useRequest(apiPostLoanOrder, {
     manual: true,
   })
-  console.log(loanWeiAmount.toNumber())
+
+  /**
+   * Error: Transaction has been reverted by the EVM:
+{
+  "blockHash": "0xcaacc89c458dd0e0e42d0669228cf5171dbad8ee911fcf05fe607787f692b39a",
+  "blockNumber": 8570811,
+  "contractAddress": null,
+  "cumulativeGasUsed": 5247467,
+  "effectiveGasPrice": 174444924222,
+  "from": "0xe5c70a775a9cbc4b217a69ea4f4efa66f7f1c8fc",
+  "gasUsed": 28761,
+  "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "status": false,
+  "to": "0x492d7368cf6280d4bc44ca3494ebedd56df0393d",
+  "transactionHash": "0x6513f3c6ab10e486afe08b4fc8569c067c8e6ea92b722475cf6f341d1928c908",
+  "transactionIndex": 74,
+  "type": "0x2",
+  "events": {}
+   */
 
   const handleClickPay = useCallback(async () => {
     if (!currentAccount) {
@@ -270,32 +290,24 @@ const NftAssetDetail = () => {
         return
       }
       const { pool_apr, pool_days, pool_id } = selectPool
-      console.log(
-        '🚀 ~ file: NftAssetDetail.tsx:273 ~ handleClickPay ~ selectPool:',
-        selectPool,
-        poolsList,
-      )
-      return
       const { order_price, token_id } = detail
-      // 一个 post 请求
       setTransferFromHashLoading(true)
       const xBankContract = createXBankContract()
-      const transferFromHash = await xBankContract.methods.transferFrom(
-        10,
-        loanWeiAmount.toNumber(),
-        // downPaymentWei.toNumber(),
-      )
-      console.log(
-        '🚀 ~ file: NftAssetDetail.tsx:247 ~ handleClickPay ~ transferFromHash:',
-        transferFromHash,
-      )
-      console.log(
-        '🚀 ~ file: NftAssetDetail.tsx:252 ~ handleClickPay ~ transferFromHash:',
-        transferFromHash,
-      )
-      return
+      // const estimate = await xBankContract.methods
+      //   .transferFrom(19, 100000000000)
+      //   .estimateGas()
+
+      const transferFromHash = await xBankContract.methods
+        .transferFrom(pool_id, loanWeiAmount.toNumber())
+        .send({
+          from: currentAccount,
+          // value: 10000000000,
+          // gas: 300000,
+          // gasPrice:''
+        })
+      console.log(transferFromHash, '111111111')
+
       setTransferFromHashLoading(false)
-      return
       const postParams: LoanOrderDataType = {
         pool_id: pool_id,
         borrower_address: currentAccount,
@@ -304,9 +316,7 @@ const NftAssetDetail = () => {
         load_principal_amount: downPaymentWei.toNumber(),
         nft_collateral_id: token_id,
         repay_times: installmentValue,
-        total_repayment: getPlanPer(installmentValue)
-          .multipliedBy(installmentValue)
-          .toNumber(),
+        total_repayment: loanWeiAmount.toNumber(),
         loan_duration: dayjs().add(pool_days, 'days').unix(),
         loan_interest_rate: pool_apr,
       }
@@ -317,11 +327,17 @@ const NftAssetDetail = () => {
         '🚀 ~ file: NftAssetDetail.tsx:317 ~ handleClickPay ~ res:',
         res,
       )
-    } catch (error) {
+    } catch (error: any) {
       console.log(
         '🚀 ~ file: NftAssetDetail.tsx:254 ~ handleClickPay ~ error:',
         error,
       )
+      toast({
+        status: 'error',
+        title: error?.code,
+        description: error?.message,
+        duration: 5000,
+      })
       setTransferFromHashLoading(false)
     }
   }, [
@@ -333,8 +349,7 @@ const NftAssetDetail = () => {
     detail,
     installmentValue,
     loanWeiAmount,
-    getPlanPer,
-    poolsList,
+    toast,
   ])
 
   if (!state || isEmpty(state))
@@ -351,6 +366,7 @@ const NftAssetDetail = () => {
       gap={10}
       mx='58px'
       mt={8}
+      mb={20}
     >
       {/* {detailLoading ? (
         <Skeleton height={700} borderRadius={16} />
@@ -678,7 +694,7 @@ const NftAssetDetail = () => {
           h='60px'
           w='100%'
           onClick={handleClickPay}
-          // isDisabled={loanWeiAmount.eq(0) || fetching || isEmpty(selectPool)}
+          isDisabled={loanWeiAmount.eq(0) || fetching || isEmpty(selectPool)}
           isLoading={transferFromLoading}
         >
           <Text fontWeight={'400'}>Down payment</Text>&nbsp;

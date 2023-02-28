@@ -1,9 +1,11 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
+import { unix } from 'dayjs'
 import { Link } from 'react-router-dom'
 
 import { ImageWithFallback } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
 import { UNIT } from '@/constants'
+import { wei2Eth } from '@/utils/unit-conversion'
 
 export const activeCollectionColumns: ColumnProps[] = [
   {
@@ -128,6 +130,9 @@ export const loansForLendColumns: ColumnProps[] = [
     thAlign: 'right',
     align: 'right',
     key: 'loan_start_time',
+    render: (_: Record<string, any>, value: any) => (
+      <Text>{unix(value).format('YYYY-MM-DD')}</Text>
+    ),
   },
   {
     title: 'Loan value',
@@ -137,7 +142,7 @@ export const loansForLendColumns: ColumnProps[] = [
     key: 'total_repayment',
     render: (_: Record<string, any>, value: any) => (
       <Text>
-        {value} {UNIT}
+        {wei2Eth(value)} {UNIT}
       </Text>
     ),
   },
@@ -147,7 +152,9 @@ export const loansForLendColumns: ColumnProps[] = [
     align: 'right',
     thAlign: 'right',
     key: 'loan_duration',
-    render: (_: Record<string, any>, value: any) => <Text>{value} days</Text>,
+    render: (_: Record<string, any>, value: any) => (
+      <Text>{value / 24 / 60 / 60} days</Text>
+    ),
   },
   {
     title: 'Interest',
@@ -155,6 +162,22 @@ export const loansForLendColumns: ColumnProps[] = [
     align: 'right',
     key: 'pool_interest_rate',
     thAlign: 'right',
-    render: (_: Record<string, any>, value: any) => <Text>{value} ETH</Text>,
+    render: (_: Record<string, any>, value: any) => (
+      <Text>
+        {/* {wei2Eth(
+          amortizationCalByDays(
+            _.total_repayment,
+            _.loan_interest_rate / 10000,
+            _.pool_maximum_days,
+            _.repay_times,
+          )
+            .multipliedBy(_.repay_times)
+            .minus(_.total_repayment)
+            .toNumber(),
+        )} */}
+        xxx {value}
+        &nbsp; ETH
+      </Text>
+    ),
   },
 ]

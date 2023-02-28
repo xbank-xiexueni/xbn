@@ -7,8 +7,9 @@ import {
   SimpleGrid,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
-import { maxBy, minBy } from 'lodash-es'
 import isEmpty from 'lodash-es/isEmpty'
+import maxBy from 'lodash-es/maxBy'
+import minBy from 'lodash-es/minBy'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
