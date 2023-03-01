@@ -190,7 +190,8 @@ const Header = () => {
                 <PopoverBody px={0} py={2}>
                   {[
                     'Market',
-                    //  'My assets',
+
+                    // 'My assets',
                     'Loans',
                   ].map((item) => (
                     <Link to={`/buy-nfts/${kebabCase(item)}`} key={item}>

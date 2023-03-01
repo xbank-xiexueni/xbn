@@ -303,7 +303,7 @@ const NftAssetDetail = () => {
         .transferFrom(pool_id, loanWeiAmount.toNumber().toString())
         .send({
           from: currentAccount,
-          value: loanWeiAmount.toNumber().toString(),
+          value: commodityWeiPrice.minus(loanWeiAmount).toNumber().toString(),
           gas: 300000,
           // gasPrice:''
         })
@@ -354,6 +354,7 @@ const NftAssetDetail = () => {
     loanWeiAmount,
     toast,
     navigate,
+    commodityWeiPrice,
   ])
 
   const [usdPrice, setUsdPrice] = useState<BigNumber>()
