@@ -23,7 +23,7 @@ import isEmpty from 'lodash-es/isEmpty'
 import minBy from 'lodash-es/minBy'
 import range from 'lodash-es/range'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import type {
   LoanOrderDataType,
@@ -66,6 +66,8 @@ type PoolType = {
 }
 
 const NftAssetDetail = () => {
+  const navigate = useNavigate()
+  const toast = useToast()
   const { isOpen, onClose, onOpen, currentAccount } = useWallet()
   const {
     state,
@@ -76,7 +78,6 @@ const NftAssetDetail = () => {
       asset: AssetListItemType
     }
   } = useLocation()
-  const toast = useToast()
 
   const { collection, poolsList, asset: detail } = state || {}
 
@@ -299,6 +300,7 @@ const NftAssetDetail = () => {
         duration: 5000,
       })
       setTransferFromHashLoading(false)
+      return
     }
     try {
       const postParams: LoanOrderDataType = {
@@ -313,10 +315,10 @@ const NftAssetDetail = () => {
         loan_duration: pool_days * 24 * 60 * 60,
         loan_interest_rate: pool_apr,
       }
-      console.log(postParams)
       await generateLoanOrder({
         ...postParams,
       })
+      navigate('/buy-nfts/loans')
     } catch {
       //
     }
@@ -330,6 +332,7 @@ const NftAssetDetail = () => {
     installmentValue,
     loanWeiAmount,
     toast,
+    navigate,
   ])
 
   const [usdPrice, setUsdPrice] = useState<BigNumber>()
