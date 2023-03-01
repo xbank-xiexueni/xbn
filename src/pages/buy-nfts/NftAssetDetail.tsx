@@ -41,11 +41,7 @@ import {
 import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
-import {
-  createWeb3Provider,
-  createWethContract,
-  createXBankContract,
-} from '@/utils/createContract'
+import { createWethContract, createXBankContract } from '@/utils/createContract'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 import BelongToCollection from './components/BelongToCollection'
@@ -307,7 +303,7 @@ const NftAssetDetail = () => {
         .transferFrom(pool_id, loanWeiAmount.toNumber().toString())
         .send({
           from: currentAccount,
-          // value: 10000000000,
+          value: loanWeiAmount.toNumber().toString(),
           gas: 300000,
           // gasPrice:''
         })
@@ -400,7 +396,7 @@ const NftAssetDetail = () => {
       mt={8}
       mb={20}
     >
-      <Button
+      {/* <Button
         onClick={() => {
           const web3 = createWeb3Provider()
           const wethContract = createWethContract()
@@ -425,7 +421,7 @@ const NftAssetDetail = () => {
         }}
       >
         shshshsh
-      </Button>
+      </Button> */}
       {/* {detailLoading ? (
         <Skeleton height={700} borderRadius={16} />
       ) : ( */}
@@ -740,9 +736,7 @@ const NftAssetDetail = () => {
                     .multipliedBy(installmentValue)
                     .minus(Number(wei2Eth(loanWeiAmount)))
                     .plus(Number(wei2Eth(commodityWeiPrice)))
-                    .plus(
-                      Number(wei2Eth(commodityWeiPrice.multipliedBy(0.025))),
-                    )
+                    .multipliedBy(1.025)
                     .toFormat(FORMAT_NUMBER)}
                   {UNIT}
                 </Text>

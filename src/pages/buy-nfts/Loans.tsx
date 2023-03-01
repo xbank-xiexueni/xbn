@@ -214,6 +214,7 @@ const Loans = () => {
             .send({
               from: currentAccount,
               gas: 300000,
+              value: repaymentAmount,
             })
           setRepayLoadingMap((prev) => ({
             ...prev,
@@ -240,8 +241,8 @@ const Loans = () => {
   )
 
   return (
-    <Box>
-      <Heading size={'2xl'} my='60px'>
+    <Box mt='60px'>
+      <Heading size={'2xl'} mb='60px'>
         Loans
       </Heading>
 

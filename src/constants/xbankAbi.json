@@ -325,7 +325,7 @@
         "type": "uint32"
       }
     ],
-    "name": "_calNextRepayDuration",
+    "name": "_calNextRepayDate",
     "outputs": [
       {
         "internalType": "uint32",
@@ -490,6 +490,11 @@
         "internalType": "uint256",
         "name": "nftCollateralID",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
       }
     ],
     "name": "beginLoan",
@@ -719,7 +724,7 @@
         "type": "uint256"
       }
     ],
-    "name": "getNextRepayDuration",
+    "name": "getNextRepayDate",
     "outputs": [
       {
         "internalType": "uint32",

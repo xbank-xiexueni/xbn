@@ -23,11 +23,10 @@ import Jazzicon from 'react-jazzicon'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import Icon from '@/assets/logo.png'
-import { RESPONSIVE_MAX_W, XBANK_CONTRACT_ADDRESS } from '@/constants'
+import { RESPONSIVE_MAX_W } from '@/constants'
 import { useWallet } from '@/hooks'
-import { createWethContract, createXBankContract } from '@/utils/createContract'
+import { createXBankContract } from '@/utils/createContract'
 import formatAddress from '@/utils/formatAddress'
-import { wei2Eth } from '@/utils/unit-conversion'
 
 import { ConnectWalletModal, SvgComponent } from '..'
 
@@ -56,33 +55,30 @@ const Header = () => {
       return
     }
 
-    const wethContract = createWethContract()
+    // const wethContract = createWethContract()
 
     const xBankContract = createXBankContract()
-    const listPool = await xBankContract.methods.listPool().call()
+    console.log(
+      '🚀 ~ file: Header.tsx:62 ~ handleClickWal ~ xBankContract:',
+      xBankContract,
+    )
+    // const listPool = await xBankContract.methods.listPool().call()
     const listLoan = await xBankContract.methods.listLoan().call()
-    const _allowance = await wethContract.methods
-      .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
-      .call()
-    const repaymentAmount = await xBankContract.methods
-      .getRepaymentAmount('0')
-      .call()
-    const balanceOf = await wethContract.methods
-      .balanceOf(currentAccount)
-      .call()
-    console.log('🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:', balanceOf)
-    console.log(
-      '🚀 ~ file: Header.tsx:58 ~ testClick ~ repaymentAmount:',
-      repaymentAmount,
-    )
+    // const _allowance = await wethContract.methods
+    //   .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
+    //   .call()
 
-    const allowanceEth = wei2Eth(_allowance)
-    console.log(
-      '🚀 ~ file: Header.tsx:59 ~ testClick ~ allowanceEth:',
-      allowanceEth,
-    )
-    console.log('transactionsContract', xBankContract)
-    console.log('listPool', listPool)
+    // const balanceOf = await wethContract.methods
+    //   .balanceOf(currentAccount)
+    //   .call()
+    // console.log('🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:', balanceOf)
+
+    // const allowanceEth = wei2Eth(_allowance)
+    // console.log(
+    //   '🚀 ~ file: Header.tsx:59 ~ testClick ~ allowanceEth:',
+    //   allowanceEth,
+    // )
+    console.log('transactionsContract', xBankContract.methods)
     console.log('listLoan', listLoan)
   }, [currentAccount, onOpen])
 
@@ -260,12 +256,14 @@ const Header = () => {
             <MenuButton
               as={IconButton}
               aria-label='Options'
-              icon={<SvgComponent svgId='open' svgSize={'20px'} />}
               display={{
                 md: 'flex',
                 lg: 'none',
               }}
-            />
+              bg='white'
+            >
+              <SvgComponent svgId='open' svgSize={'20px'} />
+            </MenuButton>
             <MenuList minWidth='240px'>
               <MenuOptionGroup title='Lend' type='radio'>
                 <Link to='/lending/my-pools'>
