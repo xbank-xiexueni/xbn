@@ -41,7 +41,11 @@ import {
 import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
-import { createWethContract, createXBankContract } from '@/utils/createContract'
+import {
+  createWeb3Provider,
+  createWethContract,
+  createXBankContract,
+} from '@/utils/createContract'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 import BelongToCollection from './components/BelongToCollection'
@@ -79,7 +83,7 @@ const NftAssetDetail = () => {
     }
   } = useLocation()
 
-  const { collection, poolsList, asset: detail } = state || {}
+  const { collection, poolsList: originPoolList, asset: detail } = state || {}
 
   // 商品价格
   const commodityWeiPrice = useMemo(() => {
@@ -130,42 +134,52 @@ const NftAssetDetail = () => {
   const { loading: fetching, data: latestBalanceMap } = useRequest(
     () =>
       batchFetchOwenAddressLatestBalance({
-        data: poolsList,
+        data: originPoolList,
       }),
     {
-      refreshDeps: [poolsList],
+      refreshDeps: [originPoolList],
       debounceWait: 100,
     },
   )
   const [selectPool, setSelectPool] = useState<PoolType>()
 
   const pools = useMemo(() => {
-    if (!poolsList || isEmpty(poolsList) || latestBalanceMap?.size === 0) {
+    if (
+      !originPoolList ||
+      isEmpty(originPoolList) ||
+      latestBalanceMap?.size === 0
+    ) {
       setSelectPool(undefined)
       return []
     }
-    const filterPercentageAndLatestBalancePools = poolsList.filter((item) => {
-      // 此 pool 创建者最新 weth 资产
-      const latestWeth = latestBalanceMap?.get(item.owner_address)
-      if (!latestWeth) {
-        return false
-      }
-      // 此 pool 最新可用资产
-      const poolLatestCanUseAmount = BigNumber(item.pool_amount).minus(
-        item.pool_used_amount,
-      )
-      // 二者取较小值用于比较
-      const forCompareWei = poolLatestCanUseAmount.lte(latestWeth)
-        ? poolLatestCanUseAmount
-        : latestWeth
-      return (
-        item.pool_maximum_percentage >= sliderValue &&
-        loanWeiAmount.lte(forCompareWei) &&
-        //  存在一些脏数据
-        item.loan_ratio_preferential_flexibility <= 200 &&
-        item.loan_ratio_preferential_flexibility <= 200
-      )
-    })
+    const filterPercentageAndLatestBalancePools = originPoolList.filter(
+      (item) => {
+        // 此 pool 创建者最新 weth 资产
+        const latestWeth = latestBalanceMap?.get(item.owner_address)
+        if (!latestWeth) {
+          return false
+        }
+        // 此 pool 最新可用资产
+        const poolLatestCanUseAmount = BigNumber(item.pool_amount).minus(
+          item.pool_used_amount,
+        )
+        // 二者取较小值用于比较
+        const forCompareWei = poolLatestCanUseAmount.lte(latestWeth)
+          ? poolLatestCanUseAmount
+          : latestWeth
+        return (
+          item.pool_maximum_percentage >= sliderValue &&
+          loanWeiAmount.lte(forCompareWei) &&
+          //  存在一些脏数据
+          item.loan_ratio_preferential_flexibility <= 200 &&
+          item.loan_ratio_preferential_flexibility <= 200
+        )
+      },
+    )
+    console.log(
+      'pool 筛选逻辑第1 & 2条的结果',
+      filterPercentageAndLatestBalancePools,
+    )
 
     const currentPools: PoolType[] = []
     for (let index = 0; index < TENORS.length; index++) {
@@ -207,7 +221,7 @@ const NftAssetDetail = () => {
     setSelectPool(currentPools?.length > 1 ? currentPools[1] : currentPools[0])
 
     return currentPools
-  }, [latestBalanceMap, sliderValue, loanWeiAmount, poolsList])
+  }, [latestBalanceMap, sliderValue, loanWeiAmount, originPoolList])
 
   // number of installments
   const [installmentOptions, setInstallmentOptions] = useState<(1 | 2 | 3)[]>()
@@ -386,6 +400,32 @@ const NftAssetDetail = () => {
       mt={8}
       mb={20}
     >
+      <Button
+        onClick={() => {
+          const web3 = createWeb3Provider()
+          const wethContract = createWethContract()
+          const batch = new web3.BatchRequest()
+          const uniqAddress = [
+            ...new Set(originPoolList.map((item) => item.owner_address)),
+          ]
+          uniqAddress.map((address) => {
+            batch.add(
+              wethContract.methods
+                .balanceOf(address)
+                .call.request(
+                  { from: currentAccount },
+                  (_: any, balance: string) => {
+                    console.log(address, _, '', balance)
+                  },
+                ),
+            )
+          })
+
+          batch.execute()
+        }}
+      >
+        shshshsh
+      </Button>
       {/* {detailLoading ? (
         <Skeleton height={700} borderRadius={16} />
       ) : ( */}

@@ -127,11 +127,11 @@ const Loans = () => {
   const { loading, data, refresh } = useRequest(apiGetLoans, {
     ready: !!currentAccount,
     debounceWait: 100,
-    // defaultParams: [
-    //   {
-    //     borrower_address: currentAccount,
-    //   },
-    // ],
+    defaultParams: [
+      {
+        borrower_address: currentAccount,
+      },
+    ],
   })
 
   // const currentCollectionLoans = useMemo(() => {
