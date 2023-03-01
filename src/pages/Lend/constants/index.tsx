@@ -1,10 +1,13 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
 import { unix } from 'dayjs'
 import { Link } from 'react-router-dom'
 
 import { ImageWithFallback } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
-import { UNIT } from '@/constants'
+import { FORMAT_NUMBER, UNIT } from '@/constants'
+import { amortizationCalByDays } from '@/utils/calculation'
+import formatAddress from '@/utils/formatAddress'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 export const activeCollectionColumns: ColumnProps[] = [
@@ -13,7 +16,7 @@ export const activeCollectionColumns: ColumnProps[] = [
     dataIndex: 'name',
     key: 'name',
     align: 'left',
-    render: (_: Record<string, any>, value: any) => (
+    render: (value: any) => (
       <Flex alignItems={'center'} gap={2}>
         <Box w={10} h={10} bg='pink' borderRadius={4} />
         <Text>{value}</Text>
@@ -48,7 +51,7 @@ export const activeCollectionColumns: ColumnProps[] = [
     align: 'right',
     thAlign: 'right',
     fixedRight: true,
-    render: (data: Record<string, any>) => {
+    render: (_: any, data: Record<string, any>) => {
       return (
         <Flex
           _hover={{
@@ -74,7 +77,7 @@ export const loansForLendColumns: ColumnProps[] = [
     key: 'col1',
     align: 'left',
     width: 160,
-    render: (_: Record<string, any>, value: any) => {
+    render: (value: any, _: Record<string, any>) => {
       return (
         <Flex alignItems={'center'} gap={2}>
           <ImageWithFallback
@@ -100,14 +103,7 @@ export const loansForLendColumns: ColumnProps[] = [
     title: 'Lender',
     dataIndex: 'lender_address',
     key: 'lender_address',
-    render: (_: Record<string, any>, value: any) => (
-      <Text>
-        {value.toString().substring(0, 5)}...
-        {value
-          .toString()
-          .substring(value.toString().length - 4, value.toString().length)}
-      </Text>
-    ),
+    render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
   },
   {
     title: 'Borrower',
@@ -115,14 +111,7 @@ export const loansForLendColumns: ColumnProps[] = [
     key: 'borrower_address',
     thAlign: 'right',
     align: 'right',
-    render: (_: Record<string, any>, value: any) => (
-      <Text>
-        {value.toString().substring(0, 5)}...
-        {value
-          .toString()
-          .substring(value.toString().length - 4, value.toString().length)}
-      </Text>
-    ),
+    render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
   },
   {
     title: 'Start time',
@@ -130,9 +119,7 @@ export const loansForLendColumns: ColumnProps[] = [
     thAlign: 'right',
     align: 'right',
     key: 'loan_start_time',
-    render: (_: Record<string, any>, value: any) => (
-      <Text>{unix(value).format('YYYY-MM-DD')}</Text>
-    ),
+    render: (value: any) => <Text>{unix(value).format('YYYY-MM-DD')}</Text>,
   },
   {
     title: 'Loan value',
@@ -140,7 +127,7 @@ export const loansForLendColumns: ColumnProps[] = [
     align: 'right',
     thAlign: 'right',
     key: 'total_repayment',
-    render: (_: Record<string, any>, value: any) => (
+    render: (value: any) => (
       <Text>
         {wei2Eth(value)} {UNIT}
       </Text>
@@ -152,9 +139,7 @@ export const loansForLendColumns: ColumnProps[] = [
     align: 'right',
     thAlign: 'right',
     key: 'loan_duration',
-    render: (_: Record<string, any>, value: any) => (
-      <Text>{value / 24 / 60 / 60} days</Text>
-    ),
+    render: (value: any) => <Text>{value / 24 / 60 / 60} days</Text>,
   },
   {
     title: 'Interest',
@@ -162,20 +147,21 @@ export const loansForLendColumns: ColumnProps[] = [
     align: 'right',
     key: 'pool_interest_rate',
     thAlign: 'right',
-    render: (_: Record<string, any>, value: any) => (
+    render: (_: any, data: Record<string, any>) => (
       <Text>
-        {/* {wei2Eth(
-          amortizationCalByDays(
-            _.total_repayment,
-            _.loan_interest_rate / 10000,
-            _.pool_maximum_days,
-            _.repay_times,
-          )
-            .multipliedBy(_.repay_times)
-            .minus(_.total_repayment)
-            .toNumber(),
-        )} */}
-        xxx {value}
+        {BigNumber(
+          wei2Eth(
+            amortizationCalByDays(
+              data.total_repayment,
+              data.loan_interest_rate / 10000,
+              (data.loan_duration / 24 / 60 / 60) as 7 | 14 | 30 | 60 | 90,
+              data.repay_times,
+            )
+              .multipliedBy(data.repay_times)
+              .minus(data.total_repayment)
+              .toNumber(),
+          ),
+        ).toFormat(FORMAT_NUMBER)}
         &nbsp; ETH
       </Text>
     ),

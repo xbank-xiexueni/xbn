@@ -20,6 +20,7 @@ export const SUB_RESPONSIVE_MAX_W = {
 }
 
 export const UNIT = 'ETH'
+export const FORMAT_NUMBER = 8
 
 export const LP_BASE_RATE: Record<string, number> = {
   '7-1000': 1100,

@@ -17,8 +17,8 @@ import { LoadingComponent, EmptyComponent, SvgComponent } from '..'
 import '../my-table/table.less'
 
 type ColumnRenderType = (
-  arg0: Record<string, string | boolean | number>,
-  arg1: string | boolean | number,
+  arg0: string | boolean | number,
+  arg1: Record<string, string | boolean | number>,
 ) => ReactElement
 export interface ColumnProps {
   title: string
@@ -261,7 +261,7 @@ const MyTable = ({
                         >
                           {!!render ? (
                             <Flex justifyContent={align}>
-                              {render(item, item[dataIndex])}
+                              {render(item[dataIndex], item)}
                             </Flex>
                           ) : (
                             item[dataIndex]

@@ -151,8 +151,8 @@ const Lend = () => {
   )
   useEffect(() => {
     fetchLoansByPool({
-      lender_address: currentAccount,
-      pool_id: selectKeyForOpenLoans,
+      // lender_address: currentAccount,
+      // pool_id: selectKeyForOpenLoans,
     })
   }, [selectKeyForOpenLoans, fetchLoansByPool, currentAccount])
 
@@ -188,7 +188,7 @@ const Lend = () => {
       key: 'collection_info',
       align: 'left',
       width: 320,
-      render: (_: Record<string, any>, value: any) => {
+      render: (value: any) => {
         const { image_url, name, safelist_request_status } = value
         return (
           <Flex alignItems={'center'} gap={2} w='100%'>
@@ -220,7 +220,7 @@ const Lend = () => {
     //   key: 'col2',
     //   align: 'right',
     //   thAlign: 'right',
-    //   render: (_: Record<string, any>, value: any) => (
+    //   render:  (value: any, _: Record<string, any>) => (
     //     <EthText>{value}</EthText>
     //   ),
     // },
@@ -230,9 +230,7 @@ const Lend = () => {
       key: 'pool_amount',
       align: 'right',
       thAlign: 'right',
-      render: (_: Record<string, any>, value: any) => (
-        <EthText>{wei2Eth(value)}</EthText>
-      ),
+      render: (value: any) => <EthText>{wei2Eth(value)}</EthText>,
     },
     {
       title: 'Collateral Factor',
@@ -240,9 +238,7 @@ const Lend = () => {
       key: 'pool_maximum_percentage',
       align: 'center',
       thAlign: 'center',
-      render: (_: Record<string, any>, value: any) => (
-        <Text>{Number(value) / 100} %</Text>
-      ),
+      render: (value: any) => <Text>{Number(value) / 100} %</Text>,
     },
     {
       title: 'Tenor',
@@ -250,15 +246,13 @@ const Lend = () => {
       key: 'pool_maximum_days',
       align: 'right',
       thAlign: 'right',
-      render: (_: Record<string, any>, value: any) => <Text>{value} days</Text>,
+      render: (value: any) => <Text>{value} days</Text>,
     },
     {
       title: 'Interest',
       dataIndex: 'pool_maximum_interest_rate',
       key: 'pool_maximum_interest_rate',
-      render: (_: Record<string, any>, value: any) => (
-        <Text>{Number(value) / 100}% APR</Text>
-      ),
+      render: (value: any) => <Text>{Number(value) / 100}% APR</Text>,
     },
     {
       title: 'Loans',
@@ -274,7 +268,7 @@ const Lend = () => {
       align: 'right',
       fixedRight: true,
       thAlign: 'right',
-      render: (_: Record<string, any>, value: any) => {
+      render: (value: any) => {
         return (
           <Flex alignItems='center' gap={2}>
             <Text

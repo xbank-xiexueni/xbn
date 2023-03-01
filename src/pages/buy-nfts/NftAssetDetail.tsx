@@ -38,7 +38,7 @@ import {
   NotFound,
   SvgComponent,
 } from '@/components'
-import { COLLATERALS, TENORS, UNIT } from '@/constants'
+import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
@@ -64,6 +64,7 @@ type PoolType = {
   pool_apr: number
   pool_days: LOAN_DAYS_ENUM
 }
+
 const NftAssetDetail = () => {
   const { isOpen, onClose, onOpen, currentAccount } = useWallet()
   const {
@@ -419,7 +420,7 @@ const NftAssetDetail = () => {
             usdPrice: usdPrice
               ? usdPrice
                   ?.multipliedBy(Number(wei2Eth(commodityWeiPrice)))
-                  .toFormat(4)
+                  .toFormat(FORMAT_NUMBER)
               : '',
             verified: collection?.safelist_request_status === 'verified',
           }}
@@ -458,6 +459,7 @@ const NftAssetDetail = () => {
               onChange={(target) => {
                 setSliderValue(target)
               }}
+              isDisabled={fetching}
               value={sliderValue}
             >
               {COLLATERALS.map((item) => (
@@ -559,7 +561,7 @@ const NftAssetDetail = () => {
                   >
                     <Text fontWeight={700}>Pay in {value} installments</Text>
                     <Text fontWeight={500} fontSize='xs'>
-                      {getPlanPer(value).toFormat()}
+                      {getPlanPer(value).toFormat(FORMAT_NUMBER)}
                       &nbsp;
                       {UNIT}/per
                     </Text>
@@ -585,7 +587,7 @@ const NftAssetDetail = () => {
 
               {range(installmentValue).map((value, index) => (
                 <PlanItem
-                  value={getPlanPer(installmentValue).toFormat()}
+                  value={getPlanPer(installmentValue).toFormat(FORMAT_NUMBER)}
                   label={dayjs()
                     .add(
                       ((selectPool?.pool_days || 0) / installmentValue) *
@@ -647,7 +649,7 @@ const NftAssetDetail = () => {
                   {getPlanPer(installmentValue)
                     .multipliedBy(installmentValue)
                     .minus(Number(wei2Eth(loanWeiAmount)))
-                    .toFormat()}
+                    .toFormat(FORMAT_NUMBER)}
                   {UNIT}
                 </Text>
               </Flex>
@@ -662,7 +664,7 @@ const NftAssetDetail = () => {
                     .multipliedBy(installmentValue)
                     .minus(Number(wei2Eth(loanWeiAmount)))
                     .plus(Number(wei2Eth(commodityWeiPrice)))
-                    .toFormat()}
+                    .toFormat(FORMAT_NUMBER)}
                   {UNIT}
                 </Text>
               </Flex>

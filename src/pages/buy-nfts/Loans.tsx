@@ -8,9 +8,11 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { apiGetLoans } from '@/api'
 import { ConnectWalletModal, ImageWithFallback, TableList } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
-import { UNIT } from '@/constants'
+import { FORMAT_NUMBER, UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
+import { amortizationCalByDays } from '@/utils/calculation'
 import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
+import formatAddress from '@/utils/formatAddress'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 export const loansForBuyerColumns: ColumnProps[] = [
@@ -20,7 +22,7 @@ export const loansForBuyerColumns: ColumnProps[] = [
     key: 'nft_collateral_id',
     align: 'left',
     width: 220,
-    render: (_: Record<string, any>, value: any) => (
+    render: (value: any, _: Record<string, any>) => (
       <Flex alignItems={'center'} gap={2}>
         <ImageWithFallback
           src={_.img as string}
@@ -36,41 +38,25 @@ export const loansForBuyerColumns: ColumnProps[] = [
     title: 'Lender',
     dataIndex: 'lender_address',
     key: 'lender_address',
-    render: (_: Record<string, any>, value: any) => (
-      <Text>
-        {value.toString().substring(0, 5)}...
-        {value
-          .toString()
-          .substring(value.toString().length - 4, value.toString().length)}
-      </Text>
-    ),
+    render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
   },
   {
     title: 'Borrower',
     dataIndex: 'borrower_address',
     key: 'borrower_address',
-    render: (_: Record<string, any>, value: any) => (
-      <Text>
-        {value.toString().substring(0, 5)}...
-        {value
-          .toString()
-          .substring(value.toString().length - 4, value.toString().length)}
-      </Text>
-    ),
+    render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
   },
   {
     title: 'Start time',
     dataIndex: 'loan_start_time',
     key: 'loan_start_time',
-    render: (_: Record<string, any>, value: any) => (
-      <Text>{unix(value).format('YYYY/MM/DD')}</Text>
-    ),
+    render: (value: any) => <Text>{unix(value).format('YYYY/MM/DD')}</Text>,
   },
   {
     title: 'Loan value',
     dataIndex: 'total_repayment',
     key: 'total_repayment',
-    render: (_: Record<string, any>, value: any) => (
+    render: (value: any) => (
       <Text>
         {wei2Eth(value)} {UNIT}
       </Text>
@@ -80,17 +66,28 @@ export const loansForBuyerColumns: ColumnProps[] = [
     title: 'Duration',
     dataIndex: 'loan_duration',
     key: 'loan_duration',
-    render: (_: Record<string, any>, value: any) => (
-      <Text>{value / 24 / 60 / 60} days</Text>
-    ),
+    render: (value: any) => <Text>{value / 24 / 60 / 60} days</Text>,
   },
   {
     title: 'Interest',
     dataIndex: 'loan_interest_rate',
     key: 'loan_interest_rate',
-    render: (_: Record<string, any>, value: any) => (
+    render: (_: any, item: Record<string, any>) => (
       <Text>
-        {value} {UNIT}
+        {BigNumber(
+          wei2Eth(
+            amortizationCalByDays(
+              item?.total_repayment,
+              item?.loan_interest_rate / 10000,
+              (item?.loan_duration / 24 / 60 / 60) as 7 | 14 | 30 | 60 | 90,
+              item?.repay_times,
+            )
+              .multipliedBy(item?.repay_times)
+              .minus(item.total_repayment)
+              .toNumber(),
+          ),
+        ).toFormat(FORMAT_NUMBER)}
+        {UNIT}
       </Text>
     ),
   },
@@ -109,11 +106,11 @@ const Loans = () => {
   const { loading, data, refresh } = useRequest(apiGetLoans, {
     ready: !!currentAccount,
     debounceWait: 100,
-    defaultParams: [
-      {
-        borrower_address: currentAccount,
-      },
-    ],
+    // defaultParams: [
+    // {
+    //   borrower_address: currentAccount,
+    // },
+    // ],
   })
 
   // const currentCollectionLoans = useMemo(() => {
@@ -278,18 +275,34 @@ const Loans = () => {
                 // loading: loading,
                 columns: [
                   ...loansForBuyerColumns,
-                  {
-                    title: 'next payment date',
-                    dataIndex: 'col10',
-                    key: 'col10',
-                  },
+                  // {
+                  //   title: 'next payment date',
+                  //   dataIndex: 'col10',
+                  //   key: 'col10',
+                  // },
                   {
                     title: 'amount',
                     dataIndex: 'col9',
                     key: 'col9',
-                    render: (_: Record<string, any>, value: any) => (
+                    render: (_: any, item: Record<string, any>) => (
                       <Text>
-                        {value} {UNIT}
+                        {BigNumber(
+                          wei2Eth(
+                            amortizationCalByDays(
+                              item.total_repayment,
+                              item.loan_interest_rate / 10000,
+                              (item.loan_duration / 24 / 60 / 60) as
+                                | 7
+                                | 14
+                                | 30
+                                | 60
+                                | 90,
+                              item.repay_times,
+                            ).toNumber(),
+                          ),
+                        ).toFormat(8)}
+                        &nbsp;
+                        {UNIT}
                       </Text>
                     ),
                   },
@@ -298,7 +311,7 @@ const Loans = () => {
                     dataIndex: 'loan_id',
                     key: 'loan_id',
                     fixedRight: true,
-                    render: (_: Record<string, any>, value: any) => (
+                    render: (value: any) => (
                       <Box
                         px={3}
                         bg='white'

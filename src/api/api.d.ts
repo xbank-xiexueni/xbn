@@ -57,7 +57,7 @@ export type LoanOrderDataType = {
   oracle_floor_price: string
   // 首付价格
   load_principal_amount: number
-  //
+  // 贷款金额
   total_repayment: number
   // 利率
   loan_interest_rate: number

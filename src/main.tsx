@@ -1,4 +1,4 @@
-import { Box, ChakraProvider, Spinner } from '@chakra-ui/react'
+import { ChakraProvider, Spinner } from '@chakra-ui/react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { PhotoProvider } from 'react-photo-view'
