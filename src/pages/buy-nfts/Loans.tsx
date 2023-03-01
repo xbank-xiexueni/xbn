@@ -26,21 +26,31 @@ import { wei2Eth } from '@/utils/unit-conversion'
 export const loansForBuyerColumns: ColumnProps[] = [
   {
     title: 'Asset',
-    dataIndex: 'nft_collateral_id',
-    key: 'nft_collateral_id',
+    dataIndex: 'nft_asset_info',
+    key: 'nft_asset_info',
     align: 'left',
-    width: 220,
-    render: (value: any, _: Record<string, any>) => (
-      <Flex alignItems={'center'} gap={2}>
-        <ImageWithFallback
-          src={_.img as string}
-          w={10}
-          h={10}
-          borderRadius={4}
-        />
-        <Text>{value}</Text>
-      </Flex>
-    ),
+    width: 180,
+    render: (info: any) => {
+      return (
+        <Flex alignItems={'center'} gap={2}>
+          <ImageWithFallback
+            src={info?.image_preview_url as string}
+            w={10}
+            h={10}
+            borderRadius={4}
+          />
+          <Text
+            w={'60%'}
+            display='inline-block'
+            overflow='hidden'
+            whiteSpace='nowrap'
+            textOverflow='ellipsis'
+          >
+            {info?.name}
+          </Text>
+        </Flex>
+      )
+    },
   },
   {
     title: 'Lender',
@@ -117,11 +127,11 @@ const Loans = () => {
   const { loading, data, refresh } = useRequest(apiGetLoans, {
     ready: !!currentAccount,
     debounceWait: 100,
-    defaultParams: [
-      {
-        borrower_address: currentAccount,
-      },
-    ],
+    // defaultParams: [
+    //   {
+    //     borrower_address: currentAccount,
+    //   },
+    // ],
   })
 
   // const currentCollectionLoans = useMemo(() => {

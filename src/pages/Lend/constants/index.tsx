@@ -73,27 +73,27 @@ export const activeCollectionColumns: ColumnProps[] = [
 export const loansForLendColumns: ColumnProps[] = [
   {
     title: 'Asset',
-    dataIndex: 'col1',
-    key: 'col1',
+    dataIndex: 'nft_asset_info',
+    key: 'nft_asset_info',
     align: 'left',
-    width: 160,
-    render: (value: any, _: Record<string, any>) => {
+    width: 180,
+    render: (info: any) => {
       return (
         <Flex alignItems={'center'} gap={2}>
           <ImageWithFallback
-            src={_.img as string}
+            src={info?.image_preview_url as string}
             w={10}
             h={10}
             borderRadius={4}
           />
           <Text
-            w={'80%'}
+            w={'60%'}
             display='inline-block'
             overflow='hidden'
             whiteSpace='nowrap'
             textOverflow='ellipsis'
           >
-            {value}
+            {info?.name}
           </Text>
         </Flex>
       )

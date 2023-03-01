@@ -10,6 +10,12 @@ import {
   PopoverContent,
   PopoverBody,
   IconButton,
+  MenuButton,
+  MenuList,
+  Menu,
+  MenuDivider,
+  MenuOptionGroup,
+  MenuItemOption,
 } from '@chakra-ui/react'
 import kebabCase from 'lodash-es/kebabCase'
 import { useCallback, useMemo } from 'react'
@@ -20,6 +26,7 @@ import Icon from '@/assets/logo.png'
 import { RESPONSIVE_MAX_W, XBANK_CONTRACT_ADDRESS } from '@/constants'
 import { useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
+import formatAddress from '@/utils/formatAddress'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 import { ConnectWalletModal, SvgComponent } from '..'
@@ -43,8 +50,11 @@ const Header = () => {
     return ''
   }, [pathname])
 
-  const testClick = useCallback(async () => {
-    if (!currentAccount) return
+  const handleClickWallet = useCallback(async () => {
+    if (!currentAccount) {
+      onOpen()
+      return
+    }
 
     const wethContract = createWethContract()
 
@@ -74,7 +84,7 @@ const Header = () => {
     console.log('transactionsContract', xBankContract)
     console.log('listPool', listPool)
     console.log('listLoan', listLoan)
-  }, [currentAccount])
+  }, [currentAccount, onOpen])
 
   return (
     <Box position={'sticky'} top={0} zIndex={21}>
@@ -215,7 +225,7 @@ const Header = () => {
           <Flex
             gap={6}
             alignItems='center'
-            onClick={testClick}
+            onClick={handleClickWallet}
             display={{
               sm: 'none',
               md: 'none',
@@ -246,23 +256,62 @@ const Header = () => {
             )}
           </Flex>
 
-          {/* <Menu>
+          <Menu>
             <MenuButton
               as={IconButton}
               aria-label='Options'
-              icon={<HamburgerIcon />}
-              variant='outline'
+              icon={<SvgComponent svgId='open' svgSize={'20px'} />}
               display={{
-                md: 'block',
+                md: 'flex',
                 lg: 'none',
               }}
             />
-            <MenuList>
-              <MenuItem icon={<AddIcon />} command='⌘T'>
-                New Tab
-              </MenuItem>
+            <MenuList minWidth='240px'>
+              <MenuOptionGroup title='Lend' type='radio'>
+                <Link to='/lending/my-pools'>
+                  <MenuItemOption as='span' color={'black.1'}>
+                    My pools
+                  </MenuItemOption>
+                </Link>
+                <Link to='/lending/loans'>
+                  <MenuItemOption as='span' color={'black.1'}>
+                    Loans
+                  </MenuItemOption>
+                </Link>
+              </MenuOptionGroup>
+              <MenuDivider />
+              <MenuOptionGroup title='Buy nfts'>
+                <Link to='/buy-nfts/market'>
+                  <MenuItemOption as='span' color={'black.1'}>
+                    Market
+                  </MenuItemOption>
+                </Link>
+                <Link to='/buy-nfts/loans'>
+                  <MenuItemOption as='span' color={'black.1'}>
+                    Loans
+                  </MenuItemOption>
+                </Link>
+              </MenuOptionGroup>
+
+              <MenuDivider />
+              <Flex justify={'center'} py={2} onClick={handleClickWallet}>
+                {!!currentAccount ? (
+                  <Flex alignItems={'center'} gap={1} color='gray.3'>
+                    <Jazzicon
+                      diameter={30}
+                      seed={parseInt(currentAccount.slice(2, 10), 16)}
+                    />
+                    &nbsp;{formatAddress(currentAccount)}
+                  </Flex>
+                ) : (
+                  <Button>
+                    <SvgComponent svgId='icon-wallet-outline' svgSize='24px' />
+                    &nbsp;Connect
+                  </Button>
+                )}
+              </Flex>
             </MenuList>
-          </Menu> */}
+          </Menu>
         </Flex>
       </Container>
 
