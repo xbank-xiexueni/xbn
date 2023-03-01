@@ -119,7 +119,7 @@ export const loansForLendColumns: ColumnProps[] = [
     thAlign: 'right',
     align: 'right',
     key: 'loan_start_time',
-    render: (value: any) => <Text>{unix(value).format('YYYY-MM-DD')}</Text>,
+    render: (value: any) => <Text>{unix(value).format('YYYY/MM/DD')}</Text>,
   },
   {
     title: 'Loan value',
@@ -158,8 +158,7 @@ export const loansForLendColumns: ColumnProps[] = [
               data.repay_times,
             )
               .multipliedBy(data.repay_times)
-              .minus(data.total_repayment)
-              .toNumber(),
+              .minus(data.total_repayment),
           ),
         ).toFormat(FORMAT_NUMBER)}
         &nbsp; ETH

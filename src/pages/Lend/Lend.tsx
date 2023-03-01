@@ -151,8 +151,8 @@ const Lend = () => {
   )
   useEffect(() => {
     fetchLoansByPool({
-      // lender_address: currentAccount,
-      // pool_id: selectKeyForOpenLoans,
+      lender_address: currentAccount,
+      pool_id: selectKeyForOpenLoans,
     })
   }, [selectKeyForOpenLoans, fetchLoansByPool, currentAccount])
 

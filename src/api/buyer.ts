@@ -22,9 +22,7 @@ export const apiGetAssetDetail: (query: {
 export const apiPostLoanOrder: (
   data: LoanOrderDataType,
 ) => Promise<AxiosResponse<any>> = async (data) => {
-  return await request.post(`/lending/api/v1/loan-order`, {
-    data,
-  })
+  return await request.post(`/lending/api/v1/loan-order`, data)
 }
 
 export const apiGetXCurrency: () => Promise<

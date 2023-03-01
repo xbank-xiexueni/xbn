@@ -8,16 +8,32 @@
  * @param  {String} url 目标文件地址
  * @return {cb}
  */
-const getBlob = (url: string, cb: (arg: any) => void) => {
+const getBlob = (url: string, cb: (arg: any) => void, backupUrl: string) => {
   const xhr = new XMLHttpRequest()
   xhr.open('GET', url, true)
   xhr.responseType = 'blob'
   xhr.onload = function () {
+    console.log(xhr)
     if (xhr.status === 200) {
       cb(xhr.response)
     }
   }
   xhr.send()
+  if (xhr.status !== 200) {
+    const backupXhr = new XMLHttpRequest()
+    backupXhr.open('GET', backupUrl, true)
+    backupXhr.responseType = 'blob'
+    backupXhr.onload = function () {
+      if (backupXhr.status === 200) {
+        cb(backupXhr.response)
+      } else {
+        throw new Error('Download failed, please try again later')
+      }
+    }
+    backupXhr.send()
+  } else {
+    cb(xhr.response)
+  }
 }
 
 /**
@@ -48,9 +64,17 @@ const saveAs = (blob: Blob, filename: string) => {
  * @param  {String} url 目标文件地址
  * @param  {String} filename 想要保存的文件名称
  */
-const downloadRemoteImg = (url: string, filename: string) => {
-  getBlob(url, function (blob: Blob) {
-    saveAs(blob, filename)
-  })
+const downloadRemoteImg = (
+  url: string,
+  filename: string,
+  backupUrl: string,
+) => {
+  getBlob(
+    url,
+    function (blob: Blob) {
+      saveAs(blob, filename)
+    },
+    backupUrl,
+  )
 }
 export default downloadRemoteImg

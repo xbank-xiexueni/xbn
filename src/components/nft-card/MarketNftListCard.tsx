@@ -44,6 +44,7 @@ const MarketNftListCard: FunctionComponent<
       onMouseLeave={() => setShow(false)}
       borderRadius={8}
       border='none'
+      h='355px'
     >
       <CardBody p={0}>
         <Box bg='white' borderTopRadius={'lg'}>

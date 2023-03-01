@@ -12,7 +12,7 @@ type ImageToolBarProps = {
   data: AssetListItemType
 }
 const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({
-  data: { image_original_url, likes, name },
+  data: { image_original_url, likes, name, image_url },
 }) => {
   return (
     <Flex
@@ -39,7 +39,11 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({
           alignItems={'center'}
           bg='gray.5'
           onClick={() => {
-            downloadRemoteImg(image_original_url, name)
+            try {
+              downloadRemoteImg(image_original_url, name, image_url)
+            } catch (error) {
+              console.log(error)
+            }
           }}
         />
         <PhotoView src={image_original_url}>

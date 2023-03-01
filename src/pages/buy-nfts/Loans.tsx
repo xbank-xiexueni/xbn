@@ -72,24 +72,25 @@ export const loansForBuyerColumns: ColumnProps[] = [
     title: 'Interest',
     dataIndex: 'loan_interest_rate',
     key: 'loan_interest_rate',
-    render: (_: any, item: Record<string, any>) => (
-      <Text>
-        {BigNumber(
-          wei2Eth(
-            amortizationCalByDays(
-              item?.total_repayment,
-              item?.loan_interest_rate / 10000,
-              (item?.loan_duration / 24 / 60 / 60) as 7 | 14 | 30 | 60 | 90,
-              item?.repay_times,
-            )
-              .multipliedBy(item?.repay_times)
-              .minus(item.total_repayment)
-              .toNumber(),
-          ),
-        ).toFormat(FORMAT_NUMBER)}
-        {UNIT}
-      </Text>
-    ),
+    render: (_: any, item: Record<string, any>) => {
+      return (
+        <Text>
+          {BigNumber(
+            wei2Eth(
+              amortizationCalByDays(
+                item?.total_repayment,
+                item?.loan_interest_rate / 10000,
+                (item?.loan_duration / 24 / 60 / 60) as 7 | 14 | 30 | 60 | 90,
+                item?.repay_times,
+              )
+                .multipliedBy(item?.repay_times)
+                .minus(item.total_repayment),
+            ),
+          ).toFormat(FORMAT_NUMBER)}
+          {UNIT}
+        </Text>
+      )
+    },
   },
 ]
 
@@ -106,11 +107,11 @@ const Loans = () => {
   const { loading, data, refresh } = useRequest(apiGetLoans, {
     ready: !!currentAccount,
     debounceWait: 100,
-    // defaultParams: [
-    // {
-    //   borrower_address: currentAccount,
-    // },
-    // ],
+    defaultParams: [
+      {
+        borrower_address: currentAccount,
+      },
+    ],
   })
 
   // const currentCollectionLoans = useMemo(() => {
@@ -158,6 +159,7 @@ const Loans = () => {
   const handleClickRepay = useCallback(
     (loan_id: string) => {
       interceptFn(async () => {
+        return
         const xBankContract = createXBankContract()
 
         // 1. 查看需要偿还的金额
@@ -298,7 +300,7 @@ const Loans = () => {
                                 | 60
                                 | 90,
                               item.repay_times,
-                            ).toNumber(),
+                            ),
                           ),
                         ).toFormat(8)}
                         &nbsp;

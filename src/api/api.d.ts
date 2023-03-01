@@ -48,7 +48,7 @@ export type AssetListItemType = {
 
 export type LoanOrderDataType = {
   // pool id
-  pool_id: number
+  pool_id: string
   // 买家地址
   borrower_address: string
   // nft 价格
@@ -56,9 +56,9 @@ export type LoanOrderDataType = {
   // 地板价 传 commodity_price
   oracle_floor_price: string
   // 首付价格
-  load_principal_amount: number
+  load_principal_amount: string
   // 贷款金额
-  total_repayment: number
+  total_repayment: string
   // 利率
   loan_interest_rate: number
   //

@@ -1,4 +1,4 @@
-import { ChakraProvider, Spinner } from '@chakra-ui/react'
+import { ChakraProvider, Heading, Spinner } from '@chakra-ui/react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { PhotoProvider } from 'react-photo-view'
@@ -31,6 +31,9 @@ createRoot(rootElement as HTMLElement).render(
               bannerVisible={false}
               maskClosable
               loadingElement={<Spinner colorScheme={'blue'} color='blue.1' />}
+              brokenElement={
+                <Heading color={'gray.1'}>something went wrong...</Heading>
+              }
             >
               <App />
             </PhotoProvider>
