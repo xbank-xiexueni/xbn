@@ -44,7 +44,10 @@ const MarketNftListCard: FunctionComponent<
       onMouseLeave={() => setShow(false)}
       borderRadius={8}
       border='none'
-      h='355px'
+      h={{
+        xl: '355px',
+        lg: '320px',
+      }}
     >
       <CardBody p={0}>
         <Box bg='white' borderTopRadius={'lg'}>
@@ -63,7 +66,15 @@ const MarketNftListCard: FunctionComponent<
           />
         </Box>
 
-        <Stack mt={3} spacing={2} px={4} mb={2}>
+        <Stack
+          mt={3}
+          spacing={2}
+          px={4}
+          mb={{
+            xl: 2,
+            lg: 1,
+          }}
+        >
           <Text color={`gray.3`} fontSize='sm'>
             {name}
           </Text>
@@ -99,16 +110,22 @@ const MarketNftListCard: FunctionComponent<
           borderTopLeftRadius={0}
           borderTopRightRadius={0}
           variant='other'
-          h='56px'
+          h={{
+            xl: '56px',
+            lg: '46px',
+          }}
         >
           Buy
         </Button>
       ) : (
         <CardFooter
-          p={4}
+          px={4}
           justify={'space-between'}
           alignItems='center'
-          h='56px'
+          h={{
+            xl: '56px',
+            lg: '46px',
+          }}
         >
           <Flex alignItems={'center'} gap={1}>
             <Text color={`gray.3`} fontSize='sm'>

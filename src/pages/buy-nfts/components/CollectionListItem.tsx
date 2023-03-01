@@ -51,7 +51,7 @@ const CollectionListItem: FunctionComponent<{
       {isActive ? (
         <SvgComponent svgId='icon-checked' />
       ) : (
-        count && <Text fontSize={'sm'}>{count}</Text>
+        !!count && <Text fontSize={'sm'}>{count}</Text>
       )}
     </Flex>
   )

@@ -565,7 +565,11 @@ const Lend = () => {
 
                   {!isEmpty(myPoolsData) &&
                     myPoolsData.map(
-                      ({ pool_id, collection_info }: PoolsListItemType) => (
+                      ({
+                        pool_id,
+                        collection_info,
+                        loan_count,
+                      }: PoolsListItemType) => (
                         <CollectionListItem
                           data={{
                             ...collection_info,
@@ -573,6 +577,7 @@ const Lend = () => {
                           key={pool_id}
                           onClick={() => setSelectKeyForOpenLoans(pool_id)}
                           isActive={selectKeyForOpenLoans === pool_id}
+                          count={loan_count}
                         />
                       ),
                     )}

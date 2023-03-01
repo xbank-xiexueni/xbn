@@ -1,9 +1,17 @@
-import { Box, Heading, Flex, Text, Highlight, useToast } from '@chakra-ui/react'
+import {
+  Box,
+  Heading,
+  Flex,
+  Text,
+  Highlight,
+  useToast,
+  Spinner,
+} from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import { unix } from 'dayjs'
 import groupBy from 'lodash-es/groupBy'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { apiGetLoans } from '@/api'
 import { ConnectWalletModal, ImageWithFallback, TableList } from '@/components'
@@ -99,6 +107,8 @@ const Loans = () => {
   const { isOpen, onClose, interceptFn, currentAccount } = useWallet()
 
   const toast = useToast()
+  const [repayLoadingMap, setRepayLoadingMap] =
+    useState<Record<string, boolean>>()
 
   useEffect(() => interceptFn(), [interceptFn])
 
@@ -155,45 +165,65 @@ const Loans = () => {
   //   },
   //   [data],
   // )
-
   const handleClickRepay = useCallback(
     (loan_id: string) => {
       interceptFn(async () => {
-        return
-        const xBankContract = createXBankContract()
+        try {
+          const xBankContract = createXBankContract()
+          setRepayLoadingMap((prev) => ({
+            ...prev,
+            [loan_id]: true,
+          }))
+          // 1. 查看需要偿还的金额
+          const repaymentAmount = await xBankContract.methods
+            .getRepaymentAmount(loan_id)
+            .call()
+          const provider = createWeb3Provider()
 
-        // 1. 查看需要偿还的金额
-        const repaymentAmount = await xBankContract.methods
-          .getRepaymentAmount(loan_id)
-          .call()
-        const provider = createWeb3Provider()
+          const currentBalance = await provider.eth.getBalance(currentAccount)
+          if (BigNumber(currentBalance).lt(Number(repaymentAmount))) {
+            toast({
+              title: 'Insufficient balance',
+              status: 'warning',
+            })
+            setRepayLoadingMap((prev) => ({
+              ...prev,
+              [loan_id]: false,
+            }))
+            return
+          }
+          console.log(
+            currentBalance,
+            repaymentAmount,
+            BigNumber(currentBalance).lt(Number(repaymentAmount)),
+          )
 
-        const currentBalance = await provider.eth.getBalance(currentAccount)
-        if (BigNumber(currentBalance).lt(Number(repaymentAmount))) {
+          // 2. 调用 xbank.repayLoan
+          const repayHash = await xBankContract.methods
+            .repayLoan(loan_id)
+            .send({
+              from: currentAccount,
+              gas: 300000,
+            })
+          setRepayLoadingMap((prev) => ({
+            ...prev,
+            [loan_id]: false,
+          }))
+          console.log(repayHash, 'qqqqqqq')
+          refresh()
+        } catch (error: any) {
+          console.log('🚀 ~ file: Loans.tsx:197 ~ interceptFn ~ error:', error)
+          setRepayLoadingMap((prev) => ({
+            ...prev,
+            [loan_id]: false,
+          }))
           toast({
-            title: 'Insufficient balance',
-            status: 'warning',
+            status: 'error',
+            title: error?.code,
+            description: error?.message,
+            duration: 5000,
           })
-          return
         }
-        console.log(
-          currentBalance,
-          repaymentAmount,
-          BigNumber(currentBalance).lt(Number(repaymentAmount)),
-        )
-
-        // 2. 转账到合约
-
-        // 3. 调用 xbank.repayLoan
-
-        // 没写完
-        // const repayHash = await xBankContract.methods
-        //   .repayLoan(loan_id)
-        //   .seed({
-        //     from: '',
-        //   })
-
-        refresh()
       })
     },
     [interceptFn, currentAccount, refresh, toast],
@@ -319,11 +349,22 @@ const Loans = () => {
                         bg='white'
                         borderRadius={8}
                         cursor='pointer'
-                        onClick={() => handleClickRepay(value)}
+                        onClick={() => {
+                          if (repayLoadingMap && repayLoadingMap[value]) {
+                            return
+                          }
+                          handleClickRepay(value)
+                        }}
+                        w='68px'
+                        textAlign={'center'}
                       >
-                        <Text color='blue.1' fontSize='sm' fontWeight={'700'}>
-                          Repay
-                        </Text>
+                        {repayLoadingMap && repayLoadingMap[value] ? (
+                          <Spinner color='blue.1' size={'sm'} />
+                        ) : (
+                          <Text color='blue.1' fontSize='sm' fontWeight={'700'}>
+                            Repay
+                          </Text>
+                        )}
                       </Box>
                     ),
                   },
