@@ -16,7 +16,7 @@ const EmptyComponent: FunctionComponent<
   return (
     <Box textAlign={'center'} my={20} {...rest}>
       <Flex justify={'center'} mb={4}>
-        <ImageWithFallback src={icon || defaultEmptyIcon} />
+        <ImageWithFallback src={icon || defaultEmptyIcon} w='40px' h='40px' />
       </Flex>
       <Text color='gray.3' mb={6} fontSize='sm' fontWeight={'700'}>
         {description || 'no Data yet...'}
