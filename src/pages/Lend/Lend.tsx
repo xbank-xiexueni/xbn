@@ -383,6 +383,10 @@ const Lend = () => {
             color: 'blue.1',
             fontWeight: 'bold',
           }}
+          position='sticky'
+          top={'74px'}
+          bg='white'
+          zIndex={2}
         >
           {/* <Tab
             pt={4}

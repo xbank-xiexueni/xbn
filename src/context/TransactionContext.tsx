@@ -95,13 +95,15 @@ export const TransactionsProvider = ({
 
   const checkIfWalletIsConnect = useCallback(async () => {
     try {
-      if (!ethereum)
-        return toast({
+      if (!ethereum) {
+        toast.closeAll()
+        toast({
           title: `please install metamask`,
           status: 'error',
           isClosable: true,
-          duration: null,
         })
+        return
+      }
 
       const accounts = await ethereum.request({ method: 'eth_accounts' })
 
@@ -121,13 +123,16 @@ export const TransactionsProvider = ({
 
   const connectWallet = useCallback(async () => {
     try {
-      if (!ethereum)
-        return toast({
+      if (!ethereum) {
+        toast.closeAll()
+        toast({
           title: `please install metamask`,
           status: 'error',
           isClosable: true,
-          duration: null,
         })
+        return
+      }
+
       setConnectLoading(true)
       const accounts = await ethereum.request({
         method: 'eth_requestAccounts',
