@@ -42,21 +42,21 @@ export const lazyWithRetries: typeof lazy = (importer) => {
   return lazy(retryImport)
 }
 // Lend
-const Lend = lazyWithRetries(() => import('./pages/Lend/Lend.js'))
-const PoolCreate = lazyWithRetries(() => import('./pages/Lend/Create.js'))
+const Lend = lazyWithRetries(() => import('./pages/Lend/Lend'))
+const PoolCreate = lazyWithRetries(() => import('./pages/Lend/Create'))
 // const PoolEdit = lazy(() => import('./pages/Lend/Edit'))
 
 // buy nfts
-const Market = lazyWithRetries(() => import('./pages/buy-nfts/Market.js'))
-const MyAssets = lazyWithRetries(() => import('./pages/buy-nfts/MyAssets.js'))
-const LoansForBuyer = lazyWithRetries(() => import('./pages/buy-nfts/Loans.js'))
+const Market = lazyWithRetries(() => import('./pages/buy-nfts/Market'))
+const MyAssets = lazyWithRetries(() => import('./pages/buy-nfts/MyAssets'))
+const LoansForBuyer = lazyWithRetries(() => import('./pages/buy-nfts/Loans'))
 
 // nft detail
 const NftAssetDetail = lazyWithRetries(
-  () => import('./pages/buy-nfts/NftAssetDetail.js'),
+  () => import('./pages/buy-nfts/NftAssetDetail'),
 )
 
-const NotFound = lazyWithRetries(() => import('./pages/404.js'))
+const NotFound = lazyWithRetries(() => import('./pages/404'))
 
 function App() {
   return (
