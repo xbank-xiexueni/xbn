@@ -31,7 +31,7 @@ export const lazyWithRetries: typeof lazy = (importer) => {
         url.searchParams.set('t', `${+new Date()}`)
 
         try {
-          return await import(url.href)
+          return await import(/* @vite-ignore */ url.href)
         } catch (e) {
           console.log('retrying import')
         }

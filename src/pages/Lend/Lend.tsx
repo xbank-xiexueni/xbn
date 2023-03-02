@@ -333,7 +333,7 @@ const Lend = () => {
         }}
       >
         {tabKey === 0 && (
-          <Flex position={'absolute'} right={0} top={0} gap={4}>
+          <Flex position={'absolute'} right={0} top={0} gap={4} zIndex={3}>
             {/* {showSearch || isEmpty(activeCollectionData?.list) ? (
               <SearchInput
                 value={tabKey === 0 ? activeCollectionSearch : myPoolsSearch}
