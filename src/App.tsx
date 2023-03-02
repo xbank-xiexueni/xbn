@@ -1,22 +1,29 @@
-import { lazy, Suspense } from 'react'
+import { Suspense } from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
 
 import { Fallback } from '@/components'
 
+import NotFound from './pages/404'
+import PoolCreate from './pages/Lend/Create'
+import Lend from './pages/Lend/Lend'
+import LoansForBuyer from './pages/buy-nfts//Loans'
+import Market from './pages/buy-nfts/Market'
+import MyAssets from './pages/buy-nfts/MyAssets'
+import NftAssetDetail from './pages/buy-nfts/NftAssetDetail'
 // Lend
-const Lend = lazy(() => import('./pages/Lend/Lend.js'))
-const PoolCreate = lazy(() => import('./pages/Lend/Create.js'))
+// const Lend = lazy(() => import('./pages/Lend/Lend.js'))
+// const PoolCreate = lazy(() => import('./pages/Lend/Create.js'))
 // const PoolEdit = lazy(() => import('./pages/Lend/Edit'))
 
 // buy nfts
-const Market = lazy(() => import('./pages/buy-nfts/Market.js'))
-const MyAssets = lazy(() => import('./pages/buy-nfts/MyAssets.js'))
-const LoansForBuyer = lazy(() => import('./pages/buy-nfts/Loans.js'))
+// const Market = lazy(() => import('./pages/buy-nfts/Market.js'))
+// const MyAssets = lazy(() => import('./pages/buy-nfts/MyAssets.js'))
+// const LoansForBuyer = lazy(() => import('./pages/buy-nfts/Loans.js'))
 
 // nft detail
-const NftAssetDetail = lazy(() => import('./pages/buy-nfts/NftAssetDetail.js'))
+// const NftAssetDetail = lazy(() => import('./pages/buy-nfts/NftAssetDetail.js'))
 
-const NotFound = lazy(() => import('./pages/404.js'))
+// const NotFound = lazy(() => import('./pages/404.js'))
 
 function App() {
   return (
