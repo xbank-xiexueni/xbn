@@ -54,15 +54,16 @@ const Header = () => {
       onOpen()
       return
     }
-
+    if (!import.meta.env.DEV) {
+      return
+    }
     // const wethContract = createWethContract()
-
     const xBankContract = createXBankContract()
     console.log(
       '🚀 ~ file: Header.tsx:62 ~ handleClickWal ~ xBankContract:',
       xBankContract,
     )
-    // const listPool = await xBankContract.methods.listPool().call()
+    const listPool = await xBankContract.methods.listPool().call()
     const listLoan = await xBankContract.methods.listLoan().call()
     // const _allowance = await wethContract.methods
     //   .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
@@ -80,6 +81,10 @@ const Header = () => {
     // )
     console.log('transactionsContract', xBankContract.methods)
     console.log('listLoan', listLoan)
+    console.log(
+      '🚀 ~ file: Header.tsx:67 ~ handleClickWal ~ listPool:',
+      listPool,
+    )
   }, [currentAccount, onOpen])
 
   return (
@@ -113,25 +118,28 @@ const Header = () => {
           >
             <Popover isLazy trigger='hover' placement='bottom-start'>
               <PopoverTrigger>
-                <Button
-                  variant={'ghost'}
+                {/* <Link to='/lending/my-pools'> */}
+                <Flex
                   fontSize={'md'}
                   px={0}
-                  rightIcon={
-                    <SvgComponent
-                      svgId={
-                        activePath === 'LEND'
-                          ? 'icon-arrow-down-active'
-                          : 'icon-arrow-down'
-                      }
-                    />
-                  }
+                  gap={1}
                   _focus={{ bg: 'transparent' }}
                   _hover={{ bg: 'transparent' }}
                   color={activePath === 'LEND' ? 'blue.1' : 'black.1'}
+                  fontWeight='700'
+                  alignItems={'center'}
+                  cursor='pointer'
                 >
                   Lend
-                </Button>
+                  <SvgComponent
+                    svgId={
+                      activePath === 'LEND'
+                        ? 'icon-arrow-down-active'
+                        : 'icon-arrow-down'
+                    }
+                  />
+                </Flex>
+                {/* </Link> */}
               </PopoverTrigger>
               <PopoverContent w={48}>
                 <PopoverBody px={0} py={2}>
@@ -166,25 +174,28 @@ const Header = () => {
 
             <Popover isLazy trigger='hover' placement='bottom-start'>
               <PopoverTrigger>
-                <Button
-                  px={0}
-                  variant={'ghost'}
+                {/* <Link to='/buy-nfts/market'> */}
+                <Flex
                   fontSize={'md'}
-                  rightIcon={
-                    <SvgComponent
-                      svgId={
-                        activePath === 'BUY_NFTS'
-                          ? 'icon-arrow-down-active'
-                          : 'icon-arrow-down'
-                      }
-                    />
-                  }
+                  px={0}
                   _focus={{ bg: 'transparent' }}
                   _hover={{ bg: 'transparent' }}
                   color={activePath === 'BUY_NFTS' ? `blue.1` : `black.1`}
+                  fontWeight='700'
+                  alignItems={'center'}
+                  gap={1}
+                  cursor='pointer'
                 >
                   Buy NFTs
-                </Button>
+                  <SvgComponent
+                    svgId={
+                      activePath === 'BUY_NFTS'
+                        ? 'icon-arrow-down-active'
+                        : 'icon-arrow-down'
+                    }
+                  />
+                </Flex>
+                {/* </Link> */}
               </PopoverTrigger>
               <PopoverContent w={48}>
                 <PopoverBody px={0} py={2}>

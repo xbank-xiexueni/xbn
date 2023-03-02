@@ -39,10 +39,10 @@ export default defineConfig({
         manualChunks: {
           'react-venders': ['react', 'react-dom', 'react-router-dom'],
           'chakra-vendors': ['@chakra-ui/react'],
+          'web3-vendors': ['web3'],
         },
       },
     },
-    chunkSizeWarningLimit: 1500,
   },
   resolve: {
     alias: {

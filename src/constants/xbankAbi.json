@@ -310,6 +310,40 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "totalRepayment",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "repayTimes",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanInterestRate",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "loanDuration",
+        "type": "uint32"
+      }
+    ],
+    "name": "_calLoanInterest",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint32",
         "name": "repayedTimes",
         "type": "uint32"
@@ -506,6 +540,30 @@
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "base",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "exponent",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculatePower",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -739,6 +797,25 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "loanID",
+        "type": "uint256"
+      }
+    ],
+    "name": "getNextRepaymentAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "poolID",
         "type": "uint256"
       }
@@ -816,25 +893,6 @@
         "internalType": "struct XBankStruct.Pool",
         "name": "",
         "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "loanID",
-        "type": "uint256"
-      }
-    ],
-    "name": "getRepaymentAmount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",

@@ -186,7 +186,7 @@ const Loans = () => {
           }))
           // 1. 查看需要偿还的金额
           const repaymentAmount = await xBankContract.methods
-            .getRepaymentAmount(loan_id)
+            .getNextRepaymentAmount(loan_id)
             .call()
           const provider = createWeb3Provider()
 
