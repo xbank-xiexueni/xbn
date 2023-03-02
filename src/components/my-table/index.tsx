@@ -59,10 +59,10 @@ const MyTable = ({
     field: '',
   })
   return (
-    <>
+    <Box position={'relative'}>
       {!!tableTitle && tableTitle()}
+      {<LoadingComponent loading={loading} />}
       <TableContainer position={'relative'} maxW={maxW || '100%'}>
-        {<LoadingComponent loading={loading} />}
         {/* 为了让  EmptyComponent 居中*/}
         {isEmpty(data) && (
           <Box left={0} right={0} top={10} bottom={0} pos='absolute'>
@@ -279,7 +279,7 @@ const MyTable = ({
       <Flex justify={'center'} my={8}>
         {!!caption && !loading && caption()}
       </Flex>
-    </>
+    </Box>
   )
 }
 
