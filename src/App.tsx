@@ -1,29 +1,62 @@
-import { Suspense } from 'react'
+import { Suspense, lazy } from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
 
 import { Fallback } from '@/components'
 
-import NotFound from './pages/404'
-import PoolCreate from './pages/Lend/Create'
-import Lend from './pages/Lend/Lend'
-import LoansForBuyer from './pages/buy-nfts//Loans'
-import Market from './pages/buy-nfts/Market'
-import MyAssets from './pages/buy-nfts/MyAssets'
-import NftAssetDetail from './pages/buy-nfts/NftAssetDetail'
+// import NotFound from './pages/404'
+// import PoolCreate from './pages/Lend/Create'
+// import Lend from './pages/Lend/Lend'
+// import LoansForBuyer from './pages/buy-nfts//Loans'
+// import Market from './pages/buy-nfts/Market'
+// import MyAssets from './pages/buy-nfts/MyAssets'
+// import NftAssetDetail from './pages/buy-nfts/NftAssetDetail'
+
+export const lazyWithRetries: typeof lazy = (importer) => {
+  const retryImport = async () => {
+    try {
+      return await importer()
+    } catch (error: any) {
+      // retry 5 times with 2 second delay and backoff factor of 2 (2, 4, 8, 16, 32 seconds)
+      for (let i = 0; i < 5; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 * 2 ** i))
+        // this assumes that the exception will contain this specific text with the url of the module
+        // if not, the url will not be able to parse and we'll get an error on that
+        // eg. "Failed to fetch dynamically imported module: https://example.com/assets/Home.tsx"
+        const url = new URL(
+          error.message
+            .replace('Failed to fetch dynamically imported module: ', '')
+            .trim(),
+        )
+        // add a timestamp to the url to force a reload the module (and not use the cached version - cache busting)
+        url.searchParams.set('t', `${+new Date()}`)
+
+        try {
+          return await import(url.href)
+        } catch (e) {
+          console.log('retrying import')
+        }
+      }
+      throw error
+    }
+  }
+  return lazy(retryImport)
+}
 // Lend
-// const Lend = lazy(() => import('./pages/Lend/Lend.js'))
-// const PoolCreate = lazy(() => import('./pages/Lend/Create.js'))
+const Lend = lazyWithRetries(() => import('./pages/Lend/Lend.js'))
+const PoolCreate = lazyWithRetries(() => import('./pages/Lend/Create.js'))
 // const PoolEdit = lazy(() => import('./pages/Lend/Edit'))
 
 // buy nfts
-// const Market = lazy(() => import('./pages/buy-nfts/Market.js'))
-// const MyAssets = lazy(() => import('./pages/buy-nfts/MyAssets.js'))
-// const LoansForBuyer = lazy(() => import('./pages/buy-nfts/Loans.js'))
+const Market = lazyWithRetries(() => import('./pages/buy-nfts/Market.js'))
+const MyAssets = lazyWithRetries(() => import('./pages/buy-nfts/MyAssets.js'))
+const LoansForBuyer = lazyWithRetries(() => import('./pages/buy-nfts/Loans.js'))
 
 // nft detail
-// const NftAssetDetail = lazy(() => import('./pages/buy-nfts/NftAssetDetail.js'))
+const NftAssetDetail = lazyWithRetries(
+  () => import('./pages/buy-nfts/NftAssetDetail.js'),
+)
 
-// const NotFound = lazy(() => import('./pages/404.js'))
+const NotFound = lazyWithRetries(() => import('./pages/404.js'))
 
 function App() {
   return (
