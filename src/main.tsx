@@ -30,6 +30,7 @@ createRoot(rootElement as HTMLElement).render(
               maskOpacity={0.4}
               bannerVisible={false}
               maskClosable
+              photoClosable
               loadingElement={<Spinner colorScheme={'blue'} color='blue.1' />}
               brokenElement={
                 <Heading color={'gray.1'}>something went wrong...</Heading>

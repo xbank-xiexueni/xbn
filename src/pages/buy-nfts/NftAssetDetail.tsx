@@ -121,11 +121,31 @@ const NftAssetDetail = () => {
     [],
   )
 
-  const [sliderValue, setSliderValue] = useState(COLLATERALS[1])
-  const loanWeiAmount = useMemo(() => {
+  const [percentage, setPercentage] = useState(COLLATERALS[4])
+
+  useEffect(() => {
+    if (isEmpty(originPoolList) || !originPoolList) {
+      setPercentage(COLLATERALS[4])
+      return
+    }
+    const l = originPoolList?.length
+    const percentages = [
+      ...originPoolList.map((item) => item.pool_maximum_percentage),
+    ].reduce((sum, n) => sum + n)
+    // 滑竿默认定位在这笔订单匹配到的所有贷款offer的刻度区间中最中间的那个刻度
+    const defaultPercentage = floor(percentages / 1000 / l / 2) * 1000
+    setPercentage(defaultPercentage)
+  }, [originPoolList])
+
+  // 首付价格
+  const downPaymentWei = useMemo(() => {
     if (!commodityWeiPrice) return BigNumber(0)
-    return commodityWeiPrice.multipliedBy(sliderValue).dividedBy(10000)
-  }, [commodityWeiPrice, sliderValue])
+    return commodityWeiPrice.multipliedBy(percentage).dividedBy(10000)
+  }, [commodityWeiPrice, percentage])
+
+  const loanWeiAmount = useMemo(() => {
+    return commodityWeiPrice.minus(downPaymentWei)
+  }, [commodityWeiPrice, downPaymentWei])
 
   const { loading: fetching, data: latestBalanceMap } = useRequest(
     () =>
@@ -164,7 +184,7 @@ const NftAssetDetail = () => {
           ? poolLatestCanUseAmount
           : latestWeth
         return (
-          item.pool_maximum_percentage >= sliderValue &&
+          item.pool_maximum_percentage >= percentage &&
           loanWeiAmount.lte(forCompareWei) &&
           //  存在一些脏数据
           item.loan_ratio_preferential_flexibility <= 200 &&
@@ -201,9 +221,9 @@ const NftAssetDetail = () => {
                 pool_maximum_interest_rate -
                 (TENORS.indexOf(pool_maximum_days) - index) *
                   loan_time_concession_flexibility -
-                // sliderValue 与最大贷款比例的 差
+                // percentage 与最大贷款比例的 差
                 // 4000 6000 => 1
-                ((pool_maximum_percentage - sliderValue) / 1000) *
+                ((pool_maximum_percentage - percentage) / 1000) *
                   loan_ratio_preferential_flexibility,
               pool_days: item,
             }
@@ -217,7 +237,7 @@ const NftAssetDetail = () => {
     setSelectPool(currentPools?.length > 1 ? currentPools[1] : currentPools[0])
 
     return currentPools
-  }, [latestBalanceMap, sliderValue, loanWeiAmount, originPoolList])
+  }, [latestBalanceMap, percentage, loanWeiAmount, originPoolList])
 
   // number of installments
   const [installmentOptions, setInstallmentOptions] = useState<(1 | 2 | 3)[]>()
@@ -254,10 +274,6 @@ const NftAssetDetail = () => {
     },
     [selectPool, loanWeiAmount],
   )
-
-  const downPaymentWei = useMemo(() => {
-    return commodityWeiPrice.minus(loanWeiAmount)
-  }, [commodityWeiPrice, loanWeiAmount])
 
   const [transferFromLoading, setTransferFromHashLoading] = useState(false)
   const { runAsync: generateLoanOrder, loading: generateLoading } = useRequest(
@@ -517,10 +533,10 @@ const NftAssetDetail = () => {
               max={COLLATERALS[COLLATERALS.length - 1]}
               step={1000}
               onChange={(target) => {
-                setSliderValue(target)
+                setPercentage(target)
               }}
               isDisabled={fetching || transferFromLoading || generateLoading}
-              value={sliderValue}
+              value={percentage}
             >
               {COLLATERALS.map((item) => (
                 <SliderMark value={item} fontSize='sm' key={item} zIndex={1}>
@@ -531,7 +547,7 @@ const NftAssetDetail = () => {
                     borderWidth={1}
                     borderColor='white'
                     mt={-1}
-                    bg={sliderValue > item ? 'blue.1' : 'gray.1'}
+                    bg={percentage > item ? 'blue.1' : 'gray.1'}
                   />
                 </SliderMark>
               ))}

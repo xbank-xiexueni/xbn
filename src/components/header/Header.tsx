@@ -255,15 +255,13 @@ const Header = () => {
 
           <Menu>
             <MenuButton
-              as={IconButton}
               aria-label='Options'
               display={{
                 md: 'flex',
                 lg: 'none',
               }}
-              bg='white'
             >
-              <SvgComponent svgId='open' svgSize={'20px'} />
+              <SvgComponent svgId='open' svgSize={'24px'} />
             </MenuButton>
             <MenuList minWidth='240px'>
               <MenuOptionGroup title='Lend' type='radio'>
