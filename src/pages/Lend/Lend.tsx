@@ -555,7 +555,7 @@ const Lend = () => {
                       <Text fontSize={'sm'} fontWeight='700'>
                         All my Collections
                       </Text>
-                      {!selectKeyForOpenLoans ? (
+                      {selectKeyForOpenLoans === undefined ? (
                         <SvgComponent svgId='icon-checked' />
                       ) : (
                         <Text fontSize={'sm'}>{myPoolsData?.length}</Text>
