@@ -221,6 +221,10 @@ const Loans = () => {
             [loan_id]: false,
           }))
           console.log(repayHash, 'qqqqqqq')
+          toast({
+            status: 'success',
+            title: 'successful repayment',
+          })
           refresh()
         } catch (error: any) {
           console.log('🚀 ~ file: Loans.tsx:197 ~ interceptFn ~ error:', error)

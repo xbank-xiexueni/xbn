@@ -339,6 +339,10 @@ const NftAssetDetail = () => {
       await generateLoanOrder({
         ...postParams,
       })
+      toast({
+        status: 'success',
+        title: 'successfully down payment',
+      })
       navigate('/buy-nfts/loans')
     } catch {
       //

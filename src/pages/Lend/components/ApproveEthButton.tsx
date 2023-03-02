@@ -176,6 +176,10 @@ const ApproveEthButton: FunctionComponent<
       setCreateLoading(false)
       console.log(new Date().getTime(), '----------------end')
       onClose()
+      toast({
+        status: 'success',
+        title: 'Created successfully! ',
+      })
       navigate('/lending/my-pools')
     } catch (error: any) {
       console.log(error?.message, error?.code, error?.data)
