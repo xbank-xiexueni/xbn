@@ -75,7 +75,7 @@ const ApproveEthButton: FunctionComponent<
     loanRatioPreferentialFlexibility,
     allowCollateralContract,
   } = data
-  const { getBalance, currentAccount } = useWallet()
+  const { currentAccount, interceptFn } = useWallet()
   const navigate = useNavigate()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [amount, setAmount] = useState('')
@@ -87,6 +87,7 @@ const ApproveEthButton: FunctionComponent<
   const [currentBalance, setCurrentBalance] = useState(0)
 
   useEffect(() => {
+    if (!currentAccount) return
     const wethContract = createWethContract()
     wethContract.methods
       .balanceOf(currentAccount)
@@ -100,7 +101,7 @@ const ApproveEthButton: FunctionComponent<
           error,
         )
       })
-  }, [getBalance, currentAccount])
+  }, [currentAccount])
 
   const isError = useMemo((): boolean => {
     //  amount < balance + Has been lent
@@ -116,82 +117,84 @@ const ApproveEthButton: FunctionComponent<
   const [createLoading, setCreateLoading] = useState(false)
   const toast = useToast()
 
-  const onConfirm = useCallback(async () => {
-    /**
-     * 平均总耗时：
-     * 1676961248463 - 1676961180777 =  67686 ms ≈ 1min
-     */
-    console.log(new Date().getTime(), '----------------start')
-    // 预计算
-    const UNIT256MAX =
-      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
-    try {
-      const parsedWeiAmount = Web3.utils.toWei(amount, 'ether')
-      const wethContract = createWethContract()
-      setApproveLoading(true)
-      const _allowance = await wethContract.methods
-        .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
-        .call()
+  const onConfirm = useCallback(() => {
+    interceptFn(async () => {
+      /**
+       * 平均总耗时：
+       * 1676961248463 - 1676961180777 =  67686 ms ≈ 1min
+       */
+      console.log(new Date().getTime(), '----------------start')
+      // 预计算
+      const UNIT256MAX =
+        '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+      try {
+        const parsedWeiAmount = Web3.utils.toWei(amount, 'ether')
+        const wethContract = createWethContract()
+        setApproveLoading(true)
+        const _allowance = await wethContract.methods
+          .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
+          .call()
 
-      const allowanceHex = Web3.utils.toHex(_allowance)
-      if (allowanceHex !== UNIT256MAX) {
-        console.log('approve 阶段')
+        const allowanceHex = Web3.utils.toHex(_allowance)
+        if (allowanceHex !== UNIT256MAX) {
+          console.log('approve 阶段')
 
-        await wethContract.methods
-          .approve(XBANK_CONTRACT_ADDRESS, UNIT256MAX)
+          await wethContract.methods
+            .approve(XBANK_CONTRACT_ADDRESS, UNIT256MAX)
+            .send({
+              from: currentAccount,
+            })
+        }
+        setApproveLoading(false)
+        setCreateLoading(true)
+
+        // const supportERC20Denomination = approveHash?.to
+        const supportERC20Denomination = WETH_CONTRACT_ADDRESS
+
+        const xBankContract = createXBankContract()
+        await xBankContract.methods
+          .createPool(
+            // supportERC20Denomination
+            supportERC20Denomination,
+            // allowCollateralContract
+            allowCollateralContract,
+            // '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
+            // poolAmount
+            parsedWeiAmount,
+            // poolMaximumPercentage,
+            poolMaximumPercentage,
+            // uint32 poolMaximumDays,
+            poolMaximumDays,
+            // uint32 poolMaximumInterestRate,
+            poolMaximumInterestRate,
+            // uint32 loanTimeConcessionFlexibility,
+            loanTimeConcessionFlexibility,
+            // uint32 loanRatioPreferentialFlexibility
+            loanRatioPreferentialFlexibility,
+          )
           .send({
             from: currentAccount,
           })
-      }
-      setApproveLoading(false)
-      setCreateLoading(true)
-
-      // const supportERC20Denomination = approveHash?.to
-      const supportERC20Denomination = WETH_CONTRACT_ADDRESS
-
-      const xBankContract = createXBankContract()
-      await xBankContract.methods
-        .createPool(
-          // supportERC20Denomination
-          supportERC20Denomination,
-          // allowCollateralContract
-          allowCollateralContract,
-          // '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
-          // poolAmount
-          parsedWeiAmount,
-          // poolMaximumPercentage,
-          poolMaximumPercentage,
-          // uint32 poolMaximumDays,
-          poolMaximumDays,
-          // uint32 poolMaximumInterestRate,
-          poolMaximumInterestRate,
-          // uint32 loanTimeConcessionFlexibility,
-          loanTimeConcessionFlexibility,
-          // uint32 loanRatioPreferentialFlexibility
-          loanRatioPreferentialFlexibility,
-        )
-        .send({
-          from: currentAccount,
+        setCreateLoading(false)
+        console.log(new Date().getTime(), '----------------end')
+        onClose()
+        toast({
+          status: 'success',
+          title: 'Created successfully! ',
         })
-      setCreateLoading(false)
-      console.log(new Date().getTime(), '----------------end')
-      onClose()
-      toast({
-        status: 'success',
-        title: 'Created successfully! ',
-      })
-      navigate('/lending/my-pools')
-    } catch (error: any) {
-      console.log(error?.message, error?.code, error?.data)
-      toast({
-        status: 'error',
-        title: error?.code,
-        description: error?.message,
-        duration: 5000,
-      })
-      setCreateLoading(false)
-      setApproveLoading(false)
-    }
+        navigate('/lending/my-pools')
+      } catch (error: any) {
+        console.log(error?.message, error?.code, error?.data)
+        toast({
+          status: 'error',
+          title: error?.code,
+          description: error?.message,
+          duration: 5000,
+        })
+        setCreateLoading(false)
+        setApproveLoading(false)
+      }
+    })
   }, [
     amount,
     toast,
@@ -204,6 +207,7 @@ const ApproveEthButton: FunctionComponent<
     onClose,
     navigate,
     currentAccount,
+    interceptFn,
   ])
 
   const handleClose = useCallback(() => {
@@ -213,7 +217,7 @@ const ApproveEthButton: FunctionComponent<
 
   return (
     <>
-      <Button onClick={onOpen} {...rest}>
+      <Button onClick={() => interceptFn(onOpen)} {...rest}>
         {children}
       </Button>
 

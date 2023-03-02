@@ -4,7 +4,8 @@ import { useCallback, useContext } from 'react'
 import { TransactionContext } from '@/context/TransactionContext'
 
 export const useWallet = () => {
-  const { currentAccount, ...rest } = useContext(TransactionContext)
+  const { currentAccount, isSupportedChain, ...rest } =
+    useContext(TransactionContext)
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const interceptFn = useCallback(
@@ -14,11 +15,15 @@ export const useWallet = () => {
         onOpen()
         return
       }
+      if (!isSupportedChain) {
+        console.warn('chainId warn')
+        return
+      }
       if (fn) {
         fn()
       }
     },
-    [currentAccount, onOpen],
+    [currentAccount, onOpen, isSupportedChain],
   )
   return {
     isOpen,
@@ -26,6 +31,7 @@ export const useWallet = () => {
     onClose,
     interceptFn,
     currentAccount,
+    isSupportedChain,
     ...rest,
   }
 }

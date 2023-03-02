@@ -21,6 +21,7 @@ export const TransactionContext = createContext({
   },
   currentAccount: '',
   connectLoading: false,
+  isSupportedChain: false,
 })
 
 const { ethereum } = window
@@ -32,6 +33,7 @@ export const TransactionsProvider = ({
 }) => {
   const toast = useToast()
   const [currentAccount, setCurrentAccount] = useState('')
+  const [isSupportedChain, setIsSupportedChain] = useState(false)
 
   const [connectLoading, setConnectLoading] = useState(false)
 
@@ -69,6 +71,8 @@ export const TransactionsProvider = ({
 
   useEffect(() => {
     if (!ethereum) return
+    setIsSupportedChain(['0x1', '0x5'].includes(ethereum.chainId))
+
     ethereum.on('accountsChanged', function () // accounts: string[]
     {
       // 一旦切换账号这里就会执行
@@ -78,6 +82,10 @@ export const TransactionsProvider = ({
       //   window.location.reload()
       //   return
       // }
+    })
+    ethereum.on('chainChanged', (_chainId: string) => {
+      window.location.reload()
+      setIsSupportedChain(['0x1', '0x5'].includes(_chainId))
     })
   }, [])
 
@@ -203,6 +211,7 @@ export const TransactionsProvider = ({
         // sendTransaction,
         // handleChange,
         // formData,
+        isSupportedChain,
       }}
     >
       {children}

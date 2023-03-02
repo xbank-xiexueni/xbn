@@ -34,7 +34,7 @@ const Header = () => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
-  const { isOpen, onClose, onOpen, currentAccount } = useWallet()
+  const { isOpen, onClose, onOpen, currentAccount, interceptFn } = useWallet()
 
   const activePath = useMemo((): 'LEND' | 'BUY_NFTS' | 'SELL_NFTS' | '' => {
     if (pathname.startsWith('/lending')) {
@@ -50,42 +50,40 @@ const Header = () => {
   }, [pathname])
 
   const handleClickWallet = useCallback(async () => {
-    if (!currentAccount) {
-      onOpen()
-      return
-    }
-    if (!import.meta.env.DEV) {
-      return
-    }
-    // const wethContract = createWethContract()
-    const xBankContract = createXBankContract()
-    console.log(
-      '🚀 ~ file: Header.tsx:62 ~ handleClickWal ~ xBankContract:',
-      xBankContract,
-    )
-    const listPool = await xBankContract.methods.listPool().call()
-    const listLoan = await xBankContract.methods.listLoan().call()
-    // const _allowance = await wethContract.methods
-    //   .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
-    //   .call()
+    interceptFn(async () => {
+      if (!import.meta.env.DEV) {
+        return
+      }
+      // const wethContract = createWethContract()
+      const xBankContract = createXBankContract()
+      console.log(
+        '🚀 ~ file: Header.tsx:62 ~ handleClickWal ~ xBankContract:',
+        xBankContract,
+      )
+      const listPool = await xBankContract.methods.listPool().call()
+      const listLoan = await xBankContract.methods.listLoan().call()
+      // const _allowance = await wethContract.methods
+      //   .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
+      //   .call()
 
-    // const balanceOf = await wethContract.methods
-    //   .balanceOf(currentAccount)
-    //   .call()
-    // console.log('🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:', balanceOf)
+      // const balanceOf = await wethContract.methods
+      //   .balanceOf(currentAccount)
+      //   .call()
+      // console.log('🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:', balanceOf)
 
-    // const allowanceEth = wei2Eth(_allowance)
-    // console.log(
-    //   '🚀 ~ file: Header.tsx:59 ~ testClick ~ allowanceEth:',
-    //   allowanceEth,
-    // )
-    console.log('transactionsContract', xBankContract.methods)
-    console.log('listLoan', listLoan)
-    console.log(
-      '🚀 ~ file: Header.tsx:67 ~ handleClickWal ~ listPool:',
-      listPool,
-    )
-  }, [currentAccount, onOpen])
+      // const allowanceEth = wei2Eth(_allowance)
+      // console.log(
+      //   '🚀 ~ file: Header.tsx:59 ~ testClick ~ allowanceEth:',
+      //   allowanceEth,
+      // )
+      console.log('transactionsContract', xBankContract.methods)
+      console.log('listLoan', listLoan)
+      console.log(
+        '🚀 ~ file: Header.tsx:67 ~ handleClickWal ~ listPool:',
+        listPool,
+      )
+    })
+  }, [interceptFn])
 
   return (
     <Box position={'sticky'} top={0} zIndex={21}>

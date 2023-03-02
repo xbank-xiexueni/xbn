@@ -68,7 +68,7 @@ type PoolType = {
 const NftAssetDetail = () => {
   const navigate = useNavigate()
   const toast = useToast()
-  const { isOpen, onClose, onOpen, currentAccount } = useWallet()
+  const { isOpen, onClose, currentAccount, interceptFn } = useWallet()
   const {
     state,
   }: {
@@ -303,69 +303,66 @@ const NftAssetDetail = () => {
    */
 
   const handleClickPay = useCallback(async () => {
-    if (!currentAccount) {
-      onOpen()
-      return
-    }
-    if (!selectPool || isEmpty(selectPool)) {
-      return
-    }
-    const { pool_apr, pool_days, pool_id } = selectPool
-    const { order_price, token_id } = detail
-    try {
-      setTransferFromHashLoading(true)
-      const xBankContract = createXBankContract()
-      const transferFromHash = await xBankContract.methods
-        .transferFrom(pool_id, loanWeiAmount.toNumber().toString())
-        .send({
-          from: currentAccount,
-          value: commodityWeiPrice.minus(loanWeiAmount).toNumber().toString(),
-          gas: 300000,
-          // gasPrice:''
-        })
-      console.log(transferFromHash, '111111111')
-      setTransferFromHashLoading(false)
-    } catch (error: any) {
-      console.log(
-        '🚀 ~ file: NftAssetDetail.tsx:254 ~ handleClickPay ~ error:',
-        error,
-      )
-      toast({
-        status: 'error',
-        title: error?.code,
-        description: error?.message,
-        duration: 5000,
-      })
-      setTransferFromHashLoading(false)
-      return
-    }
-    try {
-      const postParams: LoanOrderDataType = {
-        pool_id: pool_id.toString(),
-        borrower_address: currentAccount,
-        commodity_price: order_price,
-        oracle_floor_price: order_price,
-        load_principal_amount: downPaymentWei.toNumber().toString(),
-        nft_collateral_id: token_id,
-        repay_times: installmentValue,
-        total_repayment: loanWeiAmount.toNumber().toString(),
-        loan_duration: pool_days * 24 * 60 * 60,
-        loan_interest_rate: pool_apr,
+    interceptFn(async () => {
+      if (!selectPool || isEmpty(selectPool)) {
+        return
       }
-      await generateLoanOrder({
-        ...postParams,
-      })
-      toast({
-        status: 'success',
-        title: 'successfully down payment',
-      })
-      navigate('/buy-nfts/loans')
-    } catch {
-      //
-    }
+      const { pool_apr, pool_days, pool_id } = selectPool
+      const { order_price, token_id } = detail
+      try {
+        setTransferFromHashLoading(true)
+        const xBankContract = createXBankContract()
+        const transferFromHash = await xBankContract.methods
+          .transferFrom(pool_id, loanWeiAmount.toNumber().toString())
+          .send({
+            from: currentAccount,
+            value: commodityWeiPrice.minus(loanWeiAmount).toNumber().toString(),
+            gas: 300000,
+            // gasPrice:''
+          })
+        console.log(transferFromHash, '111111111')
+        setTransferFromHashLoading(false)
+      } catch (error: any) {
+        console.log(
+          '🚀 ~ file: NftAssetDetail.tsx:254 ~ handleClickPay ~ error:',
+          error,
+        )
+        toast({
+          status: 'error',
+          title: error?.code,
+          description: error?.message,
+          duration: 5000,
+        })
+        setTransferFromHashLoading(false)
+        return
+      }
+      try {
+        const postParams: LoanOrderDataType = {
+          pool_id: pool_id.toString(),
+          borrower_address: currentAccount,
+          commodity_price: order_price,
+          oracle_floor_price: order_price,
+          load_principal_amount: downPaymentWei.toNumber().toString(),
+          nft_collateral_id: token_id,
+          repay_times: installmentValue,
+          total_repayment: loanWeiAmount.toNumber().toString(),
+          loan_duration: pool_days * 24 * 60 * 60,
+          loan_interest_rate: pool_apr,
+        }
+        await generateLoanOrder({
+          ...postParams,
+        })
+        toast({
+          status: 'success',
+          title: 'successfully down payment',
+        })
+        navigate('/buy-nfts/loans')
+      } catch {
+        //
+      }
+    })
   }, [
     currentAccount,
-    onOpen,
     downPaymentWei,
     selectPool,
     generateLoanOrder,
@@ -375,6 +372,7 @@ const NftAssetDetail = () => {
     toast,
     navigate,
     commodityWeiPrice,
+    interceptFn,
   ])
 
   const [usdPrice, setUsdPrice] = useState<BigNumber>()
