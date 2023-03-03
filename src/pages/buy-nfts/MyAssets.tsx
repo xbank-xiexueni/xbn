@@ -9,20 +9,46 @@ import {
   Tag,
   // Flex,
   SimpleGrid,
+  Button,
 } from '@chakra-ui/react'
-import range from 'lodash-es/range'
+import { useRequest } from 'ahooks'
+import { Network, Alchemy } from 'alchemy-sdk'
+import { useCallback, useState } from 'react'
 
 import {
+  EmptyComponent,
+  LoadingComponent,
   MyAssetNftListCard,
   // SearchInput, Select
 } from '@/components'
 
+import type { OwnedNftsResponse, OwnedNft } from 'alchemy-sdk'
+const settings = {
+  apiKey: 'CKEavYcmO1qrcMnHtPmu78N_5TZLUt0n',
+  network: Network.ETH_MAINNET,
+}
+const alchemy = new Alchemy(settings)
+
 const MyAssets = () => {
+  const [data, setData] = useState<OwnedNft[]>()
+  const getNftsForOwner = useCallback(async () => {
+    const nfts = await alchemy.nft.getNftsForOwner('0xshah.eth')
+    return nfts
+  }, [])
+  const { loading } = useRequest(getNftsForOwner, {
+    onSuccess: ({ ownedNfts }: OwnedNftsResponse) => {
+      console.log('🚀 ~ file: MyAssets.tsx:36 ~ MyAssets ~ data:', data)
+      setData(ownedNfts)
+    },
+    debounceWait: 100,
+  })
+
   return (
     <Box>
       <Heading mt={'60px'} mb={14}>
         My Assets
       </Heading>
+      <Button onClick={async () => {}}>aaa</Button>
       <Tabs position='relative'>
         <TabList
           _active={{
@@ -73,9 +99,20 @@ const MyAssets = () => {
                 }}
               />
             </Flex> */}
-            <SimpleGrid minChildWidth='330px' spacing={'16px'} mt={10}>
-              {range(15).map((item) => (
-                <MyAssetNftListCard data={{}} key={item} onClick={() => {}} />
+            <SimpleGrid
+              minChildWidth='330px'
+              spacing={'16px'}
+              mt={10}
+              position='relative'
+            >
+              <LoadingComponent loading={loading} />
+              {!data || (data?.length === 0 && <EmptyComponent />)}
+              {data?.map((item) => (
+                <MyAssetNftListCard
+                  data={item}
+                  key={item.tokenId + item.title + item.contract.address}
+                  onClick={() => {}}
+                />
               ))}
             </SimpleGrid>
           </TabPanel>

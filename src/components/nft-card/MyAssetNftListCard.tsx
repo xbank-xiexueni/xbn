@@ -9,6 +9,7 @@ import {
   Text,
   Tag,
 } from '@chakra-ui/react'
+import { type OwnedNft } from 'alchemy-sdk'
 
 import { ImageWithFallback } from '..'
 
@@ -28,27 +29,32 @@ const MortgagedTag = () => (
 )
 const MyAssetNftListCard: FunctionComponent<
   {
-    // temp
-    data: any
+    data: OwnedNft
   } & CardProps
 > = ({ data, ...rest }) => {
-  console.log(data, 'MyAssetNftListCard')
   return (
     <Card {...rest}>
       <CardBody p={0}>
         <Box bg='gray.100' borderTopRadius={16}>
           <ImageWithFallback
-            src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80'
-            alt='Green double couch with wooden legs'
-            borderTopRadius={'lg'}
+            src={data.media[0]?.thumbnail || data?.contract?.openSea?.imageUrl}
+            alt={data.title}
+            borderTopRadius={16}
             h='330px'
-            fit='contain'
           />
         </Box>
 
         <Flex mt={3} justify='space-between' px={4} mb={2}>
-          <Text fontSize='lg' fontWeight={'bold'}>
-            Azuki #6671
+          <Text
+            fontSize='lg'
+            fontWeight={'bold'}
+            display='inline-block'
+            overflow='hidden'
+            whiteSpace='nowrap'
+            w={'60%'}
+            textOverflow='ellipsis'
+          >
+            {data.title}
           </Text>
           <MortgagedTag />
         </Flex>
