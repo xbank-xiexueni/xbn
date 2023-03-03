@@ -17,6 +17,7 @@ import {
   apiGetActiveCollection,
   apiGetAssetsByCollection,
   apiGetPools,
+  type AssetListItemType,
   type CollectionListItemType,
 } from '@/api'
 import {
@@ -57,6 +58,7 @@ const Market = () => {
   })
   const [highestRate, setHighRate] = useState<number>()
   const [lowestPrice, setLowestPrice] = useState<string>()
+  const [assetData, setAssetData] = useState<AssetListItemType[]>([])
 
   const { loading: poolsLoading, data: poolsData } = useRequest(
     () =>
@@ -65,11 +67,18 @@ const Market = () => {
       }),
     {
       onSuccess: ({ data }) => {
-        if (isEmpty(data)) return
+        if (isEmpty(data)) {
+          setHighRate(undefined)
+          return
+        }
         const maxRate = maxBy(
           data,
           ({ pool_maximum_percentage }) => pool_maximum_percentage,
         )?.pool_maximum_percentage
+        if (!maxRate) {
+          setHighRate(undefined)
+          return
+        }
         setHighRate(maxRate)
       },
       ready: !!selectCollection?.contract_addr,
@@ -78,7 +87,7 @@ const Market = () => {
     },
   )
 
-  const { loading: assetListLoading, data: assetData } = useRequest(
+  const { loading: assetListLoading } = useRequest(
     () =>
       apiGetAssetsByCollection({
         asset_contract_address: selectCollection?.contract_addr,
@@ -86,12 +95,22 @@ const Market = () => {
     {
       ready: !!selectCollection?.contract_addr,
       refreshDeps: [selectCollection?.contract_addr],
+      onBefore: () => {
+        setAssetData([])
+      },
       onSuccess: ({ data }) => {
-        if (isEmpty(data)) return
+        if (isEmpty(data)) {
+          setLowestPrice(undefined)
+          return
+        }
+        setAssetData(data)
         const weiPrice = minBy(data, ({ order_price }) =>
           wei2Eth(order_price),
         )?.order_price
-        if (!weiPrice) return
+        if (!weiPrice) {
+          setLowestPrice(undefined)
+          return
+        }
         setLowestPrice(wei2Eth(weiPrice))
       },
     },
@@ -185,7 +204,7 @@ const Market = () => {
             overflowX='hidden'
           >
             <LoadingComponent loading={assetListLoading || poolsLoading} />
-            {isEmpty(assetData?.data) ? (
+            {isEmpty(assetData) ? (
               <GridItem
                 colSpan={{
                   xl: 4,
@@ -197,7 +216,7 @@ const Market = () => {
                 <EmptyComponent />
               </GridItem>
             ) : (
-              assetData?.data?.map((item) => (
+              assetData?.map((item) => (
                 <MarketNftListCard
                   data={{ ...item, highestRate }}
                   key={item.token_id}
