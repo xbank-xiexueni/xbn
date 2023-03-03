@@ -23,7 +23,7 @@ import Jazzicon from 'react-jazzicon'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import Icon from '@/assets/logo.png'
-import { RESPONSIVE_MAX_W } from '@/constants'
+import { CHAIN_BASE_URL, RESPONSIVE_MAX_W } from '@/constants'
 import { useWallet } from '@/hooks'
 import { createXBankContract } from '@/utils/createContract'
 import { formatAddress } from '@/utils/format'
@@ -34,7 +34,8 @@ const Header = () => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
-  const { isOpen, onClose, onOpen, currentAccount, interceptFn } = useWallet()
+  const { isOpen, onClose, onOpen, currentAccount, chainId, interceptFn } =
+    useWallet()
 
   const activePath = useMemo((): 'LEND' | 'BUY_NFTS' | 'SELL_NFTS' | '' => {
     if (pathname.startsWith('/lending')) {
@@ -51,9 +52,13 @@ const Header = () => {
 
   const handleClickWallet = useCallback(async () => {
     interceptFn(async () => {
+      if (CHAIN_BASE_URL[chainId]) {
+        window.open(`${CHAIN_BASE_URL[chainId]}${currentAccount}`)
+      }
       if (!import.meta.env.DEV) {
         return
       }
+
       // const wethContract = createWethContract()
       const xBankContract = createXBankContract()
       console.log(
@@ -83,7 +88,7 @@ const Header = () => {
         listPool,
       )
     })
-  }, [interceptFn])
+  }, [interceptFn, chainId, currentAccount])
 
   return (
     <Box position={'sticky'} top={0} zIndex={21}>
@@ -237,6 +242,7 @@ const Header = () => {
               md: 'none',
               lg: 'flex',
             }}
+            cursor='pointer'
           >
             {!!currentAccount ? (
               <Jazzicon
