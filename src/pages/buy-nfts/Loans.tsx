@@ -20,7 +20,7 @@ import { FORMAT_NUMBER, UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
-import formatAddress from '@/utils/formatAddress'
+import { formatAddress } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 export const loansForBuyerColumns: ColumnProps[] = [

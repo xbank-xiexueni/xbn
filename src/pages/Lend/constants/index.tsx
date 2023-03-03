@@ -7,7 +7,7 @@ import { ImageWithFallback } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
 import { amortizationCalByDays } from '@/utils/calculation'
-import formatAddress from '@/utils/formatAddress'
+import { formatAddress } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 export const activeCollectionColumns: ColumnProps[] = [

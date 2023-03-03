@@ -26,7 +26,7 @@ import Icon from '@/assets/logo.png'
 import { RESPONSIVE_MAX_W } from '@/constants'
 import { useWallet } from '@/hooks'
 import { createXBankContract } from '@/utils/createContract'
-import formatAddress from '@/utils/formatAddress'
+import { formatAddress } from '@/utils/format'
 
 import { ConnectWalletModal, SvgComponent } from '..'
 

@@ -6,4 +6,4 @@ const formatAddress = (address: string) => {
     .substring(address.length - 4, address.length)}`
 }
 
-export default formatAddress
+export { formatAddress }
