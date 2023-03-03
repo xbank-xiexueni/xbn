@@ -22,6 +22,7 @@ export const TransactionContext = createContext({
   currentAccount: '',
   connectLoading: false,
   isSupportedChain: false,
+  chainId: '',
 })
 
 const { ethereum } = window
@@ -212,6 +213,7 @@ export const TransactionsProvider = ({
         // handleChange,
         // formData,
         isSupportedChain,
+        chainId: ethereum.chainId,
       }}
     >
       {children}
