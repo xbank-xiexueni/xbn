@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { PhotoProvider } from 'react-photo-view'
 import 'react-photo-view/dist/react-photo-view.css'
 import { BrowserRouter } from 'react-router-dom'
+import 'video-react/dist/video-react.css' // import css
 
 import '@/assets/iconfont/iconfont.js'
 import { TransactionsProvider } from '@/context/TransactionContext'

@@ -120,7 +120,9 @@ const Loans = () => {
   const [repayLoadingMap, setRepayLoadingMap] =
     useState<Record<string, boolean>>()
 
-  useEffect(() => interceptFn(), [interceptFn])
+  useEffect(() => {
+    interceptFn()
+  }, [interceptFn])
 
   // const [selectCollection, setSelectCollection] = useState<number>()
 

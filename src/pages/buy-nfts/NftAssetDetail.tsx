@@ -34,9 +34,9 @@ import type {
 import { apiGetXCurrency, apiPostLoanOrder } from '@/api'
 import {
   ConnectWalletModal,
-  ImageWithFallback,
   NotFound,
   SvgComponent,
+  NftMedia,
 } from '@/components'
 import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
@@ -461,8 +461,10 @@ const NftAssetDetail = () => {
         }}
         flexDirection={'column'}
       >
-        <ImageWithFallback
-          src={detail?.image_preview_url}
+        <NftMedia
+          data={{
+            ...detail,
+          }}
           borderRadius={20}
           boxSize={{
             xl: '600px',

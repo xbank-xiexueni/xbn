@@ -19,7 +19,12 @@ import isEmpty from 'lodash-es/isEmpty'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { apiGetLoans, apiGetPools, type PoolsListItemType } from '@/api'
+import {
+  apiGetLoans,
+  apiGetPools,
+  type LoanOrderDataType,
+  type PoolsListItemType,
+} from '@/api'
 import ImgLend from '@/assets/LEND.png'
 import {
   ConnectWalletModal,
@@ -123,7 +128,7 @@ const Lend = () => {
   //   ready: !!currentAccount && tabKey === 1,
   // })
   // 三个表格的请求
-  const [loansData, setLoansData] = useState<Dictionary<any[]>>({
+  const [loansData, setLoansData] = useState<Dictionary<LoanOrderDataType[]>>({
     0: [],
     1: [],
     2: [],
