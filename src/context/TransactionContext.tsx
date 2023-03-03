@@ -21,8 +21,7 @@ export const TransactionContext = createContext({
   },
   currentAccount: '',
   connectLoading: false,
-  isSupportedChain: false,
-  chainId: '',
+  handleSwitchNetwork: async () => {},
 })
 
 const { ethereum } = window
@@ -34,9 +33,48 @@ export const TransactionsProvider = ({
 }) => {
   const toast = useToast()
   const [currentAccount, setCurrentAccount] = useState('')
-  const [isSupportedChain, setIsSupportedChain] = useState(false)
 
   const [connectLoading, setConnectLoading] = useState(false)
+
+  const handleSwitchNetwork = useCallback(async () => {
+    if (!ethereum) {
+      return
+    }
+    try {
+      await ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: import.meta.env.VITE_TARGET_CHAIN_ID }],
+      })
+    } catch (switchError: any) {
+      // This error code indicates that the chain has not been added to MetaMask.
+      if (switchError.code === 4902) {
+        toast({
+          status: 'error',
+          title: 'please add Ethereum Chain',
+        })
+        // try {
+        //   await ethereum.request({
+        //     method: 'wallet_addEthereumChain',
+        //     params: [
+        //       {
+        //         chainId: '0xf00',
+        //         chainName: '...',
+        //         rpcUrls: ['https://...'] /* ... */,
+        //       },
+        //     ],
+        //   })
+        // } catch (addError) {
+        //   // handle "add" error
+        // }
+      } else {
+        console.log(switchError)
+        toast({
+          status: 'info',
+          title: 'please switch Ethereum Chain first',
+        })
+      }
+    }
+  }, [toast])
 
   // const getAllTransactions = async () => {
   //   try {
@@ -72,7 +110,6 @@ export const TransactionsProvider = ({
 
   useEffect(() => {
     if (!ethereum) return
-    setIsSupportedChain(['0x1', '0x5'].includes(ethereum.chainId))
 
     ethereum.on('accountsChanged', function () // accounts: string[]
     {
@@ -84,9 +121,9 @@ export const TransactionsProvider = ({
       //   return
       // }
     })
-    ethereum.on('chainChanged', (_chainId: string) => {
+    ethereum.on('chainChanged', () => {
       window.location.reload()
-      setIsSupportedChain(['0x1', '0x5'].includes(_chainId))
+      setCurrentAccount('')
     })
   }, [])
 
@@ -111,6 +148,9 @@ export const TransactionsProvider = ({
           status: 'error',
           isClosable: true,
         })
+        return
+      }
+      if (ethereum.chainId !== import.meta.env.VITE_TARGET_CHAIN_ID) {
         return
       }
 
@@ -141,6 +181,10 @@ export const TransactionsProvider = ({
         })
         return
       }
+      if (ethereum.chainId !== import.meta.env.VITE_TARGET_CHAIN_ID) {
+        await handleSwitchNetwork()
+        return
+      }
 
       setConnectLoading(true)
       const accounts = await ethereum.request({
@@ -155,7 +199,7 @@ export const TransactionsProvider = ({
 
       throw new Error('No ethereum object')
     }
-  }, [toast])
+  }, [toast, handleSwitchNetwork])
 
   // const sendTransaction = async () => {
   //   try {
@@ -212,8 +256,7 @@ export const TransactionsProvider = ({
         // sendTransaction,
         // handleChange,
         // formData,
-        isSupportedChain,
-        chainId: ethereum.chainId,
+        handleSwitchNetwork,
       }}
     >
       {children}

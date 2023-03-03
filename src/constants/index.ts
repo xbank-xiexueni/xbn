@@ -105,8 +105,3 @@ export const TOAST_OPTION_CONFIG: UseToastOptions = {
     mt: 20,
   },
 }
-
-export const CHAIN_BASE_URL: Record<string, string> = {
-  '0x1': 'https://etherscan.io/address/',
-  '0x5': 'https://goerli.etherscan.io/address/',
-}
