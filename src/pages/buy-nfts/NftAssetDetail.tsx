@@ -82,10 +82,6 @@ const NftAssetDetail = () => {
   } = useLocation()
 
   const { collection, poolsList: originPoolList, asset: detail } = state || {}
-  console.log(
-    '🚀 ~ file: NftAssetDetail.tsx:83 ~ originPoolList:',
-    originPoolList,
-  )
 
   // 商品价格
   const commodityWeiPrice = useMemo(() => {
