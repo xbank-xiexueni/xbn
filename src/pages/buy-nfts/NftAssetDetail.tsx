@@ -18,8 +18,10 @@ import {
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
+import ceil from 'lodash-es/ceil'
 import floor from 'lodash-es/floor'
 import isEmpty from 'lodash-es/isEmpty'
+import maxBy from 'lodash-es/maxBy'
 import minBy from 'lodash-es/minBy'
 import range from 'lodash-es/range'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -80,6 +82,10 @@ const NftAssetDetail = () => {
   } = useLocation()
 
   const { collection, poolsList: originPoolList, asset: detail } = state || {}
+  console.log(
+    '🚀 ~ file: NftAssetDetail.tsx:83 ~ originPoolList:',
+    originPoolList,
+  )
 
   // 商品价格
   const commodityWeiPrice = useMemo(() => {
@@ -129,13 +135,16 @@ const NftAssetDetail = () => {
       setPercentage(COLLATERALS[4])
       return
     }
-    const l = originPoolList?.length
-    const percentages = [
-      ...originPoolList.map((item) => item.pool_maximum_percentage),
-    ].reduce((sum, n) => sum + n)
-    // 滑竿默认定位在这笔订单匹配到的所有贷款offer的刻度区间中最中间的那个刻度
-    const defaultPercentage = floor(percentages / 1000 / l / 2) * 1000
-    setPercentage(defaultPercentage)
+    const percentagesMax = maxBy(
+      originPoolList,
+      (i) => i.pool_maximum_percentage,
+    )?.pool_maximum_percentage
+    if (!percentagesMax) {
+      return
+    }
+    // 滑竿默认定位在这笔订单匹配到的所有贷款 offer 的刻度区间中最中间的那个刻度
+    const defaultPercentage = ceil(percentagesMax / 1000 / 2) * 1000
+    setPercentage(10000 - defaultPercentage)
   }, [originPoolList])
 
   // 首付价格
