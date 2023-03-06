@@ -122,6 +122,7 @@ const NftAssetDetail = () => {
   )
 
   const [percentage, setPercentage] = useState(COLLATERALS[4])
+  const loanPercentage = useMemo(() => 10000 - percentage, [percentage])
 
   useEffect(() => {
     if (isEmpty(originPoolList) || !originPoolList) {
@@ -131,7 +132,7 @@ const NftAssetDetail = () => {
     const l = originPoolList?.length
     const percentages = [
       ...originPoolList.map((item) => item.pool_maximum_percentage),
-    ].reduce((sum, n) => sum + n)
+    ].reduce((sum, n) => sum + (10000 - n))
     // 滑竿默认定位在这笔订单匹配到的所有贷款offer的刻度区间中最中间的那个刻度
     const defaultPercentage = floor(percentages / 1000 / l / 2) * 1000
     setPercentage(defaultPercentage)
@@ -140,8 +141,8 @@ const NftAssetDetail = () => {
   // 首付价格
   const downPaymentWei = useMemo(() => {
     if (!commodityWeiPrice) return BigNumber(0)
-    return commodityWeiPrice.multipliedBy(percentage).dividedBy(10000)
-  }, [commodityWeiPrice, percentage])
+    return commodityWeiPrice.multipliedBy(loanPercentage).dividedBy(10000)
+  }, [commodityWeiPrice, loanPercentage])
 
   const loanWeiAmount = useMemo(() => {
     return commodityWeiPrice.minus(downPaymentWei)
@@ -184,7 +185,7 @@ const NftAssetDetail = () => {
           ? poolLatestCanUseAmount
           : latestWeth
         return (
-          item.pool_maximum_percentage >= percentage &&
+          item.pool_maximum_percentage >= loanPercentage &&
           loanWeiAmount.lte(forCompareWei) &&
           //  存在一些脏数据
           item.loan_ratio_preferential_flexibility <= 200 &&
@@ -223,7 +224,7 @@ const NftAssetDetail = () => {
                   loan_time_concession_flexibility -
                 // percentage 与最大贷款比例的 差
                 // 4000 6000 => 1
-                ((pool_maximum_percentage - percentage) / 1000) *
+                ((pool_maximum_percentage - loanPercentage) / 1000) *
                   loan_ratio_preferential_flexibility,
               pool_days: item,
             }
@@ -237,7 +238,7 @@ const NftAssetDetail = () => {
     setSelectPool(currentPools?.length > 1 ? currentPools[1] : currentPools[0])
 
     return currentPools
-  }, [latestBalanceMap, percentage, loanWeiAmount, originPoolList])
+  }, [latestBalanceMap, loanPercentage, loanWeiAmount, originPoolList])
 
   // number of installments
   const [installmentOptions, setInstallmentOptions] = useState<(1 | 2 | 3)[]>()

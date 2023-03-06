@@ -51,13 +51,12 @@ const Header = () => {
 
   const handleClickWallet = useCallback(async () => {
     interceptFn(async () => {
-      window.open(
-        `${import.meta.env.VITE_TARGET_CHAIN_BASE_URL}${currentAccount}`,
-      )
       if (!import.meta.env.DEV) {
+        window.open(
+          `${import.meta.env.VITE_TARGET_CHAIN_BASE_URL}${currentAccount}`,
+        )
         return
       }
-
       // const wethContract = createWethContract()
       const xBankContract = createXBankContract()
       console.log(
