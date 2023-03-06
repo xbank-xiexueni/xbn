@@ -141,8 +141,8 @@ const NftAssetDetail = () => {
   // 首付价格
   const downPaymentWei = useMemo(() => {
     if (!commodityWeiPrice) return BigNumber(0)
-    return commodityWeiPrice.multipliedBy(loanPercentage).dividedBy(10000)
-  }, [commodityWeiPrice, loanPercentage])
+    return commodityWeiPrice.multipliedBy(percentage).dividedBy(10000)
+  }, [commodityWeiPrice, percentage])
 
   const loanWeiAmount = useMemo(() => {
     return commodityWeiPrice.minus(downPaymentWei)
