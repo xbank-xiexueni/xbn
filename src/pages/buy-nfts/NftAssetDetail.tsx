@@ -132,7 +132,7 @@ const NftAssetDetail = () => {
     const l = originPoolList?.length
     const percentages = [
       ...originPoolList.map((item) => item.pool_maximum_percentage),
-    ].reduce((sum, n) => sum + (10000 - n))
+    ].reduce((sum, n) => sum + n)
     // 滑竿默认定位在这笔订单匹配到的所有贷款offer的刻度区间中最中间的那个刻度
     const defaultPercentage = floor(percentages / 1000 / l / 2) * 1000
     setPercentage(defaultPercentage)
