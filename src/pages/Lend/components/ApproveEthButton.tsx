@@ -20,6 +20,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import {
+  type ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -185,10 +186,47 @@ const ApproveEthButton: FunctionComponent<
         navigate('/lending/my-pools')
       } catch (error: any) {
         console.log(error?.message, error?.code, error?.data)
+        const code: string = error?.code
+        const originMessage: string = error?.message
+        let title: string | ReactNode = code
+        let description: string | ReactNode = originMessage
+        if (!code && originMessage?.includes('{')) {
+          const firstIndex = originMessage.indexOf('{')
+          description = ''
+          try {
+            const hash = JSON.parse(
+              originMessage.substring(firstIndex, originMessage.length),
+            )?.transactionHash
+
+            title = (
+              <Text>
+                {originMessage?.substring(0, firstIndex)} &nbsp;
+                <Button
+                  variant={'link'}
+                  px={0}
+                  onClick={() => {
+                    window.open(
+                      `${
+                        import.meta.env.VITE_TARGET_CHAIN_BASE_URL
+                      }/tx/${hash}`,
+                    )
+                  }}
+                  textDecoration='underline'
+                  color='white'
+                >
+                  see more
+                </Button>
+              </Text>
+            )
+          } catch {
+            console.log('here')
+            title = originMessage?.substring(0, firstIndex)
+          }
+        }
         toast({
           status: 'error',
-          title: error?.code,
-          description: error?.message,
+          title,
+          description,
           duration: 5000,
         })
         setCreateLoading(false)

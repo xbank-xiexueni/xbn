@@ -24,7 +24,13 @@ import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
 import minBy from 'lodash-es/minBy'
 import range from 'lodash-es/range'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import type {
@@ -333,10 +339,47 @@ const NftAssetDetail = () => {
           '🚀 ~ file: NftAssetDetail.tsx:254 ~ handleClickPay ~ error:',
           error,
         )
+        const code: string = error?.code
+        const originMessage: string = error?.message
+        let title: string | ReactNode = code
+        let description: string | ReactNode = originMessage
+        if (!code && originMessage?.includes('{')) {
+          const firstIndex = originMessage.indexOf('{')
+          description = ''
+          try {
+            const hash = JSON.parse(
+              originMessage.substring(firstIndex, originMessage.length),
+            )?.transactionHash
+
+            title = (
+              <Text>
+                {originMessage?.substring(0, firstIndex)} &nbsp;
+                <Button
+                  variant={'link'}
+                  px={0}
+                  onClick={() => {
+                    window.open(
+                      `${
+                        import.meta.env.VITE_TARGET_CHAIN_BASE_URL
+                      }/tx/${hash}`,
+                    )
+                  }}
+                  textDecoration='underline'
+                  color='white'
+                >
+                  see more
+                </Button>
+              </Text>
+            )
+          } catch {
+            console.log('here')
+            title = originMessage?.substring(0, firstIndex)
+          }
+        }
         toast({
           status: 'error',
-          title: error?.code,
-          description: error?.message,
+          title,
+          description,
           duration: 5000,
         })
         setTransferFromHashLoading(false)
