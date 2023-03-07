@@ -367,35 +367,6 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "principal",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "interest",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint32",
-        "name": "repayTimes",
-        "type": "uint32"
-      }
-    ],
-    "name": "_calRepaymentAmount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
         "name": "startTime",
         "type": "uint256"
       },
@@ -647,7 +618,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "loanInterest",
+            "name": "loanRepaymentAmount",
             "type": "uint256"
           },
           {
@@ -919,7 +890,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "loanInterest",
+            "name": "loanRepaymentAmount",
             "type": "uint256"
           },
           {
@@ -1138,7 +1109,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "loanInterest",
+        "name": "loanRepaymentAmount",
         "type": "uint256"
       },
       {
