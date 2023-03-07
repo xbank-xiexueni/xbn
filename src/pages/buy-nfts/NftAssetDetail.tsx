@@ -41,10 +41,10 @@ import {
   NftMedia,
 } from '@/components'
 import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
-import { useWallet } from '@/hooks'
+import { useAssetOrdersPriceLazyQuery, useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
-import { wei2Eth } from '@/utils/unit-conversion'
+import { eth2Wei, wei2Eth } from '@/utils/unit-conversion'
 
 import BelongToCollection from './components/BelongToCollection'
 import DetailComponent from './components/DetailComponent'
@@ -80,16 +80,74 @@ const NftAssetDetail = () => {
       asset: AssetListItemType
     }
   } = useLocation()
+  const [commodityWeiPrice, setCommodityWeiPrice] = useState(BigNumber(0))
+  const [, setUpdatedAt] = useState('')
 
   const { collection, poolsList: originPoolList, asset: detail } = state || {}
+  const [
+    runAsyncAssetOrdersPrice,
+    //  { loading: refreshingOrderPrice }
+  ] = useAssetOrdersPriceLazyQuery({
+    variables: {
+      assetContractAddress: detail?.asset_contract_address,
+      assetTokenId: detail?.token_id,
+      withUpdate: true,
+    },
+    fetchPolicy: 'network-only',
+  })
 
-  // 商品价格
-  const commodityWeiPrice = useMemo(() => {
-    if (!detail?.order_price) {
-      return BigNumber(0)
-    }
-    return BigNumber(Number(detail?.order_price))
-  }, [detail])
+  const autoRefreshOrderPrice = useCallback(() => {
+    if (!detail) return
+    runAsyncAssetOrdersPrice({
+      variables: {
+        assetContractAddress: detail.asset_contract_address,
+        assetTokenId: detail.token_id,
+        withUpdate: true,
+      },
+      fetchPolicy: 'network-only',
+    })
+      .then(({ data }) => {
+        if (data?.assetOrders?.edges?.length === 0) {
+          setCommodityWeiPrice(BigNumber(detail.order_price))
+          return
+        }
+        let minPrice = BigNumber(Infinity)
+        let updatedAt = ''
+        let decimals = null
+        data?.assetOrders?.edges?.forEach((x: any) => {
+          const _price = BigNumber(x?.node?.price)
+          if (!_price.isNaN() && minPrice.isGreaterThan(_price)) {
+            minPrice = _price
+            updatedAt = x?.node?.updatedAt
+            decimals = x?.node?.nftPaymentToken?.decimals
+          }
+        })
+        if (dayjs(Date.now()).diff(dayjs(updatedAt), 'minutes') > 1) {
+          // 时间大于一分钟，重新请求数据
+          autoRefreshOrderPrice()
+        } else {
+          if (decimals === null) {
+            setCommodityWeiPrice(BigNumber(detail.order_price))
+            return
+          }
+          const baseMinusBy = BigNumber(Math.pow(10, decimals as number))
+          const price = minPrice.dividedBy(baseMinusBy)
+          setCommodityWeiPrice(BigNumber(eth2Wei(price.toNumber())))
+          setUpdatedAt(updatedAt)
+        }
+      })
+      .catch((error) => {
+        console.log(
+          '🚀 ~ file: NftAssetDetail.tsx:137 ~ autoRefreshOrderPrice ~ error:',
+          error,
+        )
+      })
+  }, [detail, runAsyncAssetOrdersPrice])
+
+  useEffect(() => {
+    if (!autoRefreshOrderPrice) return
+    autoRefreshOrderPrice()
+  }, [autoRefreshOrderPrice])
 
   // 获取每个 pool 的 owner_address 的最新 weth 资产
   const batchFetchOwenAddressLatestBalance = useCallback(
@@ -506,6 +564,7 @@ const NftAssetDetail = () => {
               : '',
             verified: collection?.safelist_request_status === 'verified',
           }}
+          // onReFresh={}
         />
 
         {/* Down payment */}

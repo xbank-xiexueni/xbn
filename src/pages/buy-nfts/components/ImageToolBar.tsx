@@ -28,7 +28,7 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({
       }}
     >
       <Flex alignItems={'center'} gap={1}>
-        <SvgComponent svgId='like' />
+        <SvgComponent svgId='icon-like' />
         <Text fontWeight={'700'} color='black.1'>
           {numeral(likes).format('0.00 a')}
         </Text>
