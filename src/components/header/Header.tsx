@@ -53,7 +53,9 @@ const Header = () => {
     interceptFn(async () => {
       if (!import.meta.env.DEV) {
         window.open(
-          `${import.meta.env.VITE_TARGET_CHAIN_BASE_URL}${currentAccount}`,
+          `${
+            import.meta.env.VITE_TARGET_CHAIN_BASE_URL
+          }/address/${currentAccount}`,
         )
         return
       }

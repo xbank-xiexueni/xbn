@@ -6,6 +6,7 @@ import {
   Highlight,
   useToast,
   Spinner,
+  Button,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
@@ -22,6 +23,8 @@ import { amortizationCalByDays } from '@/utils/calculation'
 import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
 import { formatAddress } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
+
+import type { ReactNode } from 'react'
 
 export const loansForBuyerColumns: ColumnProps[] = [
   {
@@ -229,16 +232,54 @@ const Loans = () => {
           })
           refresh()
         } catch (error: any) {
+          // 0x13dbffe7546510d2428edef6e609a2e2d4ed6c7cd90f5c0845d33a31688b9f6b
           console.log('🚀 ~ file: Loans.tsx:197 ~ interceptFn ~ error:', error)
+          const code: string = error?.code
+          const originMessage: string = error?.message
+          let title: string | ReactNode = code
+          let description: string | ReactNode = originMessage
+          if (!code && originMessage?.includes('{')) {
+            const firstIndex = originMessage.indexOf('{')
+            description = ''
+            try {
+              const hash = JSON.parse(
+                originMessage.substring(firstIndex, originMessage.length),
+              )?.transactionHash
+
+              title = (
+                <Text>
+                  {originMessage?.substring(0, firstIndex)} &nbsp;
+                  <Button
+                    variant={'link'}
+                    px={0}
+                    onClick={() => {
+                      window.open(
+                        `${
+                          import.meta.env.VITE_TARGET_CHAIN_BASE_URL
+                        }/tx/${hash}`,
+                      )
+                    }}
+                    textDecoration='underline'
+                    color='white'
+                  >
+                    see more
+                  </Button>
+                </Text>
+              )
+            } catch {
+              console.log('here')
+              title = originMessage?.substring(0, firstIndex)
+            }
+          }
+
           setRepayLoadingMap((prev) => ({
             ...prev,
             [loan_id]: false,
           }))
           toast({
             status: 'error',
-            title: error?.code,
-            description: error?.message,
-            duration: 5000,
+            title,
+            description,
           })
         }
       })
