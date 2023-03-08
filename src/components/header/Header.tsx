@@ -25,7 +25,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Icon from '@/assets/logo.png'
 import { RESPONSIVE_MAX_W } from '@/constants'
 import { useWallet } from '@/hooks'
-import { createXBankContract } from '@/utils/createContract'
 import { formatAddress } from '@/utils/format'
 
 import { ConnectWalletModal, SvgComponent } from '..'
@@ -34,7 +33,14 @@ const Header = () => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
-  const { isOpen, onClose, currentAccount, interceptFn } = useWallet()
+  const {
+    isOpen,
+    onClose,
+    currentAccount,
+    interceptFn,
+    xBankContract,
+    wethContract,
+  } = useWallet()
 
   const activePath = useMemo((): 'LEND' | 'BUY_NFTS' | 'SELL_NFTS' | '' => {
     if (pathname.startsWith('/lending')) {
@@ -60,21 +66,30 @@ const Header = () => {
         return
       }
       // const wethContract = createWethContract()
-      const xBankContract = createXBankContract()
-      console.log(
-        '🚀 ~ file: Header.tsx:62 ~ handleClickWal ~ xBankContract:',
-        xBankContract,
-      )
-      const listPool = await xBankContract.methods.listPool().call()
-      const listLoan = await xBankContract.methods.listLoan().call()
+      // console.log(
+      //   '🚀 ~ file: Header.tsx:62 ~ handleClickWal ~ xBankContract:',
+      //   xBankContract,
+      //   xBankContract.methods.transferFrom,
+      // )
+
+      // const listPool = await xBankContract.methods.listPool().call()
+      // const listLoan = await xBankContract.methods.listLoan().call()
       // const _allowance = await wethContract.methods
       //   .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
       //   .call()
+      console.log(
+        '🚀 ~ file: Header.tsx:84 ~ interceptFn ~ wethContract:',
+        wethContract,
+      )
 
-      // const balanceOf = await wethContract.methods
-      //   .balanceOf(currentAccount)
-      //   .call()
-      // console.log('🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:', balanceOf)
+      const balanceOf = await wethContract.methods
+        .balanceOf(currentAccount)
+        .call()
+
+      console.log(
+        '🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:',
+        balanceOf,
+      )
 
       // const allowanceEth = wei2Eth(_allowance)
       // console.log(
@@ -88,7 +103,7 @@ const Header = () => {
         listPool,
       )
     })
-  }, [interceptFn, currentAccount])
+  }, [interceptFn, currentAccount, xBankContract, wethContract])
 
   return (
     <Box position={'sticky'} top={0} zIndex={21}>

@@ -22,19 +22,18 @@ import {
 import {
   type ReactNode,
   useCallback,
-  useEffect,
+  // useEffect,
   useMemo,
   useRef,
   useState,
   type FunctionComponent,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Web3 from 'web3'
+import * as web3Utils from 'web3-utils'
 
 import { SvgComponent } from '@/components'
 import { WETH_CONTRACT_ADDRESS, XBANK_CONTRACT_ADDRESS } from '@/constants'
 import { useWallet } from '@/hooks'
-import { createWethContract, createXBankContract } from '@/utils/createContract'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
@@ -76,7 +75,8 @@ const ApproveEthButton: FunctionComponent<
     loanRatioPreferentialFlexibility,
     allowCollateralContract,
   } = data
-  const { currentAccount, interceptFn } = useWallet()
+  const { currentAccount, interceptFn, xBankContract, wethContract } =
+    useWallet()
   const navigate = useNavigate()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [amount, setAmount] = useState('')
@@ -87,22 +87,21 @@ const ApproveEthButton: FunctionComponent<
 
   const [currentBalance, setCurrentBalance] = useState(0)
 
-  useEffect(() => {
-    if (!currentAccount) return
-    const wethContract = createWethContract()
-    wethContract.methods
-      .balanceOf(currentAccount)
-      .call()
-      .then((res: string) => {
-        setCurrentBalance(Number(wei2Eth(res)))
-      })
-      .catch((error: any) => {
-        console.log(
-          '🚀 ~ file: ApproveEthButton.tsx:98 ~ .then ~ error:',
-          error,
-        )
-      })
-  }, [currentAccount])
+  // useEffect(() => {
+  //   if (!currentAccount) return
+  //   wethContract.methods
+  //     .balanceOf(currentAccount)
+  //     .call()
+  //     .then((res: string) => {
+  //       // setCurrentBalance(Number(wei2Eth(res)))
+  //     })
+  //     .catch((error: any) => {
+  //       console.log(
+  //         '🚀 ~ file: ApproveEthButton.tsx:98 ~ .then ~ error:',
+  //         error,
+  //       )
+  //     })
+  // }, [currentAccount])
 
   const isError = useMemo((): boolean => {
     //  amount < balance + Has been lent
@@ -129,14 +128,23 @@ const ApproveEthButton: FunctionComponent<
       const UNIT256MAX =
         '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
       try {
-        const parsedWeiAmount = Web3.utils.toWei(amount, 'ether')
-        const wethContract = createWethContract()
+        const parsedWeiAmount = web3Utils.toWei(amount, 'ether')
         setApproveLoading(true)
+
         const _allowance = await wethContract.methods
           .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
           .call()
+        console.log(
+          '🚀 ~ file: ApproveEthButton.tsx:139 ~ interceptFn ~ _allowance:',
+          _allowance,
+        )
 
-        const allowanceHex = Web3.utils.toHex(_allowance)
+        const allowanceHex = web3Utils.toHex(_allowance)
+        console.log(
+          '🚀 ~ file: ApproveEthButton.tsx:142 ~ interceptFn ~ allowanceHex:',
+          allowanceHex,
+        )
+        return
         if (allowanceHex !== UNIT256MAX) {
           console.log('approve 阶段')
 
@@ -152,7 +160,6 @@ const ApproveEthButton: FunctionComponent<
         // const supportERC20Denomination = approveHash?.to
         const supportERC20Denomination = WETH_CONTRACT_ADDRESS
 
-        const xBankContract = createXBankContract()
         await xBankContract.methods
           .createPool(
             // supportERC20Denomination
@@ -246,6 +253,8 @@ const ApproveEthButton: FunctionComponent<
     navigate,
     currentAccount,
     interceptFn,
+    xBankContract,
+    wethContract,
   ])
 
   const handleClose = useCallback(() => {
@@ -255,7 +264,26 @@ const ApproveEthButton: FunctionComponent<
 
   return (
     <>
-      <Button onClick={() => interceptFn(onOpen)} {...rest}>
+      <Button
+        onClick={() =>
+          interceptFn(() => {
+            wethContract.methods
+              .balanceOf(currentAccount)
+              .call()
+              .then((res: string) => {
+                setCurrentBalance(Number(wei2Eth(res)))
+                onOpen()
+              })
+              .catch((error: any) => {
+                console.log(
+                  '🚀 ~ file: ApproveEthButton.tsx:98 ~ .then ~ error:',
+                  error,
+                )
+              })
+          })
+        }
+        {...rest}
+      >
         {children}
       </Button>
 

@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import Web3 from 'web3'
+import * as web3Utils from 'web3-utils'
 
 const wei2Eth = (wei: BigNumber | number | string) => {
   try {
@@ -10,7 +10,7 @@ const wei2Eth = (wei: BigNumber | number | string) => {
       weiStr = wei.toString()
     }
 
-    return Web3.utils.fromWei(weiStr, 'ether')
+    return web3Utils.fromWei(weiStr, 'ether')
   } catch (error) {
     console.log('🚀 ~ file: wei2Eth.ts:7 ~ wei2Eth ~ error:', error)
     return '--'
@@ -20,7 +20,7 @@ const eth2Wei = (eth: number | string) => {
   try {
     const ethStr = eth.toString()
 
-    return Web3.utils.toWei(ethStr, 'ether')
+    return web3Utils.toWei(ethStr, 'ether')
   } catch (error) {
     console.log('🚀 ~ file: wei2Eth.ts:7 ~ wei2Eth ~ error:', error)
     return '--'

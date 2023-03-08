@@ -1,20 +1,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { join } from 'path'
+import path from 'path'
+import nodePolyfills from 'rollup-plugin-polyfill-node'
 
 // https://vitejs.dev/config/
 /** @type {import('vite').UserConfig} */
 export default defineConfig({
-  plugins: [react()],
-  css: {
-    preprocessorOptions: {
-      // 预编译支持 less
-      less: {
-        // 支持内联 JavaScript
-        javascriptEnabled: true,
-      },
-    },
-  },
+  plugins: [react(), nodePolyfills()],
 
   server: {
     port: 8000,
@@ -39,14 +31,23 @@ export default defineConfig({
         manualChunks: {
           'react-venders': ['react', 'react-dom', 'react-router-dom'],
           'chakra-vendors': ['@chakra-ui/react'],
-          'web3-vendors': ['web3'],
         },
       },
     },
   },
   resolve: {
     alias: {
-      '@': join(__dirname, 'src'),
+      '@': path.join(__dirname, 'src'),
+      process: 'process/browser',
+      zlib: 'browserify-zlib',
+      util: 'util',
+    },
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
     },
   },
 })

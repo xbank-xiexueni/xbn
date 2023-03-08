@@ -49,7 +49,6 @@ import {
 import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
-import { createWethContract, createXBankContract } from '@/utils/createContract'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 import BelongToCollection from './components/BelongToCollection'
@@ -76,7 +75,14 @@ type PoolType = {
 const NftAssetDetail = () => {
   const navigate = useNavigate()
   const toast = useToast()
-  const { isOpen, onClose, currentAccount, interceptFn } = useWallet()
+  const {
+    isOpen,
+    onClose,
+    currentAccount,
+    interceptFn,
+    xBankContract,
+    wethContract,
+  } = useWallet()
   const {
     state,
   }: {
@@ -105,8 +111,6 @@ const NftAssetDetail = () => {
       if (isEmpty(data)) return map
       const uniqAddress = [...new Set([...data?.map((i) => i.owner_address)])]
 
-      const wethContract = createWethContract()
-
       const taskPromises = uniqAddress.map(async (item: string) => {
         return wethContract.methods
           .balanceOf(item)
@@ -126,7 +130,7 @@ const NftAssetDetail = () => {
       })
       return map
     },
-    [],
+    [wethContract],
   )
 
   const [percentage, setPercentage] = useState(COLLATERALS[4])
@@ -323,13 +327,12 @@ const NftAssetDetail = () => {
       const { order_price, token_id } = detail
       try {
         setTransferFromHashLoading(true)
-        const xBankContract = createXBankContract()
         const transferFromHash = await xBankContract.methods
           .transferFrom(pool_id, loanWeiAmount.toNumber().toString())
           .send({
             from: currentAccount,
             value: commodityWeiPrice.minus(loanWeiAmount).toNumber().toString(),
-            gas: 300000,
+            gas: '300000',
             // gasPrice:''
           })
         console.log(transferFromHash, '111111111')
@@ -422,6 +425,7 @@ const NftAssetDetail = () => {
     navigate,
     commodityWeiPrice,
     interceptFn,
+    xBankContract,
   ])
 
   const [usdPrice, setUsdPrice] = useState<BigNumber>()
@@ -464,32 +468,6 @@ const NftAssetDetail = () => {
       mt={8}
       mb={20}
     >
-      {/* <Button
-        onClick={() => {
-          const web3 = createWeb3Provider()
-          const wethContract = createWethContract()
-          const batch = new web3.BatchRequest()
-          const uniqAddress = [
-            ...new Set(originPoolList.map((item) => item.owner_address)),
-          ]
-          uniqAddress.map((address) => {
-            batch.add(
-              wethContract.methods
-                .balanceOf(address)
-                .call.request(
-                  { from: currentAccount },
-                  (_: any, balance: string) => {
-                    console.log(address, _, '', balance)
-                  },
-                ),
-            )
-          })
-
-          batch.execute()
-        }}
-      >
-        shshshsh
-      </Button> */}
       {/* {detailLoading ? (
         <Skeleton height={700} borderRadius={16} />
       ) : ( */}

@@ -12,7 +12,13 @@ import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import { unix } from 'dayjs'
 import groupBy from 'lodash-es/groupBy'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 
 import { apiGetLoans } from '@/api'
 import { ConnectWalletModal, ImageWithFallback, TableList } from '@/components'
@@ -20,11 +26,9 @@ import type { ColumnProps } from '@/components/my-table'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
 import { useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
-import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
+import { web3Provider } from '@/utils/createContract'
 import { formatAddress } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
-
-import type { ReactNode } from 'react'
 
 export const loansForBuyerColumns: ColumnProps[] = [
   {
@@ -117,7 +121,8 @@ export const loansForBuyerColumns: ColumnProps[] = [
 
 const Loans = () => {
   // const navigate = useNavigate()
-  const { isOpen, onClose, interceptFn, currentAccount } = useWallet()
+  const { isOpen, onClose, interceptFn, currentAccount, xBankContract } =
+    useWallet()
 
   const toast = useToast()
   const [repayLoadingMap, setRepayLoadingMap] =
@@ -184,19 +189,23 @@ const Loans = () => {
     (loan_id: string) => {
       interceptFn(async () => {
         try {
-          const xBankContract = createXBankContract()
+          xBankContract.handleRevert = true
           setRepayLoadingMap((prev) => ({
             ...prev,
             [loan_id]: true,
           }))
           // 1. 查看需要偿还的金额
-          const repaymentAmount = await xBankContract.methods
+          const repaymentAmount: bigint = await xBankContract.methods
             .getNextRepaymentAmount(loan_id)
             .call()
-          const provider = createWeb3Provider()
 
-          const currentBalance = await provider.eth.getBalance(currentAccount)
-          if (BigNumber(currentBalance).lt(Number(repaymentAmount))) {
+          const currentBalance: bigint = await web3Provider.eth.getBalance(
+            currentAccount,
+          )
+
+          if (
+            BigNumber(currentBalance.toString()).lt(repaymentAmount.toString())
+          ) {
             toast({
               title: 'Insufficient balance',
               status: 'warning',
@@ -208,10 +217,11 @@ const Loans = () => {
             return
           }
           console.log(
-            currentBalance,
-            repaymentAmount,
-            BigNumber(currentBalance).lt(Number(repaymentAmount)),
+            currentBalance.toString(),
+            repaymentAmount.toString(),
+            BigNumber(currentBalance.toString()).lt(repaymentAmount.toString()),
           )
+          return
 
           // 2. 调用 xbank.repayLoan
           const repayHash = await xBankContract.methods
@@ -284,7 +294,7 @@ const Loans = () => {
         }
       })
     },
-    [interceptFn, currentAccount, refresh, toast],
+    [interceptFn, currentAccount, refresh, toast, xBankContract],
   )
 
   return (

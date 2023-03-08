@@ -6,22 +6,16 @@ import {
   type ReactElement,
   useCallback,
 } from 'react'
-import Web3 from 'web3'
 
-import { createWeb3Provider } from '@/utils/createContract'
+import { createWethContract, createXBankContract } from '@/utils/createContract'
 
 export const TransactionContext = createContext({
   connectWallet: () => {},
-  getBalance: async (address: string) => {
-    console.log(
-      '🚀 ~ file: TransactionContext.tsx:15 ~ getBalance: ~ address:',
-      address,
-    )
-    return 0
-  },
   currentAccount: '',
   connectLoading: false,
   handleSwitchNetwork: async () => {},
+  wethContract: {},
+  xBankContract: {},
 })
 
 const { ethereum } = window
@@ -127,18 +121,6 @@ export const TransactionsProvider = ({
     })
   }, [])
 
-  const getBalance = useCallback(async (address: string) => {
-    const provider = createWeb3Provider()
-
-    const currentBalance = await provider.eth.getBalance(address)
-    console.log(
-      '🚀 ~ file: TransactionContext.tsx:89 ~ getBalance ~ currentBalance:',
-      currentBalance,
-    )
-
-    return Number(Web3.utils.fromWei(currentBalance, 'ether'))
-  }, [])
-
   const checkIfWalletIsConnect = useCallback(async () => {
     try {
       if (!ethereum) {
@@ -238,8 +220,12 @@ export const TransactionsProvider = ({
   //   }
   // }
 
+  // const [xBankContract, setXbankContract] = useState<Contract<any>>()
+  // const [wethContract, setWethContract] = useState()
+
   useEffect(() => {
     checkIfWalletIsConnect()
+
     // checkIfTransactionsExists()
   }, [checkIfWalletIsConnect])
 
@@ -248,7 +234,6 @@ export const TransactionsProvider = ({
       value={{
         // transactionCount,
         connectWallet,
-        getBalance,
         // transactions,
         currentAccount,
         connectLoading,
@@ -257,6 +242,8 @@ export const TransactionsProvider = ({
         // handleChange,
         // formData,
         handleSwitchNetwork,
+        wethContract: createWethContract(),
+        xBankContract: createXBankContract(),
       }}
     >
       {children}
