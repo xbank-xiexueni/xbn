@@ -1,74 +1,89 @@
 import {
   Box,
+  Button,
   Flex,
   GridItem,
   Heading,
   List,
   SimpleGrid,
+  Skeleton,
+  Text,
 } from '@chakra-ui/react'
+// import useDebounce from 'ahooks/lib/useDebounce'
+import useInfiniteScroll from 'ahooks/lib/useInfiniteScroll'
 import useRequest from 'ahooks/lib/useRequest'
 import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
-import minBy from 'lodash-es/minBy'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import {
-  apiGetActiveCollection,
-  apiGetAssetsByCollection,
-  apiGetPools,
-  type AssetListItemType,
-  type CollectionListItemType,
-} from '@/api'
+import type { CollectionListItemType } from '@/api'
+import { apiGetActiveCollection, apiGetPools } from '@/api'
 import {
   ConnectWalletModal,
   EmptyComponent,
   LoadingComponent,
   // SearchInput,
   MarketNftListCard,
+  SearchInput,
+  Select,
   // Select
 } from '@/components'
-import { useWallet } from '@/hooks'
-import { wei2Eth } from '@/utils/unit-conversion'
+import {
+  NftAssetOrderByField,
+  OrderDirection,
+  useNftCollectionAssetsLazyQuery,
+  useWallet,
+} from '@/hooks'
 
 import CollectionDescription from './components/CollectionDescription'
 import CollectionListItem from './components/CollectionListItem'
+
+export type NftCollectionByFamousType = {
+  __typename?: 'NFTFamous' | undefined
+  id: string
+  name: string
+  image_url: string
+  tags?: string[] | null | undefined
+}
+
+const SORT_OPTIONS = [
+  {
+    label: 'Price: low to high',
+    value: {
+      direction: OrderDirection.Asc,
+      field: NftAssetOrderByField.Price,
+    },
+  },
+  {
+    label: 'Price: high to low',
+    value: {
+      direction: OrderDirection.Desc,
+      field: NftAssetOrderByField.Price,
+    },
+  },
+]
 
 const Market = () => {
   const navigate = useNavigate()
   const { isOpen, onClose, interceptFn } = useWallet()
 
-  const [selectCollection, setSelectCollection] = useState<{
-    name: string
-    image_url: string
-    contract_addr: string
-  }>()
-  const [collectionList, setCollectionList] = useState<
-    CollectionListItemType[]
-  >([])
-  const { loading: collectionLoading } = useRequest(apiGetActiveCollection, {
-    onSuccess: ({ data }) => {
-      if (isEmpty(data)) {
-        return
-      }
-      setCollectionList([...data])
-      setSelectCollection(data[0])
-    },
-    debounceWait: 100,
-  })
+  const [selectCollection, setSelectCollection] =
+    useState<CollectionListItemType>()
+
+  const [searchValue, setSearchValue] = useState('')
+  const [orderOption, setOrderOption] = useState(SORT_OPTIONS[0])
   const [highestRate, setHighRate] = useState<number>()
-  const [lowestPrice, setLowestPrice] = useState<string>()
-  const [assetData, setAssetData] = useState<AssetListItemType[]>([])
 
   const { loading: poolsLoading, data: poolsData } = useRequest(
     () =>
       apiGetPools({
-        allow_collateral_contract: selectCollection?.contract_addr || '',
+        // allow_collateral_contract: selectCollection?.contract_addr || '',
+        allow_collateral_contract: '0x09e8617f391c54530cc2d3762ceb1da9f840c5a3',
       }),
     {
       onSuccess: ({ data }) => {
         if (isEmpty(data)) {
-          setHighRate(undefined)
           return
         }
         const maxRate = maxBy(
@@ -81,41 +96,76 @@ const Market = () => {
         }
         setHighRate(maxRate)
       },
-      ready: !!selectCollection?.contract_addr,
-      refreshDeps: [selectCollection?.contract_addr],
+      ready: !!selectCollection?.id,
+      refreshDeps: [selectCollection?.id],
       debounceWait: 100,
     },
   )
 
-  const { loading: assetListLoading } = useRequest(
-    () =>
-      apiGetAssetsByCollection({
-        asset_contract_address: selectCollection?.contract_addr,
-      }),
+  // 根据 collectionId 搜索 assets
+  const [runAsync] = useNftCollectionAssetsLazyQuery({
+    fetchPolicy: 'network-only',
+  })
+
+  const getLoadMoreList = useCallback(
+    async (after: string | null, first: number) => {
+      if (!selectCollection?.id || !runAsync)
+        return {
+          list: [],
+          pageInfo: {
+            hasNextPage: false,
+            endCursor: null,
+          },
+        }
+      const { data } = await runAsync({
+        variables: {
+          collectionId: `${selectCollection?.id}`,
+          orderBy: orderOption.value,
+          first,
+          after,
+        },
+      })
+
+      return {
+        list: data?.nftCollectionAssets.edges || [],
+        pageInfo: data?.nftCollectionAssets.pageInfo,
+      }
+    },
+    [runAsync, selectCollection, orderOption],
+  )
+
+  const {
+    data: assetsData,
+    loading: assetLoading,
+    // loadMore,
+    loadingMore: assetLoadingMore,
+    noMore,
+    loadMore,
+  } = useInfiniteScroll(
+    (item) =>
+      getLoadMoreList(item?.pageInfo?.endCursor, item?.list.length || 12),
     {
-      ready: !!selectCollection?.contract_addr,
-      refreshDeps: [selectCollection?.contract_addr],
-      onBefore: () => {
-        setAssetData([])
-      },
-      onSuccess: ({ data }) => {
-        if (isEmpty(data)) {
-          setLowestPrice(undefined)
-          return
-        }
-        setAssetData(data)
-        const weiPrice = minBy(data, ({ order_price }) =>
-          wei2Eth(order_price),
-        )?.order_price
-        if (!weiPrice) {
-          setLowestPrice(undefined)
-          return
-        }
-        setLowestPrice(wei2Eth(weiPrice))
-      },
+      // target: ref,
+      isNoMore: (item) => !item?.pageInfo?.hasNextPage,
+      reloadDeps: [selectCollection?.id, orderOption],
+      // threshold: 10,
+      manual: true,
     },
   )
 
+  const { loading: collectionLoading, data: collectionData } = useRequest(
+    apiGetActiveCollection,
+    {
+      onSuccess: ({ data }) => {
+        if (isEmpty(data)) {
+          return
+        }
+        setSelectCollection({ ...data[0], id: '9089444724400130' })
+      },
+      debounceWait: 100,
+    },
+  )
+  // const debounceSearchValue = useDebounce(searchValue, { wait: 500 })
   return (
     <>
       <Box mb={10} mt={'60px'}>
@@ -137,7 +187,7 @@ const Market = () => {
             md: '100%',
             sm: '100%',
           }}
-          height={'76vh'}
+          height={'70vh'}
           // overflowY='auto'
           // overflowX={'visible'}
         >
@@ -148,18 +198,24 @@ const Market = () => {
 
           <List spacing={4} mt={4} position='relative'>
             <LoadingComponent loading={collectionLoading} />
-            {isEmpty(collectionList) && !collectionLoading && (
+            {isEmpty(collectionData?.data) && !collectionLoading && (
               <EmptyComponent />
             )}
 
-            {collectionList.map((item: CollectionListItemType) => (
+            {collectionData?.data?.map((item) => (
               <CollectionListItem
                 data={{ ...item }}
-                key={item.contract_addr}
-                onClick={() => setSelectCollection(item)}
+                key={`${item.id}${item.contract_addr}`}
+                onClick={() => {
+                  setSelectCollection({ ...item, id: '9089443801653250' })
+                  setOrderOption(SORT_OPTIONS[0])
+                  setHighRate(undefined)
+                }}
                 isActive={
+                  // selectCollection?.id === item.id &&
                   selectCollection?.contract_addr === item.contract_addr
                 }
+                iconSize='26px'
               />
             ))}
           </List>
@@ -177,34 +233,49 @@ const Market = () => {
             loading={collectionLoading}
             data={selectCollection}
           />
-          {/* <Flex justify={'space-between'} mb={6}>
-          <Box w='70%'>
-            <SearchInput />
-          </Box>
-          <Select
-            options={[
-              {
-                label: 'Price: low to high',
-                value: 1,
-              },
-            ]}
-          />
-        </Flex> */}
+          {collectionLoading ? (
+            <Skeleton height={16} borderRadius={16} mb={6} />
+          ) : (
+            <Flex justify={'space-between'} mb={6}>
+              <Box w='70%'>
+                <SearchInput
+                  placeholder={'精确搜索？'}
+                  isDisabled={assetLoading || poolsLoading || assetLoadingMore}
+                  value={searchValue}
+                  onChange={(e) => {
+                    setSearchValue(e.target.value)
+                  }}
+                />
+              </Box>
+              <Select
+                options={SORT_OPTIONS}
+                value={orderOption}
+                defaultValue={SORT_OPTIONS[0]}
+                onChange={(target) => {
+                  if (!target) return
+                  setOrderOption(target)
+                }}
+                borderColor={'var(--chakra-colors-gray-2)'}
+              />
+            </Flex>
+          )}
+
           <SimpleGrid
-            spacing={4}
+            spacingX={4}
+            spacingY={5}
             columns={{
               xl: 4,
               lg: 3,
               md: 3,
               sm: 2,
             }}
-            height={'66vh'}
+            height={'60vh'}
             overflowY='auto'
             position={'relative'}
             overflowX='hidden'
           >
-            <LoadingComponent loading={assetListLoading || poolsLoading} />
-            {isEmpty(assetData) ? (
+            <LoadingComponent loading={assetLoading || poolsLoading} />
+            {isEmpty(assetsData?.list) ? (
               <GridItem
                 colSpan={{
                   xl: 4,
@@ -216,24 +287,51 @@ const Market = () => {
                 <EmptyComponent />
               </GridItem>
             ) : (
-              assetData?.map((item) => (
-                <MarketNftListCard
-                  data={{ ...item, highestRate }}
-                  key={item.token_id}
-                  onClick={() => {
-                    interceptFn(() => {
-                      navigate(`/asset/detail`, {
-                        state: {
-                          collection: { ...selectCollection, lowestPrice },
-                          poolsList: poolsData?.data,
-                          asset: item,
-                        },
+              assetsData?.list?.map((item) => {
+                if (!item) return null
+                const { node } = item
+                const { tokenID, nftAssetContract, name, id } = node || {}
+                return (
+                  <MarketNftListCard
+                    data={{ ...item, highestRate }}
+                    key={`${tokenID}${nftAssetContract?.address}${name}`}
+                    onClick={() => {
+                      interceptFn(() => {
+                        navigate(`/asset/detail`, {
+                          state: {
+                            collection: {
+                              ...selectCollection,
+                              lowestPrice: '',
+                            },
+                            poolsList: poolsData?.data,
+                            assetVariable: {
+                              assetId: id,
+                              assetContractAddress: nftAssetContract?.address,
+                              assetTokenID: tokenID,
+                            },
+                          },
+                        })
                       })
-                    })
-                  }}
-                />
-              ))
+                    }}
+                  />
+                )
+              })
             )}
+            <GridItem colSpan={4}>
+              <Flex my={2} justifyContent='center'>
+                {!noMore &&
+                  (assetLoadingMore ? (
+                    <Text>Loading more...</Text>
+                  ) : (
+                    <Button onClick={loadMore} variant='secondary'>
+                      Click to load more
+                    </Button>
+                  ))}
+                {noMore && !isEmpty(assetsData?.list) && (
+                  <Text>No more data</Text>
+                )}
+              </Flex>
+            </GridItem>
           </SimpleGrid>
         </Box>
       </Flex>

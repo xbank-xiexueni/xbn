@@ -1,43 +1,103 @@
-import { Flex, type FlexProps } from '@chakra-ui/react'
+import { Flex, type FlexProps, type ImageProps } from '@chakra-ui/react'
 import { type FunctionComponent } from 'react'
-import { Player } from 'video-react'
+import {
+  BigPlayButton,
+  ControlBar,
+  PlaybackRateMenuButton,
+  Player,
+} from 'video-react'
 
-import { type AssetListItemType } from '@/api'
 import { ImageWithFallback } from '@/components'
 import { judgeNftMediaType, NFT_MEDIA_TYPE } from '@/utils/judgeNftMediaType'
 
 type NftMediaProps = {
-  data: AssetListItemType
-} & FlexProps
+  data: {
+    animationUrl?: string
+    imagePreviewUrl?: string
+  }
+} & FlexProps &
+  ImageProps
 
+const BLUR_BEFORE_STYLE = {
+  backgroundRepeat: 'no-repeat',
+  backgroundPosition: 'center',
+  backgroundSize: 'cover',
+  filter: 'blur(100px)',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '110%',
+  content: '""',
+  position: 'absolute',
+}
 const NftMedia: FunctionComponent<NftMediaProps> = ({
-  data: { animation_url, image_preview_url },
-  bg,
+  data: { animationUrl, imagePreviewUrl },
   alignItems,
   ...rest
 }) => {
-  const MEDIA_TYPE = judgeNftMediaType(animation_url)
+  if (!animationUrl) {
+    return (
+      <Flex
+        position={'relative'}
+        _before={{
+          background: `url(${imagePreviewUrl})`,
+          ...BLUR_BEFORE_STYLE,
+        }}
+        overflow='hidden'
+        {...rest}
+      >
+        <ImageWithFallback src={imagePreviewUrl} zIndex={1} {...rest} />
+      </Flex>
+    )
+  }
+  const MEDIA_TYPE = judgeNftMediaType(animationUrl)
   switch (MEDIA_TYPE) {
     case NFT_MEDIA_TYPE.HTML_MEDIA:
       return (
         <Flex
-          bg={bg || 'gray.2'}
+          bg={'gray.2'}
           alignItems={alignItems || 'center'}
-          dangerouslySetInnerHTML={{ __html: animation_url }}
+          dangerouslySetInnerHTML={{ __html: animationUrl }}
+          pos={'relative'}
           {...rest}
         />
       )
     case NFT_MEDIA_TYPE.VIDEO_MEDIA:
       return (
-        <Flex bg={bg || 'gray.2'} alignItems={alignItems || 'center'} {...rest}>
-          <Player autoPlay={false}>
-            <source src={animation_url} />
+        <Flex
+          bg={'gray.2'}
+          alignItems={alignItems || 'center'}
+          position={'relative'}
+          _before={{
+            background: `url(${imagePreviewUrl})`,
+            ...BLUR_BEFORE_STYLE,
+          }}
+          overflow='hidden'
+          {...rest}
+        >
+          <Player autoPlay={false} poster={imagePreviewUrl}>
+            <source src={animationUrl} />
+            <BigPlayButton position='center' />
+            <ControlBar>
+              <PlaybackRateMenuButton rates={[5, 2, 1, 0.5, 0.1]} />
+            </ControlBar>
           </Player>
         </Flex>
       )
 
     default:
-      return <ImageWithFallback src={image_preview_url} {...rest} />
+      return (
+        <Flex
+          _before={{
+            background: `url(${imagePreviewUrl})`,
+            ...BLUR_BEFORE_STYLE,
+          }}
+          overflow='hidden'
+          {...rest}
+        >
+          <ImageWithFallback src={imagePreviewUrl} {...rest} />
+        </Flex>
+      )
   }
 }
 

@@ -15,14 +15,21 @@ const DetailComponent: FunctionComponent<
   BoxProps & {
     data: {
       name1: string
-      name2: string
+      name2?: string
       price: string
       verified: boolean
       usdPrice?: string
     }
     loading?: boolean
+    onRefreshPrice?: () => void
+    refreshLoading?: boolean
   }
-> = ({ data: { name1, name2, price, verified, usdPrice }, loading }) => {
+> = ({
+  data: { name1, name2, price, verified, usdPrice },
+  loading,
+  onRefreshPrice,
+  refreshLoading,
+}) => {
   if (loading) {
     return <Skeleton h={200} borderRadius={16} />
   }
@@ -45,12 +52,22 @@ const DetailComponent: FunctionComponent<
       >
         <Box>
           <Text>Price</Text>
-          <Flex alignItems={'end'} mt={1}>
+          <Flex alignItems={'end'} mt={1} gap={1}>
             <SvgComponent svgId='icon-eth' svgSize='32px' />
-            <Heading fontSize={'32px'} lineHeight='36px'>
+            <Heading fontSize={'32px'} lineHeight='30px'>
               {price}
             </Heading>
-            {!!usdPrice && <Text fontSize={'xs'}>&nbsp;$ {usdPrice}</Text>}
+            <SvgComponent
+              svgId='icon-refresh'
+              onClick={onRefreshPrice}
+              animation={refreshLoading ? 'loading 1s linear infinite' : ''}
+              cursor={'pointer'}
+            />
+            {!!usdPrice && (
+              <Text fontSize={'xs'} lineHeight='14px'>
+                &nbsp;$ {usdPrice}
+              </Text>
+            )}
           </Flex>
         </Box>
         {/* <NftOrigin type={1} /> */}

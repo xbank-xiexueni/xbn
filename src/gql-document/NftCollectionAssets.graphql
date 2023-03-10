@@ -1,0 +1,73 @@
+query NftCollectionAssets(
+  $collectionId: ID!
+  $orderBy: NFTAssetOrderBy!
+  $first: Int
+  $after: Cursor
+) {
+  nftCollectionAssets(
+    collectionID: $collectionId
+    orderBy: $orderBy
+    first: $first
+    after: $after
+  ) {
+    edges {
+      node {
+        id
+        createdAt
+        updatedAt
+        assetContractAddress
+        tokenID
+        imageUrl
+        imagePreviewUrl
+        imageThumbnailUrl
+        imageOriginalUrl
+        animationUrl
+        animationOriginalUrl
+        backgroundColor
+        name
+        description
+        externalLink
+        creator
+        owner
+        transferFee
+        transferFeePaymentToken
+        orderChain
+        orderCoin
+        orderPrice
+        rarity
+        chain
+
+        nftAssetContract {
+          id
+          createdAt
+          updatedAt
+          address
+          assetContractType
+          createdDate
+          name
+          nftVersion
+          openseaVersion
+          schemaName
+          symbol
+          totalSupply
+          description
+          externalLink
+          imageUrl
+          openseaBuyerFeeBasisPoints
+          openseaSellerFeeBasisPoints
+          buyerFeeBasisPoints
+          sellerFeeBasisPoints
+          payoutAddress
+        }
+        rarityLevel
+        rarityRank
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    totalCount
+  }
+}

@@ -1,0 +1,11 @@
+overwrite: true
+schema: './api-x88qna@current.json'
+documents: './src/gql-document/**/*.graphql'
+generates:
+  src/hooks/graphql.tsx:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-react-apollo'
+    config:
+      withHooks: true

@@ -12,27 +12,23 @@ import {
 } from '@chakra-ui/react'
 import { useMemo, useState, type FunctionComponent } from 'react'
 
-import type { AssetListItemType } from '@/api'
 import { ImageWithFallback, SvgComponent } from '@/components'
-import { wei2Eth } from '@/utils/unit-conversion'
 
 const MarketNftListCard: FunctionComponent<
   {
-    data: AssetListItemType & Record<string, string | number | undefined>
+    data: Record<string, any>
   } & CardProps
-> = ({
-  data: { name, image_thumbnail_url, highestRate, order_price },
-  ...rest
-}) => {
+> = ({ data: { node, highestRate }, ...rest }) => {
+  const { imageThumbnailUrl, orderPrice, name, backgroundColor } = node || {}
   const [show, setShow] = useState(false)
   const formattedDownPayment = useMemo(() => {
-    if (!order_price || !highestRate) {
+    if (!orderPrice || !highestRate) {
       return '--'
     }
 
-    const eth = wei2Eth(order_price)
-    return (Number(eth) * (10000 - Number(highestRate))) / 10000
-  }, [order_price, highestRate])
+    // const eth = wei2Eth(orderPrice)
+    return (Number(orderPrice) * (10000 - Number(highestRate))) / 10000
+  }, [orderPrice, highestRate])
   return (
     <Card
       {...rest}
@@ -50,9 +46,9 @@ const MarketNftListCard: FunctionComponent<
       }}
     >
       <CardBody p={0}>
-        <Box bg='white' borderTopRadius={'lg'}>
+        <Box bg={backgroundColor || 'white'} borderTopRadius={'lg'}>
           <ImageWithFallback
-            src={image_thumbnail_url}
+            src={imageThumbnailUrl}
             alt='Green double couch with wooden legs'
             borderTopRadius={'lg'}
             h={{
@@ -135,7 +131,8 @@ const MarketNftListCard: FunctionComponent<
           <Flex alignItems={'center'} gap={1}>
             <SvgComponent svgId='icon-eth' w={2} />
             <Text fontSize={'sm'} color={`gray.3`}>
-              &nbsp; {wei2Eth(order_price)}
+              &nbsp; {orderPrice}
+              {/* &nbsp; {wei2Eth(orderPrice)} */}
             </Text>
           </Flex>
         </CardFooter>

@@ -30,7 +30,7 @@ const index: FunctionComponent<
   ...rest
 }) => {
   return (
-    <InputGroup pos={'relative'}>
+    <InputGroup>
       <InputLeftElement pointerEvents='none' color='gray.300' fontSize='1.2em'>
         <SvgComponent svgId='icon-search' />
       </InputLeftElement>

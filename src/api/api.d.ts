@@ -17,6 +17,7 @@ export type PoolsListItemType = {
 }
 
 export type CollectionListItemType = {
+  id: string
   name: string
   image_url: string
   contract_addr: string
