@@ -10,11 +10,13 @@ import {
   Text,
 } from '@chakra-ui/react'
 // import useDebounce from 'ahooks/lib/useDebounce'
+import useDebounce from 'ahooks/lib/useDebounce'
 import useInfiniteScroll from 'ahooks/lib/useInfiniteScroll'
 import useRequest from 'ahooks/lib/useRequest'
+import filter from 'lodash-es/filter'
 import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import type { CollectionListItemType } from '@/api'
@@ -74,11 +76,14 @@ const SORT_OPTIONS = [
 const Market = () => {
   const navigate = useNavigate()
   const { isOpen, onClose, interceptFn } = useWallet()
-
   const [selectCollection, setSelectCollection] =
     useState<CollectionListItemType>()
-
-  const [searchValue, setSearchValue] = useState('')
+  const [assetSearchValue, setAssetSearchValue] = useState('')
+  // const debounceSearchValue = useDebounce(searchValue, { wait: 500 })
+  const [collectionSearchValue, setCollectionSearchValue] = useState('')
+  const debounceCollectionSearchValue = useDebounce(collectionSearchValue, {
+    wait: 500,
+  })
   const [orderOption, setOrderOption] = useState(SORT_OPTIONS[0])
   const [highestRate, setHighRate] = useState<number>()
 
@@ -172,7 +177,16 @@ const Market = () => {
       debounceWait: 100,
     },
   )
-  // const debounceSearchValue = useDebounce(searchValue, { wait: 500 })
+
+  const collectionList = useMemo(() => {
+    if (!debounceCollectionSearchValue) return collectionData?.data || []
+    return filter(collectionData?.data, (item) =>
+      item.name
+        .toLocaleLowerCase()
+        .includes(debounceCollectionSearchValue.toLocaleLowerCase()),
+    )
+  }, [collectionData, debounceCollectionSearchValue])
+
   return (
     <>
       <Box mb={10} mt={'60px'}>
@@ -201,15 +215,22 @@ const Market = () => {
           <Heading size={'md'} mb={4}>
             Collections
           </Heading>
-          {/* <SearchInput placeholder='Collections...' /> */}
+          <SearchInput
+            placeholder='Collections...'
+            isDisabled={collectionLoading || poolsLoading}
+            value={collectionSearchValue}
+            onChange={(e) => {
+              setCollectionSearchValue(e.target.value)
+            }}
+          />
 
           <List spacing={4} mt={4} position='relative'>
             <LoadingComponent loading={collectionLoading} />
-            {isEmpty(collectionData?.data) && !collectionLoading && (
+            {isEmpty(collectionList) && !collectionLoading && (
               <EmptyComponent />
             )}
 
-            {collectionData?.data?.map((item) => (
+            {collectionList?.map((item) => (
               <CollectionListItem
                 data={{ ...item }}
                 key={`${item.id}${item.contract_addr}`}
@@ -248,9 +269,9 @@ const Market = () => {
                 <SearchInput
                   placeholder={'精确搜索？'}
                   isDisabled={assetLoading || poolsLoading || assetLoadingMore}
-                  value={searchValue}
+                  value={assetSearchValue}
                   onChange={(e) => {
-                    setSearchValue(e.target.value)
+                    setAssetSearchValue(e.target.value)
                   }}
                 />
               </Box>
