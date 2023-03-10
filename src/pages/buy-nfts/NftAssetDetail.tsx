@@ -52,7 +52,7 @@ import { useWallet, useAssetOrdersPriceLazyQuery, useAssetQuery } from '@/hooks'
 import type { AssetOrdersPriceQuery, AssetQueryVariables } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
-import { eth2Wei, wei2Eth } from '@/utils/unit-conversion'
+import { wei2Eth } from '@/utils/unit-conversion'
 
 import BelongToCollection from './components/BelongToCollection'
 import DetailComponent from './components/DetailComponent'
@@ -158,14 +158,15 @@ const NftAssetDetail = () => {
     const priceArr = map(openSeaOrders, (row) => {
       const x = get(row, 'node')
       const decimals = get(x, 'nftPaymentToken.decimals', 0)
+      const weiDiffDecimals = 18 - Number(decimals)
       const price = get(x, 'price')
       const _price = new BigNumber(price).dividedBy(
-        new BigNumber(10).pow(decimals),
+        new BigNumber(10).pow(weiDiffDecimals),
       )
       return _price.toNumber()
     })
     const minPrice = min(priceArr) || 0
-    setCommodityWeiPrice(BigNumber(eth2Wei(minPrice)))
+    setCommodityWeiPrice(BigNumber(minPrice))
   }, [openSeaOrders])
 
   // 获取每个 pool 的 owner_address 的最新 weth 资产
@@ -706,7 +707,9 @@ const NftAssetDetail = () => {
         <LabelComponent
           label='Loan Period'
           isEmpty={isEmpty(pools)}
-          loading={balanceFetchLoading || assetFetchLoading}
+          loading={
+            balanceFetchLoading || assetFetchLoading || ordersPriceFetchLoading
+          }
         >
           <Flex gap={2} flexWrap='wrap'>
             {pools.map(({ pool_id, pool_apr, pool_days }) => {
@@ -745,7 +748,9 @@ const NftAssetDetail = () => {
         <LabelComponent
           label='Number of installments'
           isEmpty={isEmpty(selectPool)}
-          loading={balanceFetchLoading || assetFetchLoading}
+          loading={
+            balanceFetchLoading || assetFetchLoading || ordersPriceFetchLoading
+          }
         >
           <HStack gap={4}>
             {installmentOptions?.map((value) => {
@@ -778,7 +783,11 @@ const NftAssetDetail = () => {
           <LabelComponent
             label='Repayment Plan'
             isEmpty={isEmpty(selectPool)}
-            loading={balanceFetchLoading || assetFetchLoading}
+            loading={
+              balanceFetchLoading ||
+              assetFetchLoading ||
+              ordersPriceFetchLoading
+            }
           >
             <VStack bg='gray.5' py={6} px={4} borderRadius={12} spacing={4}>
               <PlanItem
@@ -808,7 +817,9 @@ const NftAssetDetail = () => {
           label='Trading Information'
           borderBottom={'none'}
           isEmpty={isEmpty(pools)}
-          loading={balanceFetchLoading || assetFetchLoading}
+          loading={
+            balanceFetchLoading || assetFetchLoading || ordersPriceFetchLoading
+          }
         >
           {!loanWeiAmount.eq(0) && !commodityWeiPrice.eq(0) && (
             <Flex

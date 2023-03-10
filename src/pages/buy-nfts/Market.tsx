@@ -62,6 +62,13 @@ const SORT_OPTIONS = [
       field: NftAssetOrderByField.Price,
     },
   },
+  {
+    label: 'Recent Created',
+    value: {
+      direction: OrderDirection.Desc,
+      field: NftAssetOrderByField.CreatedAt,
+    },
+  },
 ]
 
 const Market = () => {
@@ -269,10 +276,9 @@ const Market = () => {
               md: 3,
               sm: 2,
             }}
-            height={'60vh'}
-            overflowY='auto'
+            // overflowY='auto'
             position={'relative'}
-            overflowX='hidden'
+            // overflowX='hidden'
           >
             <LoadingComponent loading={assetLoading || poolsLoading} />
             {isEmpty(assetsData?.list) ? (
@@ -318,7 +324,7 @@ const Market = () => {
               })
             )}
             <GridItem colSpan={4}>
-              <Flex my={2} justifyContent='center'>
+              <Flex justifyContent='center' mb={5}>
                 {!noMore &&
                   (assetLoadingMore ? (
                     <Text>Loading more...</Text>

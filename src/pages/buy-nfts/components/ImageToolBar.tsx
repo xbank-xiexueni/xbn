@@ -16,6 +16,7 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({ data }) => {
   if (!data) return null
   const {
     asset: {
+      imagePreviewUrl,
       imageOriginalUrl,
       name,
       imageUrl,
@@ -56,7 +57,7 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({ data }) => {
               }
             }}
           />
-          <PhotoView src={imageOriginalUrl}>
+          <PhotoView src={imagePreviewUrl}>
             <IconButton
               icon={<SvgComponent svgId='icon-expand' />}
               aria-label='download'

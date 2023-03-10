@@ -26,6 +26,7 @@ const index: FunctionComponent<
   isInvalid,
   _focusVisible,
   // rightIcon,
+  _placeholder,
   // rightIconProps,
   ...rest
 }) => {
@@ -51,6 +52,10 @@ const index: FunctionComponent<
           ..._focusVisible,
         }}
         borderColor={isInvalid ? 'red.1' : 'gray.2'}
+        _placeholder={{
+          marginTop: 4,
+          ..._placeholder,
+        }}
       />
     </InputGroup>
   )
