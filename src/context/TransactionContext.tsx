@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import { useLocalStorageState } from 'ahooks'
 import {
   useEffect,
   useState,
@@ -22,6 +23,7 @@ export const TransactionContext = createContext({
   currentAccount: '',
   connectLoading: false,
   handleSwitchNetwork: async () => {},
+  handleDisconnect: () => {},
 })
 
 const { ethereum } = window
@@ -35,6 +37,16 @@ export const TransactionsProvider = ({
   const [currentAccount, setCurrentAccount] = useState('')
 
   const [connectLoading, setConnectLoading] = useState(false)
+  const [message, setMessage] = useLocalStorageState<string | undefined>(
+    'metamask-connect-status',
+    {
+      defaultValue: 'connected',
+    },
+  )
+  const handleDisconnect = useCallback(() => {
+    setMessage('')
+    window.location.reload()
+  }, [setMessage])
 
   const handleSwitchNetwork = useCallback(async () => {
     if (!ethereum) {
@@ -125,6 +137,10 @@ export const TransactionsProvider = ({
       window.location.reload()
       setCurrentAccount('')
     })
+    ethereum.on('disconnect', () => {
+      window.location.reload()
+      setCurrentAccount('')
+    })
   }, [])
 
   const getBalance = useCallback(async (address: string) => {
@@ -156,7 +172,7 @@ export const TransactionsProvider = ({
 
       const accounts = await ethereum.request({ method: 'eth_accounts' })
 
-      if (accounts.length) {
+      if (accounts.length && message) {
         setCurrentAccount(accounts[0])
 
         // getAllTransactions();
@@ -168,7 +184,7 @@ export const TransactionsProvider = ({
       setCurrentAccount('')
       console.log(error)
     }
-  }, [toast])
+  }, [toast, message])
 
   const connectWallet = useCallback(async () => {
     try {
@@ -192,6 +208,7 @@ export const TransactionsProvider = ({
       })
 
       setCurrentAccount(accounts[0])
+      setMessage('connected')
       setConnectLoading(false)
     } catch (error) {
       console.log(error)
@@ -199,7 +216,7 @@ export const TransactionsProvider = ({
 
       throw new Error('No ethereum object')
     }
-  }, [toast, handleSwitchNetwork])
+  }, [toast, handleSwitchNetwork, setMessage])
 
   // const sendTransaction = async () => {
   //   try {
@@ -257,6 +274,7 @@ export const TransactionsProvider = ({
         // handleChange,
         // formData,
         handleSwitchNetwork,
+        handleDisconnect,
       }}
     >
       {children}
