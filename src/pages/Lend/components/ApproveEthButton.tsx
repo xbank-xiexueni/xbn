@@ -31,7 +31,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import Web3 from 'web3'
 
-import { SvgComponent } from '@/components'
+import { ConnectWalletModal, SvgComponent } from '@/components'
 import { WETH_CONTRACT_ADDRESS, XBANK_CONTRACT_ADDRESS } from '@/constants'
 import { useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
@@ -76,9 +76,13 @@ const ApproveEthButton: FunctionComponent<
     loanRatioPreferentialFlexibility,
     allowCollateralContract,
   } = data
-  const { currentAccount, interceptFn } = useWallet()
+  const { currentAccount, interceptFn, isOpen, onClose } = useWallet()
   const navigate = useNavigate()
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const {
+    isOpen: isOpenApprove,
+    onOpen: onOpenApprove,
+    onClose: onCloseApprove,
+  } = useDisclosure()
   const [amount, setAmount] = useState('')
   const [flag, setFlag] = useState(true)
 
@@ -86,23 +90,31 @@ const ApproveEthButton: FunctionComponent<
   const finalRef = useRef(null)
 
   const [currentBalance, setCurrentBalance] = useState(0)
+  const [refreshLoading, setRefreshLoading] = useState(false)
 
-  useEffect(() => {
+  const fetchLatestWethBalance = useCallback(() => {
     if (!currentAccount) return
+    setRefreshLoading(true)
     const wethContract = createWethContract()
     wethContract.methods
       .balanceOf(currentAccount)
       .call()
       .then((res: string) => {
         setCurrentBalance(Number(wei2Eth(res)))
+        setRefreshLoading(false)
       })
       .catch((error: any) => {
         console.log(
           '🚀 ~ file: ApproveEthButton.tsx:98 ~ .then ~ error:',
           error,
         )
+        setRefreshLoading(false)
       })
   }, [currentAccount])
+
+  useEffect(() => {
+    fetchLatestWethBalance()
+  }, [fetchLatestWethBalance])
 
   const isError = useMemo((): boolean => {
     //  amount < balance + Has been lent
@@ -178,7 +190,7 @@ const ApproveEthButton: FunctionComponent<
           })
         setCreateLoading(false)
         console.log(new Date().getTime(), '----------------end')
-        onClose()
+        onCloseApprove()
         toast({
           status: 'success',
           title: 'Created successfully! ',
@@ -242,7 +254,7 @@ const ApproveEthButton: FunctionComponent<
     loanRatioPreferentialFlexibility,
     loanTimeConcessionFlexibility,
     allowCollateralContract,
-    onClose,
+    onCloseApprove,
     navigate,
     currentAccount,
     interceptFn,
@@ -250,19 +262,19 @@ const ApproveEthButton: FunctionComponent<
 
   const handleClose = useCallback(() => {
     if (approveLoading || createLoading) return
-    onClose()
-  }, [onClose, approveLoading, createLoading])
+    onCloseApprove()
+  }, [onCloseApprove, approveLoading, createLoading])
 
   return (
     <>
-      <Button onClick={() => interceptFn(onOpen)} {...rest}>
+      <Button onClick={() => interceptFn(() => onOpenApprove())} {...rest}>
         {children}
       </Button>
 
       <Modal
         initialFocusRef={initialRef}
         finalFocusRef={finalRef}
-        isOpen={isOpen}
+        isOpen={isOpenApprove}
         onClose={handleClose}
         isCentered
       >
@@ -319,7 +331,7 @@ const ApproveEthButton: FunctionComponent<
                   borderRadius={8}
                   borderColor='gray.3'
                   placeholder='Enter the approve ETH amount...'
-                  isDisabled={approveLoading || createLoading}
+                  isDisabled={approveLoading || createLoading || refreshLoading}
                 >
                   <NumberInputField
                     h='60px'
@@ -343,6 +355,15 @@ const ApproveEthButton: FunctionComponent<
               {isError && (
                 <Text mt={2} color='red.1'>
                   Insufficient funds, Maximum input: {currentBalance}
+                  {/* <SvgComponent
+                    svgId='icon-refresh'
+                    onClick={fetchLatestWethBalance}
+                    animation={
+                      refreshLoading ? 'loading 1s linear infinite' : ''
+                    }
+                    cursor={'pointer'}
+                    display='inline-block'
+                  /> */}
                 </Text>
               )}
             </FormControl>
@@ -361,13 +382,14 @@ const ApproveEthButton: FunctionComponent<
             loadingText={
               approveLoading ? 'approving' : createLoading ? 'creating' : ''
             }
-            isLoading={approveLoading || createLoading}
+            isLoading={approveLoading || createLoading || refreshLoading}
           >
             Approve
           </Button>
           {/* </ModalFooter> */}
         </ModalContent>
       </Modal>
+      <ConnectWalletModal visible={isOpen} handleClose={onClose} />
     </>
   )
 }

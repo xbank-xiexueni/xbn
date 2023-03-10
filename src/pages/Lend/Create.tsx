@@ -15,7 +15,6 @@ import {
   STEPS_DESCRIPTIONS,
   LP_BASE_RATE,
 } from '@/constants'
-import { useWallet } from '@/hooks'
 
 import ApproveEthButton from './components/ApproveEthButton'
 import CardWithBg from './components/CardWithBg'
@@ -25,10 +24,6 @@ const Create = () => {
   const navigate = useNavigate()
   // const params = useParams()
   const { state } = useLocation()
-  const { interceptFn } = useWallet()
-  useEffect(() => {
-    interceptFn(() => {})
-  }, [interceptFn])
   const [selectCollateral, setSelectCollateral] = useState(INITIAL_COLLATERAL)
   const [selectTenor, setSelectTenor] = useState(INITIAL_TENOR)
   const [selectCollection, setSelectCollection] =

@@ -34,7 +34,8 @@ const Header = () => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
-  const { isOpen, onClose, currentAccount, interceptFn } = useWallet()
+  const { isOpen, onClose, currentAccount, interceptFn, handleDisconnect } =
+    useWallet()
 
   const activePath = useMemo((): 'LEND' | 'BUY_NFTS' | 'SELL_NFTS' | '' => {
     if (pathname.startsWith('/lending')) {
@@ -49,16 +50,18 @@ const Header = () => {
     return ''
   }, [pathname])
 
+  const handleOpenEtherscan = useCallback(() => {
+    interceptFn(() => {
+      window.open(
+        `${
+          import.meta.env.VITE_TARGET_CHAIN_BASE_URL
+        }/address/${currentAccount}`,
+      )
+    })
+  }, [interceptFn, currentAccount])
+
   const handleClickWallet = useCallback(async () => {
     interceptFn(async () => {
-      if (!import.meta.env.DEV) {
-        window.open(
-          `${
-            import.meta.env.VITE_TARGET_CHAIN_BASE_URL
-          }/address/${currentAccount}`,
-        )
-        return
-      }
       // const wethContract = createWethContract()
       const xBankContract = createXBankContract()
       console.log(
@@ -88,7 +91,7 @@ const Header = () => {
         listPool,
       )
     })
-  }, [interceptFn, currentAccount])
+  }, [interceptFn])
 
   return (
     <Box position={'sticky'} top={0} zIndex={21}>
@@ -236,7 +239,6 @@ const Header = () => {
           <Flex
             gap={6}
             alignItems='center'
-            onClick={handleClickWallet}
             display={{
               sm: 'none',
               md: 'none',
@@ -244,27 +246,67 @@ const Header = () => {
             }}
             cursor='pointer'
           >
-            {!!currentAccount ? (
-              <Jazzicon
-                diameter={30}
-                seed={parseInt(currentAccount.slice(2, 10), 16)}
-              />
-            ) : (
+            {currentAccount ? (
               <IconButton
+                onClick={handleOpenEtherscan}
                 justifyContent={'center'}
                 aria-label=''
                 bg='white'
-                isDisabled={!!currentAccount}
-                // display={{
-                //   sm: 'none',
-                //   md: 'none',
-                //   lg: 'inline-flex',
-                // }}
                 icon={
-                  <SvgComponent svgId='icon-wallet-outline' svgSize='24px' />
+                  <Jazzicon
+                    diameter={30}
+                    seed={parseInt(currentAccount.slice(2, 10), 16)}
+                  />
+                }
+              />
+            ) : (
+              <IconButton
+                onClick={handleClickWallet}
+                justifyContent={'center'}
+                aria-label=''
+                bg='white'
+                icon={
+                  <SvgComponent svgId='icon-wallet-outline' svgSize='30px' />
                 }
               />
             )}
+
+            <Popover isLazy trigger='hover' placement='bottom-start'>
+              <PopoverTrigger>
+                <IconButton
+                  justifyContent={'center'}
+                  aria-label=''
+                  bg='white'
+                  icon={
+                    <SvgComponent svgId='icon-wallet-outline' svgSize='30px' />
+                  }
+                  hidden={!currentAccount}
+                />
+              </PopoverTrigger>
+              <PopoverContent w='160px'>
+                <PopoverBody p={'10px'}>
+                  <Button
+                    variant={'link'}
+                    color='black.1'
+                    p={'10px'}
+                    onClick={handleOpenEtherscan}
+                  >
+                    {formatAddress(currentAccount)}
+                  </Button>
+                  <Button
+                    variant={'link'}
+                    color='black.1'
+                    p={'10px'}
+                    _hover={{
+                      textDecoration: 'none',
+                    }}
+                    onClick={handleDisconnect}
+                  >
+                    Disconnect
+                  </Button>
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
           </Flex>
 
           <Menu>
