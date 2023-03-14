@@ -49,7 +49,11 @@ import {
 } from '@/components'
 import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
 import { useWallet, useAssetOrdersPriceLazyQuery, useAssetQuery } from '@/hooks'
-import type { AssetOrdersPriceQuery, AssetQueryVariables } from '@/hooks'
+import type {
+  AssetOrdersPriceQuery,
+  AssetQueryVariables,
+  NftOrder,
+} from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
 import { wei2Eth } from '@/utils/unit-conversion'
@@ -97,7 +101,7 @@ const NftAssetDetail = () => {
     variables: assetVariable,
   })
 
-  const [openSeaOrders, setOpenSeaOrders] = useState<any[]>()
+  const [openSeaOrders, setOpenSeaOrders] = useState<{ node: NftOrder }[]>()
   /* 查询 NFT 在 OpenSea 上的 Orders */
   const [
     queryOpenSeaAssetOrders,
@@ -109,11 +113,14 @@ const NftAssetDetail = () => {
   ] = useAssetOrdersPriceLazyQuery({
     fetchPolicy: 'network-only',
     onCompleted: (data: AssetOrdersPriceQuery) => {
-      const _openSeaOrders = get(data, 'assetOrders.edges', [])
+      const _openSeaOrders = get(data, 'assetOrders.edges', []) as {
+        node: NftOrder
+      }[]
       setOpenSeaOrders(_openSeaOrders)
     },
   })
   const fetchOrderPrice = useCallback(() => {
+    if (!detail) return
     queryOpenSeaAssetOrders({
       variables: {
         assetTokenId: detail?.asset.tokenID,
@@ -487,6 +494,7 @@ const NftAssetDetail = () => {
       const res = resources.find((item) => {
         return item.resource.fields.name === 'USD/ETH'
       })?.resource.fields.price
+      console.log(res, 'USD/ETH')
       if (!res) return
       setUsdPrice(BigNumber(1).dividedBy(Number(res)))
     },
@@ -496,9 +504,8 @@ const NftAssetDetail = () => {
         error,
       )
     },
-    cacheKey: 'x-curr-latest',
-    staleTime: 1000 * 60 * 5,
     debounceWait: 100,
+    // refreshDeps: [commodityWeiPrice],
   })
 
   if (!state || isEmpty(state) || (isEmpty(detail) && !assetFetchLoading))
@@ -606,7 +613,7 @@ const NftAssetDetail = () => {
             name1: collection?.name,
             name2: detail?.asset?.name,
             price: wei2Eth(commodityWeiPrice),
-            usdPrice: usdPrice
+            usdPrice: !!usdPrice
               ? usdPrice
                   ?.multipliedBy(Number(wei2Eth(commodityWeiPrice)))
                   .toFormat(FORMAT_NUMBER)
@@ -752,13 +759,13 @@ const NftAssetDetail = () => {
             balanceFetchLoading || assetFetchLoading || ordersPriceFetchLoading
           }
         >
-          <HStack gap={4}>
+          <HStack gap={3}>
             {installmentOptions?.map((value) => {
               return (
                 <Flex
                   key={value}
                   w={`${100 / installmentOptions.length}%`}
-                  maxW={188}
+                  maxW={206}
                 >
                   <RadioCard
                     isDisabled={transferFromLoading || loanOrderGenerateLoading}

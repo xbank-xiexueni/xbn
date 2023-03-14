@@ -1,29 +1,96 @@
 import { useToast } from '@chakra-ui/react'
-import { useLocalStorageState } from 'ahooks'
+import { useLocalStorageState, useRequest } from 'ahooks'
+import isEmpty from 'lodash-es/isEmpty'
 import {
   useEffect,
   useState,
   createContext,
   type ReactElement,
   useCallback,
+  useMemo,
 } from 'react'
-import Web3 from 'web3'
 
-import { createWeb3Provider } from '@/utils/createContract'
+import { apiGetActiveCollection } from '@/api'
+import { useNftCollectionsByContractAddressesQuery } from '@/hooks'
 
 export const TransactionContext = createContext({
   connectWallet: () => {},
-  getBalance: async (address: string) => {
-    console.log(
-      '🚀 ~ file: TransactionContext.tsx:15 ~ getBalance: ~ address:',
-      address,
-    )
-    return 0
-  },
   currentAccount: '',
   connectLoading: false,
   handleSwitchNetwork: async () => {},
   handleDisconnect: () => {},
+  collectionList: [
+    {
+      contractAddress: '',
+      nftCollection: {
+        assetsCount: 0,
+        bannerImageUrl: '',
+        chatUrl: '',
+        createdAt: '2023-02-23T08:35:14Z',
+        createdDate: '2022-12-12T08:18:30Z',
+        description: '',
+        discordUrl: '',
+        externalUrl: '',
+        featuredImageUrl: '',
+        fees: [],
+        id: 0,
+        imagePreviewUrl: '',
+        imageThumbnailUrl: '',
+        imageUrl: '',
+        instagramUsername: '',
+        largeImageUrl: '',
+        mediumUsername: '',
+        name: '',
+        nftCollectionStat: {
+          averagePrice: 0,
+          count: 0,
+          createdAt: '',
+          floorPrice: 0,
+          floorPriceRate: 0,
+          id: 0,
+          marketCap: 0,
+          numOwners: 0,
+          numReports: 0,
+          oneDayAveragePrice: 0,
+          oneDayChange: 0,
+          oneDaySales: 0,
+          oneDayVolume: 0,
+          sevenDayAveragePrice: 0,
+          sevenDayChange: 0,
+          sevenDaySales: 0,
+          sevenDayVolume: 0,
+          thirtyDayAveragePrice: 0,
+          thirtyDayChange: 0,
+          thirtyDaySales: 0,
+          thirtyDayVolume: 0,
+          totalSales: 0,
+          totalSupply: 0,
+          totalVolume: 0,
+          updatedAt: '',
+          __typename: 'NFTCollectionStat',
+        },
+        onlyProxiedTransfers: false,
+        openseaBuyerFeeBasisPoints: '0',
+        openseaSellerFeeBasisPoints: '50',
+        payoutAddress: '',
+        safelistRequestStatus: '',
+        shortDescription: '',
+        slug: '',
+        subscriberCount: 0,
+        telegramUrl: '',
+        twitterUsername: '',
+        updatedAt: '',
+        wikiUrl: '',
+        nftCollectionMetaData: {
+          subscribe: false,
+          subscribeCount: 0,
+          __typename: 'NFTCollectionMetaData',
+        },
+        __typename: 'NFTCollection',
+      },
+    },
+  ],
+  collectionLoading: false,
 })
 
 const { ethereum } = window
@@ -33,6 +100,38 @@ export const TransactionsProvider = ({
 }: {
   children: ReactElement
 }) => {
+  // collection 提取到外层
+
+  const [collectionAddressArr, setCollectionAddressArr] = useState<string[]>([])
+  const { loading } = useRequest(apiGetActiveCollection, {
+    debounceWait: 100,
+    retryCount: 5,
+    onSuccess: ({ data }) => {
+      setCollectionAddressArr(data.map((i) => i.contract_addr))
+    },
+  })
+
+  const { loading: collectionLoading, data: collectionData } =
+    useNftCollectionsByContractAddressesQuery({
+      variables: {
+        assetContractAddresses: collectionAddressArr,
+      },
+      skip: isEmpty(collectionAddressArr),
+    })
+  const collectionList = useMemo(() =>
+    // collectionAddressArr.map((item) => {
+    //   return {
+    //     contractAddress: item,
+    //     nftCollection:
+    //       collectionData?.nftCollectionsByContractAddresses?.find(
+    //         (i) => i.contractAddress.toLowerCase() === item.toLowerCase(),
+    //       )?.nftCollection,
+    //   }
+    // }),
+    {
+      return collectionData?.nftCollectionsByContractAddresses || []
+    }, [collectionData])
+
   const toast = useToast()
   const [currentAccount, setCurrentAccount] = useState('')
 
@@ -141,18 +240,6 @@ export const TransactionsProvider = ({
       window.location.reload()
       setCurrentAccount('')
     })
-  }, [])
-
-  const getBalance = useCallback(async (address: string) => {
-    const provider = createWeb3Provider()
-
-    const currentBalance = await provider.eth.getBalance(address)
-    console.log(
-      '🚀 ~ file: TransactionContext.tsx:89 ~ getBalance ~ currentBalance:',
-      currentBalance,
-    )
-
-    return Number(Web3.utils.fromWei(currentBalance, 'ether'))
   }, [])
 
   const checkIfWalletIsConnect = useCallback(async () => {
@@ -265,7 +352,6 @@ export const TransactionsProvider = ({
       value={{
         // transactionCount,
         connectWallet,
-        getBalance,
         // transactions,
         currentAccount,
         connectLoading,
@@ -275,6 +361,9 @@ export const TransactionsProvider = ({
         // formData,
         handleSwitchNetwork,
         handleDisconnect,
+        // @ts-ignore
+        collectionList,
+        collectionLoading: loading || collectionLoading,
       }}
     >
       {children}

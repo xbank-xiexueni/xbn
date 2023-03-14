@@ -1,30 +1,15 @@
-import {
-  Flex,
-  Box,
-  Text,
-  Heading,
-  // HStack,
-  Skeleton,
-} from '@chakra-ui/react'
+import { Flex, Box, Text, Heading, Skeleton, HStack } from '@chakra-ui/react'
 import isEmpty from 'lodash-es/isEmpty'
 import { useState, type FunctionComponent } from 'react'
 
 import { EmptyComponent, ImageWithFallback, SvgComponent } from '@/components'
+import type { NftCollection } from '@/hooks'
 
 const CollectionDescription: FunctionComponent<{
-  data?: {
-    isVerified?: boolean
-    name?: string
-    description?: string
-    image_url?: string
-    // keys?: {
-    //   value: string
-    //   label: string | ReactElement
-    //   isEth?: boolean
-    // }[]
-  }
+  data?: NftCollection
   loading?: boolean
-}> = ({ data, loading }) => {
+  highestRate?: number
+}> = ({ data, loading, highestRate }) => {
   const [show, setShow] = useState(false)
   if (loading) {
     return (
@@ -52,16 +37,16 @@ const CollectionDescription: FunctionComponent<{
   const {
     name = '',
     description = '',
-    image_url = '',
-    // keys = [],
-    isVerified = false,
+    imagePreviewUrl = '',
+    safelistRequestStatus,
+    nftCollectionStat: { floorPrice, totalSupply },
   } = data
 
   return (
     <Box mb={12}>
       <Flex gap={5} mb={8}>
         <ImageWithFallback
-          src={image_url}
+          src={imagePreviewUrl}
           borderRadius={16}
           fit='contain'
           w='108px'
@@ -76,7 +61,9 @@ const CollectionDescription: FunctionComponent<{
             >
               {name}
             </Heading>
-            {isVerified && <SvgComponent svgId='icon-verified-fill' />}
+            {safelistRequestStatus === 'verified' && (
+              <SvgComponent svgId='icon-verified-fill' />
+            )}
           </Flex>
 
           <Text color='gray.3' mt={2} fontSize={'md'} fontWeight='medium'>
@@ -89,11 +76,12 @@ const CollectionDescription: FunctionComponent<{
                 onClick={() => setShow((prev) => !prev)}
                 cursor='pointer'
                 fontWeight={700}
-                borderRadius='50%'
+                borderRadius='40%'
                 _hover={{
                   bg: 'gray.5',
                 }}
-                p={3}
+                px={2}
+                py={1}
               >
                 {show ? 'Less' : 'More'}
               </Box>
@@ -101,26 +89,72 @@ const CollectionDescription: FunctionComponent<{
           </Text>
         </Box>
       </Flex>
-      {/* 
+
       <HStack spacing={10}>
-        {keys.map(({ label, value, isEth }) => (
-          <Flex key={`${label}`} flexDir='column' alignItems='center'>
-            <Flex alignItems={'baseline'}>
-              {isEth && <SvgComponent svgId='icon-eth' svgSize='20px' mr={1} />}
-
-              <Heading fontSize={'2xl'} display='flex' mb={1}>
-                {value}
-              </Heading>
-            </Flex>
-
-            {typeof label === 'string' ? (
-              <Text color='gray.4'>{label}</Text>
-            ) : (
-              label
-            )}
+        <Flex flexDir='column' alignItems='center'>
+          <Flex alignItems={'center'}>
+            <SvgComponent svgId='icon-eth' svgSize='20px' />
+            <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
+              {floorPrice}
+            </Heading>
           </Flex>
-        ))}
-      </HStack> */}
+
+          <Text color='gray.4'>Floor price</Text>
+        </Flex>
+        {/* min dp */}
+        <Flex flexDir='column' alignItems='center'>
+          <Flex alignItems={'center'}>
+            <SvgComponent svgId='icon-eth' svgSize='20px' />
+            <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
+              {(floorPrice * (10000 - Number(highestRate))) / 10000}
+            </Heading>
+          </Flex>
+
+          <Text color='gray.4'>Min DP</Text>
+        </Flex>
+        {/* 24h */}
+        {/* <Flex flexDir='column' alignItems='center'>
+          <Flex alignItems={'center'}>
+            <SvgComponent svgId='icon-eth' svgSize='20px' />
+            <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
+              {floorPrice}
+            </Heading>
+          </Flex>
+
+          <Text color='red.1'>
+            <Highlight
+              styles={{
+                color: `gray.4`,
+              }}
+              query='24h'
+            >
+              24h -90%
+            </Highlight>
+          </Text>
+        </Flex> */}
+        {/* supply */}
+        <Flex flexDir='column' alignItems='center'>
+          <Flex alignItems={'center'}>
+            <SvgComponent svgId='icon-eth' svgSize='20px' />
+            <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
+              {totalSupply.toLocaleString()}
+            </Heading>
+          </Flex>
+
+          <Text color='gray.4'>Supply</Text>
+        </Flex>
+        {/* listing */}
+        {/* <Flex flexDir='column' alignItems='center'>
+          <Flex alignItems={'center'}>
+            <SvgComponent svgId='icon-eth' svgSize='20px' />
+            <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
+              {totalSupply}
+            </Heading>
+          </Flex>
+
+          <Text color='gray.4'>Listing</Text>
+        </Flex> */}
+      </HStack>
     </Box>
   )
 }

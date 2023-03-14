@@ -9,7 +9,6 @@ import {
   Skeleton,
   Text,
 } from '@chakra-ui/react'
-// import useDebounce from 'ahooks/lib/useDebounce'
 import useDebounce from 'ahooks/lib/useDebounce'
 import useInfiniteScroll from 'ahooks/lib/useInfiniteScroll'
 import useRequest from 'ahooks/lib/useRequest'
@@ -19,8 +18,8 @@ import maxBy from 'lodash-es/maxBy'
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import type { CollectionListItemType } from '@/api'
-import { apiGetActiveCollection, apiGetPools } from '@/api'
+import type { PoolsListItemType } from '@/api'
+import { apiGetPools } from '@/api'
 import {
   ConnectWalletModal,
   EmptyComponent,
@@ -31,23 +30,17 @@ import {
   Select,
   // Select
 } from '@/components'
+import type { NftCollection } from '@/hooks'
 import {
   NftAssetOrderByField,
   OrderDirection,
   useNftCollectionAssetsLazyQuery,
   useWallet,
+  useNftCollectionsByContractAddressesQuery,
 } from '@/hooks'
 
 import CollectionDescription from './components/CollectionDescription'
 import CollectionListItem from './components/CollectionListItem'
-
-export type NftCollectionByFamousType = {
-  __typename?: 'NFTFamous' | undefined
-  id: string
-  name: string
-  image_url: string
-  tags?: string[] | null | undefined
-}
 
 const SORT_OPTIONS = [
   {
@@ -76,8 +69,10 @@ const SORT_OPTIONS = [
 const Market = () => {
   const navigate = useNavigate()
   const { isOpen, onClose, interceptFn } = useWallet()
-  const [selectCollection, setSelectCollection] =
-    useState<CollectionListItemType>()
+  const [selectCollection, setSelectCollection] = useState<{
+    contractAddress: string
+    nftCollection: NftCollection
+  }>()
   const [assetSearchValue, setAssetSearchValue] = useState('')
   // const debounceSearchValue = useDebounce(searchValue, { wait: 500 })
   const [collectionSearchValue, setCollectionSearchValue] = useState('')
@@ -85,34 +80,67 @@ const Market = () => {
     wait: 500,
   })
   const [orderOption, setOrderOption] = useState(SORT_OPTIONS[0])
-  const [highestRate, setHighRate] = useState<number>()
 
-  const { loading: poolsLoading, data: poolsData } = useRequest(
-    () =>
-      apiGetPools({
-        // allow_collateral_contract: selectCollection?.contract_addr || '',
-        allow_collateral_contract: '0x09e8617f391c54530cc2d3762ceb1da9f840c5a3',
-      }),
-    {
-      onSuccess: ({ data }) => {
-        if (isEmpty(data)) {
-          return
+  const [poolsMap, setPoolsMap] = useState<Map<string, PoolsListItemType[]>>()
+
+  const { loading: poolsLoading } = useRequest(() => apiGetPools({}), {
+    onSuccess: ({ data }) => {
+      if (isEmpty(data)) {
+        return
+      }
+      const newMap = new Map()
+      data.forEach((item) => {
+        const lowercaseAddress = item.allow_collateral_contract.toLowerCase()
+        const prev = newMap.get(lowercaseAddress)
+        if (prev) {
+          newMap.set(lowercaseAddress, [...prev, item])
+        } else {
+          newMap.set(lowercaseAddress, [item])
         }
-        const maxRate = maxBy(
-          data,
-          ({ pool_maximum_percentage }) => pool_maximum_percentage,
-        )?.pool_maximum_percentage
-        if (!maxRate) {
-          setHighRate(undefined)
-          return
-        }
-        setHighRate(maxRate)
-      },
-      ready: !!selectCollection?.id,
-      refreshDeps: [selectCollection?.id],
-      debounceWait: 100,
+      })
+
+      setPoolsMap(newMap)
     },
+    debounceWait: 100,
+  })
+
+  const collectionWithPoolsIds = useMemo(
+    () => (poolsMap ? [...poolsMap.keys()] : []),
+    [poolsMap],
   )
+
+  const { data: collectionData, loading: collectionLoading } =
+    useNftCollectionsByContractAddressesQuery({
+      variables: {
+        assetContractAddresses: collectionWithPoolsIds,
+      },
+      skip: isEmpty(collectionWithPoolsIds),
+      onCompleted(data) {
+        if (
+          !data ||
+          !data?.nftCollectionsByContractAddresses ||
+          isEmpty(data?.nftCollectionsByContractAddresses)
+        ) {
+          return
+        }
+
+        setSelectCollection(data.nftCollectionsByContractAddresses[0])
+      },
+    })
+
+  const highestRate = useMemo(() => {
+    if (!poolsMap || isEmpty(poolsMap) || !selectCollection) return undefined
+    const currentPools = poolsMap.get(selectCollection.contractAddress)
+
+    const maxRate = maxBy(
+      currentPools,
+      ({ pool_maximum_percentage }) => pool_maximum_percentage,
+    )?.pool_maximum_percentage
+    if (!maxRate) {
+      return undefined
+    }
+    return maxRate
+  }, [poolsMap, selectCollection])
 
   // 根据 collectionId 搜索 assets
   const [runAsync] = useNftCollectionAssetsLazyQuery({
@@ -121,7 +149,7 @@ const Market = () => {
 
   const getLoadMoreList = useCallback(
     async (after: string | null, first: number) => {
-      if (!selectCollection?.id || !runAsync)
+      if (!selectCollection?.nftCollection?.id || !runAsync)
         return {
           list: [],
           pageInfo: {
@@ -131,7 +159,7 @@ const Market = () => {
         }
       const { data } = await runAsync({
         variables: {
-          collectionId: `${selectCollection?.id}`,
+          collectionId: `${selectCollection?.nftCollection?.id}`,
           orderBy: orderOption.value,
           first,
           after,
@@ -159,29 +187,19 @@ const Market = () => {
     {
       // target: ref,
       isNoMore: (item) => !item?.pageInfo?.hasNextPage,
-      reloadDeps: [selectCollection?.id, orderOption],
+      reloadDeps: [selectCollection?.nftCollection?.id, orderOption],
       // threshold: 10,
       manual: true,
     },
   )
 
-  const { loading: collectionLoading, data: collectionData } = useRequest(
-    apiGetActiveCollection,
-    {
-      onSuccess: ({ data }) => {
-        if (isEmpty(data)) {
-          return
-        }
-        setSelectCollection({ ...data[0], id: '9089444724400130' })
-      },
-      debounceWait: 100,
-    },
-  )
-
-  const collectionList = useMemo(() => {
-    if (!debounceCollectionSearchValue) return collectionData?.data || []
-    return filter(collectionData?.data, (item) =>
-      item.name
+  const filteredCollectionList = useMemo(() => {
+    if (!collectionData) return
+    const { nftCollectionsByContractAddresses } = collectionData
+    if (!debounceCollectionSearchValue)
+      return nftCollectionsByContractAddresses || []
+    return filter(nftCollectionsByContractAddresses, (item) =>
+      item.nftCollection.name
         .toLocaleLowerCase()
         .includes(debounceCollectionSearchValue.toLocaleLowerCase()),
     )
@@ -225,23 +243,26 @@ const Market = () => {
           />
 
           <List spacing={4} mt={4} position='relative'>
-            <LoadingComponent loading={collectionLoading} />
-            {isEmpty(collectionList) && !collectionLoading && (
-              <EmptyComponent />
-            )}
+            <LoadingComponent loading={collectionLoading || poolsLoading} />
+            {filteredCollectionList &&
+              isEmpty(filteredCollectionList) &&
+              !collectionLoading && <EmptyComponent />}
 
-            {collectionList?.map((item) => (
+            {filteredCollectionList?.map((item) => (
               <CollectionListItem
-                data={{ ...item }}
-                key={`${item.id}${item.contract_addr}`}
-                onClick={() => {
-                  setSelectCollection({ ...item, id: '9089443801653250' })
-                  setOrderOption(SORT_OPTIONS[0])
-                  setHighRate(undefined)
+                data={{
+                  contractAddress: item.contractAddress,
+                  ...item.nftCollection,
                 }}
+                key={`${item?.nftCollection?.id}${item?.contractAddress}`}
+                onClick={() => {
+                  setSelectCollection(item)
+                  setOrderOption(SORT_OPTIONS[0])
+                }}
+                count={item.nftCollection.assetsCount}
                 isActive={
-                  // selectCollection?.id === item.id &&
-                  selectCollection?.contract_addr === item.contract_addr
+                  selectCollection?.nftCollection?.id ===
+                  item?.nftCollection?.id
                 }
                 iconSize='26px'
               />
@@ -258,17 +279,23 @@ const Market = () => {
           }}
         >
           <CollectionDescription
-            loading={collectionLoading}
-            data={selectCollection}
+            loading={collectionLoading || poolsLoading}
+            data={selectCollection?.nftCollection}
+            highestRate={highestRate}
           />
-          {collectionLoading ? (
+          {collectionLoading || poolsLoading ? (
             <Skeleton height={16} borderRadius={16} mb={6} />
           ) : (
             <Flex justify={'space-between'} mb={6}>
               <Box w='70%'>
                 <SearchInput
                   placeholder={'精确搜索？'}
-                  isDisabled={assetLoading || poolsLoading || assetLoadingMore}
+                  isDisabled={
+                    assetLoading ||
+                    poolsLoading ||
+                    assetLoadingMore ||
+                    isEmpty(assetsData?.list)
+                  }
                   value={assetSearchValue}
                   onChange={(e) => {
                     setAssetSearchValue(e.target.value)
@@ -283,6 +310,7 @@ const Market = () => {
                   if (!target) return
                   setOrderOption(target)
                 }}
+                isDisabled={isEmpty(assetsData?.list)}
                 borderColor={'var(--chakra-colors-gray-2)'}
               />
             </Flex>
@@ -330,7 +358,10 @@ const Market = () => {
                               ...selectCollection,
                               lowestPrice: '',
                             },
-                            poolsList: poolsData?.data,
+                            poolsList:
+                              poolsMap && selectCollection?.contractAddress
+                                ? poolsMap.get(selectCollection.contractAddress)
+                                : [],
                             assetVariable: {
                               assetId: id,
                               assetContractAddress: nftAssetContract?.address,

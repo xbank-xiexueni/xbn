@@ -18,102 +18,14 @@ import { apiGetLoans } from '@/api'
 import { ConnectWalletModal, ImageWithFallback, TableList } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
-import { useWallet } from '@/hooks'
+import type { AssetQuery } from '@/hooks'
+import { useAssetLazyQuery, useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
 import { formatAddress } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 import type { ReactNode } from 'react'
-
-export const loansForBuyerColumns: ColumnProps[] = [
-  {
-    title: 'Asset',
-    dataIndex: 'nft_asset_info',
-    key: 'nft_asset_info',
-    align: 'left',
-    width: 180,
-    render: (info: any) => {
-      return (
-        <Flex alignItems={'center'} gap={2}>
-          <ImageWithFallback
-            src={info?.image_preview_url as string}
-            w={10}
-            h={10}
-            borderRadius={4}
-          />
-          <Text
-            w={'60%'}
-            display='inline-block'
-            overflow='hidden'
-            whiteSpace='nowrap'
-            textOverflow='ellipsis'
-          >
-            {info?.name}
-          </Text>
-        </Flex>
-      )
-    },
-  },
-  {
-    title: 'Lender',
-    dataIndex: 'lender_address',
-    key: 'lender_address',
-    render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
-  },
-  {
-    title: 'Borrower',
-    dataIndex: 'borrower_address',
-    key: 'borrower_address',
-    render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
-  },
-  {
-    title: 'Start time',
-    dataIndex: 'loan_start_time',
-    key: 'loan_start_time',
-    render: (value: any) => <Text>{unix(value).format('YYYY/MM/DD')}</Text>,
-  },
-  {
-    title: 'Loan value',
-    dataIndex: 'total_repayment',
-    key: 'total_repayment',
-    render: (value: any) => (
-      <Text>
-        {wei2Eth(value)} {UNIT}
-      </Text>
-    ),
-  },
-  {
-    title: 'Duration',
-    dataIndex: 'loan_duration',
-    key: 'loan_duration',
-    render: (value: any) => <Text>{value / 24 / 60 / 60} days</Text>,
-  },
-  {
-    title: 'Interest',
-    dataIndex: 'loan_interest_rate',
-    key: 'loan_interest_rate',
-    render: (_: any, item: Record<string, any>) => {
-      return (
-        <Text>
-          {BigNumber(
-            wei2Eth(
-              amortizationCalByDays(
-                item?.total_repayment,
-                item?.loan_interest_rate / 10000,
-                (item?.loan_duration / 24 / 60 / 60) as 7 | 14 | 30 | 60 | 90,
-                item?.repay_times,
-              )
-                .multipliedBy(item?.repay_times)
-                .minus(item.total_repayment),
-            ),
-          ).toFormat(FORMAT_NUMBER)}
-          {UNIT}
-        </Text>
-      )
-    },
-  },
-]
 
 const Loans = () => {
   // const navigate = useNavigate()
@@ -128,6 +40,9 @@ const Loans = () => {
   }, [interceptFn])
 
   // const [selectCollection, setSelectCollection] = useState<number>()
+  const [nftInfoList, setNftInfoList] = useState<AssetQuery['asset'][]>()
+
+  const [runAsync, { loading: assetInfoLoading }] = useAssetLazyQuery()
 
   const { loading, data, refresh } = useRequest(apiGetLoans, {
     ready: !!currentAccount,
@@ -137,6 +52,30 @@ const Loans = () => {
         borrower_address: currentAccount,
       },
     ],
+    onSuccess: async ({ data: _data }) => {
+      let arr
+      const taskPromises = _data.map(async (item) => {
+        return runAsync({
+          variables: {
+            assetContractAddress: item.nft_collateral_contract,
+            assetId: item.nft_collateral_id,
+          },
+        })
+          .then(({ data: assetData }) => {
+            arr.push(assetData?.asset)
+          })
+          .catch((error: Error) => {
+            console.log(
+              '🚀 ~ file: NftAssetDetail.tsx:150 ~ .then ~ error:',
+              error,
+            )
+          })
+      })
+      await Promise.all(taskPromises).catch((error) => {
+        console.log('🚀 ~ file: NftAssetDetail.tsx:108 ~ error:', error)
+      })
+      setNftInfoList(arr)
+    },
   })
 
   // const currentCollectionLoans = useMemo(() => {
@@ -287,6 +226,101 @@ const Loans = () => {
     [interceptFn, currentAccount, refresh, toast],
   )
 
+  const loansForBuyerColumns: ColumnProps[] = [
+    {
+      title: 'Asset',
+      dataIndex: 'nft_asset_info',
+      key: 'nft_asset_info',
+      align: 'left',
+      width: 180,
+      render: (_: any, info: any) => {
+        const currentInfo = nftInfoList?.find(
+          (i) =>
+            i.tokenID === info.nft_collateral_id &&
+            i.assetContractAddress.toLowerCase() ===
+              info.nft_collateral_contract.toLowerCase(),
+        )
+        return (
+          <Flex alignItems={'center'} gap={2}>
+            <ImageWithFallback
+              src={currentInfo?.imagePreviewUrl as string}
+              w={10}
+              h={10}
+              borderRadius={4}
+            />
+            <Text
+              w={'60%'}
+              display='inline-block'
+              overflow='hidden'
+              whiteSpace='nowrap'
+              textOverflow='ellipsis'
+            >
+              {currentInfo?.name}
+            </Text>
+          </Flex>
+        )
+      },
+    },
+    {
+      title: 'Lender',
+      dataIndex: 'lender_address',
+      key: 'lender_address',
+      render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
+    },
+    {
+      title: 'Borrower',
+      dataIndex: 'borrower_address',
+      key: 'borrower_address',
+      render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
+    },
+    {
+      title: 'Start time',
+      dataIndex: 'loan_start_time',
+      key: 'loan_start_time',
+      render: (value: any) => <Text>{unix(value).format('YYYY/MM/DD')}</Text>,
+    },
+    {
+      title: 'Loan value',
+      dataIndex: 'total_repayment',
+      key: 'total_repayment',
+      render: (value: any) => (
+        <Text>
+          {wei2Eth(value)} {UNIT}
+        </Text>
+      ),
+    },
+    {
+      title: 'Duration',
+      dataIndex: 'loan_duration',
+      key: 'loan_duration',
+      render: (value: any) => <Text>{value / 24 / 60 / 60} days</Text>,
+    },
+    {
+      title: 'Interest',
+      dataIndex: 'loan_interest_rate',
+      key: 'loan_interest_rate',
+      render: (_: any, item: Record<string, any>) => {
+        return (
+          <Text>
+            {BigNumber(
+              wei2Eth(
+                amortizationCalByDays(
+                  item?.total_repayment,
+                  item?.loan_interest_rate / 10000,
+                  (item?.loan_duration / 24 / 60 / 60) as 7 | 14 | 30 | 60 | 90,
+                  item?.repay_times,
+                )
+                  .multipliedBy(item?.repay_times)
+                  .minus(item.total_repayment),
+              ),
+            ).toFormat(FORMAT_NUMBER)}
+            {UNIT}
+          </Text>
+        )
+      },
+    },
+  ]
+
   return (
     <Box mt='60px'>
       <Heading size={'2xl'} mb='60px'>
@@ -362,7 +396,6 @@ const Loans = () => {
                     Current Loans as Borrower
                   </Heading>
                 ),
-                // loading: loading,
                 columns: [
                   ...loansForBuyerColumns,
                   // {
@@ -428,7 +461,7 @@ const Loans = () => {
                   },
                 ],
 
-                loading: loading,
+                loading: loading || assetInfoLoading,
                 data: statuedLoans[0],
                 key: '1',
               },
@@ -449,7 +482,7 @@ const Loans = () => {
                 ),
 
                 columns: loansForBuyerColumns,
-                loading: loading,
+                loading: loading || assetInfoLoading,
                 data: statuedLoans[1],
                 key: '2',
               },
@@ -469,7 +502,7 @@ const Loans = () => {
                   </Heading>
                 ),
                 columns: loansForBuyerColumns,
-                loading: loading,
+                loading: loading || assetInfoLoading,
                 data: statuedLoans[2],
                 key: '3',
               },

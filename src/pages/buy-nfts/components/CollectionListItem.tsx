@@ -6,13 +6,19 @@ import type { FunctionComponent } from 'react'
 
 const CollectionListItem: FunctionComponent<{
   data: Record<string, any>
-  // data: CollectionListItemType
   onClick?: () => void
   isActive?: boolean
   count?: number
   iconSize?: number | string
 }> = ({
-  data: { contract_addr, name, image_url, safelist_request_status, id },
+  data: {
+    contractAddress,
+    name,
+    imagePreviewUrl,
+    safelistRequestStatus,
+    id,
+    image_url,
+  },
   onClick,
   isActive,
   count,
@@ -20,7 +26,7 @@ const CollectionListItem: FunctionComponent<{
 }) => {
   return (
     <Flex
-      key={`${contract_addr}-${id}`}
+      key={`${contractAddress}-${id}`}
       px={4}
       py={3}
       alignItems={'center'}
@@ -36,7 +42,7 @@ const CollectionListItem: FunctionComponent<{
     >
       <Flex alignItems={'center'} gap={4} w='80%'>
         <ImageWithFallback
-          src={image_url}
+          src={imagePreviewUrl || image_url}
           w={iconSize}
           h={iconSize}
           borderRadius={8}
@@ -51,7 +57,7 @@ const CollectionListItem: FunctionComponent<{
           {name}
           &nbsp;
         </Text>
-        {safelist_request_status === 'verified' && (
+        {safelistRequestStatus === 'verified' && (
           <SvgComponent svgId='icon-verified-fill' />
         )}
       </Flex>

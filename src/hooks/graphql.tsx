@@ -2,9 +2,7 @@ import { gql } from '@apollo/client'
 import * as Apollo from '@apollo/client'
 export type Maybe<T> = T | null
 export type InputMaybe<T> = Maybe<T>
-export type Exact<T extends Record<string, unknown>> = {
-  [K in keyof T]: T[K]
-}
+export type Exact<T extends Record<string, unknown>> = { [K in keyof T]: T[K] }
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
   [SubKey in K]?: Maybe<T[SubKey]>
 }
@@ -273,6 +271,7 @@ export type NftCollection = Node & {
   discordUrl: Scalars['String']
   externalUrl: Scalars['String']
   featuredImageUrl: Scalars['String']
+  fees?: Maybe<NftCollectionFee[]>
   id: Scalars['ID']
   imagePreviewUrl: Scalars['String']
   imageThumbnailUrl: Scalars['String']
@@ -298,6 +297,12 @@ export type NftCollection = Node & {
   wikiUrl: Scalars['String']
 }
 
+export type NftCollectionByContractAddress = {
+  __typename?: 'NFTCollectionByContractAddress'
+  contractAddress: Scalars['String']
+  nftCollection: NftCollection
+}
+
 export type NftCollectionConnection = {
   __typename?: 'NFTCollectionConnection'
   edges?: Maybe<Maybe<NftCollectionEdge>[]>
@@ -309,6 +314,16 @@ export type NftCollectionEdge = {
   __typename?: 'NFTCollectionEdge'
   cursor: Scalars['Cursor']
   node?: Maybe<NftCollection>
+}
+
+export type NftCollectionFee = {
+  __typename?: 'NFTCollectionFee'
+  /** 酬金地址 */
+  address: Scalars['String']
+  /** 酬金名称 */
+  name: Scalars['String']
+  /** 酬金比例 250 => 2.5% */
+  value: Scalars['Int']
 }
 
 export type NftCollectionMetaData = {
@@ -412,6 +427,7 @@ export type NftOrder = {
   orderHash: Scalars['String']
   orderType: Scalars['String']
   price: Scalars['Decimal']
+  remainingQuantity: Scalars['Int']
   side: Scalars['String']
   taker: Scalars['String']
   tokenId: Scalars['String']
@@ -493,6 +509,8 @@ export type Query = {
   nftCollection: NftCollection
   /** 通过 collectionId 获取其系列下的 asset列表 */
   nftCollectionAssets: NftAssetConnection
+  /** 通过 asset contract address 获取 collection，如果有多个返回第一个 */
+  nftCollectionByContractAddress: NftCollection
   /** 获取运营配置的 collection 列表 */
   nftCollectionByFamous?: Maybe<NftFamous[]>
   /** 随机获取 collection */
@@ -501,6 +519,7 @@ export type Query = {
   nftCollectionSearchAsset: NftAsset
   /** 获取订阅的 collection 下的 asset 列表 */
   nftCollectionSubscribedAssets?: Maybe<NftSubscribedAsset[]>
+  nftCollectionsByContractAddresses?: Maybe<NftCollectionByContractAddress[]>
   /** 获取所有 nft_payment_token */
   nftPaymentToken?: Maybe<NftPaymentToken[]>
   /** 获取用户订阅列表 */
@@ -601,6 +620,10 @@ export type QueryNftCollectionAssetsArgs = {
   where?: InputMaybe<NftAssetWhere>
 }
 
+export type QueryNftCollectionByContractAddressArgs = {
+  assetContractAddress: Scalars['String']
+}
+
 export type QueryNftCollectionByRandomArgs = {
   after?: InputMaybe<Scalars['Cursor']>
   assetContractAddress?: InputMaybe<Scalars['String']>
@@ -616,6 +639,10 @@ export type QueryNftCollectionSearchAssetArgs = {
 
 export type QueryNftCollectionSubscribedAssetsArgs = {
   collectionID?: InputMaybe<Scalars['ID'][]>
+}
+
+export type QueryNftCollectionsByContractAddressesArgs = {
+  assetContractAddresses: Scalars['String'][]
 }
 
 export type QueryNftSubscriptionCollectionArgs = {
@@ -924,6 +951,159 @@ export type NftCollectionAssetsQuery = {
       __typename?: 'PageInfo'
       hasNextPage: boolean
       endCursor?: any | null
+    }
+  }
+}
+
+export type NftCollectionsByContractAddressesQueryVariables = Exact<{
+  assetContractAddresses: Scalars['String'][] | Scalars['String']
+}>
+
+export type NftCollectionsByContractAddressesQuery = {
+  __typename?: 'Query'
+  nftCollectionsByContractAddresses?:
+    | {
+        __typename?: 'NFTCollectionByContractAddress'
+        contractAddress: string
+        nftCollection: {
+          __typename?: 'NFTCollection'
+          assetsCount: number
+          bannerImageUrl: string
+          chatUrl: string
+          createdAt: any
+          createdDate: any
+          description: string
+          discordUrl: string
+          externalUrl: string
+          featuredImageUrl: string
+          id: string
+          imagePreviewUrl: string
+          imageThumbnailUrl: string
+          imageUrl: string
+          instagramUsername: string
+          largeImageUrl: string
+          mediumUsername: string
+          name: string
+          onlyProxiedTransfers: boolean
+          openseaBuyerFeeBasisPoints: string
+          openseaSellerFeeBasisPoints: string
+          payoutAddress: string
+          safelistRequestStatus: string
+          shortDescription: string
+          slug: string
+          subscriberCount: number
+          telegramUrl: string
+          twitterUsername: string
+          updatedAt: any
+          wikiUrl: string
+          fees?:
+            | {
+                __typename?: 'NFTCollectionFee'
+                address: string
+                name: string
+                value: number
+              }[]
+            | null
+          nftCollectionStat: {
+            __typename?: 'NFTCollectionStat'
+            averagePrice: number
+            count: number
+            createdAt: any
+            floorPrice: number
+            floorPriceRate: number
+            id: string
+            marketCap: number
+            numOwners: number
+            numReports: number
+            oneDayAveragePrice: number
+            oneDayChange: number
+            oneDaySales: number
+            oneDayVolume: number
+            sevenDayAveragePrice: number
+            sevenDayChange: number
+            sevenDaySales: number
+            sevenDayVolume: number
+            thirtyDayAveragePrice: number
+            thirtyDayChange: number
+            thirtyDaySales: number
+            thirtyDayVolume: number
+            totalSales: number
+            totalSupply: number
+            totalVolume: number
+            updatedAt: any
+          }
+          nftCollectionMetaData: {
+            __typename?: 'NFTCollectionMetaData'
+            subscribe: boolean
+            subscribeCount: number
+          }
+        }
+      }[]
+    | null
+}
+
+export type NftCollectionSearchAssetQueryVariables = Exact<{
+  collectionId: Scalars['ID']
+  search: Scalars['String']
+}>
+
+export type NftCollectionSearchAssetQuery = {
+  __typename?: 'Query'
+  nftCollectionSearchAsset: {
+    __typename?: 'NFTAsset'
+    id: string
+    createdAt: any
+    updatedAt: any
+    assetContractAddress: string
+    tokenID: string
+    imageUrl: string
+    imagePreviewUrl: string
+    imageThumbnailUrl: string
+    imageOriginalUrl: string
+    animationUrl: string
+    animationOriginalUrl: string
+    backgroundColor: string
+    name: string
+    description: string
+    externalLink: string
+    creator: string
+    owner: string
+    transferFee: string
+    transferFeePaymentToken: string
+    orderChain: string
+    orderCoin: string
+    orderPrice: any
+    rarity: number
+    rarityRank: number
+    rarityLevel: string
+    chain: string
+    nftAssetMetaData: {
+      __typename?: 'NFTAssetMetaData'
+      like: boolean
+      likeCount: number
+    }
+    nftAssetContract: {
+      __typename?: 'NFTAssetContract'
+      id: string
+      createdAt: any
+      updatedAt: any
+      address: string
+      assetContractType: string
+      createdDate: string
+      name: string
+      nftVersion: string
+      openseaVersion: string
+      schemaName: string
+      symbol: string
+      totalSupply: string
+      description: string
+      externalLink: string
+      imageUrl: string
+      openseaBuyerFeeBasisPoints: number
+      openseaSellerFeeBasisPoints: number
+      buyerFeeBasisPoints: number
+      sellerFeeBasisPoints: number
+      payoutAddress: string
     }
   }
 }
@@ -1354,4 +1534,241 @@ export type NftCollectionAssetsLazyQueryHookResult = ReturnType<
 export type NftCollectionAssetsQueryResult = Apollo.QueryResult<
   NftCollectionAssetsQuery,
   NftCollectionAssetsQueryVariables
+>
+export const NftCollectionsByContractAddressesDocument = gql`
+  query NftCollectionsByContractAddresses($assetContractAddresses: [String!]!) {
+    nftCollectionsByContractAddresses(
+      assetContractAddresses: $assetContractAddresses
+    ) {
+      contractAddress
+      nftCollection {
+        assetsCount
+        bannerImageUrl
+        chatUrl
+        createdAt
+        createdDate
+        description
+        discordUrl
+        externalUrl
+        featuredImageUrl
+        fees {
+          address
+          name
+          value
+        }
+        id
+        imagePreviewUrl
+        imageThumbnailUrl
+        imageUrl
+        instagramUsername
+        largeImageUrl
+        mediumUsername
+        name
+        nftCollectionStat {
+          averagePrice
+          count
+          createdAt
+          floorPrice
+          floorPriceRate
+          id
+          marketCap
+          numOwners
+          numReports
+          oneDayAveragePrice
+          oneDayChange
+          oneDaySales
+          oneDayVolume
+          sevenDayAveragePrice
+          sevenDayChange
+          sevenDaySales
+          sevenDayVolume
+          thirtyDayAveragePrice
+          thirtyDayChange
+          thirtyDaySales
+          thirtyDayVolume
+          totalSales
+          totalSupply
+          totalVolume
+          updatedAt
+        }
+        onlyProxiedTransfers
+        openseaBuyerFeeBasisPoints
+        openseaSellerFeeBasisPoints
+        payoutAddress
+        safelistRequestStatus
+        shortDescription
+        slug
+        subscriberCount
+        telegramUrl
+        twitterUsername
+        updatedAt
+        wikiUrl
+        nftCollectionMetaData {
+          subscribe
+          subscribeCount
+        }
+      }
+    }
+  }
+`
+
+/**
+ * __useNftCollectionsByContractAddressesQuery__
+ *
+ * To run a query within a React component, call `useNftCollectionsByContractAddressesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useNftCollectionsByContractAddressesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNftCollectionsByContractAddressesQuery({
+ *   variables: {
+ *      assetContractAddresses: // value for 'assetContractAddresses'
+ *   },
+ * });
+ */
+export function useNftCollectionsByContractAddressesQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    NftCollectionsByContractAddressesQuery,
+    NftCollectionsByContractAddressesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<
+    NftCollectionsByContractAddressesQuery,
+    NftCollectionsByContractAddressesQueryVariables
+  >(NftCollectionsByContractAddressesDocument, options)
+}
+export function useNftCollectionsByContractAddressesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    NftCollectionsByContractAddressesQuery,
+    NftCollectionsByContractAddressesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<
+    NftCollectionsByContractAddressesQuery,
+    NftCollectionsByContractAddressesQueryVariables
+  >(NftCollectionsByContractAddressesDocument, options)
+}
+export type NftCollectionsByContractAddressesQueryHookResult = ReturnType<
+  typeof useNftCollectionsByContractAddressesQuery
+>
+export type NftCollectionsByContractAddressesLazyQueryHookResult = ReturnType<
+  typeof useNftCollectionsByContractAddressesLazyQuery
+>
+export type NftCollectionsByContractAddressesQueryResult = Apollo.QueryResult<
+  NftCollectionsByContractAddressesQuery,
+  NftCollectionsByContractAddressesQueryVariables
+>
+export const NftCollectionSearchAssetDocument = gql`
+  query NftCollectionSearchAsset($collectionId: ID!, $search: String!) {
+    nftCollectionSearchAsset(collectionId: $collectionId, search: $search) {
+      id
+      createdAt
+      updatedAt
+      assetContractAddress
+      tokenID
+      imageUrl
+      imagePreviewUrl
+      imageThumbnailUrl
+      imageOriginalUrl
+      animationUrl
+      animationOriginalUrl
+      backgroundColor
+      name
+      description
+      externalLink
+      creator
+      owner
+      transferFee
+      transferFeePaymentToken
+      orderChain
+      orderCoin
+      orderPrice
+      rarity
+      rarityRank
+      rarityLevel
+      chain
+      nftAssetMetaData {
+        like
+        likeCount
+      }
+      nftAssetContract {
+        id
+        createdAt
+        updatedAt
+        address
+        assetContractType
+        createdDate
+        name
+        nftVersion
+        openseaVersion
+        schemaName
+        symbol
+        totalSupply
+        description
+        externalLink
+        imageUrl
+        openseaBuyerFeeBasisPoints
+        openseaSellerFeeBasisPoints
+        buyerFeeBasisPoints
+        sellerFeeBasisPoints
+        payoutAddress
+      }
+    }
+  }
+`
+
+/**
+ * __useNftCollectionSearchAssetQuery__
+ *
+ * To run a query within a React component, call `useNftCollectionSearchAssetQuery` and pass it any options that fit your needs.
+ * When your component renders, `useNftCollectionSearchAssetQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNftCollectionSearchAssetQuery({
+ *   variables: {
+ *      collectionId: // value for 'collectionId'
+ *      search: // value for 'search'
+ *   },
+ * });
+ */
+export function useNftCollectionSearchAssetQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    NftCollectionSearchAssetQuery,
+    NftCollectionSearchAssetQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<
+    NftCollectionSearchAssetQuery,
+    NftCollectionSearchAssetQueryVariables
+  >(NftCollectionSearchAssetDocument, options)
+}
+export function useNftCollectionSearchAssetLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    NftCollectionSearchAssetQuery,
+    NftCollectionSearchAssetQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<
+    NftCollectionSearchAssetQuery,
+    NftCollectionSearchAssetQueryVariables
+  >(NftCollectionSearchAssetDocument, options)
+}
+export type NftCollectionSearchAssetQueryHookResult = ReturnType<
+  typeof useNftCollectionSearchAssetQuery
+>
+export type NftCollectionSearchAssetLazyQueryHookResult = ReturnType<
+  typeof useNftCollectionSearchAssetLazyQuery
+>
+export type NftCollectionSearchAssetQueryResult = Apollo.QueryResult<
+  NftCollectionSearchAssetQuery,
+  NftCollectionSearchAssetQueryVariables
 >

@@ -29,19 +29,22 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({ data }) => {
       h='40px'
       mt={6}
       alignItems='center'
-      justify={'space-between'}
+      justify={!!likeCount ? 'space-between' : 'flex-end'}
       w={{
         xl: '600px',
         lg: '380px',
         sm: '100%',
       }}
     >
-      <Flex alignItems={'center'} gap={1}>
-        <SvgComponent svgId='icon-like' fontSize={'20px'} />
-        <Text fontWeight={'700'} color='black.1'>
-          {likeCount === 0 ? '' : numeral(likeCount).format('0.00 a')}
-        </Text>
-      </Flex>
+      {!!likeCount && (
+        <Flex alignItems={'center'} gap={1}>
+          <SvgComponent svgId='icon-like' fontSize={'20px'} />
+          <Text fontWeight={'700'} color='black.1'>
+            {numeral(likeCount).format('0.00 a')}
+          </Text>
+        </Flex>
+      )}
+
       {judgeNftMediaType(animationUrl) === NFT_MEDIA_TYPE.IMAGE_MEDIA && (
         <Flex gap={2}>
           <IconButton

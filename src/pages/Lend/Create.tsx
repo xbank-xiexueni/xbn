@@ -3,7 +3,6 @@ import isEmpty from 'lodash-es/isEmpty'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import type { CollectionListItemType } from '@/api'
 import { BaseRateTable, Select, SvgComponent } from '@/components'
 import AsyncSelectCollection from '@/components/async-select/AsyncSelectCollection'
 import {
@@ -15,6 +14,7 @@ import {
   STEPS_DESCRIPTIONS,
   LP_BASE_RATE,
 } from '@/constants'
+import type { NftCollection } from '@/hooks'
 
 import ApproveEthButton from './components/ApproveEthButton'
 import CardWithBg from './components/CardWithBg'
@@ -26,8 +26,10 @@ const Create = () => {
   const { state } = useLocation()
   const [selectCollateral, setSelectCollateral] = useState(INITIAL_COLLATERAL)
   const [selectTenor, setSelectTenor] = useState(INITIAL_TENOR)
-  const [selectCollection, setSelectCollection] =
-    useState<CollectionListItemType>({ ...state })
+  const [selectCollection, setSelectCollection] = useState<{
+    contractAddress: string
+    nftCollection: NftCollection
+  }>({ ...state })
 
   const [rateData, setRateData] = useState<{
     poolMaximumInterestRate: number
@@ -93,7 +95,12 @@ const Create = () => {
               />
               <AsyncSelectCollection
                 placeholder='Please select'
-                onChange={(e: CollectionListItemType) => setSelectCollection(e)}
+                onChange={(e: {
+                  contractAddress: string
+                  nftCollection: NftCollection
+                }) => {
+                  setSelectCollection(e)
+                }}
                 defaultValue={state}
               />
               {/* {isEmpty(params) ? <InputSearch /> : params.collectionId} */}
@@ -200,7 +207,7 @@ const Create = () => {
               data={{
                 poolMaximumPercentage: selectCollateral,
                 poolMaximumDays: selectTenor,
-                allowCollateralContract: selectCollection?.contract_addr,
+                allowCollateralContract: selectCollection.contractAddress,
                 ...rateData,
               }}
             >

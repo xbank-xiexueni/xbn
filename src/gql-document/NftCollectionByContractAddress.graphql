@@ -1,0 +1,74 @@
+query NftCollectionsByContractAddresses($assetContractAddresses: [String!]!) {
+  nftCollectionsByContractAddresses(
+    assetContractAddresses: $assetContractAddresses
+  ) {
+    contractAddress
+    nftCollection {
+      assetsCount
+      bannerImageUrl
+      chatUrl
+      createdAt
+      createdDate
+      description
+      discordUrl
+      externalUrl
+      featuredImageUrl
+      fees {
+        address
+        name
+        value
+      }
+      id
+      imagePreviewUrl
+      imageThumbnailUrl
+      imageUrl
+      instagramUsername
+      largeImageUrl
+      mediumUsername
+      name
+      nftCollectionStat {
+        averagePrice
+        count
+        createdAt
+        floorPrice
+        floorPriceRate
+        id
+        marketCap
+        numOwners
+        numReports
+        oneDayAveragePrice
+        oneDayChange
+        oneDaySales
+        oneDayVolume
+        sevenDayAveragePrice
+        sevenDayChange
+        sevenDaySales
+        sevenDayVolume
+        thirtyDayAveragePrice
+        thirtyDayChange
+        thirtyDaySales
+        thirtyDayVolume
+        totalSales
+        totalSupply
+        totalVolume
+        updatedAt
+      }
+      onlyProxiedTransfers
+      openseaBuyerFeeBasisPoints
+      openseaSellerFeeBasisPoints
+      payoutAddress
+      safelistRequestStatus
+      shortDescription
+      slug
+      subscriberCount
+      telegramUrl
+      twitterUsername
+      updatedAt
+      wikiUrl
+      nftCollectionMetaData {
+        subscribe
+        subscribeCount
+      }
+    }
+  }
+}
