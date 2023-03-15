@@ -370,6 +370,7 @@ const Market = () => {
                       onClick={() => setGrid(item)}
                       cursor='pointer'
                       key={item}
+                      borderRadius={8}
                     >
                       <SvgComponent
                         svgId={`icon-grid-${item === 4 ? 'large' : 'middle'}`}
