@@ -15,7 +15,7 @@ import useRequest from 'ahooks/lib/useRequest'
 import filter from 'lodash-es/filter'
 import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import type { PoolsListItemType } from '@/api'
@@ -30,8 +30,9 @@ import {
   Select,
   // Select
 } from '@/components'
-import type { NftCollection } from '@/hooks'
+import type { NftAsset, NftCollection } from '@/hooks'
 import {
+  useNftCollectionSearchAssetLazyQuery,
   NftAssetOrderByField,
   OrderDirection,
   useNftCollectionAssetsLazyQuery,
@@ -74,7 +75,7 @@ const Market = () => {
     nftCollection: NftCollection
   }>()
   const [assetSearchValue, setAssetSearchValue] = useState('')
-  // const debounceSearchValue = useDebounce(searchValue, { wait: 500 })
+  const debounceSearchValue = useDebounce(assetSearchValue, { wait: 500 })
   const [collectionSearchValue, setCollectionSearchValue] = useState('')
   const debounceCollectionSearchValue = useDebounce(collectionSearchValue, {
     wait: 500,
@@ -143,13 +144,13 @@ const Market = () => {
   }, [poolsMap, selectCollection])
 
   // 根据 collectionId 搜索 assets
-  const [runAsync] = useNftCollectionAssetsLazyQuery({
+  const [fetchAssetByCollectionId] = useNftCollectionAssetsLazyQuery({
     fetchPolicy: 'network-only',
   })
 
   const getLoadMoreList = useCallback(
     async (after: string | null, first: number) => {
-      if (!selectCollection?.nftCollection?.id || !runAsync)
+      if (!selectCollection?.nftCollection?.id || !fetchAssetByCollectionId)
         return {
           list: [],
           pageInfo: {
@@ -157,7 +158,7 @@ const Market = () => {
             endCursor: null,
           },
         }
-      const { data } = await runAsync({
+      const { data } = await fetchAssetByCollectionId({
         variables: {
           collectionId: `${selectCollection?.nftCollection?.id}`,
           orderBy: orderOption.value,
@@ -171,7 +172,7 @@ const Market = () => {
         pageInfo: data?.nftCollectionAssets.pageInfo,
       }
     },
-    [runAsync, selectCollection, orderOption],
+    [fetchAssetByCollectionId, selectCollection, orderOption],
   )
 
   const {
@@ -204,6 +205,28 @@ const Market = () => {
         .includes(debounceCollectionSearchValue.toLocaleLowerCase()),
     )
   }, [collectionData, debounceCollectionSearchValue])
+
+  const [fetchAssetBySearch, { loading: fetchAssetBySearchLoading }] =
+    useNftCollectionSearchAssetLazyQuery()
+  const [searchedAsset, setSearchedAsset] = useState<NftAsset>()
+
+  useEffect(() => {
+    if (!debounceSearchValue || !fetchAssetBySearch || !selectCollection) {
+      return setSearchedAsset(undefined)
+    }
+    fetchAssetBySearch({
+      variables: {
+        collectionId: selectCollection?.nftCollection?.id,
+        search: debounceSearchValue,
+      },
+    })
+      .then(({ data }) => {
+        setSearchedAsset(data?.nftCollectionSearchAsset)
+      })
+      .catch(() => {
+        setSearchedAsset(undefined)
+      })
+  }, [debounceSearchValue, fetchAssetBySearch, selectCollection])
 
   return (
     <>
@@ -258,6 +281,8 @@ const Market = () => {
                 onClick={() => {
                   setSelectCollection(item)
                   setOrderOption(SORT_OPTIONS[0])
+                  setAssetSearchValue('')
+                  setCollectionSearchValue('')
                 }}
                 count={item.nftCollection.assetsCount}
                 isActive={
@@ -289,7 +314,7 @@ const Market = () => {
             <Flex justify={'space-between'} mb={6}>
               <Box w='70%'>
                 <SearchInput
-                  placeholder={'精确搜索？'}
+                  placeholder={'Search...'}
                   isDisabled={
                     assetLoading ||
                     poolsLoading ||
@@ -316,81 +341,159 @@ const Market = () => {
             </Flex>
           )}
 
-          <SimpleGrid
-            spacingX={4}
-            spacingY={5}
-            columns={{
-              xl: 4,
-              lg: 3,
-              md: 3,
-              sm: 2,
-            }}
-            // overflowY='auto'
-            position={'relative'}
-            // overflowX='hidden'
-          >
-            <LoadingComponent loading={assetLoading || poolsLoading} />
-            {isEmpty(assetsData?.list) ? (
-              <GridItem
-                colSpan={{
-                  xl: 4,
-                  lg: 3,
-                  md: 3,
-                  sm: 2,
-                }}
-              >
-                <EmptyComponent />
-              </GridItem>
-            ) : (
-              assetsData?.list?.map((item) => {
-                if (!item) return null
-                const { node } = item
-                const { tokenID, nftAssetContract, name, id } = node || {}
-                return (
-                  <MarketNftListCard
-                    data={{ ...item, highestRate }}
-                    key={`${tokenID}${nftAssetContract?.address}${name}`}
-                    onClick={() => {
-                      interceptFn(() => {
-                        navigate(`/asset/detail`, {
-                          state: {
-                            collection: {
-                              ...selectCollection,
-                              lowestPrice: '',
+          {!debounceSearchValue && (
+            <SimpleGrid
+              spacingX={4}
+              spacingY={5}
+              columns={{
+                xl: 4,
+                lg: 3,
+                md: 3,
+                sm: 2,
+              }}
+              // overflowY='auto'
+              position={'relative'}
+              // overflowX='hidden'
+            >
+              <LoadingComponent loading={assetLoading || poolsLoading} />
+              {isEmpty(assetsData?.list) ? (
+                <GridItem
+                  colSpan={{
+                    xl: 4,
+                    lg: 3,
+                    md: 3,
+                    sm: 2,
+                  }}
+                >
+                  <EmptyComponent />
+                </GridItem>
+              ) : (
+                assetsData?.list?.map((item) => {
+                  if (!item) return null
+                  const { node } = item
+                  const { tokenID, nftAssetContract, name, id } = node || {}
+                  return (
+                    <MarketNftListCard
+                      data={{ ...item, highestRate }}
+                      key={`${tokenID}${nftAssetContract?.address}${name}`}
+                      onClick={() => {
+                        interceptFn(() => {
+                          navigate(`/asset/detail`, {
+                            state: {
+                              collection: {
+                                ...selectCollection?.nftCollection,
+                              },
+                              poolsList:
+                                poolsMap && selectCollection?.contractAddress
+                                  ? poolsMap.get(
+                                      selectCollection.contractAddress,
+                                    )
+                                  : [],
+                              assetVariable: {
+                                assetId: id,
+                                assetContractAddress: nftAssetContract?.address,
+                                assetTokenID: tokenID,
+                              },
                             },
-                            poolsList:
-                              poolsMap && selectCollection?.contractAddress
-                                ? poolsMap.get(selectCollection.contractAddress)
-                                : [],
-                            assetVariable: {
-                              assetId: id,
-                              assetContractAddress: nftAssetContract?.address,
-                              assetTokenID: tokenID,
-                            },
-                          },
+                          })
                         })
+                      }}
+                    />
+                  )
+                })
+              )}
+              <GridItem colSpan={4}>
+                <Flex justifyContent='center' mb={5}>
+                  {!noMore &&
+                    (assetLoadingMore ? (
+                      <Text>Loading more...</Text>
+                    ) : (
+                      <Button onClick={loadMore} variant='secondary'>
+                        Click to load more
+                      </Button>
+                    ))}
+                  {noMore && !isEmpty(assetsData?.list) && (
+                    <Text>No more data</Text>
+                  )}
+                </Flex>
+              </GridItem>
+            </SimpleGrid>
+          )}
+          {!!debounceSearchValue && (
+            <SimpleGrid
+              spacingX={4}
+              spacingY={5}
+              columns={{
+                xl: 4,
+                lg: 3,
+                md: 3,
+                sm: 2,
+              }}
+              // overflowY='auto'
+              position={'relative'}
+              // overflowX='hidden'
+            >
+              <LoadingComponent
+                loading={fetchAssetBySearchLoading || poolsLoading}
+              />
+              {!searchedAsset ? (
+                <GridItem
+                  colSpan={{
+                    xl: 4,
+                    lg: 3,
+                    md: 3,
+                    sm: 2,
+                  }}
+                >
+                  <EmptyComponent />
+                </GridItem>
+              ) : (
+                <MarketNftListCard
+                  data={{
+                    node: searchedAsset,
+                    highestRate,
+                  }}
+                  key={`${searchedAsset.tokenID}${searchedAsset.assetContractAddress}${searchedAsset.name}`}
+                  onClick={() => {
+                    interceptFn(() => {
+                      navigate(`/asset/detail`, {
+                        state: {
+                          collection: {
+                            ...selectCollection?.nftCollection,
+                          },
+                          poolsList:
+                            poolsMap && selectCollection?.contractAddress
+                              ? poolsMap.get(selectCollection.contractAddress)
+                              : [],
+                          assetVariable: {
+                            assetId: searchedAsset.id,
+                            assetContractAddress:
+                              searchedAsset.assetContractAddress,
+                            assetTokenID: searchedAsset.tokenID,
+                          },
+                        },
                       })
-                    }}
-                  />
-                )
-              })
-            )}
-            <GridItem colSpan={4}>
-              <Flex justifyContent='center' mb={5}>
-                {!noMore &&
-                  (assetLoadingMore ? (
-                    <Text>Loading more...</Text>
-                  ) : (
-                    <Button onClick={loadMore} variant='secondary'>
-                      Click to load more
-                    </Button>
-                  ))}
-                {noMore && !isEmpty(assetsData?.list) && (
-                  <Text>No more data</Text>
-                )}
-              </Flex>
-            </GridItem>
-          </SimpleGrid>
+                    })
+                  }}
+                />
+              )}
+              <GridItem colSpan={4} hidden={!!debounceSearchValue}>
+                <Flex justifyContent='center' mb={5}>
+                  {!noMore &&
+                    (assetLoadingMore ? (
+                      <Text>Loading more...</Text>
+                    ) : (
+                      <Button onClick={loadMore} variant='secondary'>
+                        Click to load more
+                      </Button>
+                    ))}
+                  {noMore && !isEmpty(assetsData?.list) && (
+                    <Text>No more data</Text>
+                  )}
+                </Flex>
+              </GridItem>
+            </SimpleGrid>
+          )}
         </Box>
       </Flex>
       <ConnectWalletModal visible={isOpen} handleClose={onClose} />

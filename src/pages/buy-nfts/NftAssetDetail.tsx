@@ -35,11 +35,7 @@ import {
 } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import type {
-  LoanOrderDataType,
-  CollectionListItemType,
-  PoolsListItemType,
-} from '@/api'
+import type { LoanOrderDataType, PoolsListItemType } from '@/api'
 import { apiGetXCurrency, apiPostLoanOrder } from '@/api'
 import {
   ConnectWalletModal,
@@ -53,6 +49,7 @@ import type {
   AssetOrdersPriceQuery,
   AssetQueryVariables,
   NftOrder,
+  NftCollection,
 } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
@@ -87,7 +84,7 @@ const NftAssetDetail = () => {
     state,
   }: {
     state: {
-      collection: CollectionListItemType
+      collection: NftCollection
       poolsList: PoolsListItemType[]
       assetVariable: AssetQueryVariables
     }
@@ -618,7 +615,7 @@ const NftAssetDetail = () => {
                   ?.multipliedBy(Number(wei2Eth(commodityWeiPrice)))
                   .toFormat(FORMAT_NUMBER)
               : '',
-            verified: collection?.safelist_request_status === 'verified',
+            verified: collection?.safelistRequestStatus === 'verified',
           }}
           // onReFresh={}
           loading={assetFetchLoading}
