@@ -9,10 +9,13 @@ import {
   Box,
   SlideFade,
 } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
 import slice from 'lodash-es/slice'
 import { type FunctionComponent, useMemo, useState } from 'react'
 
 import { COLLATERALS, LP_BASE_RATE, TENORS } from '@/constants'
+
+import ScrollNumber from '../scroll-number/ScrollNumber'
 
 const TOP_SLIDER_STEPS = [0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6]
 
@@ -138,7 +141,6 @@ const BaseRateTable: FunctionComponent<{
           >
             {sliderTopValue}%
           </SliderMark> */}
-
           <SliderTrack bg={`gray.1`}>
             <SliderFilledTrack
               // bg={`var(--chakra-colors-blue-2)`}
@@ -197,7 +199,7 @@ const BaseRateTable: FunctionComponent<{
             return (
               <Flex
                 /* eslint-disable */
-                key={`${JSON.stringify(row)}-${index}`}
+                key={index}
                 /* eslint-disable */
                 borderBottom={
                   index !== tableData?.length - 1
@@ -209,21 +211,29 @@ const BaseRateTable: FunctionComponent<{
                   (value: string, i: number) => (
                     <Flex
                       /* eslint-disable */
-                      key={`${value}-${i}`}
+                      key={i}
                       /* eslint-disable */
                       alignItems={'center'}
                       justify='center'
                       h='40px'
                       w={`${(1 / (colCount || 1)) * 100}%`}
                     >
-                      <Text
-                        textAlign={'center'}
-                        fontSize='xs'
-                        fontWeight={i === 0 ? 'bold' : 'normal'}
-                        color={i === 0 ? `black.1` : `gray.3`}
-                      >
-                        {Number(value) / 100}%
-                      </Text>
+                      {i === 0 ? (
+                        <Text
+                          textAlign={'center'}
+                          fontSize='xs'
+                          fontWeight={'bold'}
+                          color={'black.1'}
+                        >
+                          {Number(value) / 100}%
+                        </Text>
+                      ) : (
+                        <ScrollNumber
+                          value={`${BigNumber(value)
+                            .dividedBy(100)
+                            .toFormat(2)}%`}
+                        />
+                      )}
                     </Flex>
                   ),
                 )}

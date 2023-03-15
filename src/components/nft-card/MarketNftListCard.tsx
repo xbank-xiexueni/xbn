@@ -47,7 +47,11 @@ const MarketNftListCard: FunctionComponent<
       }}
     >
       <CardBody p={0}>
-        <Box bg={backgroundColor || 'white'} borderTopRadius={'lg'}>
+        <Box
+          bg={backgroundColor || 'white'}
+          borderTopRadius={'lg'}
+          overflow='hidden'
+        >
           <ImageWithFallback
             src={imageThumbnailUrl}
             alt='Green double couch with wooden legs'
@@ -60,6 +64,8 @@ const MarketNftListCard: FunctionComponent<
             }}
             w='100%'
             fit='contain'
+            transform={`scale(${show ? 1.2 : 1})`}
+            transition='all 0.6s'
           />
         </Box>
 
@@ -101,43 +107,49 @@ const MarketNftListCard: FunctionComponent<
       </CardBody>
       <Divider color={`gray.2`} />
 
-      {show ? (
-        <Button
-          borderRadius={8}
-          borderTopLeftRadius={0}
-          borderTopRightRadius={0}
-          variant='other'
-          h={{
-            xl: '56px',
-            lg: '46px',
-          }}
-        >
-          Buy
-        </Button>
-      ) : (
-        <CardFooter
-          px={4}
-          justify={'space-between'}
-          alignItems='center'
-          h={{
-            xl: '56px',
-            lg: '46px',
-          }}
-        >
-          <Flex alignItems={'center'} gap={1}>
-            <Text color={`gray.3`} fontSize='sm'>
-              Price
-            </Text>
-          </Flex>
-          <Flex alignItems={'center'} gap={1}>
-            <SvgComponent svgId='icon-eth' w={2} />
-            <Text fontSize={'sm'} color={`gray.3`}>
-              &nbsp; {orderPrice}
-              {/* &nbsp; {wei2Eth(orderPrice)} */}
-            </Text>
-          </Flex>
-        </CardFooter>
-      )}
+      <Button
+        borderRadius={8}
+        borderTopLeftRadius={0}
+        borderTopRightRadius={0}
+        variant='other'
+        h={
+          show
+            ? {
+                xl: '48px',
+                lg: '40px',
+              }
+            : 0
+        }
+        position='absolute'
+        bottom={0}
+        right={0}
+        left={0}
+        transition='all 0.15s'
+      >
+        {show && 'Buy'}
+      </Button>
+      <CardFooter
+        px={4}
+        justify={'space-between'}
+        alignItems='center'
+        h={{
+          xl: '48px',
+          lg: '40px',
+        }}
+      >
+        <Flex alignItems={'center'} gap={1}>
+          <Text color={`gray.3`} fontSize='sm'>
+            Price
+          </Text>
+        </Flex>
+        <Flex alignItems={'center'} gap={1}>
+          <SvgComponent svgId='icon-eth' w={2} />
+          <Text fontSize={'sm'} color={`gray.3`}>
+            &nbsp; {orderPrice}
+            {/* &nbsp; {wei2Eth(orderPrice)} */}
+          </Text>
+        </Flex>
+      </CardFooter>
     </Card>
   )
 }
