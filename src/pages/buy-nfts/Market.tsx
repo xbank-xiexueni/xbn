@@ -363,14 +363,15 @@ const Market = () => {
                     sm: 'none',
                   }}
                 >
-                  {[4, 3].map((item) => (
+                  {[4, 3].map((item, i) => (
                     <Flex
                       p='14px'
                       bg={grid === item ? 'gray.5' : 'white'}
                       onClick={() => setGrid(item)}
                       cursor='pointer'
                       key={item}
-                      borderRadius={8}
+                      borderLeftRadius={i === 0 ? 8 : 0}
+                      borderRightRadius={i === 1 ? 8 : 0}
                     >
                       <SvgComponent
                         svgId={`icon-grid-${item === 4 ? 'large' : 'middle'}`}
