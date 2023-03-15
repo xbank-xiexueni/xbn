@@ -19,7 +19,8 @@ const MarketNftListCard: FunctionComponent<
     data: Record<string, any>
   } & CardProps
 > = ({ data: { node, highestRate }, ...rest }) => {
-  const { imageThumbnailUrl, orderPrice, name, backgroundColor } = node || {}
+  const { imageThumbnailUrl, orderPrice, name, backgroundColor, tokenID } =
+    node || {}
   const [show, setShow] = useState(false)
   const formattedDownPayment = useMemo(() => {
     if (!orderPrice || !highestRate) {
@@ -79,7 +80,7 @@ const MarketNftListCard: FunctionComponent<
           }}
         >
           <Text color={`gray.3`} fontSize='sm'>
-            {name}
+            {name || `#${tokenID}`}
           </Text>
           <Flex justify={'space-between'} alignItems='center'>
             <Text fontSize={'sm'} fontWeight='700' color={'black'}>

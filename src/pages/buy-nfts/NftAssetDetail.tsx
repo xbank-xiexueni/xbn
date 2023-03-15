@@ -608,7 +608,7 @@ const NftAssetDetail = () => {
         <DetailComponent
           data={{
             name1: collection?.name,
-            name2: detail?.asset?.name,
+            name2: detail?.asset?.name || `#${detail?.asset?.tokenID}`,
             price: wei2Eth(commodityWeiPrice),
             usdPrice: !!usdPrice
               ? usdPrice
