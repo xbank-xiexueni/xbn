@@ -40,8 +40,9 @@ const MarketNftListCard: FunctionComponent<
       onMouseLeave={() => setShow(false)}
       borderRadius={8}
       border='none'
+      w='100%'
       h={{
-        xl: '355px',
+        xl: '100%',
         lg: '320px',
       }}
     >
@@ -52,7 +53,7 @@ const MarketNftListCard: FunctionComponent<
             alt='Green double couch with wooden legs'
             borderTopRadius={'lg'}
             h={{
-              xl: '230px',
+              xl: '100%',
               lg: '200px',
               md: '160px',
               sm: '50%',

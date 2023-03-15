@@ -66,27 +66,31 @@ const CollectionDescription: FunctionComponent<{
             )}
           </Flex>
 
-          <Text color='gray.3' mt={2} fontSize={'md'} fontWeight='medium'>
-            {show ? description : `${description.substring(0, 200)}`}
-            {description?.length > 200 && !show && '...'}
-            {description?.length > 200 && (
-              <Box
-                as='a'
-                color='blue.1'
-                onClick={() => setShow((prev) => !prev)}
-                cursor='pointer'
-                fontWeight={700}
-                borderRadius='40%'
-                _hover={{
-                  bg: 'gray.5',
-                }}
-                px={2}
-                py={1}
-              >
-                {show ? 'Less' : 'More'}
-              </Box>
-            )}
+          <Text
+            color='gray.3'
+            mt={2}
+            fontSize={'md'}
+            fontWeight='medium'
+            noOfLines={!show ? 2 : undefined}
+          >
+            {description}
           </Text>
+          <Box
+            as='a'
+            color='blue.1'
+            onClick={() => setShow((prev) => !prev)}
+            cursor='pointer'
+            fontWeight={700}
+            borderRadius='99px'
+            _hover={{
+              bg: 'gray.5',
+            }}
+            px={4}
+            py={2}
+            ml={-4}
+          >
+            {show ? 'Less' : 'More'}
+          </Box>
         </Box>
       </Flex>
 
@@ -135,7 +139,6 @@ const CollectionDescription: FunctionComponent<{
         {/* supply */}
         <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>
-            <SvgComponent svgId='icon-eth' svgSize='20px' />
             <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
               {totalSupply.toLocaleString()}
             </Heading>
@@ -146,7 +149,6 @@ const CollectionDescription: FunctionComponent<{
         {/* listing */}
         {/* <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>
-            <SvgComponent svgId='icon-eth' svgSize='20px' />
             <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
               {totalSupply}
             </Heading>

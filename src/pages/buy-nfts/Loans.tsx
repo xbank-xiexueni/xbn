@@ -57,8 +57,8 @@ const Loans = () => {
       const taskPromises = _data.map(async (item) => {
         return runAsync({
           variables: {
-            assetContractAddress: item.nft_collateral_contract,
-            assetId: item.nft_collateral_id,
+            assetContractAddress: item?.nft_collateral_contract,
+            assetTokenId: item?.nft_collateral_id,
           },
         })
           .then(({ data: assetData }) => {

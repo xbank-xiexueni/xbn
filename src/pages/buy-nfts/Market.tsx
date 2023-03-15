@@ -28,6 +28,7 @@ import {
   MarketNftListCard,
   SearchInput,
   Select,
+  SvgComponent,
   // Select
 } from '@/components'
 import type { NftAsset, NftCollection } from '@/hooks'
@@ -228,6 +229,9 @@ const Market = () => {
       })
   }, [debounceSearchValue, fetchAssetBySearch, selectCollection])
 
+  // grid
+  const [grid, setGrid] = useState(4)
+
   return (
     <>
       <Box mb={10} mt={'60px'}>
@@ -249,9 +253,12 @@ const Market = () => {
             md: '100%',
             sm: '100%',
           }}
-          height={'70vh'}
-          // overflowY='auto'
-          // overflowX={'visible'}
+          height={{
+            xl: '70vh',
+            lg: '70vh',
+          }}
+          overflowY='auto'
+          overflowX={'visible'}
         >
           <Heading size={'md'} mb={4}>
             Collections
@@ -312,7 +319,13 @@ const Market = () => {
             <Skeleton height={16} borderRadius={16} mb={6} />
           ) : (
             <Flex justify={'space-between'} mb={6}>
-              <Box w='70%'>
+              <Box
+                w={{
+                  xl: '55%',
+                  lg: '44%',
+                  md: '50%',
+                }}
+              >
                 <SearchInput
                   placeholder={'Search...'}
                   isDisabled={
@@ -327,17 +340,47 @@ const Market = () => {
                   }}
                 />
               </Box>
-              <Select
-                options={SORT_OPTIONS}
-                value={orderOption}
-                defaultValue={SORT_OPTIONS[0]}
-                onChange={(target) => {
-                  if (!target) return
-                  setOrderOption(target)
-                }}
-                isDisabled={isEmpty(assetsData?.list)}
-                borderColor={'var(--chakra-colors-gray-2)'}
-              />
+              <Flex alignItems={'center'} gap={5}>
+                <Select
+                  options={SORT_OPTIONS}
+                  value={orderOption}
+                  defaultValue={SORT_OPTIONS[0]}
+                  onChange={(target) => {
+                    if (!target) return
+                    setOrderOption(target)
+                  }}
+                  isDisabled={isEmpty(assetsData?.list)}
+                  borderColor={'var(--chakra-colors-gray-2)'}
+                />
+                <Flex
+                  borderColor={'gray.2'}
+                  borderWidth={1}
+                  borderRadius={8}
+                  display={{
+                    xl: 'flex',
+                    lg: 'flex',
+                    md: 'flex',
+                    sm: 'none',
+                  }}
+                >
+                  {[4, 3].map((item) => (
+                    <Flex
+                      p='14px'
+                      bg={grid === item ? 'gray.5' : 'white'}
+                      onClick={() => setGrid(item)}
+                      cursor='pointer'
+                      key={item}
+                    >
+                      <SvgComponent
+                        svgId={`icon-grid-${item === 4 ? 'large' : 'middle'}`}
+                        fill={`var(--chakra-colors-${
+                          grid === item ? 'blue' : 'gray'
+                        }-1)`}
+                      />
+                    </Flex>
+                  ))}
+                </Flex>
+              </Flex>
             </Flex>
           )}
 
@@ -346,22 +389,22 @@ const Market = () => {
               spacingX={4}
               spacingY={5}
               columns={{
-                xl: 4,
-                lg: 3,
-                md: 3,
+                xl: grid,
+                lg: grid,
+                md: grid,
                 sm: 2,
               }}
-              // overflowY='auto'
               position={'relative'}
-              // overflowX='hidden'
             >
-              <LoadingComponent loading={assetLoading || poolsLoading} />
+              <LoadingComponent
+                loading={assetLoading || poolsLoading || collectionLoading}
+              />
               {isEmpty(assetsData?.list) ? (
                 <GridItem
                   colSpan={{
-                    xl: 4,
-                    lg: 3,
-                    md: 3,
+                    xl: grid,
+                    lg: grid,
+                    md: grid,
                     sm: 2,
                   }}
                 >
@@ -402,7 +445,7 @@ const Market = () => {
                   )
                 })
               )}
-              <GridItem colSpan={4}>
+              <GridItem colSpan={grid}>
                 <Flex justifyContent='center' mb={5}>
                   {!noMore &&
                     (assetLoadingMore ? (
@@ -424,9 +467,9 @@ const Market = () => {
               spacingX={4}
               spacingY={5}
               columns={{
-                xl: 4,
-                lg: 3,
-                md: 3,
+                xl: grid,
+                lg: grid,
+                md: grid,
                 sm: 2,
               }}
               // overflowY='auto'
@@ -439,9 +482,9 @@ const Market = () => {
               {!searchedAsset ? (
                 <GridItem
                   colSpan={{
-                    xl: 4,
-                    lg: 3,
-                    md: 3,
+                    xl: grid,
+                    lg: grid,
+                    md: grid,
                     sm: 2,
                   }}
                 >

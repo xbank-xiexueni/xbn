@@ -163,7 +163,7 @@ const Lend = () => {
           return runAsync({
             variables: {
               assetContractAddress: item.nft_collateral_contract,
-              assetId: item.nft_collateral_id,
+              assetTokenId: item.nft_collateral_id,
             },
           })
             .then(({ data: _data }) => {
