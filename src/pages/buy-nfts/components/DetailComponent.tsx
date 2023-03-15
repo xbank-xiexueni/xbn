@@ -37,10 +37,14 @@ const DetailComponent: FunctionComponent<
     <Box mt={8}>
       {/* 名称*/}
       <Flex alignItems={'baseline'}>
-        <Text fontWeight={'500'}>{name1}</Text>
+        <Text fontWeight={'500'} noOfLines={1}>
+          {name1}
+        </Text>
         {verified && <SvgComponent svgId='icon-verified-fill' />}
       </Flex>
-      <Heading fontSize={'40px'}>{name2}</Heading>
+      <Heading fontSize={'40px'} noOfLines={1}>
+        {name2}
+      </Heading>
       {/* 价格 */}
       <Flex
         bg='gray.5'

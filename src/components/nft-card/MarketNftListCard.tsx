@@ -79,7 +79,7 @@ const MarketNftListCard: FunctionComponent<
             lg: 1,
           }}
         >
-          <Text color={`gray.3`} fontSize='sm'>
+          <Text color={`gray.3`} fontSize='sm' noOfLines={1}>
             {name || `#${tokenID}`}
           </Text>
           <Flex justify={'space-between'} alignItems='center'>
