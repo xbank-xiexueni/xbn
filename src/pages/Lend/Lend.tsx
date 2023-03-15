@@ -393,7 +393,7 @@ const Lend = () => {
               whiteSpace='nowrap'
               textOverflow='ellipsis'
             >
-              {currentInfo?.name}
+              {currentInfo?.name || `#${currentInfo?.tokenID}`}
             </Text>
           </Flex>
         )

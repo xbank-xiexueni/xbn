@@ -19,6 +19,7 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({ data }) => {
       imagePreviewUrl,
       imageOriginalUrl,
       name,
+      tokenID,
       imageUrl,
       animationUrl,
       nftAssetMetaData: { likeCount },
@@ -54,7 +55,7 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({ data }) => {
             bg='gray.5'
             onClick={() => {
               try {
-                downloadRemoteImg(imageOriginalUrl, name, imageUrl)
+                downloadRemoteImg(imageOriginalUrl, name || tokenID, imageUrl)
               } catch (error) {
                 console.log(error)
               }
