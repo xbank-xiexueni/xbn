@@ -5,8 +5,12 @@ enum NFT_MEDIA_TYPE {
 }
 
 const judgeNftMediaType = (animation_url: string) => {
-  if (animation_url && !animation_url.includes('.svg')) {
-    if (animation_url.includes('.html')) {
+  const lowercaseAnimationUrl = animation_url.toLowerCase()
+  if (
+    animation_url &&
+    /\.(gif|jpg|jpeg|png|bmp|dib|rle|webp)$/.test(lowercaseAnimationUrl)
+  ) {
+    if (lowercaseAnimationUrl.includes('.html')) {
       return NFT_MEDIA_TYPE.HTML_MEDIA
     } else {
       return NFT_MEDIA_TYPE.VIDEO_MEDIA
