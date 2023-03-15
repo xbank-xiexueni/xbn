@@ -207,7 +207,10 @@ const Create = () => {
               data={{
                 poolMaximumPercentage: selectCollateral,
                 poolMaximumDays: selectTenor,
-                allowCollateralContract: selectCollection.contractAddress,
+                allowCollateralContract: selectCollection?.contractAddress,
+                floorPrice:
+                  selectCollection?.nftCollection?.nftCollectionStat
+                    ?.floorPrice,
                 ...rateData,
               }}
             >

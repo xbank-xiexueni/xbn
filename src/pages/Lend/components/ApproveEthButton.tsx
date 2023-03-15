@@ -65,6 +65,7 @@ const ApproveEthButton: FunctionComponent<
       loanTimeConcessionFlexibility: number
       loanRatioPreferentialFlexibility: number
       allowCollateralContract: string
+      floorPrice: number
     }
   }
 > = ({ children, data, ...rest }) => {
@@ -75,6 +76,7 @@ const ApproveEthButton: FunctionComponent<
     loanTimeConcessionFlexibility,
     loanRatioPreferentialFlexibility,
     allowCollateralContract,
+    floorPrice,
   } = data
   const { currentAccount, interceptFn, isOpen, onClose } = useWallet()
   const navigate = useNavigate()
@@ -92,6 +94,7 @@ const ApproveEthButton: FunctionComponent<
   const [currentBalance, setCurrentBalance] = useState(0)
   const [refreshLoading, setRefreshLoading] = useState(false)
 
+  const [errorMsg, setErrorMsg] = useState('')
   const fetchLatestWethBalance = useCallback(() => {
     if (!currentAccount) return
     setRefreshLoading(true)
@@ -120,11 +123,19 @@ const ApproveEthButton: FunctionComponent<
     //  amount < balance + Has been lent
     if (amount) {
       const NumberAmount = Number(amount)
-      return NumberAmount > currentBalance
+      if (NumberAmount > currentBalance) {
+        setErrorMsg(`Maximum input: ${currentBalance}`)
+        return true
+      }
+      if (NumberAmount < floorPrice * 0.1) {
+        setErrorMsg(`Minimum input: ${floorPrice * 0.1}`)
+        return true
+      }
+      return false
     } else {
       return !flag
     }
-  }, [amount, currentBalance, flag])
+  }, [amount, currentBalance, flag, floorPrice])
 
   const [approveLoading, setApproveLoading] = useState(false)
   const [createLoading, setCreateLoading] = useState(false)
@@ -354,7 +365,7 @@ const ApproveEthButton: FunctionComponent<
 
               {isError && (
                 <Text mt={2} color='red.1'>
-                  Insufficient funds, Maximum input: {currentBalance}
+                  Insufficient funds, {errorMsg}
                   {/* <SvgComponent
                     svgId='icon-refresh'
                     onClick={fetchLatestWethBalance}
