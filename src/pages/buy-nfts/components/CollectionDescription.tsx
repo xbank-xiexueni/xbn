@@ -12,7 +12,9 @@ import isEmpty from 'lodash-es/isEmpty'
 import { useState, type FunctionComponent } from 'react'
 
 import { EmptyComponent, ImageWithFallback, SvgComponent } from '@/components'
+import { FORMAT_NUMBER } from '@/constants'
 import type { NftCollection } from '@/hooks'
+import { formatFloat } from '@/utils/format'
 
 const CollectionDescription: FunctionComponent<{
   data?: NftCollection
@@ -125,10 +127,13 @@ const CollectionDescription: FunctionComponent<{
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' svgSize='20px' />
             <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
-              {BigNumber(floorPrice)
-                .multipliedBy(BigNumber(10000).minus(Number(highestRate)))
-                .dividedBy(10000)
-                .toFixed(2)}
+              {formatFloat(
+                BigNumber(floorPrice)
+                  .multipliedBy(BigNumber(10000).minus(Number(highestRate)))
+                  .dividedBy(10000)
+                  .toNumber(),
+                FORMAT_NUMBER,
+              )}
             </Heading>
           </Flex>
 
@@ -139,7 +144,7 @@ const CollectionDescription: FunctionComponent<{
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' svgSize='20px' />
             <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
-              {BigNumber(oneDayAveragePrice).toFixed(2)}
+              {formatFloat(oneDayAveragePrice, FORMAT_NUMBER)}
             </Heading>
           </Flex>
 
