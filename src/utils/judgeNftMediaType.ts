@@ -5,15 +5,15 @@ enum NFT_MEDIA_TYPE {
 }
 
 const judgeNftMediaType = (animation_url: string) => {
-  const searchStr = new URL(animation_url)?.search || ''
-  const lowercaseAnimationUrl = animation_url
-    .toLowerCase()
-    .replace(searchStr, '')
   if (
     animation_url &&
-    !/\.(gif|jpg|jpeg|png|bmp|dib|rle|webp)$/.test(lowercaseAnimationUrl)
+    !/\.(gif|jpg|jpeg|png|bmp|dib|rle|webp)$/.test(
+      animation_url
+        .toLowerCase()
+        .replace(new URL(animation_url)?.search || '', ''),
+    )
   ) {
-    if (lowercaseAnimationUrl.includes('.html')) {
+    if (animation_url.includes('.html')) {
       return NFT_MEDIA_TYPE.HTML_MEDIA
     } else {
       return NFT_MEDIA_TYPE.VIDEO_MEDIA
