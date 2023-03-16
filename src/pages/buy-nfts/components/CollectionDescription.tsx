@@ -1,4 +1,13 @@
-import { Flex, Box, Text, Heading, Skeleton, HStack } from '@chakra-ui/react'
+import {
+  Flex,
+  Box,
+  Text,
+  Heading,
+  Skeleton,
+  HStack,
+  Highlight,
+} from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
 import isEmpty from 'lodash-es/isEmpty'
 import { useState, type FunctionComponent } from 'react'
 
@@ -39,7 +48,13 @@ const CollectionDescription: FunctionComponent<{
     description = '',
     imagePreviewUrl = '',
     safelistRequestStatus,
-    nftCollectionStat: { floorPrice, totalSupply, totalSales },
+    nftCollectionStat: {
+      floorPrice,
+      totalSupply,
+      totalSales,
+      oneDayChange,
+      oneDayAveragePrice,
+    },
   } = data
 
   return (
@@ -94,7 +109,7 @@ const CollectionDescription: FunctionComponent<{
         </Box>
       </Flex>
 
-      <HStack spacing={10}>
+      <HStack spacing={20}>
         <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' svgSize='20px' />
@@ -110,32 +125,35 @@ const CollectionDescription: FunctionComponent<{
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' svgSize='20px' />
             <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
-              {(floorPrice * (10000 - Number(highestRate))) / 10000}
+              {BigNumber(floorPrice)
+                .multipliedBy(BigNumber(10000).minus(Number(highestRate)))
+                .dividedBy(10000)
+                .toFixed(2)}
             </Heading>
           </Flex>
 
           <Text color='gray.4'>Min DP</Text>
         </Flex>
         {/* 24h */}
-        {/* <Flex flexDir='column' alignItems='center'>
+        <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' svgSize='20px' />
             <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
-              {floorPrice}
+              {BigNumber(oneDayAveragePrice).toFixed(2)}
             </Heading>
           </Flex>
 
-          <Text color='red.1'>
+          <Text color={oneDayChange < 0 ? 'red.1' : 'green.1'}>
             <Highlight
               styles={{
                 color: `gray.4`,
               }}
               query='24h'
             >
-              24h -90%
+              {`24h ${BigNumber(oneDayChange).multipliedBy(100).toFixed(2)}%`}
             </Highlight>
           </Text>
-        </Flex> */}
+        </Flex>
         {/* supply */}
         <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>

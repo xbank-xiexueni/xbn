@@ -252,7 +252,8 @@ const NftAssetDetail = () => {
     if (
       !originPoolList ||
       isEmpty(originPoolList) ||
-      latestBalanceMap?.size === 0
+      latestBalanceMap?.size === 0 ||
+      loanWeiAmount?.eq(0)
     ) {
       setSelectPool(undefined)
       return []
@@ -502,6 +503,7 @@ const NftAssetDetail = () => {
       )
     },
     debounceWait: 100,
+    ready: false,
     // refreshDeps: [commodityWeiPrice],
   })
 

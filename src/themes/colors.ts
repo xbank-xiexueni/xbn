@@ -22,6 +22,9 @@ const colors = {
   red: {
     1: '#FF0066',
   },
+  green: {
+    1: 'green',
+  },
   // ...
 }
 

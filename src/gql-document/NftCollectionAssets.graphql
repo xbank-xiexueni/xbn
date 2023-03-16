@@ -3,12 +3,14 @@ query NftCollectionAssets(
   $orderBy: NFTAssetOrderBy!
   $first: Int
   $after: Cursor
+  $where: NFTAssetWhere
 ) {
   nftCollectionAssets(
     collectionID: $collectionId
     orderBy: $orderBy
     first: $first
     after: $after
+    where: $where
   ) {
     edges {
       node {

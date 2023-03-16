@@ -16,7 +16,7 @@ import filter from 'lodash-es/filter'
 import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import type { PoolsListItemType } from '@/api'
 import { apiGetPools } from '@/api'
@@ -33,6 +33,7 @@ import {
 } from '@/components'
 import type { NftAsset, NftCollection } from '@/hooks'
 import {
+  NftAssetStatus,
   useNftCollectionSearchAssetLazyQuery,
   NftAssetOrderByField,
   OrderDirection,
@@ -70,6 +71,7 @@ const SORT_OPTIONS = [
 
 const Market = () => {
   const navigate = useNavigate()
+  const { search } = useLocation()
   const { isOpen, onClose, interceptFn } = useWallet()
   const [selectCollection, setSelectCollection] = useState<{
     contractAddress: string
@@ -126,7 +128,16 @@ const Market = () => {
           return
         }
 
-        setSelectCollection(data.nftCollectionsByContractAddresses[0])
+        const prevCollectionId = Object.fromEntries(
+          new URLSearchParams(search),
+        )?.collectionId
+        const prevItem = data.nftCollectionsByContractAddresses.find(
+          (i) => i.nftCollection.id === prevCollectionId,
+        )
+
+        setSelectCollection(
+          prevItem || data.nftCollectionsByContractAddresses[0],
+        )
       },
     })
 
@@ -143,6 +154,14 @@ const Market = () => {
     }
     return maxRate
   }, [poolsMap, selectCollection])
+
+  useEffect(() => {
+    if (!selectCollection) return
+    const {
+      nftCollection: { id },
+    } = selectCollection
+    navigate(`/buy-nfts/market?collectionId=${id}`)
+  }, [selectCollection, navigate])
 
   // 根据 collectionId 搜索 assets
   const [fetchAssetByCollectionId] = useNftCollectionAssetsLazyQuery({
@@ -163,6 +182,9 @@ const Market = () => {
         variables: {
           collectionId: `${selectCollection?.nftCollection?.id}`,
           orderBy: orderOption.value,
+          where: {
+            status: [NftAssetStatus.BuyNow],
+          },
           first,
           after,
         },

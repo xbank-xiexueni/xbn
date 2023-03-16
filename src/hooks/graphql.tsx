@@ -882,6 +882,7 @@ export type NftCollectionAssetsQueryVariables = Exact<{
   orderBy: NftAssetOrderBy
   first?: InputMaybe<Scalars['Int']>
   after?: InputMaybe<Scalars['Cursor']>
+  where?: InputMaybe<NftAssetWhere>
 }>
 
 export type NftCollectionAssetsQuery = {
@@ -1413,12 +1414,14 @@ export const NftCollectionAssetsDocument = gql`
     $orderBy: NFTAssetOrderBy!
     $first: Int
     $after: Cursor
+    $where: NFTAssetWhere
   ) {
     nftCollectionAssets(
       collectionID: $collectionId
       orderBy: $orderBy
       first: $first
       after: $after
+      where: $where
     ) {
       edges {
         node {
@@ -1498,6 +1501,7 @@ export const NftCollectionAssetsDocument = gql`
  *      orderBy: // value for 'orderBy'
  *      first: // value for 'first'
  *      after: // value for 'after'
+ *      where: // value for 'where'
  *   },
  * });
  */
