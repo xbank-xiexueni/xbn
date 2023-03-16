@@ -1,4 +1,4 @@
-import { Flex, type FlexProps, type ImageProps } from '@chakra-ui/react'
+import { chakra, Flex, type FlexProps, type ImageProps } from '@chakra-ui/react'
 import { type FunctionComponent } from 'react'
 import {
   BigPlayButton,
@@ -54,13 +54,9 @@ const NftMedia: FunctionComponent<NftMediaProps> = ({
   switch (MEDIA_TYPE) {
     case NFT_MEDIA_TYPE.HTML_MEDIA:
       return (
-        <Flex
-          bg={'gray.2'}
-          alignItems={alignItems || 'center'}
-          dangerouslySetInnerHTML={{ __html: animationUrl }}
-          pos={'relative'}
-          {...rest}
-        />
+        <Flex bg={'gray.2'} alignItems={alignItems || 'center'} {...rest}>
+          <chakra.iframe src={animationUrl} {...rest} />
+        </Flex>
       )
     case NFT_MEDIA_TYPE.VIDEO_MEDIA:
       return (

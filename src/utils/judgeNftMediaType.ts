@@ -8,7 +8,7 @@ const judgeNftMediaType = (animation_url: string) => {
   const lowercaseAnimationUrl = animation_url.toLowerCase()
   if (
     animation_url &&
-    /\.(gif|jpg|jpeg|png|bmp|dib|rle|webp)$/.test(lowercaseAnimationUrl)
+    !/\.(gif|jpg|jpeg|png|bmp|dib|rle|webp)$/.test(lowercaseAnimationUrl)
   ) {
     if (lowercaseAnimationUrl.includes('.html')) {
       return NFT_MEDIA_TYPE.HTML_MEDIA
