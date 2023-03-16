@@ -203,7 +203,9 @@ const Market = () => {
             position={'relative'}
             overflowX='hidden'
           >
-            <LoadingComponent loading={assetListLoading || poolsLoading} />
+            <LoadingComponent
+              loading={assetListLoading || poolsLoading || collectionLoading}
+            />
             {isEmpty(assetData) ? (
               <GridItem
                 colSpan={{

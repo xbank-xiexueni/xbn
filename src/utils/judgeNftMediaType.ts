@@ -5,7 +5,10 @@ enum NFT_MEDIA_TYPE {
 }
 
 const judgeNftMediaType = (animation_url: string) => {
-  const lowercaseAnimationUrl = animation_url.toLowerCase()
+  const searchStr = new URL(animation_url)?.search || ''
+  const lowercaseAnimationUrl = animation_url
+    .toLowerCase()
+    .replace(searchStr, '')
   if (
     animation_url &&
     !/\.(gif|jpg|jpeg|png|bmp|dib|rle|webp)$/.test(lowercaseAnimationUrl)
