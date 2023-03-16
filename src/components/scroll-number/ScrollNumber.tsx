@@ -2,11 +2,12 @@ import { Box, Flex } from '@chakra-ui/react'
 import range from 'lodash-es/range'
 import { type FunctionComponent, useEffect, useRef, useState } from 'react'
 
+import type { FlexProps } from '@chakra-ui/react'
+
 const ScrollNumberItem: FunctionComponent<{
   value: string
   callback: (ended: boolean) => void
-  ended: boolean
-}> = ({ value, callback, ended }) => {
+}> = ({ value, callback }) => {
   const ref = useRef<HTMLDivElement>(null)
   const transitionNode = ref?.current
   useEffect(() => {
@@ -31,7 +32,6 @@ const ScrollNumberItem: FunctionComponent<{
         left={'-5px'}
         fontSize='12px'
         position='relative'
-        color={ended ? 'gray.3' : 'blue.4'}
       >
         {value}
       </Box>
@@ -58,15 +58,7 @@ const ScrollNumberItem: FunctionComponent<{
         ref={ref}
       >
         {range(0, 10).map((item) => (
-          <Box
-            key={item}
-            color={ended ? 'gray.3' : 'blue.4'}
-            w='14px'
-            h='16px'
-            lineHeight={'16px'}
-            fontSize='12px'
-            fontWeight={'500'}
-          >
+          <Box key={item} w='14px' h='16px' lineHeight={'16px'} fontSize='12px'>
             {item}
           </Box>
         ))}
@@ -76,25 +68,29 @@ const ScrollNumberItem: FunctionComponent<{
 }
 type ScrollNumberProps = {
   value: string
-}
+} & FlexProps
 
-const ScrollNumber: FunctionComponent<ScrollNumberProps> = ({ value }) => {
+const ScrollNumber: FunctionComponent<ScrollNumberProps> = ({
+  value,
+  color = 'gray.3',
+  ...rest
+}) => {
   const [ended, setEnded] = useState(true)
-
   return (
     <Flex justify={'space-between'}>
       {value
         .toString()
         .split('')
         .map((item, i) => (
-          <ScrollNumberItem
-            value={item}
+          <Flex
+            color={ended ? color : 'blue.4'}
+            {...rest}
             /* eslint-disable */
             key={i}
             /* eslint-disable */
-            callback={(e) => setEnded(e)}
-            ended={ended}
-          />
+          >
+            <ScrollNumberItem value={item} callback={(e) => setEnded(e)} />
+          </Flex>
         ))}
     </Flex>
   )

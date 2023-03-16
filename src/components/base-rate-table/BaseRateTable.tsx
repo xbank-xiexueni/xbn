@@ -232,6 +232,16 @@ const BaseRateTable: FunctionComponent<{
                           value={`${BigNumber(value)
                             .dividedBy(100)
                             .toFormat(2)}%`}
+                          color={
+                            i === row?.length && index === tableData?.length - 1
+                              ? 'blue.1'
+                              : 'gray.3'
+                          }
+                          fontWeight={
+                            i === row?.length && index === tableData?.length - 1
+                              ? '700'
+                              : '500'
+                          }
                         />
                       )}
                     </Flex>
