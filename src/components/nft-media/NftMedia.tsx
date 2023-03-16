@@ -1,4 +1,4 @@
-import { Flex, type FlexProps } from '@chakra-ui/react'
+import { Flex, type FlexProps, chakra } from '@chakra-ui/react'
 import { type FunctionComponent } from 'react'
 import { Player } from 'video-react'
 
@@ -20,12 +20,9 @@ const NftMedia: FunctionComponent<NftMediaProps> = ({
   switch (MEDIA_TYPE) {
     case NFT_MEDIA_TYPE.HTML_MEDIA:
       return (
-        <Flex
-          bg={bg || 'gray.2'}
-          alignItems={alignItems || 'center'}
-          dangerouslySetInnerHTML={{ __html: animation_url }}
-          {...rest}
-        />
+        <Flex bg={bg || 'gray.2'} alignItems={alignItems || 'center'} {...rest}>
+          <chakra.iframe src={animation_url} {...rest} />
+        </Flex>
       )
     case NFT_MEDIA_TYPE.VIDEO_MEDIA:
       return (
