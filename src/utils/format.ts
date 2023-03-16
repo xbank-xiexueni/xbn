@@ -6,4 +6,10 @@ const formatAddress = (address: string) => {
     .substring(address.length - 4, address.length)}`
 }
 
-export { formatAddress }
+const formatFloat = (x: number, y: number) => {
+  const f = Math.round(x * 10 ** y) / 10 ** y
+  const s = f.toString()
+  return s
+}
+
+export { formatAddress, formatFloat }

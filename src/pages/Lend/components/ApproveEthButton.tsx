@@ -19,10 +19,10 @@ import {
   useToast,
   useDisclosure,
 } from '@chakra-ui/react'
+import { useRequest } from 'ahooks'
 import {
   type ReactNode,
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -32,9 +32,14 @@ import { useNavigate } from 'react-router-dom'
 import Web3 from 'web3'
 
 import { ConnectWalletModal, SvgComponent } from '@/components'
-import { WETH_CONTRACT_ADDRESS, XBANK_CONTRACT_ADDRESS } from '@/constants'
+import {
+  FORMAT_NUMBER,
+  WETH_CONTRACT_ADDRESS,
+  XBANK_CONTRACT_ADDRESS,
+} from '@/constants'
 import { useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
+import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
@@ -91,51 +96,44 @@ const ApproveEthButton: FunctionComponent<
   const initialRef = useRef(null)
   const finalRef = useRef(null)
 
-  const [currentBalance, setCurrentBalance] = useState(0)
-  const [refreshLoading, setRefreshLoading] = useState(false)
-
   const [errorMsg, setErrorMsg] = useState('')
-  const fetchLatestWethBalance = useCallback(() => {
-    if (!currentAccount) return
-    setRefreshLoading(true)
+  const fetchLatestWethBalance = useCallback(async () => {
     const wethContract = createWethContract()
-    wethContract.methods
-      .balanceOf(currentAccount)
-      .call()
-      .then((res: string) => {
-        setCurrentBalance(Number(wei2Eth(res)))
-        setRefreshLoading(false)
-      })
-      .catch((error: any) => {
-        console.log(
-          '🚀 ~ file: ApproveEthButton.tsx:98 ~ .then ~ error:',
-          error,
-        )
-        setRefreshLoading(false)
-      })
+    return await wethContract.methods.balanceOf(currentAccount).call()
   }, [currentAccount])
 
-  useEffect(() => {
-    fetchLatestWethBalance()
-  }, [fetchLatestWethBalance])
+  const { loading: refreshLoading, data: wethData } = useRequest(
+    fetchLatestWethBalance,
+    {
+      retryCount: 5,
+      ready: !!currentAccount,
+    },
+  )
 
   const isError = useMemo((): boolean => {
     //  amount < balance + Has been lent
     if (amount) {
       const NumberAmount = Number(amount)
-      if (NumberAmount > currentBalance) {
-        setErrorMsg(`Maximum input: ${currentBalance}`)
+      if (NumberAmount > Number(wei2Eth(wethData))) {
+        setErrorMsg(
+          `Maximum input: ${formatFloat(
+            Number(wei2Eth(wethData)),
+            FORMAT_NUMBER,
+          )}`,
+        )
         return true
       }
       if (NumberAmount < floorPrice * 0.1) {
-        setErrorMsg(`Minimum input: ${floorPrice * 0.1}`)
+        setErrorMsg(
+          `Minimum input: ${formatFloat(floorPrice * 0.1, FORMAT_NUMBER)}`,
+        )
         return true
       }
       return false
     } else {
       return !flag
     }
-  }, [amount, currentBalance, flag, floorPrice])
+  }, [amount, wethData, flag, floorPrice])
 
   const [approveLoading, setApproveLoading] = useState(false)
   const [createLoading, setCreateLoading] = useState(false)

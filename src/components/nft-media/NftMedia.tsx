@@ -57,7 +57,9 @@ const NftMedia: FunctionComponent<NftMediaProps> = ({
         <Flex bg={'gray.2'} alignItems={alignItems || 'center'} {...rest}>
           <chakra.iframe
             src={animationUrl}
-            referrerpolicy='no-referrer'
+            referrerPolicy='no-referrer'
+            // allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
+            // sandbox='allow-scripts'
             {...rest}
           />
         </Flex>
