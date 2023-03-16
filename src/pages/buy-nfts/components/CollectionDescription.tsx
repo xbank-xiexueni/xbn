@@ -39,7 +39,7 @@ const CollectionDescription: FunctionComponent<{
     description = '',
     imagePreviewUrl = '',
     safelistRequestStatus,
-    nftCollectionStat: { floorPrice, totalSupply },
+    nftCollectionStat: { floorPrice, totalSupply, totalSales },
   } = data
 
   return (
@@ -147,15 +147,15 @@ const CollectionDescription: FunctionComponent<{
           <Text color='gray.4'>Supply</Text>
         </Flex>
         {/* listing */}
-        {/* <Flex flexDir='column' alignItems='center'>
+        <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>
             <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
-              {totalSupply}
+              {totalSales?.toLocaleString()}
             </Heading>
           </Flex>
 
           <Text color='gray.4'>Listing</Text>
-        </Flex> */}
+        </Flex>
       </HStack>
     </Box>
   )
