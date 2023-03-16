@@ -55,7 +55,11 @@ const NftMedia: FunctionComponent<NftMediaProps> = ({
     case NFT_MEDIA_TYPE.HTML_MEDIA:
       return (
         <Flex bg={'gray.2'} alignItems={alignItems || 'center'} {...rest}>
-          <chakra.iframe src={animationUrl} {...rest} />
+          <chakra.iframe
+            src={animationUrl}
+            referrerpolicy='no-referrer'
+            {...rest}
+          />
         </Flex>
       )
     case NFT_MEDIA_TYPE.VIDEO_MEDIA:
