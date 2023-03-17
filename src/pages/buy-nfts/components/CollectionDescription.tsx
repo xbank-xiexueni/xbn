@@ -89,6 +89,7 @@ const CollectionDescription: FunctionComponent<{
             fontSize={'md'}
             fontWeight='medium'
             noOfLines={!show ? 2 : undefined}
+            lineHeight='20px'
           >
             {description}
           </Text>
@@ -105,6 +106,7 @@ const CollectionDescription: FunctionComponent<{
             px={4}
             py={2}
             ml={-4}
+            hidden={!description}
           >
             {show ? 'Less' : 'More'}
           </Box>
@@ -116,7 +118,7 @@ const CollectionDescription: FunctionComponent<{
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' svgSize='20px' />
             <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
-              {floorPrice}
+              {floorPrice || '--'}
             </Heading>
           </Flex>
 
@@ -133,7 +135,7 @@ const CollectionDescription: FunctionComponent<{
                   .dividedBy(10000)
                   .toNumber(),
                 FORMAT_NUMBER,
-              )}
+              ) || '--'}
             </Heading>
           </Flex>
 
@@ -144,7 +146,7 @@ const CollectionDescription: FunctionComponent<{
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' svgSize='20px' />
             <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
-              {formatFloat(oneDayAveragePrice, FORMAT_NUMBER)}
+              {formatFloat(oneDayAveragePrice, FORMAT_NUMBER) || '--'}
             </Heading>
           </Flex>
 
@@ -163,7 +165,7 @@ const CollectionDescription: FunctionComponent<{
         <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>
             <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
-              {totalSupply.toLocaleString()}
+              {totalSupply.toLocaleString() || '--'}
             </Heading>
           </Flex>
 
@@ -173,7 +175,7 @@ const CollectionDescription: FunctionComponent<{
         <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>
             <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
-              {totalSales?.toLocaleString()}
+              {totalSales?.toLocaleString() || '--'}
             </Heading>
           </Flex>
 

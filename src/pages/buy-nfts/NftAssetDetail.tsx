@@ -26,6 +26,7 @@ import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
 import minBy from 'lodash-es/minBy'
 import range from 'lodash-es/range'
+import pLimit from 'p-limit'
 import {
   type ReactNode,
   useCallback,
@@ -35,7 +36,6 @@ import {
 } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import type { LoanOrderDataType, PoolsListItemType } from '@/api'
 import { apiGetXCurrency, apiPostLoanOrder } from '@/api'
 import {
   ConnectWalletModal,
@@ -61,6 +61,8 @@ import ImageToolBar from './components/ImageToolBar'
 import LabelComponent from './components/LabelComponent'
 import PlanItem from './components/PlanItem'
 import RadioCard from './components/RadioCard'
+
+const limit = pLimit(1)
 
 enum LOAN_DAYS_ENUM {
   Loan7Days = 7,
@@ -183,23 +185,22 @@ const NftAssetDetail = () => {
 
       const wethContract = createWethContract()
 
-      const taskPromises = uniqAddress.map(async (item: string) => {
-        return wethContract.methods
-          .balanceOf(item)
-          .call()
-          .then((res: string) => {
-            balanceMap.set(item, BigNumber(Number(res)))
-          })
-          .catch((error: Error) => {
-            console.log(
-              '🚀 ~ file: NftAssetDetail.tsx:150 ~ .then ~ error:',
-              error,
-            )
-          })
+      const input = uniqAddress?.map((item) => {
+        return limit(() =>
+          wethContract.methods
+            .balanceOf(item)
+            .call()
+            .then((res: string) => {
+              balanceMap.set(item, res)
+            })
+            .catch(() => console.log),
+        )
       })
-      await Promise.all(taskPromises).catch((error) => {
-        console.log('🚀 ~ file: NftAssetDetail.tsx:108 ~ error:', error)
-      })
+
+      if (!input) return balanceMap
+      // Only one promise is run at once
+      await Promise.all(input)
+
       return balanceMap
     },
     [],
@@ -244,6 +245,7 @@ const NftAssetDetail = () => {
     {
       refreshDeps: [originPoolList],
       debounceWait: 100,
+      retryCount: 5,
     },
   )
   const [selectPool, setSelectPool] = useState<PoolType>()
@@ -389,7 +391,6 @@ const NftAssetDetail = () => {
             gas: 300000,
             // gasPrice:''
           })
-        console.log(transferFromHash, '111111111')
         setTransferFromHashLoading(false)
       } catch (error: any) {
         console.log(
@@ -492,15 +493,8 @@ const NftAssetDetail = () => {
       const res = resources.find((item) => {
         return item.resource.fields.name === 'USD/ETH'
       })?.resource.fields.price
-      console.log(res, 'USD/ETH')
       if (!res) return
       setUsdPrice(BigNumber(1).dividedBy(Number(res)))
-    },
-    onError: (error) => {
-      console.log(
-        '🚀 ~ file: NftAssetDetail.tsx:87 ~ NftAssetDetail ~ error:',
-        error,
-      )
     },
     debounceWait: 100,
     ready: false,

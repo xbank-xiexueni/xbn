@@ -54,7 +54,7 @@ const CollectionListItem: FunctionComponent<{
           whiteSpace='nowrap'
           textOverflow='ellipsis'
         >
-          {name}
+          {name || '--'}
           &nbsp;
         </Text>
         {safelistRequestStatus === 'verified' && (

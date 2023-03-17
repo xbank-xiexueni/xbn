@@ -820,6 +820,72 @@ export type AssetOrdersPriceQuery = {
   }
 }
 
+export type AssetWithoutIdQueryVariables = Exact<{
+  assetContractAddress?: InputMaybe<Scalars['String']>
+  assetTokenId?: InputMaybe<Scalars['String']>
+}>
+
+export type AssetWithoutIdQuery = {
+  __typename?: 'Query'
+  asset: {
+    __typename?: 'NFTAsset'
+    id: string
+    createdAt: any
+    updatedAt: any
+    assetContractAddress: string
+    tokenID: string
+    imageUrl: string
+    imagePreviewUrl: string
+    imageThumbnailUrl: string
+    imageOriginalUrl: string
+    animationUrl: string
+    animationOriginalUrl: string
+    backgroundColor: string
+    name: string
+    description: string
+    externalLink: string
+    creator: string
+    owner: string
+    transferFee: string
+    transferFeePaymentToken: string
+    orderChain: string
+    orderCoin: string
+    orderPrice: any
+    rarity: number
+    rarityRank: number
+    rarityLevel: string
+    chain: string
+    nftAssetContract: {
+      __typename?: 'NFTAssetContract'
+      id: string
+      createdAt: any
+      updatedAt: any
+      address: string
+      assetContractType: string
+      createdDate: string
+      name: string
+      nftVersion: string
+      openseaVersion: string
+      schemaName: string
+      symbol: string
+      totalSupply: string
+      description: string
+      externalLink: string
+      imageUrl: string
+      openseaBuyerFeeBasisPoints: number
+      openseaSellerFeeBasisPoints: number
+      buyerFeeBasisPoints: number
+      sellerFeeBasisPoints: number
+      payoutAddress: string
+    }
+    nftAssetMetaData: {
+      __typename?: 'NFTAssetMetaData'
+      like: boolean
+      likeCount: number
+    }
+  }
+}
+
 export type AssetsChannelQueryVariables = Exact<{
   assetType: AssetType
   orderBy: NftAssetOrderBy
@@ -1296,6 +1362,119 @@ export type AssetOrdersPriceLazyQueryHookResult = ReturnType<
 export type AssetOrdersPriceQueryResult = Apollo.QueryResult<
   AssetOrdersPriceQuery,
   AssetOrdersPriceQueryVariables
+>
+export const AssetWithoutIdDocument = gql`
+  query AssetWithoutId($assetContractAddress: String, $assetTokenId: String) {
+    asset(
+      assetContractAddress: $assetContractAddress
+      assetTokenID: $assetTokenId
+    ) {
+      id
+      createdAt
+      updatedAt
+      assetContractAddress
+      tokenID
+      imageUrl
+      imagePreviewUrl
+      imageThumbnailUrl
+      imageOriginalUrl
+      animationUrl
+      animationOriginalUrl
+      backgroundColor
+      name
+      description
+      externalLink
+      creator
+      owner
+      transferFee
+      transferFeePaymentToken
+      orderChain
+      orderCoin
+      orderPrice
+      rarity
+      rarityRank
+      rarityLevel
+      chain
+      nftAssetContract {
+        id
+        createdAt
+        updatedAt
+        address
+        assetContractType
+        createdDate
+        name
+        nftVersion
+        openseaVersion
+        schemaName
+        symbol
+        totalSupply
+        description
+        externalLink
+        imageUrl
+        openseaBuyerFeeBasisPoints
+        openseaSellerFeeBasisPoints
+        buyerFeeBasisPoints
+        sellerFeeBasisPoints
+        payoutAddress
+      }
+      nftAssetMetaData {
+        like
+        likeCount
+      }
+    }
+  }
+`
+
+/**
+ * __useAssetWithoutIdQuery__
+ *
+ * To run a query within a React component, call `useAssetWithoutIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAssetWithoutIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAssetWithoutIdQuery({
+ *   variables: {
+ *      assetContractAddress: // value for 'assetContractAddress'
+ *      assetTokenId: // value for 'assetTokenId'
+ *   },
+ * });
+ */
+export function useAssetWithoutIdQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    AssetWithoutIdQuery,
+    AssetWithoutIdQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<AssetWithoutIdQuery, AssetWithoutIdQueryVariables>(
+    AssetWithoutIdDocument,
+    options,
+  )
+}
+export function useAssetWithoutIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    AssetWithoutIdQuery,
+    AssetWithoutIdQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<AssetWithoutIdQuery, AssetWithoutIdQueryVariables>(
+    AssetWithoutIdDocument,
+    options,
+  )
+}
+export type AssetWithoutIdQueryHookResult = ReturnType<
+  typeof useAssetWithoutIdQuery
+>
+export type AssetWithoutIdLazyQueryHookResult = ReturnType<
+  typeof useAssetWithoutIdLazyQuery
+>
+export type AssetWithoutIdQueryResult = Apollo.QueryResult<
+  AssetWithoutIdQuery,
+  AssetWithoutIdQueryVariables
 >
 export const AssetsChannelDocument = gql`
   query AssetsChannel(

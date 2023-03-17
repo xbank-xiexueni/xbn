@@ -18,7 +18,6 @@ import maxBy from 'lodash-es/maxBy'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import type { PoolsListItemType } from '@/api'
 import { apiGetPools } from '@/api'
 import {
   ConnectWalletModal,

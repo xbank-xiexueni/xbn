@@ -1,6 +1,5 @@
 import request from '@/utils/request'
 
-import type { AssetListItemType, LoanOrderDataType } from '.'
 import type { AxiosResponse } from 'axios'
 
 export const apiGetAssetsByCollection: (query: {

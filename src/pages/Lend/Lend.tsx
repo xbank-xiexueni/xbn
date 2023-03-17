@@ -16,17 +16,14 @@ import {
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import { unix } from 'dayjs'
+import compact from 'lodash-es/compact'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
-import { useEffect, useState } from 'react'
+import pLimit from 'p-limit'
+import { useCallback, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import {
-  apiGetLoans,
-  apiGetPools,
-  type LoanOrderDataType,
-  type PoolsListItemType,
-} from '@/api'
+import { apiGetLoans, apiGetPools } from '@/api'
 import ImgLend from '@/assets/LEND.png'
 import {
   ConnectWalletModal,
@@ -40,8 +37,7 @@ import {
 } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
-import type { AssetQuery } from '@/hooks'
-import { useAssetLazyQuery, useWallet } from '@/hooks'
+import { useAssetWithoutIdLazyQuery, useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { formatAddress } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
@@ -51,6 +47,7 @@ import CollectionListItem from '../buy-nfts/components/CollectionListItem'
 import AllPoolsDescription from './components/AllPoolsDescription'
 
 type Dictionary<T> = Record<string, T>
+const limit = pLimit(1)
 
 const Lend = () => {
   const [tabKey, setTabKey] = useState<0 | 1 | 2>()
@@ -140,7 +137,7 @@ const Lend = () => {
   //   ready: !!currentAccount && tabKey === 1,
   // })
   // 三个表格的请求
-  const [loansData, setLoansData] = useState<Dictionary<LoanOrderDataType[]>>({
+  const [loansData, setLoansData] = useState<Dictionary<LoanListItemType[]>>({
     0: [],
     1: [],
     2: [],
@@ -148,50 +145,57 @@ const Lend = () => {
 
   // -1 代表全选
   const [selectKeyForOpenLoans, setSelectKeyForOpenLoans] = useState<number>()
-  const [nftInfoList, setNftInfoList] = useState<AssetQuery['asset'][]>()
 
-  const [runAsync, { loading }] = useAssetLazyQuery()
+  const {
+    loading: loansLoading,
+    runAsync: fetchLoansByPool,
+    data: loanDataForNft,
+  } = useRequest(apiGetLoans, {
+    onSuccess: async ({ data }) => {
+      setLoansData(groupBy(data, 'loan_status'))
+    },
+    ready: tabKey === 1 && !!currentAccount,
+    refreshDeps: [selectKeyForOpenLoans],
+    defaultParams: [
+      {
+        lender_address: currentAccount,
+        pool_id: selectKeyForOpenLoans,
+      },
+    ],
+    debounceWait: 100,
+  })
 
-  const { loading: loansLoading, runAsync: fetchLoansByPool } = useRequest(
-    apiGetLoans,
-    {
-      onSuccess: async ({ data }) => {
-        setLoansData(groupBy(data, 'loan_status'))
-
-        let arr
-        const taskPromises = data.map(async (item) => {
-          return runAsync({
+  const [runAsync] = useAssetWithoutIdLazyQuery({
+    fetchPolicy: 'network-only',
+  })
+  const batchNftListInfo = useCallback(
+    async (data?: LoanListItemType[]) => {
+      const input = data?.map((item) => {
+        return limit(() =>
+          runAsync({
             variables: {
               assetContractAddress: item.nft_collateral_contract,
               assetTokenId: item.nft_collateral_id,
             },
-          })
-            .then(({ data: _data }) => {
-              arr.push(_data?.asset)
-            })
-            .catch((error: Error) => {
-              console.log(
-                '🚀 ~ file: NftAssetDetail.tsx:150 ~ .then ~ error:',
-                error,
-              )
-            })
-        })
-        await Promise.all(taskPromises).catch((error) => {
-          console.log('🚀 ~ file: NftAssetDetail.tsx:108 ~ error:', error)
-        })
-        setNftInfoList(arr)
-      },
-      ready: tabKey === 1 && !!currentAccount,
-      refreshDeps: [selectKeyForOpenLoans],
-      defaultParams: [
-        {
-          lender_address: currentAccount,
-          pool_id: selectKeyForOpenLoans,
-        },
-      ],
-      debounceWait: 100,
+          }),
+        )
+      })
+
+      if (!input) return []
+      // Only one promise is run at once
+      const result = await Promise.all(input)
+      return compact(result.map((item) => item.data?.asset))
+    },
+    [runAsync],
+  )
+
+  const { data: bactNftListInfo } = useRequest(
+    () => batchNftListInfo(loanDataForNft?.data),
+    {
+      ready: !!loanDataForNft?.data,
     },
   )
+
   useEffect(() => {
     fetchLoansByPool({
       lender_address: currentAccount,
@@ -256,7 +260,7 @@ const Lend = () => {
               whiteSpace='nowrap'
               textOverflow='ellipsis'
             >
-              {name}
+              {name || '--'}
             </Text>
             {safelistRequestStatus === 'verified' && (
               <SvgComponent svgId='icon-verified-fill' />
@@ -284,7 +288,8 @@ const Lend = () => {
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' />
             <Text>
-              {currentInfo?.nftCollection?.nftCollectionStat?.floorPrice}
+              {currentInfo?.nftCollection?.nftCollectionStat?.floorPrice ||
+                '--'}
             </Text>
           </Flex>
         )
@@ -372,10 +377,10 @@ const Lend = () => {
       align: 'left',
       width: 180,
       render: (_: any, info: any) => {
-        const currentInfo = nftInfoList?.find(
+        const currentInfo = bactNftListInfo?.find(
           (i) =>
-            i.tokenID === info.nft_collateral_id &&
-            i.assetContractAddress.toLowerCase() ===
+            i?.tokenID === info.nft_collateral_id &&
+            i?.assetContractAddress.toLowerCase() ===
               info.nft_collateral_contract.toLowerCase(),
         )
         return (
@@ -393,7 +398,9 @@ const Lend = () => {
               whiteSpace='nowrap'
               textOverflow='ellipsis'
             >
-              {currentInfo?.name || `#${currentInfo?.tokenID}`}
+              {currentInfo
+                ? currentInfo?.name || `#${currentInfo?.tokenID}`
+                : '--'}
             </Text>
           </Flex>
         )
@@ -782,7 +789,7 @@ const Lend = () => {
                         </Heading>
                       ),
                       columns: loansForLendColumns,
-                      loading: loansLoading || loading,
+                      loading: loansLoading,
                       data: loansData[0],
                       key: '1',
                     },
@@ -803,7 +810,7 @@ const Lend = () => {
                       ),
                       columns: loansForLendColumns,
                       data: loansData[1],
-                      loading: loansLoading || loading,
+                      loading: loansLoading,
                       key: '2',
                     },
                     {
@@ -823,7 +830,7 @@ const Lend = () => {
                       ),
                       columns: loansForLendColumns,
                       data: loansData[2],
-                      loading: loansLoading || loading,
+                      loading: loansLoading,
                       key: '3',
                     },
                   ]}
