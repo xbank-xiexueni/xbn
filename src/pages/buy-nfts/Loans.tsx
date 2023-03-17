@@ -11,9 +11,7 @@ import {
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import { unix } from 'dayjs'
-import compact from 'lodash-es/compact'
 import groupBy from 'lodash-es/groupBy'
-import pLimit from 'p-limit'
 import {
   useCallback,
   useEffect,
@@ -25,14 +23,12 @@ import {
 import { apiGetLoans } from '@/api'
 import { ConnectWalletModal, ImageWithFallback, TableList } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
-import { FORMAT_NUMBER, UNIT } from '@/constants'
-import { useAssetWithoutIdLazyQuery, useWallet } from '@/hooks'
+import { UNIT } from '@/constants'
+import { useBatchAsset, useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
-import { formatAddress } from '@/utils/format'
+import { formatAddress, formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
-
-const limit = pLimit(1)
 
 const Loans = () => {
   // const navigate = useNavigate()
@@ -73,36 +69,14 @@ const Loans = () => {
     [data],
   )
 
-  const [runBatchNftAsync] = useAssetWithoutIdLazyQuery({
-    fetchPolicy: 'network-only',
-  })
-  const batchNftListInfo = useCallback(
-    async (_data?: LoanListItemType[]) => {
-      const input = _data?.map((item) => {
-        return limit(() =>
-          runBatchNftAsync({
-            variables: {
-              assetContractAddress: item.nft_collateral_contract,
-              assetTokenId: item.nft_collateral_id,
-            },
-          }),
-        )
-      })
-
-      if (!input) return []
-      // Only one promise is run at once
-      const result = await Promise.all(input)
-      return compact(result.map((item) => item.data?.asset))
-    },
-    [runBatchNftAsync],
-  )
-
-  const { data: bactNftListInfo } = useRequest(
-    () => batchNftListInfo(data?.data),
-    {
-      ready: !!data?.data,
-    },
-  )
+  const batchAssetParams = useMemo(() => {
+    if (!data) return []
+    return data?.data?.map((i) => ({
+      assetContractAddress: i.nft_collateral_contract,
+      assetTokenId: i.nft_collateral_id,
+    }))
+  }, [data])
+  const { data: bactNftListInfo } = useBatchAsset(batchAssetParams)
 
   // const collectionList = useMemo(() => {
   //   const arr = data?.data || []
@@ -313,7 +287,7 @@ const Loans = () => {
       render: (_: any, item: Record<string, any>) => {
         return (
           <Text>
-            {BigNumber(
+            {formatFloat(
               wei2Eth(
                 amortizationCalByDays(
                   item?.total_repayment,
@@ -324,7 +298,7 @@ const Loans = () => {
                   .multipliedBy(item?.repay_times)
                   .minus(item.total_repayment),
               ),
-            ).toFormat(FORMAT_NUMBER)}
+            )}
             {UNIT}
           </Text>
         )

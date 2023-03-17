@@ -9,10 +9,9 @@ import {
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import isEmpty from 'lodash-es/isEmpty'
-import { useState, type FunctionComponent } from 'react'
+import { useRef, useState, type FunctionComponent } from 'react'
 
 import { EmptyComponent, ImageWithFallback, SvgComponent } from '@/components'
-import { FORMAT_NUMBER } from '@/constants'
 import type { NftCollection } from '@/hooks'
 import { formatFloat } from '@/utils/format'
 
@@ -22,6 +21,9 @@ const CollectionDescription: FunctionComponent<{
   highestRate?: number
 }> = ({ data, loading, highestRate }) => {
   const [show, setShow] = useState(false)
+  const ref = useRef<HTMLParagraphElement>(null)
+  const current = ref.current
+
   if (loading) {
     return (
       <Flex flexDirection={'column'} mb={12}>
@@ -70,7 +72,7 @@ const CollectionDescription: FunctionComponent<{
           h='108px'
           bg='gray.100'
         />
-        <Box>
+        <Box pos='relative'>
           <Flex>
             <Heading
               fontSize={{ lg: '3xl', md: 'xl', sm: 'xl' }}
@@ -93,23 +95,41 @@ const CollectionDescription: FunctionComponent<{
           >
             {description}
           </Text>
-          <Box
-            as='a'
-            color='blue.1'
-            onClick={() => setShow((prev) => !prev)}
-            cursor='pointer'
-            fontWeight={700}
-            borderRadius='99px'
-            _hover={{
-              bg: 'gray.5',
-            }}
-            px={4}
-            py={2}
-            ml={-4}
-            hidden={!description}
+          <Text
+            color='transparent'
+            mt={2}
+            fontSize={'md'}
+            fontWeight='medium'
+            // noOfLines={!show ? 2 : undefined}
+            lineHeight='20px'
+            ref={ref}
+            position='absolute'
+            left={0}
+            right={0}
+            top={9}
+            zIndex={-1}
           >
-            {show ? 'Less' : 'More'}
-          </Box>
+            {description}
+          </Text>
+          {!!current?.offsetHeight && current?.offsetHeight > 40 && (
+            <Box
+              as='a'
+              color='blue.1'
+              onClick={() => setShow((prev) => !prev)}
+              cursor='pointer'
+              fontWeight={700}
+              borderRadius='99px'
+              _hover={{
+                bg: 'gray.5',
+              }}
+              px={4}
+              py={2}
+              ml={-4}
+              hidden={!description}
+            >
+              {show ? 'Less' : 'More'}
+            </Box>
+          )}
         </Box>
       </Flex>
 
@@ -134,7 +154,6 @@ const CollectionDescription: FunctionComponent<{
                   .multipliedBy(BigNumber(10000).minus(Number(highestRate)))
                   .dividedBy(10000)
                   .toNumber(),
-                FORMAT_NUMBER,
               ) || '--'}
             </Heading>
           </Flex>
@@ -146,7 +165,7 @@ const CollectionDescription: FunctionComponent<{
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' svgSize='20px' />
             <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
-              {formatFloat(oneDayAveragePrice, FORMAT_NUMBER) || '--'}
+              {formatFloat(oneDayAveragePrice) || '--'}
             </Heading>
           </Flex>
 

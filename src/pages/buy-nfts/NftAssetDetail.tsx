@@ -26,7 +26,6 @@ import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
 import minBy from 'lodash-es/minBy'
 import range from 'lodash-es/range'
-import pLimit from 'p-limit'
 import {
   type ReactNode,
   useCallback,
@@ -43,8 +42,13 @@ import {
   SvgComponent,
   NftMedia,
 } from '@/components'
-import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
-import { useWallet, useAssetOrdersPriceLazyQuery, useAssetQuery } from '@/hooks'
+import { COLLATERALS, TENORS, UNIT } from '@/constants'
+import {
+  useWallet,
+  useAssetOrdersPriceLazyQuery,
+  useAssetQuery,
+  useBatchWethBalance,
+} from '@/hooks'
 import type {
   AssetOrdersPriceQuery,
   AssetQueryVariables,
@@ -52,7 +56,8 @@ import type {
   NftCollection,
 } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
-import { createWethContract, createXBankContract } from '@/utils/createContract'
+import { createXBankContract } from '@/utils/createContract'
+import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 import BelongToCollection from './components/BelongToCollection'
@@ -61,8 +66,6 @@ import ImageToolBar from './components/ImageToolBar'
 import LabelComponent from './components/LabelComponent'
 import PlanItem from './components/PlanItem'
 import RadioCard from './components/RadioCard'
-
-const limit = pLimit(1)
 
 enum LOAN_DAYS_ENUM {
   Loan7Days = 7,
@@ -175,37 +178,6 @@ const NftAssetDetail = () => {
     setCommodityWeiPrice(BigNumber(minPrice))
   }, [openSeaOrders])
 
-  // 获取每个 pool 的 owner_address 的最新 weth 资产
-  const batchFetchOwenAddressLatestBalance = useCallback(
-    async ({ data }: { data: PoolsListItemType[] }) => {
-      const balanceMap = new Map()
-
-      if (isEmpty(data)) return balanceMap
-      const uniqAddress = [...new Set([...data?.map((i) => i.owner_address)])]
-
-      const wethContract = createWethContract()
-
-      const input = uniqAddress?.map((item) => {
-        return limit(() =>
-          wethContract.methods
-            .balanceOf(item)
-            .call()
-            .then((res: string) => {
-              balanceMap.set(item, res)
-            })
-            .catch(() => console.log),
-        )
-      })
-
-      if (!input) return balanceMap
-      // Only one promise is run at once
-      await Promise.all(input)
-
-      return balanceMap
-    },
-    [],
-  )
-
   const [percentage, setPercentage] = useState(COLLATERALS[4])
   const loanPercentage = useMemo(() => 10000 - percentage, [percentage])
 
@@ -237,17 +209,9 @@ const NftAssetDetail = () => {
     return commodityWeiPrice.minus(downPaymentWei)
   }, [commodityWeiPrice, downPaymentWei])
 
-  const { loading: balanceFetchLoading, data: latestBalanceMap } = useRequest(
-    () =>
-      batchFetchOwenAddressLatestBalance({
-        data: originPoolList,
-      }),
-    {
-      refreshDeps: [originPoolList],
-      debounceWait: 100,
-      retryCount: 5,
-    },
-  )
+  const { loading: balanceFetchLoading, data: latestBalanceMap } =
+    useBatchWethBalance(originPoolList?.map((i) => i?.owner_address))
+
   const [selectPool, setSelectPool] = useState<PoolType>()
 
   const pools = useMemo(() => {
@@ -383,7 +347,7 @@ const NftAssetDetail = () => {
       try {
         setTransferFromHashLoading(true)
         const xBankContract = createXBankContract()
-        const transferFromHash = await xBankContract.methods
+        await xBankContract.methods
           .transferFrom(pool_id, loanWeiAmount.toNumber().toString())
           .send({
             from: currentAccount,
@@ -607,9 +571,9 @@ const NftAssetDetail = () => {
             name2: detail?.asset?.name || `#${detail?.asset?.tokenID}`,
             price: wei2Eth(commodityWeiPrice),
             usdPrice: !!usdPrice
-              ? usdPrice
-                  ?.multipliedBy(Number(wei2Eth(commodityWeiPrice)))
-                  .toFormat(FORMAT_NUMBER)
+              ? formatFloat(
+                  usdPrice?.multipliedBy(Number(wei2Eth(commodityWeiPrice))),
+                )
               : '',
             verified: collection?.safelistRequestStatus === 'verified',
           }}
@@ -767,7 +731,7 @@ const NftAssetDetail = () => {
                   >
                     <Text fontWeight={700}>Pay in {value} installments</Text>
                     <Text fontWeight={500} fontSize='xs'>
-                      {getPlanPer(value).toFormat(FORMAT_NUMBER)}
+                      {formatFloat(getPlanPer(value))}
                       &nbsp;
                       {UNIT}/per
                     </Text>
@@ -797,7 +761,7 @@ const NftAssetDetail = () => {
 
               {range(installmentValue).map((value, index) => (
                 <PlanItem
-                  value={getPlanPer(installmentValue).toFormat(FORMAT_NUMBER)}
+                  value={formatFloat(getPlanPer(installmentValue))}
                   label={dayjs()
                     .add(
                       ((selectPool?.pool_days || 0) / installmentValue) *
@@ -858,10 +822,11 @@ const NftAssetDetail = () => {
               <Flex justify={'space-between'}>
                 <Text color='gray.3'>Interest fee</Text>
                 <Text color='gray.3'>
-                  {getPlanPer(installmentValue)
-                    .multipliedBy(installmentValue)
-                    .minus(Number(wei2Eth(loanWeiAmount)))
-                    .toFormat(FORMAT_NUMBER)}
+                  {formatFloat(
+                    getPlanPer(installmentValue)
+                      .multipliedBy(installmentValue)
+                      .minus(Number(wei2Eth(loanWeiAmount))),
+                  )}
                   {UNIT}
                 </Text>
               </Flex>
@@ -872,11 +837,12 @@ const NftAssetDetail = () => {
                   Total repayment
                 </Text>
                 <Text fontSize={'md'} fontWeight='bold'>
-                  {getPlanPer(installmentValue)
-                    .multipliedBy(installmentValue)
-                    .minus(Number(wei2Eth(loanWeiAmount)))
-                    .plus(Number(wei2Eth(commodityWeiPrice)))
-                    .toFormat(FORMAT_NUMBER)}
+                  {formatFloat(
+                    getPlanPer(installmentValue)
+                      .multipliedBy(installmentValue)
+                      .minus(Number(wei2Eth(loanWeiAmount)))
+                      .plus(Number(wei2Eth(commodityWeiPrice))),
+                  )}
                   {UNIT}
                 </Text>
               </Flex>
@@ -887,12 +853,13 @@ const NftAssetDetail = () => {
                 </Text>
                 <Text fontSize={'md'} fontWeight='bold'>
                   {/*  */}
-                  {getPlanPer(installmentValue)
-                    .multipliedBy(installmentValue)
-                    .minus(Number(wei2Eth(loanWeiAmount)))
-                    .plus(Number(wei2Eth(commodityWeiPrice)))
-                    .multipliedBy(1.025)
-                    .toFormat(FORMAT_NUMBER)}
+                  {formatFloat(
+                    getPlanPer(installmentValue)
+                      .multipliedBy(installmentValue)
+                      .minus(Number(wei2Eth(loanWeiAmount)))
+                      .plus(Number(wei2Eth(commodityWeiPrice)))
+                      .multipliedBy(1.025),
+                  )}
                   {UNIT}
                 </Text>
               </Flex>

@@ -32,11 +32,7 @@ import { useNavigate } from 'react-router-dom'
 import Web3 from 'web3'
 
 import { ConnectWalletModal, SvgComponent } from '@/components'
-import {
-  FORMAT_NUMBER,
-  WETH_CONTRACT_ADDRESS,
-  XBANK_CONTRACT_ADDRESS,
-} from '@/constants'
+import { WETH_CONTRACT_ADDRESS, XBANK_CONTRACT_ADDRESS } from '@/constants'
 import { useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
 import { formatFloat } from '@/utils/format'
@@ -115,18 +111,11 @@ const ApproveEthButton: FunctionComponent<
     if (amount) {
       const NumberAmount = Number(amount)
       if (NumberAmount > Number(wei2Eth(wethData))) {
-        setErrorMsg(
-          `Maximum input: ${formatFloat(
-            Number(wei2Eth(wethData)),
-            FORMAT_NUMBER,
-          )}`,
-        )
+        setErrorMsg(`Maximum input: ${formatFloat(Number(wei2Eth(wethData)))}`)
         return true
       }
       if (NumberAmount < floorPrice * 0.1) {
-        setErrorMsg(
-          `Minimum input: ${formatFloat(floorPrice * 0.1, FORMAT_NUMBER)}`,
-        )
+        setErrorMsg(`Minimum input: ${formatFloat(floorPrice * 0.1)}`)
         return true
       }
       return false
