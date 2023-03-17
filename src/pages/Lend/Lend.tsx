@@ -14,6 +14,7 @@ import {
   Highlight,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
+import BigNumber from 'bignumber.js'
 import { unix } from 'dayjs'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
@@ -33,10 +34,10 @@ import {
   ImageWithFallback,
 } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
-import { UNIT } from '@/constants'
+import { FORMAT_NUMBER, UNIT } from '@/constants'
 import { useWallet, useBatchAsset } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
-import { formatAddress, formatFloat } from '@/utils/format'
+import { formatAddress } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 import CollectionListItem from '../buy-nfts/components/CollectionListItem'
@@ -417,7 +418,7 @@ const Lend = () => {
         thAlign: 'right',
         render: (_: any, data: Record<string, any>) => (
           <Text>
-            {formatFloat(
+            {BigNumber(
               wei2Eth(
                 amortizationCalByDays(
                   data.total_repayment,
@@ -428,7 +429,7 @@ const Lend = () => {
                   .multipliedBy(data.repay_times)
                   .minus(data.total_repayment),
               ),
-            )}
+            ).toFormat(FORMAT_NUMBER)}
             &nbsp; ETH
           </Text>
         ),

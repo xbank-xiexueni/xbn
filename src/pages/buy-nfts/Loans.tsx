@@ -23,11 +23,11 @@ import {
 import { apiGetLoans } from '@/api'
 import { ConnectWalletModal, ImageWithFallback, TableList } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
-import { UNIT } from '@/constants'
+import { FORMAT_NUMBER, UNIT } from '@/constants'
 import { useBatchAsset, useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
-import { formatAddress, formatFloat } from '@/utils/format'
+import { formatAddress } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 const Loans = () => {
@@ -287,7 +287,7 @@ const Loans = () => {
       render: (_: any, item: Record<string, any>) => {
         return (
           <Text>
-            {formatFloat(
+            {BigNumber(
               wei2Eth(
                 amortizationCalByDays(
                   item?.total_repayment,
@@ -298,7 +298,7 @@ const Loans = () => {
                   .multipliedBy(item?.repay_times)
                   .minus(item.total_repayment),
               ),
-            )}
+            ).toFormat(FORMAT_NUMBER)}
             {UNIT}
           </Text>
         )
