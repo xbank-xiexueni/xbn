@@ -2,38 +2,51 @@ import { Flex, IconButton, Text } from '@chakra-ui/react'
 import numeral from 'numeral'
 import { PhotoView } from 'react-photo-view'
 
-import type { AssetListItemType } from '@/api'
 import { SvgComponent } from '@/components'
+import type { AssetQuery } from '@/hooks'
 import downloadRemoteImg from '@/utils/downloadRemoteImg'
 import { judgeNftMediaType, NFT_MEDIA_TYPE } from '@/utils/judgeNftMediaType'
 
 import type { FunctionComponent } from 'react'
 
 type ImageToolBarProps = {
-  data: AssetListItemType
+  data?: AssetQuery
 }
-const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({
-  data: { image_original_url, likes, name, image_url, animation_url },
-}) => {
+const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({ data }) => {
+  if (!data) return null
+  const {
+    asset: {
+      imagePreviewUrl,
+      imageOriginalUrl,
+      name,
+      tokenID,
+      imageUrl,
+      animationUrl,
+      nftAssetMetaData: { likeCount },
+    },
+  } = data
   return (
     <Flex
       h='40px'
       mt={6}
       alignItems='center'
-      justify={'space-between'}
+      justify={!!likeCount ? 'space-between' : 'flex-end'}
       w={{
         xl: '600px',
         lg: '380px',
         sm: '100%',
       }}
     >
-      <Flex alignItems={'center'} gap={1}>
-        <SvgComponent svgId='like' />
-        <Text fontWeight={'700'} color='black.1'>
-          {numeral(likes).format('0.00 a')}
-        </Text>
-      </Flex>
-      {judgeNftMediaType(animation_url) === NFT_MEDIA_TYPE.IMAGE_MEDIA && (
+      {!!likeCount && (
+        <Flex alignItems={'center'} gap={1}>
+          <SvgComponent svgId='icon-like' fontSize={'20px'} />
+          <Text fontWeight={'700'} color='black.1'>
+            {numeral(likeCount).format('0.00 a')}
+          </Text>
+        </Flex>
+      )}
+
+      {judgeNftMediaType(animationUrl) === NFT_MEDIA_TYPE.IMAGE_MEDIA && (
         <Flex gap={2}>
           <IconButton
             icon={<SvgComponent svgId='icon-download' />}
@@ -42,13 +55,13 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({
             bg='gray.5'
             onClick={() => {
               try {
-                downloadRemoteImg(image_original_url, name, image_url)
+                downloadRemoteImg(imageOriginalUrl, name || tokenID, imageUrl)
               } catch (error) {
                 console.log(error)
               }
             }}
           />
-          <PhotoView src={image_original_url}>
+          <PhotoView src={imagePreviewUrl}>
             <IconButton
               icon={<SvgComponent svgId='icon-expand' />}
               aria-label='download'

@@ -3,7 +3,7 @@ import { useCallback, useContext } from 'react'
 
 import { TransactionContext } from '@/context/TransactionContext'
 
-export const useWallet = () => {
+const useWallet = () => {
   const { currentAccount, handleSwitchNetwork, ...rest } =
     useContext(TransactionContext)
   const { isOpen, onOpen, onClose } = useDisclosure()

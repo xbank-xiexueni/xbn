@@ -1,6 +1,5 @@
 import request from '@/utils/request'
 
-import type { CollectionListItemType, PoolsListItemType } from '.'
 import type { AxiosResponse } from 'axios'
 
 export const apiGetActiveCollection: () => Promise<
@@ -23,7 +22,7 @@ export const apiGetLoans: (query: {
   pool_id?: number
   lender_address?: string
   borrower_address?: string
-}) => Promise<AxiosResponse<any[]>> = async (params) => {
+}) => Promise<AxiosResponse<LoanListItemType[]>> = async (params) => {
   return await request.get('/lending/api/v1/loans', {
     params,
   })

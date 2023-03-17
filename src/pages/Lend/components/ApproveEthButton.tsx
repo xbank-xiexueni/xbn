@@ -19,10 +19,10 @@ import {
   useToast,
   useDisclosure,
 } from '@chakra-ui/react'
+import { useRequest } from 'ahooks'
 import {
   type ReactNode,
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -35,6 +35,7 @@ import { ConnectWalletModal, SvgComponent } from '@/components'
 import { WETH_CONTRACT_ADDRESS, XBANK_CONTRACT_ADDRESS } from '@/constants'
 import { useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
+import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
@@ -65,6 +66,7 @@ const ApproveEthButton: FunctionComponent<
       loanTimeConcessionFlexibility: number
       loanRatioPreferentialFlexibility: number
       allowCollateralContract: string
+      floorPrice: number
     }
   }
 > = ({ children, data, ...rest }) => {
@@ -75,6 +77,7 @@ const ApproveEthButton: FunctionComponent<
     loanTimeConcessionFlexibility,
     loanRatioPreferentialFlexibility,
     allowCollateralContract,
+    floorPrice,
   } = data
   const { currentAccount, interceptFn, isOpen, onClose } = useWallet()
   const navigate = useNavigate()
@@ -89,42 +92,37 @@ const ApproveEthButton: FunctionComponent<
   const initialRef = useRef(null)
   const finalRef = useRef(null)
 
-  const [currentBalance, setCurrentBalance] = useState(0)
-  const [refreshLoading, setRefreshLoading] = useState(false)
-
-  const fetchLatestWethBalance = useCallback(() => {
-    if (!currentAccount) return
-    setRefreshLoading(true)
+  const [errorMsg, setErrorMsg] = useState('')
+  const fetchLatestWethBalance = useCallback(async () => {
     const wethContract = createWethContract()
-    wethContract.methods
-      .balanceOf(currentAccount)
-      .call()
-      .then((res: string) => {
-        setCurrentBalance(Number(wei2Eth(res)))
-        setRefreshLoading(false)
-      })
-      .catch((error: any) => {
-        console.log(
-          '🚀 ~ file: ApproveEthButton.tsx:98 ~ .then ~ error:',
-          error,
-        )
-        setRefreshLoading(false)
-      })
+    return await wethContract.methods.balanceOf(currentAccount).call()
   }, [currentAccount])
 
-  useEffect(() => {
-    fetchLatestWethBalance()
-  }, [fetchLatestWethBalance])
+  const { loading: refreshLoading, data: wethData } = useRequest(
+    fetchLatestWethBalance,
+    {
+      retryCount: 5,
+      ready: !!currentAccount,
+    },
+  )
 
   const isError = useMemo((): boolean => {
     //  amount < balance + Has been lent
     if (amount) {
       const NumberAmount = Number(amount)
-      return NumberAmount > currentBalance
+      if (NumberAmount > Number(wei2Eth(wethData))) {
+        setErrorMsg(`Maximum input: ${formatFloat(Number(wei2Eth(wethData)))}`)
+        return true
+      }
+      if (NumberAmount < floorPrice * 0.1) {
+        setErrorMsg(`Minimum input: ${formatFloat(floorPrice * 0.1)}`)
+        return true
+      }
+      return false
     } else {
       return !flag
     }
-  }, [amount, currentBalance, flag])
+  }, [amount, wethData, flag, floorPrice])
 
   const [approveLoading, setApproveLoading] = useState(false)
   const [createLoading, setCreateLoading] = useState(false)
@@ -354,7 +352,7 @@ const ApproveEthButton: FunctionComponent<
 
               {isError && (
                 <Text mt={2} color='red.1'>
-                  Insufficient funds, Maximum input: {currentBalance}
+                  Insufficient funds, {errorMsg}
                   {/* <SvgComponent
                     svgId='icon-refresh'
                     onClick={fetchLatestWethBalance}

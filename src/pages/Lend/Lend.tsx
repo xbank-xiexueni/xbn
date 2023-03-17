@@ -14,17 +14,14 @@ import {
   Highlight,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
+import BigNumber from 'bignumber.js'
+import { unix } from 'dayjs'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import {
-  apiGetLoans,
-  apiGetPools,
-  type LoanOrderDataType,
-  type PoolsListItemType,
-} from '@/api'
+import { apiGetLoans, apiGetPools } from '@/api'
 import ImgLend from '@/assets/LEND.png'
 import {
   ConnectWalletModal,
@@ -37,20 +34,29 @@ import {
   ImageWithFallback,
 } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
-import { useWallet } from '@/hooks'
+import { FORMAT_NUMBER, UNIT } from '@/constants'
+import { useWallet, useBatchAsset } from '@/hooks'
+import { amortizationCalByDays } from '@/utils/calculation'
+import { formatAddress } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 import CollectionListItem from '../buy-nfts/components/CollectionListItem'
 
 import AllPoolsDescription from './components/AllPoolsDescription'
-import { loansForLendColumns } from './constants'
 
 type Dictionary<T> = Record<string, T>
 
 const Lend = () => {
   const [tabKey, setTabKey] = useState<0 | 1 | 2>()
 
-  const { isOpen, onClose, interceptFn, currentAccount } = useWallet()
+  const {
+    isOpen,
+    onClose,
+    interceptFn,
+    currentAccount,
+    collectionList,
+    collectionLoading,
+  } = useWallet()
 
   // const [showSearch, setShowSearch] = useState(false)
 
@@ -128,7 +134,7 @@ const Lend = () => {
   //   ready: !!currentAccount && tabKey === 1,
   // })
   // 三个表格的请求
-  const [loansData, setLoansData] = useState<Dictionary<LoanOrderDataType[]>>({
+  const [loansData, setLoansData] = useState<Dictionary<LoanListItemType[]>>({
     0: [],
     1: [],
     2: [],
@@ -137,29 +143,30 @@ const Lend = () => {
   // -1 代表全选
   const [selectKeyForOpenLoans, setSelectKeyForOpenLoans] = useState<number>()
 
-  const { loading: loansLoading, runAsync: fetchLoansByPool } = useRequest(
-    apiGetLoans,
+  const { loading: loansLoading, data: loanDataForNft } = useRequest(
+    () =>
+      apiGetLoans({
+        lender_address: currentAccount,
+        pool_id: selectKeyForOpenLoans,
+      }),
     {
-      onSuccess: ({ data }) => {
+      onSuccess: async ({ data }) => {
         setLoansData(groupBy(data, 'loan_status'))
       },
       ready: tabKey === 1 && !!currentAccount,
-      refreshDeps: [selectKeyForOpenLoans],
-      defaultParams: [
-        {
-          lender_address: currentAccount,
-          pool_id: selectKeyForOpenLoans,
-        },
-      ],
+      refreshDeps: [selectKeyForOpenLoans, currentAccount],
       debounceWait: 100,
     },
   )
-  useEffect(() => {
-    fetchLoansByPool({
-      lender_address: currentAccount,
-      pool_id: selectKeyForOpenLoans,
-    })
-  }, [selectKeyForOpenLoans, fetchLoansByPool, currentAccount])
+
+  const batchAssetParams = useMemo(() => {
+    if (!loanDataForNft) return []
+    return loanDataForNft?.data?.map((i) => ({
+      assetContractAddress: i.nft_collateral_contract,
+      assetTokenId: i.nft_collateral_id,
+    }))
+  }, [loanDataForNft])
+  const { data: bactNftListInfo } = useBatchAsset(batchAssetParams)
 
   const { pathname } = useLocation()
   const navigate = useNavigate()
@@ -181,112 +188,131 @@ const Lend = () => {
     })
   }, [pathname, interceptFn])
 
-  // useEffect(() => {
-  //   setSearchForActiveCollection('')
-  //   setSearchForMyPools('')
-  // }, [])
+  const myPoolsColumns: ColumnProps[] = useMemo(() => {
+    return [
+      {
+        title: 'Collection',
+        dataIndex: 'allow_collateral_contract',
+        key: 'allow_collateral_contract',
+        align: 'left',
+        width: 320,
+        render: (value: any) => {
+          // 后期需要优化
+          let img = '',
+            name = '',
+            safelistRequestStatus = ''
+          const currentInfo = collectionList.find(
+            (i) => i.contractAddress.toLowerCase() === value.toLowerCase(),
+          )
+          if (currentInfo?.nftCollection) {
+            img = currentInfo?.nftCollection?.imagePreviewUrl
+            name = currentInfo?.nftCollection?.name
+            safelistRequestStatus =
+              currentInfo?.nftCollection?.safelistRequestStatus
+          }
 
-  const myPoolsColumns: ColumnProps[] = [
-    {
-      title: 'Collection',
-      dataIndex: 'collection_info',
-      key: 'collection_info',
-      align: 'left',
-      width: 320,
-      render: (value: any) => {
-        const { image_url, name, safelist_request_status } = value
-        return (
-          <Flex alignItems={'center'} gap={2} w='100%'>
-            {/* <Box h={12} w={12} borderRadius={12} bg='pink' /> */}
-            <ImageWithFallback
-              src={image_url}
-              h={12}
-              w={12}
-              borderRadius={12}
-            />
-            <Text
-              display='inline-block'
-              overflow='hidden'
-              whiteSpace='nowrap'
-              textOverflow='ellipsis'
-            >
-              {name}
-            </Text>
-            {safelist_request_status === 'verified' && (
-              <SvgComponent svgId='icon-verified-fill' />
-            )}
-          </Flex>
-        )
+          return (
+            <Flex alignItems={'center'} gap={2} w='100%'>
+              {/* <Box h={12} w={12} borderRadius={12} bg='pink' /> */}
+              <ImageWithFallback src={img} h={12} w={12} borderRadius={12} />
+              <Text
+                display='inline-block'
+                overflow='hidden'
+                whiteSpace='nowrap'
+                textOverflow='ellipsis'
+              >
+                {name || '--'}
+              </Text>
+              {safelistRequestStatus === 'verified' && (
+                <SvgComponent svgId='icon-verified-fill' />
+              )}
+            </Flex>
+          )
+        },
       },
-    },
-    // {
-    //   title: 'Est. Floor*',
-    //   dataIndex: 'col2',
-    //   key: 'col2',
-    //   align: 'right',
-    //   thAlign: 'right',
-    //   render:  (value: any, _: Record<string, any>) => (
-    //     <EthText>{value}</EthText>
-    //   ),
-    // },
-    {
-      title: 'TVL (USD)',
-      dataIndex: 'pool_amount',
-      key: 'pool_amount',
-      align: 'right',
-      thAlign: 'right',
-      render: (value: any) => <EthText>{wei2Eth(value)}</EthText>,
-    },
-    {
-      title: 'Collateral Factor',
-      dataIndex: 'pool_maximum_percentage',
-      key: 'pool_maximum_percentage',
-      align: 'center',
-      thAlign: 'center',
-      render: (value: any) => <Text>{Number(value) / 100} %</Text>,
-    },
-    {
-      title: 'Tenor',
-      dataIndex: 'pool_maximum_days',
-      key: 'pool_maximum_days',
-      align: 'right',
-      thAlign: 'right',
-      render: (value: any) => <Text>{value} days</Text>,
-    },
-    {
-      title: 'Interest',
-      dataIndex: 'pool_maximum_interest_rate',
-      key: 'pool_maximum_interest_rate',
-      render: (value: any) => <Text>{Number(value) / 100}% APR</Text>,
-    },
-    {
-      title: 'Loans',
-      dataIndex: 'loan_count',
-      key: 'loan_count',
-      align: 'center',
-      thAlign: 'center',
-    },
-    {
-      title: '',
-      dataIndex: 'pool_id',
-      key: 'pool_id',
-      align: 'right',
-      fixedRight: true,
-      thAlign: 'right',
-      render: (value: any) => {
-        return (
-          <Flex alignItems='center' gap={2}>
-            <Text
-              color='gray.3'
-              onClick={() => {
-                navigate('/lending/loans')
-                setSelectKeyForOpenLoans(value as number)
-              }}
-              cursor='pointer'
-            >
-              Details
-            </Text>
-            {/* <Link to={`/lending/pools/edit/${id}`}>
+      {
+        title: 'Est. Floor*',
+        dataIndex: 'id',
+        key: 'id',
+        align: 'right',
+        thAlign: 'right',
+        render: (_: any, info: any) => {
+          // 后期需要优化
+          const currentInfo = collectionList.find(
+            (i) =>
+              i.contractAddress.toLowerCase() ===
+              info.allow_collateral_contract.toLowerCase(),
+          )
+
+          return (
+            <Flex alignItems={'center'}>
+              <SvgComponent svgId='icon-eth' />
+              <Text>
+                {currentInfo?.nftCollection?.nftCollectionStat?.floorPrice ||
+                  '--'}
+              </Text>
+            </Flex>
+          )
+        },
+      },
+      {
+        title: 'TVL (USD)',
+        dataIndex: 'pool_amount',
+        key: 'pool_amount',
+        align: 'right',
+        thAlign: 'right',
+        render: (value: any) => <EthText>{wei2Eth(value)}</EthText>,
+      },
+      {
+        title: 'Collateral Factor',
+        dataIndex: 'pool_maximum_percentage',
+        key: 'pool_maximum_percentage',
+        align: 'center',
+        thAlign: 'center',
+        render: (value: any) => <Text>{Number(value) / 100} %</Text>,
+      },
+      {
+        title: 'Tenor',
+        dataIndex: 'pool_maximum_days',
+        key: 'pool_maximum_days',
+        align: 'right',
+        thAlign: 'right',
+        render: (value: any) => <Text>{value} days</Text>,
+      },
+      {
+        title: 'Interest',
+        dataIndex: 'pool_maximum_interest_rate',
+        key: 'pool_maximum_interest_rate',
+        render: (value: any) => <Text>{Number(value) / 100}% APR</Text>,
+      },
+      {
+        title: 'Loans',
+        dataIndex: 'loan_count',
+        key: 'loan_count',
+        align: 'center',
+        thAlign: 'center',
+      },
+      {
+        title: '',
+        dataIndex: 'pool_id',
+        key: 'pool_id',
+        align: 'right',
+        fixedRight: true,
+        thAlign: 'right',
+        render: (value: any) => {
+          return (
+            <Flex alignItems='center' gap={2}>
+              <Text
+                color='gray.3'
+                onClick={() => {
+                  navigate('/lending/loans')
+                  setSelectKeyForOpenLoans(value as number)
+                }}
+                cursor='pointer'
+              >
+                Details
+              </Text>
+              {/* <Link to={`/lending/pools/edit/${id}`}>
               <Text
                 color={'blue.1'}
                 py={3}
@@ -297,11 +323,119 @@ const Lend = () => {
                 Manage
               </Text>
             </Link> */}
-          </Flex>
-        )
+            </Flex>
+          )
+        },
       },
-    },
-  ]
+    ]
+  }, [collectionList, navigate])
+
+  const loansForLendColumns: ColumnProps[] = useMemo(() => {
+    return [
+      {
+        title: 'Asset',
+        dataIndex: 'id',
+        key: 'od',
+        align: 'left',
+        width: 180,
+        render: (_: any, info: any) => {
+          const currentInfo = bactNftListInfo?.find(
+            (i) =>
+              i?.tokenID === info.nft_collateral_id &&
+              i?.assetContractAddress.toLowerCase() ===
+                info.nft_collateral_contract.toLowerCase(),
+          )
+          return (
+            <Flex alignItems={'center'} gap={2}>
+              <ImageWithFallback
+                src={currentInfo?.imagePreviewUrl as string}
+                w={10}
+                h={10}
+                borderRadius={4}
+              />
+              <Text
+                w={'60%'}
+                display='inline-block'
+                overflow='hidden'
+                whiteSpace='nowrap'
+                textOverflow='ellipsis'
+              >
+                {currentInfo
+                  ? currentInfo?.name || `#${currentInfo?.tokenID}`
+                  : '--'}
+              </Text>
+            </Flex>
+          )
+        },
+      },
+      {
+        title: 'Lender',
+        dataIndex: 'lender_address',
+        key: 'lender_address',
+        render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
+      },
+      {
+        title: 'Borrower',
+        dataIndex: 'borrower_address',
+        key: 'borrower_address',
+        thAlign: 'right',
+        align: 'right',
+        render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
+      },
+      {
+        title: 'Start time',
+        dataIndex: 'loan_start_time',
+        thAlign: 'right',
+        align: 'right',
+        key: 'loan_start_time',
+        render: (value: any) => <Text>{unix(value).format('YYYY/MM/DD')}</Text>,
+      },
+      {
+        title: 'Loan value',
+        dataIndex: 'total_repayment',
+        align: 'right',
+        thAlign: 'right',
+        key: 'total_repayment',
+        render: (value: any) => (
+          <Text>
+            {wei2Eth(value)} {UNIT}
+          </Text>
+        ),
+      },
+      {
+        title: 'Duration',
+        dataIndex: 'loan_duration',
+        align: 'right',
+        thAlign: 'right',
+        key: 'loan_duration',
+        render: (value: any) => <Text>{value / 24 / 60 / 60} days</Text>,
+      },
+      {
+        title: 'Interest',
+        dataIndex: 'pool_interest_rate',
+        align: 'right',
+        key: 'pool_interest_rate',
+        thAlign: 'right',
+        render: (_: any, data: Record<string, any>) => (
+          <Text>
+            {BigNumber(
+              wei2Eth(
+                amortizationCalByDays(
+                  data.total_repayment,
+                  data.loan_interest_rate / 10000,
+                  (data.loan_duration / 24 / 60 / 60) as 7 | 14 | 30 | 60 | 90,
+                  data.repay_times,
+                )
+                  .multipliedBy(data.repay_times)
+                  .minus(data.total_repayment),
+              ),
+            ).toFormat(FORMAT_NUMBER)}
+            &nbsp; ETH
+          </Text>
+        ),
+      },
+    ]
+  }, [bactNftListInfo])
 
   return (
     <>
@@ -495,7 +629,7 @@ const Lend = () => {
           </TabPanel> */}
           <TabPanel p={0}>
             <MyTable
-              loading={myPoolsLoading}
+              loading={myPoolsLoading || collectionLoading}
               columns={myPoolsColumns}
               data={myPoolsData || []}
               // onSort={(args: any) => {
@@ -543,10 +677,12 @@ const Lend = () => {
                 {/* <SearchInput placeholder='Collections...' /> */}
 
                 <List spacing={4} mt={4} position='relative'>
-                  <LoadingComponent loading={myPoolsLoading} />
-                  {isEmpty(myPoolsData) && !myPoolsLoading && (
-                    <EmptyComponent />
-                  )}
+                  <LoadingComponent
+                    loading={myPoolsLoading || collectionLoading}
+                  />
+                  {isEmpty(myPoolsData) &&
+                    !myPoolsLoading &&
+                    !collectionLoading && <EmptyComponent />}
                   {!isEmpty(myPoolsData) && (
                     <Flex
                       justify={'space-between'}
@@ -576,19 +712,27 @@ const Lend = () => {
                     myPoolsData.map(
                       ({
                         pool_id,
-                        collection_info,
+                        allow_collateral_contract,
                         loan_count,
-                      }: PoolsListItemType) => (
-                        <CollectionListItem
-                          data={{
-                            ...collection_info,
-                          }}
-                          key={pool_id}
-                          onClick={() => setSelectKeyForOpenLoans(pool_id)}
-                          isActive={selectKeyForOpenLoans === pool_id}
-                          count={loan_count}
-                        />
-                      ),
+                      }: PoolsListItemType) => {
+                        const collection_info = collectionList?.find(
+                          (i) =>
+                            i.contractAddress.toLowerCase() ===
+                            allow_collateral_contract.toLowerCase(),
+                        )
+                        return (
+                          <CollectionListItem
+                            data={{
+                              contractAddress: collection_info?.contractAddress,
+                              ...collection_info?.nftCollection,
+                            }}
+                            key={`${pool_id}${allow_collateral_contract}`}
+                            onClick={() => setSelectKeyForOpenLoans(pool_id)}
+                            isActive={selectKeyForOpenLoans === pool_id}
+                            count={loan_count}
+                          />
+                        )
+                      },
                     )}
                 </List>
               </Box>

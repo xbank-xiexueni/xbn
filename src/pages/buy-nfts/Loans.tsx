@@ -12,108 +12,23 @@ import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import { unix } from 'dayjs'
 import groupBy from 'lodash-es/groupBy'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 
 import { apiGetLoans } from '@/api'
 import { ConnectWalletModal, ImageWithFallback, TableList } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
-import { useWallet } from '@/hooks'
+import { useBatchAsset, useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
 import { formatAddress } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
-
-import type { ReactNode } from 'react'
-
-export const loansForBuyerColumns: ColumnProps[] = [
-  {
-    title: 'Asset',
-    dataIndex: 'nft_asset_info',
-    key: 'nft_asset_info',
-    align: 'left',
-    width: 180,
-    render: (info: any) => {
-      return (
-        <Flex alignItems={'center'} gap={2}>
-          <ImageWithFallback
-            src={info?.image_preview_url as string}
-            w={10}
-            h={10}
-            borderRadius={4}
-          />
-          <Text
-            w={'60%'}
-            display='inline-block'
-            overflow='hidden'
-            whiteSpace='nowrap'
-            textOverflow='ellipsis'
-          >
-            {info?.name}
-          </Text>
-        </Flex>
-      )
-    },
-  },
-  {
-    title: 'Lender',
-    dataIndex: 'lender_address',
-    key: 'lender_address',
-    render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
-  },
-  {
-    title: 'Borrower',
-    dataIndex: 'borrower_address',
-    key: 'borrower_address',
-    render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
-  },
-  {
-    title: 'Start time',
-    dataIndex: 'loan_start_time',
-    key: 'loan_start_time',
-    render: (value: any) => <Text>{unix(value).format('YYYY/MM/DD')}</Text>,
-  },
-  {
-    title: 'Loan value',
-    dataIndex: 'total_repayment',
-    key: 'total_repayment',
-    render: (value: any) => (
-      <Text>
-        {wei2Eth(value)} {UNIT}
-      </Text>
-    ),
-  },
-  {
-    title: 'Duration',
-    dataIndex: 'loan_duration',
-    key: 'loan_duration',
-    render: (value: any) => <Text>{value / 24 / 60 / 60} days</Text>,
-  },
-  {
-    title: 'Interest',
-    dataIndex: 'loan_interest_rate',
-    key: 'loan_interest_rate',
-    render: (_: any, item: Record<string, any>) => {
-      return (
-        <Text>
-          {BigNumber(
-            wei2Eth(
-              amortizationCalByDays(
-                item?.total_repayment,
-                item?.loan_interest_rate / 10000,
-                (item?.loan_duration / 24 / 60 / 60) as 7 | 14 | 30 | 60 | 90,
-                item?.repay_times,
-              )
-                .multipliedBy(item?.repay_times)
-                .minus(item.total_repayment),
-            ),
-          ).toFormat(FORMAT_NUMBER)}
-          {UNIT}
-        </Text>
-      )
-    },
-  },
-]
 
 const Loans = () => {
   // const navigate = useNavigate()
@@ -126,8 +41,6 @@ const Loans = () => {
   useEffect(() => {
     interceptFn()
   }, [interceptFn])
-
-  // const [selectCollection, setSelectCollection] = useState<number>()
 
   const { loading, data, refresh } = useRequest(apiGetLoans, {
     ready: !!currentAccount,
@@ -155,6 +68,15 @@ const Loans = () => {
       ),
     [data],
   )
+
+  const batchAssetParams = useMemo(() => {
+    if (!data) return []
+    return data?.data?.map((i) => ({
+      assetContractAddress: i.nft_collateral_contract,
+      assetTokenId: i.nft_collateral_id,
+    }))
+  }, [data])
+  const { data: bactNftListInfo } = useBatchAsset(batchAssetParams)
 
   // const collectionList = useMemo(() => {
   //   const arr = data?.data || []
@@ -287,6 +209,103 @@ const Loans = () => {
     [interceptFn, currentAccount, refresh, toast],
   )
 
+  const loansForBuyerColumns: ColumnProps[] = [
+    {
+      title: 'Asset',
+      dataIndex: 'nft_asset_info',
+      key: 'nft_asset_info',
+      align: 'left',
+      width: 180,
+      render: (_: any, info: any) => {
+        const currentInfo = bactNftListInfo?.find(
+          (i) =>
+            i?.tokenID === info.nft_collateral_id &&
+            i?.assetContractAddress.toLowerCase() ===
+              info.nft_collateral_contract.toLowerCase(),
+        )
+        return (
+          <Flex alignItems={'center'} gap={2}>
+            <ImageWithFallback
+              src={currentInfo?.imagePreviewUrl as string}
+              w={10}
+              h={10}
+              borderRadius={4}
+            />
+            <Text
+              w={'60%'}
+              display='inline-block'
+              overflow='hidden'
+              whiteSpace='nowrap'
+              textOverflow='ellipsis'
+            >
+              {currentInfo
+                ? currentInfo?.name || `#${currentInfo?.tokenID}`
+                : '--'}
+            </Text>
+          </Flex>
+        )
+      },
+    },
+    {
+      title: 'Lender',
+      dataIndex: 'lender_address',
+      key: 'lender_address',
+      render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
+    },
+    {
+      title: 'Borrower',
+      dataIndex: 'borrower_address',
+      key: 'borrower_address',
+      render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
+    },
+    {
+      title: 'Start time',
+      dataIndex: 'loan_start_time',
+      key: 'loan_start_time',
+      render: (value: any) => <Text>{unix(value).format('YYYY/MM/DD')}</Text>,
+    },
+    {
+      title: 'Loan value',
+      dataIndex: 'total_repayment',
+      key: 'total_repayment',
+      render: (value: any) => (
+        <Text>
+          {wei2Eth(value)} {UNIT}
+        </Text>
+      ),
+    },
+    {
+      title: 'Duration',
+      dataIndex: 'loan_duration',
+      key: 'loan_duration',
+      render: (value: any) => <Text>{value / 24 / 60 / 60} days</Text>,
+    },
+    {
+      title: 'Interest',
+      dataIndex: 'loan_interest_rate',
+      key: 'loan_interest_rate',
+      render: (_: any, item: Record<string, any>) => {
+        return (
+          <Text>
+            {BigNumber(
+              wei2Eth(
+                amortizationCalByDays(
+                  item?.total_repayment,
+                  item?.loan_interest_rate / 10000,
+                  (item?.loan_duration / 24 / 60 / 60) as 7 | 14 | 30 | 60 | 90,
+                  item?.repay_times,
+                )
+                  .multipliedBy(item?.repay_times)
+                  .minus(item.total_repayment),
+              ),
+            ).toFormat(FORMAT_NUMBER)}
+            {UNIT}
+          </Text>
+        )
+      },
+    },
+  ]
+
   return (
     <Box mt='60px'>
       <Heading size={'2xl'} mb='60px'>
@@ -362,7 +381,6 @@ const Loans = () => {
                     Current Loans as Borrower
                   </Heading>
                 ),
-                // loading: loading,
                 columns: [
                   ...loansForBuyerColumns,
                   // {

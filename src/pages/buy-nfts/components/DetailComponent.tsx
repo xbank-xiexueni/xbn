@@ -15,14 +15,21 @@ const DetailComponent: FunctionComponent<
   BoxProps & {
     data: {
       name1: string
-      name2: string
+      name2?: string
       price: string
       verified: boolean
       usdPrice?: string
     }
     loading?: boolean
+    onRefreshPrice?: () => void
+    refreshLoading?: boolean
   }
-> = ({ data: { name1, name2, price, verified, usdPrice }, loading }) => {
+> = ({
+  data: { name1, name2, price, verified, usdPrice },
+  loading,
+  onRefreshPrice,
+  refreshLoading,
+}) => {
   if (loading) {
     return <Skeleton h={200} borderRadius={16} />
   }
@@ -30,10 +37,14 @@ const DetailComponent: FunctionComponent<
     <Box mt={8}>
       {/* 名称*/}
       <Flex alignItems={'baseline'}>
-        <Text fontWeight={'500'}>{name1}</Text>
+        <Text fontWeight={'500'} noOfLines={1}>
+          {name1}
+        </Text>
         {verified && <SvgComponent svgId='icon-verified-fill' />}
       </Flex>
-      <Heading fontSize={'40px'}>{name2}</Heading>
+      <Heading fontSize={'40px'} noOfLines={1}>
+        {name2}
+      </Heading>
       {/* 价格 */}
       <Flex
         bg='gray.5'
@@ -45,12 +56,22 @@ const DetailComponent: FunctionComponent<
       >
         <Box>
           <Text>Price</Text>
-          <Flex alignItems={'end'} mt={1}>
+          <Flex alignItems={'end'} mt={1} gap={1}>
             <SvgComponent svgId='icon-eth' svgSize='32px' />
-            <Heading fontSize={'32px'} lineHeight='36px'>
+            <Heading fontSize={'32px'} lineHeight='30px'>
               {price}
             </Heading>
-            {!!usdPrice && <Text fontSize={'xs'}>&nbsp;$ {usdPrice}</Text>}
+            <SvgComponent
+              svgId='icon-refresh'
+              onClick={onRefreshPrice}
+              animation={refreshLoading ? 'loading 1s linear infinite' : ''}
+              cursor={'pointer'}
+            />
+            {!!usdPrice && (
+              <Text fontSize={'xs'} lineHeight='14px'>
+                &nbsp;$ {usdPrice}
+              </Text>
+            )}
           </Flex>
         </Box>
         {/* <NftOrigin type={1} /> */}

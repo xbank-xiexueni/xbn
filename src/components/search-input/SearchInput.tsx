@@ -26,11 +26,12 @@ const index: FunctionComponent<
   isInvalid,
   _focusVisible,
   // rightIcon,
+  _placeholder,
   // rightIconProps,
   ...rest
 }) => {
   return (
-    <InputGroup pos={'relative'}>
+    <InputGroup>
       <InputLeftElement pointerEvents='none' color='gray.300' fontSize='1.2em'>
         <SvgComponent svgId='icon-search' />
       </InputLeftElement>
@@ -51,6 +52,10 @@ const index: FunctionComponent<
           ..._focusVisible,
         }}
         borderColor={isInvalid ? 'red.1' : 'gray.2'}
+        _placeholder={{
+          marginTop: 4,
+          ..._placeholder,
+        }}
       />
     </InputGroup>
   )

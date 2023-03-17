@@ -14,8 +14,12 @@ function CustomSelect<
   Group extends GroupBase<Option> = GroupBase<Option>,
 >({
   img,
+  borderColor = 'var(--chakra-colors-blue-4)',
   ...restProps
-}: Props<Option, IsMulti, Group> & { img?: React.ReactElement }) {
+}: Props<Option, IsMulti, Group> & {
+  img?: React.ReactElement
+  borderColor?: string
+}) {
   return (
     <Select
       {...restProps}
@@ -63,9 +67,7 @@ function CustomSelect<
           fontWeight: 700,
           borderRadius: 8,
           border: `1px solid ${
-            isFocused
-              ? 'var(--chakra-colors-blue-1)'
-              : 'var(--chakra-colors-blue-4)'
+            isFocused ? 'var(--chakra-colors-blue-1)' : borderColor
           }`,
           boxShadow: 'none',
           // boxShadow: isFocused

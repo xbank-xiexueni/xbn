@@ -317,7 +317,7 @@ const Header = () => {
                 lg: 'none',
               }}
             >
-              <SvgComponent svgId='open' svgSize={'24px'} />
+              <SvgComponent svgId='icon-open' svgSize={'24px'} />
             </MenuButton>
             <MenuList minWidth='240px'>
               <MenuOptionGroup title='Lend' type='radio'>

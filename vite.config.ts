@@ -19,7 +19,14 @@ export default defineConfig({
   server: {
     port: 8000,
     proxy: {
-      '^/lending/api': {
+      '/lending/query': {
+        // mock
+        target: 'https://xbank.global',
+        changeOrigin: true,
+        secure: false,
+        // rewrite: (path) => path.replace(/^\/query/, ''),
+      },
+      '/lending/api': {
         // mock
         target: 'https://xbank.global',
         changeOrigin: true,
@@ -34,12 +41,18 @@ export default defineConfig({
     },
   },
   build: {
-    assetsInlineLimit: 4096,
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-venders': ['react', 'react-dom', 'react-router-dom'],
+          'react-venders': [
+            'react',
+            'react-dom',
+            'react-router-dom',
+            'video-react',
+            'react-photo-view',
+          ],
           'chakra-vendors': ['@chakra-ui/react'],
+          'apollo-vendors': ['@apollo/client', 'graphql'],
           'web3-vendors': ['web3'],
         },
       },
