@@ -10,6 +10,7 @@ import {
   SliderTrack,
   Text,
   VStack,
+  type FlexProps,
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
@@ -18,7 +19,13 @@ import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
 import minBy from 'lodash-es/minBy'
 import range from 'lodash-es/range'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FunctionComponent,
+} from 'react'
 
 import ImgNft from '@/assets/nft.png'
 import { EmptyComponent, ImageWithFallback, SvgComponent } from '@/components'
@@ -26,9 +33,6 @@ import { COLLATERALS, TENORS, UNIT } from '@/constants'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
-
-import type { FlexProps } from '@chakra-ui/react'
-import type { FunctionComponent } from 'react'
 
 enum LOAN_DAYS_ENUM {
   Loan7Days = 7,
