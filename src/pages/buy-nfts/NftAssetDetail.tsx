@@ -425,7 +425,7 @@ const NftAssetDetail = () => {
         })
         toast({
           status: 'success',
-          title: 'successfully down payment',
+          title: 'The loan is being generated, please wait',
         })
         navigate('/buy-nfts/loans')
       } catch {

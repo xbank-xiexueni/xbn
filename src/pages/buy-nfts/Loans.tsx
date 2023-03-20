@@ -389,7 +389,7 @@ const Loans = () => {
                   //   key: 'col10',
                   // },
                   {
-                    title: 'amount',
+                    title: 'Next payment amount',
                     dataIndex: 'col9',
                     key: 'col9',
                     render: (_: any, item: Record<string, any>) => (
