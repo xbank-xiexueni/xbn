@@ -21,7 +21,7 @@ import range from 'lodash-es/range'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import ImgNft from '@/assets/nft.png'
-import { ImageWithFallback, SvgComponent } from '@/components'
+import { EmptyComponent, ImageWithFallback, SvgComponent } from '@/components'
 import { COLLATERALS, TENORS, UNIT } from '@/constants'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { formatFloat } from '@/utils/format'
@@ -60,23 +60,12 @@ const originPoolList = [
     loan_time_concession_flexibility: 100,
     loan_ratio_preferential_flexibility: 50,
     activity: true,
-    collection_info: {
-      name: 'Azuki - GOERLI - TEST',
-      image_url:
-        'https://i.seadn.io/gcs/files/4d08083b85770cf7fed31fe5fb5566f6.png?auto=format&w=256',
-      contract_addr: '0x10b8b56d53bfa5e374f38e6c0830bad4ebee33e6',
-      description:
-        'This is a test NFT collection that helps decentralized Finance, NFT Finance, Social Finance, and other kinds of Dapps building on Goerli Testnet.\\n\\nYou can mint your own at mint function at https://www.testnetmint.com/ price is 0.01 goerli ether per one, and max wallet mint is 2.\\n',
-      safelist_request_status: 'verified',
-    },
   },
 ]
 
-const InfoCard: FunctionComponent<FlexProps & { title: string }> = ({
-  title,
-  children,
-  ...rest
-}) => {
+const InfoCard: FunctionComponent<
+  FlexProps & { title: string; isNull?: boolean }
+> = ({ title, isNull, children, ...rest }) => {
   return (
     <Flex
       flexDir={'column'}
@@ -88,7 +77,7 @@ const InfoCard: FunctionComponent<FlexProps & { title: string }> = ({
       <Text fontSize={'20px'} fontWeight='700' mb={6}>
         {title}
       </Text>
-      {children}
+      {isNull ? <EmptyComponent mt={10} mb={0} /> : children}
     </Flex>
   )
 }
@@ -237,7 +226,9 @@ const H5Demo = () => {
           svgId='icon-arrow-down'
           transform={'rotate(90deg)'}
           cursor='pointer'
-          onClick={() => {}}
+          onClick={() => {
+            window.history.back()
+          }}
         />
         <Text fontSize={'14px'} fontWeight='700'>
           Buy NFTs
@@ -347,7 +338,7 @@ const H5Demo = () => {
       </InfoCard>
 
       {/* Loan Period */}
-      <InfoCard title='Loan Period'>
+      <InfoCard title='Loan Period' isNull={isEmpty(pools)}>
         <Flex flexDir={'column'} gap={2}>
           {pools.map((item) => (
             <Flex
@@ -375,7 +366,10 @@ const H5Demo = () => {
       </InfoCard>
 
       {/* Number of installments */}
-      <InfoCard title='Number of installments'>
+      <InfoCard
+        title='Number of installments'
+        isNull={isEmpty(installmentOptions)}
+      >
         <Flex flexDir={'column'} gap={2}>
           {installmentOptions?.map((value) => {
             return (
@@ -407,7 +401,7 @@ const H5Demo = () => {
 
       {/* Repayment Plan */}
       {!commodityWeiPrice.eq(0) && !loanWeiAmount.eq(0) && (
-        <InfoCard title='Repayment Plan'>
+        <InfoCard title='Repayment Plan' isNull={!selectPool}>
           <VStack bg='gray.5' py={4} px={4} borderRadius={12} spacing={2}>
             <Flex justify={'space-between'} w='100%'>
               <Flex>
