@@ -11,11 +11,7 @@ import {
   PopoverBody,
   IconButton,
   MenuButton,
-  MenuList,
   Menu,
-  MenuDivider,
-  MenuOptionGroup,
-  MenuItemOption,
 } from '@chakra-ui/react'
 import kebabCase from 'lodash-es/kebabCase'
 import { useCallback, useMemo } from 'react'
@@ -100,27 +96,51 @@ const Header = () => {
       100%)'
         h={1}
       />
-      <Container bg='white' maxW={RESPONSIVE_MAX_W}>
-        <Flex justify={'space-between'} h={74} alignItems='center'>
+      <Container
+        bg='white'
+        maxW={RESPONSIVE_MAX_W}
+        boxShadow='0px 1px 0px rgba(0, 0, 0, 0.08)'
+      >
+        <Flex
+          justify={'space-between'}
+          h={{
+            md: 74,
+            sm: '56px',
+            xs: '56px',
+          }}
+          alignItems='center'
+        >
           <Flex
             alignItems={'center'}
             onClick={() => {
+              if (pathname === '/demo') return
               navigate('/lending/my-pools')
             }}
             cursor='pointer'
           >
             <Flex gap={2} onClick={() => {}} alignItems='center'>
-              <Image src={Icon} h={25} alt='icon' loading='lazy' />
+              <Image
+                src={Icon}
+                h={{
+                  md: 25,
+                  xs: '20px',
+                  sm: '20px',
+                }}
+                alt='icon'
+                loading='lazy'
+              />
             </Flex>
           </Flex>
 
           <Flex
             display={{
+              xs: 'none',
               sm: 'none',
               md: 'none',
               lg: 'flex',
             }}
             gap={10}
+            hidden={pathname === '/demo'}
           >
             <Popover isLazy trigger='hover' placement='bottom-start'>
               <PopoverTrigger>
@@ -240,6 +260,7 @@ const Header = () => {
             gap={6}
             alignItems='center'
             display={{
+              xs: 'none',
               sm: 'none',
               md: 'none',
               lg: 'flex',
@@ -309,62 +330,67 @@ const Header = () => {
             </Popover>
           </Flex>
 
-          <Menu>
-            <MenuButton
-              aria-label='Options'
-              display={{
-                md: 'flex',
-                lg: 'none',
-              }}
-            >
-              <SvgComponent svgId='icon-open' svgSize={'24px'} />
-            </MenuButton>
-            <MenuList minWidth='240px'>
-              <MenuOptionGroup title='Lend' type='radio'>
-                <Link to='/lending/my-pools'>
-                  <MenuItemOption as='span' color={'black.1'}>
-                    My pools
-                  </MenuItemOption>
-                </Link>
-                <Link to='/lending/loans'>
-                  <MenuItemOption as='span' color={'black.1'}>
-                    Loans
-                  </MenuItemOption>
-                </Link>
-              </MenuOptionGroup>
-              <MenuDivider />
-              <MenuOptionGroup title='Buy nfts'>
-                <Link to='/buy-nfts/market'>
-                  <MenuItemOption as='span' color={'black.1'}>
-                    Market
-                  </MenuItemOption>
-                </Link>
-                <Link to='/buy-nfts/loans'>
-                  <MenuItemOption as='span' color={'black.1'}>
-                    Loans
-                  </MenuItemOption>
-                </Link>
-              </MenuOptionGroup>
-
-              <MenuDivider />
-              <Flex justify={'center'} py={2} onClick={handleClickWallet}>
-                {!!currentAccount ? (
-                  <Flex alignItems={'center'} gap={1} color='gray.3'>
-                    <Jazzicon
-                      diameter={30}
-                      seed={parseInt(currentAccount.slice(2, 10), 16)}
-                    />
-                    &nbsp;{formatAddress(currentAccount)}
-                  </Flex>
-                ) : (
-                  <Button>
-                    <SvgComponent svgId='icon-wallet-outline' svgSize='24px' />
-                    &nbsp;Connect
-                  </Button>
-                )}
-              </Flex>
-            </MenuList>
-          </Menu>
+          <Flex
+            gap={5}
+            display={{
+              xs: 'flex',
+              sm: 'flex',
+              md: 'flex',
+              lg: 'none',
+            }}
+          >
+            <IconButton
+              onClick={handleOpenEtherscan}
+              justifyContent={'center'}
+              aria-label=''
+              bg='white'
+              icon={
+                <Jazzicon
+                  diameter={30}
+                  seed={parseInt(currentAccount.slice(2, 10), 16)}
+                />
+              }
+              hidden={!currentAccount}
+            />
+            <IconButton
+              justifyContent={'center'}
+              aria-label=''
+              bg='white'
+              icon={<SvgComponent svgId='icon-wallet-outline' svgSize='32px' />}
+            />
+            <Menu>
+              <MenuButton aria-label='Options'>
+                <SvgComponent svgId='icon-expand1' svgSize={'24px'} />
+              </MenuButton>
+              {/* <MenuList minWidth='240px'>
+                <MenuOptionGroup title='Lend' type='radio'>
+                  <Link to='/lending/my-pools'>
+                    <MenuItemOption as='span' color={'black.1'}>
+                      My pools
+                    </MenuItemOption>
+                  </Link>
+                  <Link to='/lending/loans'>
+                    <MenuItemOption as='span' color={'black.1'}>
+                      Loans
+                    </MenuItemOption>
+                  </Link>
+                </MenuOptionGroup>
+                <MenuDivider />
+                <MenuOptionGroup title='Buy nfts'>
+                  <Link to='/buy-nfts/market'>
+                    <MenuItemOption as='span' color={'black.1'}>
+                      Market
+                    </MenuItemOption>
+                  </Link>
+                  <Link to='/buy-nfts/loans'>
+                    <MenuItemOption as='span' color={'black.1'}>
+                      Loans
+                    </MenuItemOption>
+                  </Link>
+                </MenuOptionGroup>
+              </MenuList> */}
+            </Menu>
+          </Flex>
         </Flex>
       </Container>
 

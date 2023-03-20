@@ -273,6 +273,7 @@ const Market = () => {
             lg: '260px',
             md: '100%',
             sm: '100%',
+            xs: '100%',
           }}
           height={{
             xl: '70vh',
@@ -329,6 +330,7 @@ const Market = () => {
             lg: '640px',
             md: '100%',
             sm: '100%',
+            xs: '100%',
           }}
         >
           <CollectionDescription
@@ -382,6 +384,7 @@ const Market = () => {
                     lg: 'flex',
                     md: 'flex',
                     sm: 'none',
+                    xs: '100%',
                   }}
                 >
                   {[4, 3].map((item, i) => (
@@ -416,6 +419,7 @@ const Market = () => {
                 lg: grid,
                 md: grid,
                 sm: 2,
+                xs: 1,
               }}
               position={'relative'}
             >
@@ -429,6 +433,7 @@ const Market = () => {
                     lg: grid,
                     md: grid,
                     sm: 2,
+                    xs: 1,
                   }}
                 >
                   <EmptyComponent />
@@ -494,6 +499,7 @@ const Market = () => {
                 lg: grid,
                 md: grid,
                 sm: 2,
+                xs: 1,
               }}
               // overflowY='auto'
               position={'relative'}
@@ -509,6 +515,7 @@ const Market = () => {
                     lg: grid,
                     md: grid,
                     sm: 2,
+                    xs: 1,
                   }}
                 >
                   <EmptyComponent />

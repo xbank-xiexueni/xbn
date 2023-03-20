@@ -28,6 +28,8 @@ const NftAssetDetail = lazyWithRetries(
   () => import('./pages/buy-nfts/NftAssetDetail'),
 )
 
+// nft detail
+const H5Demo = lazyWithRetries(() => import('./pages/h5-demo/H5Demo'))
 const NotFound = lazyWithRetries(() => import('./pages/404'))
 
 function App() {
@@ -148,6 +150,15 @@ function App() {
             }
           />
         </Route> */}
+        <Route
+          path='/demo'
+          element={
+            <Suspense fallback={<Fallback />}>
+              <H5Demo />
+            </Suspense>
+          }
+        />
+
         <Route
           element={
             <Suspense fallback={<Fallback />}>

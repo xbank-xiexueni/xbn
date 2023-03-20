@@ -24,6 +24,8 @@ const colors = {
   },
   green: {
     1: 'green',
+    2: '#EBF8F2',
+    3: '#00A760',
   },
   // ...
 }

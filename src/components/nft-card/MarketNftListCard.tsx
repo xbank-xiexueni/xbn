@@ -62,6 +62,7 @@ const MarketNftListCard: FunctionComponent<
               lg: '200px',
               md: '160px',
               sm: '50%',
+              xs: '50%',
             }}
             w='100%'
             fit='contain'
