@@ -19,7 +19,7 @@ import {
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
-import { get, head, map, min } from 'lodash-es'
+import { debounce, get, head, map, min } from 'lodash-es'
 import ceil from 'lodash-es/ceil'
 import floor from 'lodash-es/floor'
 import isEmpty from 'lodash-es/isEmpty'
@@ -56,7 +56,7 @@ import type {
   NftCollection,
 } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
-import { createXBankContract } from '@/utils/createContract'
+import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
 import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
@@ -94,6 +94,16 @@ const NftAssetDetail = () => {
       assetVariable: AssetQueryVariables
     }
   } = useLocation()
+
+  useEffect(() => {
+    const web3 = createWeb3Provider()
+    web3.eth.clearSubscriptions()
+    toast.closeAll()
+    return () => {
+      web3.eth.clearSubscriptions()
+      toast.closeAll()
+    }
+  }, [toast])
 
   const [commodityWeiPrice, setCommodityWeiPrice] = useState(BigNumber(0))
   // const [, setUpdatedAt] = useState('')
@@ -337,6 +347,7 @@ const NftAssetDetail = () => {
       manual: true,
     })
 
+  const [flag, setFlag] = useState(true)
   const handleClickPay = useCallback(async () => {
     interceptFn(async () => {
       if (!selectPool || isEmpty(selectPool)) {
@@ -347,6 +358,26 @@ const NftAssetDetail = () => {
       try {
         setTransferFromHashLoading(true)
         const xBankContract = createXBankContract()
+        // 监听 loan 是否生成
+        xBankContract.events
+          .LoanCreated({
+            filter: {},
+            fromBlock: 'latest',
+          })
+          .on(
+            'data',
+            flag
+              ? debounce((event) => {
+                  console.log(event, 'on data') // same results as the optional callback above
+                  setFlag(false)
+                  toast({
+                    status: 'success',
+                    title: 'The loan is being generated, please wait',
+                  })
+                  navigate('/xlending/buy-nfts/loans')
+                }, 10000)
+              : () => console.log(flag, 'flag false '),
+          )
         await xBankContract.methods
           .transferFrom(pool_id, loanWeiAmount.toNumber().toString())
           .send({
@@ -423,11 +454,6 @@ const NftAssetDetail = () => {
         await generateLoanOrder({
           ...postParams,
         })
-        toast({
-          status: 'success',
-          title: 'The loan is being generated, please wait',
-        })
-        navigate('/xlending/buy-nfts/loans')
       } catch {
         //
       }
@@ -444,6 +470,7 @@ const NftAssetDetail = () => {
     navigate,
     commodityWeiPrice,
     interceptFn,
+    flag,
   ])
 
   const [usdPrice, setUsdPrice] = useState<BigNumber>()

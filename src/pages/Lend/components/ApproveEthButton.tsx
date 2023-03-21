@@ -43,7 +43,6 @@ import {
 } from '@/utils/createContract'
 import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
-import getEventData from '@/utils/utils'
 
 // const DataItem: FunctionComponent<{ label: string; data: number }> = ({
 //   label,
@@ -87,6 +86,7 @@ const ApproveEthButton: FunctionComponent<
     floorPrice,
   } = data
   const toast = useToast()
+  const [flag, setFlag] = useState(true)
   const navigate = useNavigate()
   const { currentAccount, interceptFn, isOpen, onClose } = useWallet()
   const {
@@ -99,43 +99,14 @@ const ApproveEthButton: FunctionComponent<
   const [createLoading, setCreateLoading] = useState(false)
 
   useEffect(() => {
-    const { topic } = getEventData('PoolCreated')
     const web3 = createWeb3Provider()
     web3.eth.clearSubscriptions()
-
-    web3.eth.subscribe(
-      'logs',
-      {
-        address: import.meta.env.VITE_XBANK_CONTRACT_ADDRESS,
-        topics: [topic],
-      },
-      debounce((error) => {
-        console.log(
-          '🚀 ~ file: ApproveEthButton.tsx:105 ~ debounce ~ error:',
-          error,
-        )
-        web3.eth.clearSubscriptions()
-        setCreateLoading(false)
-        console.log(new Date().getTime(), '----------------end')
-        onCloseApprove()
-        console.log(
-          toast.isActive('Created-Successfully-ID'),
-          `toast.isActive('Created-Successfully-ID')`,
-        )
-        if (!toast.isActive('Created-Successfully-ID')) {
-          toast({
-            status: 'success',
-            title: 'Created successfully! ',
-            id: 'Created-Successfully-ID',
-          })
-        }
-        navigate('/xlending/lending/my-pools')
-      }, 1000),
-    )
+    toast.closeAll()
     return () => {
       web3.eth.clearSubscriptions()
+      toast.closeAll()
     }
-  }, [toast, navigate, onCloseApprove])
+  }, [toast])
 
   const [amount, setAmount] = useState('')
 
@@ -205,6 +176,32 @@ const ApproveEthButton: FunctionComponent<
         const supportERC20Denomination = WETH_CONTRACT_ADDRESS
 
         const xBankContract = createXBankContract()
+        xBankContract.events
+          .PoolCreated({
+            filter: {},
+            fromBlock: 'latest',
+          })
+          .on(
+            'data',
+            flag
+              ? debounce((event) => {
+                  console.log(event, 'on data') // same results as the optional callback above
+                  setFlag(false)
+                  setCreateLoading(false)
+                  onCloseApprove()
+                  if (toast.isActive('Created-Successfully-ID')) {
+                    // toast.closeAll()
+                  } else {
+                    toast({
+                      status: 'success',
+                      title: 'Created successfully! ',
+                      id: 'Created-Successfully-ID',
+                    })
+                  }
+                  navigate('/xlending/lending/my-pools')
+                }, 10000)
+              : () => console.log(flag, 'flag false '),
+          )
         await xBankContract.methods
           .createPool(
             // supportERC20Denomination
@@ -288,6 +285,9 @@ const ApproveEthButton: FunctionComponent<
     allowCollateralContract,
     currentAccount,
     interceptFn,
+    flag,
+    navigate,
+    onCloseApprove,
   ])
 
   const handleClose = useCallback(() => {
