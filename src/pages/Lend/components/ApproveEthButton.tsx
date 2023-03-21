@@ -359,6 +359,17 @@ const ApproveEthButton: FunctionComponent<
                 </Text>
               )}
             </FormControl>
+            <Text
+              fontSize={'12px'}
+              color='gray.4'
+              textAlign={'center'}
+              px={8}
+              mt={5}
+            >
+              This is a Georli based demo, you may need to swap your GeorliETH
+              into GoerliWETH with the “Deposit” function of this DEX contract:
+              OxB4FBF271143F4FBf7B91A5ded31805e42b2208d63
+            </Text>
           </ModalBody>
 
           {/* <ModalFooter justifyContent={'center'}> */}
