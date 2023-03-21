@@ -94,7 +94,13 @@ const Header = () => {
   }, [interceptFn])
 
   return (
-    <Box position={'sticky'} top={0} zIndex={21}>
+    <Box
+      position={'sticky'}
+      top={0}
+      zIndex={21}
+      borderBottomColor='rgba(0, 0, 0, 0.05)'
+      borderBottomWidth={1}
+    >
       <Box
         bg='linear-gradient(270deg, #E404E6 0%, #5843F4 53.65%, #1EF6F0
       100%)'
