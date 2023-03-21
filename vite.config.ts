@@ -5,6 +5,7 @@ import { join } from 'path'
 // https://vitejs.dev/config/
 /** @type {import('vite').UserConfig} */
 export default defineConfig({
+  base: '/xlending',
   plugins: [react()],
   css: {
     preprocessorOptions: {
@@ -41,6 +42,7 @@ export default defineConfig({
     },
   },
   build: {
+    assetsDir: '',
     rollupOptions: {
       output: {
         manualChunks: {

@@ -29,7 +29,7 @@ import {
   type FunctionComponent,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Web3 from 'web3'
+import Web3 from 'web3/dist/web3.min.js'
 
 import { ConnectWalletModal, SvgComponent } from '@/components'
 import { WETH_CONTRACT_ADDRESS, XBANK_CONTRACT_ADDRESS } from '@/constants'
@@ -87,7 +87,6 @@ const ApproveEthButton: FunctionComponent<
     onClose: onCloseApprove,
   } = useDisclosure()
   const [amount, setAmount] = useState('')
-  const [flag, setFlag] = useState(true)
 
   const initialRef = useRef(null)
   const finalRef = useRef(null)
@@ -106,23 +105,19 @@ const ApproveEthButton: FunctionComponent<
     },
   )
 
-  const isError = useMemo((): boolean => {
+  const isError = useMemo(() => {
     //  amount < balance + Has been lent
-    if (amount) {
-      const NumberAmount = Number(amount)
-      if (NumberAmount > Number(wei2Eth(wethData))) {
-        setErrorMsg(`Maximum input: ${formatFloat(Number(wei2Eth(wethData)))}`)
-        return true
-      }
-      if (NumberAmount < floorPrice * 0.1) {
-        setErrorMsg(`Minimum input: ${formatFloat(floorPrice * 0.1)}`)
-        return true
-      }
-      return false
-    } else {
-      return !flag
+    const NumberAmount = Number(amount)
+    if (NumberAmount > Number(wei2Eth(wethData))) {
+      setErrorMsg(`Maximum input: ${formatFloat(Number(wei2Eth(wethData)))}`)
+      return true
     }
-  }, [amount, wethData, flag, floorPrice])
+    if (NumberAmount < floorPrice * 0.1) {
+      setErrorMsg(`Minimum input: ${formatFloat(floorPrice * 0.1)}`)
+      return true
+    }
+    return false
+  }, [amount, wethData, floorPrice])
 
   const [approveLoading, setApproveLoading] = useState(false)
   const [createLoading, setCreateLoading] = useState(false)
@@ -193,7 +188,7 @@ const ApproveEthButton: FunctionComponent<
           status: 'success',
           title: 'Created successfully! ',
         })
-        navigate('/lending/my-pools')
+        navigate('/xlending/lending/my-pools')
       } catch (error: any) {
         console.log(error?.message, error?.code, error?.data)
         const code: string = error?.code
@@ -320,7 +315,6 @@ const ApproveEthButton: FunctionComponent<
                   w='100%'
                   value={amount}
                   onChange={(v) => {
-                    setFlag(false)
                     setAmount(v)
                   }}
                   errorBorderColor='red.1'

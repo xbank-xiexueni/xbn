@@ -105,7 +105,7 @@ const Header = () => {
           <Flex
             alignItems={'center'}
             onClick={() => {
-              navigate('/lending/my-pools')
+              navigate('/xlending/lending/my-pools')
             }}
             cursor='pointer'
           >
@@ -154,7 +154,10 @@ const Header = () => {
                     'My Pools',
                     'Loans',
                   ].map((item) => (
-                    <Link to={`/lending/${kebabCase(item)}`} key={item}>
+                    <Link
+                      to={`/xlending/lending/${kebabCase(item)}`}
+                      key={item}
+                    >
                       <Flex
                         borderBottomColor='gray.5'
                         gap={1}
@@ -211,7 +214,10 @@ const Header = () => {
                     // 'My assets',
                     'Loans',
                   ].map((item) => (
-                    <Link to={`/buy-nfts/${kebabCase(item)}`} key={item}>
+                    <Link
+                      to={`/xlending/buy-nfts/${kebabCase(item)}`}
+                      key={item}
+                    >
                       <Flex
                         borderBottomColor={`gray.5`}
                         px={3}
@@ -321,12 +327,12 @@ const Header = () => {
             </MenuButton>
             <MenuList minWidth='240px'>
               <MenuOptionGroup title='Lend' type='radio'>
-                <Link to='/lending/my-pools'>
+                <Link to='/xlending/lending/my-pools'>
                   <MenuItemOption as='span' color={'black.1'}>
                     My pools
                   </MenuItemOption>
                 </Link>
-                <Link to='/lending/loans'>
+                <Link to='/xlending/lending/loans'>
                   <MenuItemOption as='span' color={'black.1'}>
                     Loans
                   </MenuItemOption>
@@ -334,12 +340,12 @@ const Header = () => {
               </MenuOptionGroup>
               <MenuDivider />
               <MenuOptionGroup title='Buy nfts'>
-                <Link to='/buy-nfts/market'>
+                <Link to='/xlending/buy-nfts/market'>
                   <MenuItemOption as='span' color={'black.1'}>
                     Market
                   </MenuItemOption>
                 </Link>
-                <Link to='/buy-nfts/loans'>
+                <Link to='/xlending/buy-nfts/loans'>
                   <MenuItemOption as='span' color={'black.1'}>
                     Loans
                   </MenuItemOption>

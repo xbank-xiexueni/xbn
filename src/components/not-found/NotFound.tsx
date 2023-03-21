@@ -15,7 +15,7 @@ type NotFoundProps = {
 }
 const NotFound: FunctionComponent<NotFoundProps> = ({
   title = 'Page not found',
-  backTo = '/',
+  backTo = '/xlending/',
 }) => {
   const navigate = useNavigate()
   return (
