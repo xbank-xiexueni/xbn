@@ -80,7 +80,7 @@ export const INITIAL_COLLATERAL = COLLATERALS[4]
 export const STEPS_DESCRIPTIONS = [
   {
     title: 'Select Collection',
-    text: 'Please choose a preferred collection that you will accept to lend againstAll the collections listed on OpenSea, X2Y2 and LookRare are available',
+    text: 'Please choose a preferred collection that you will accept to lend against. All the collections listed on OpenSea, X2Y2 and LookRare are available',
   },
   {
     title: 'Select Tenor',

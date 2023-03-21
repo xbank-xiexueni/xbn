@@ -80,8 +80,8 @@ const Create = () => {
               Create New Pool
             </Heading>
             <Text color='gray.3'>
-              Determine the Tenor length for which potential borrowers can open
-              a loan against. We commonly see a 14-days Tenor.
+              Setting up a new pool to lend against borrowers with preferred
+              length of duration and collateral factor ratio.
             </Text>
           </Box>
 
