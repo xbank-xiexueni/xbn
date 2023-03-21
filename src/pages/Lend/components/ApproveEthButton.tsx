@@ -107,6 +107,7 @@ const ApproveEthButton: FunctionComponent<
 
   const isError = useMemo(() => {
     //  amount < balance + Has been lent
+    if (!amount) return false
     const NumberAmount = Number(amount)
     if (NumberAmount > Number(wei2Eth(wethData))) {
       setErrorMsg(
@@ -335,10 +336,12 @@ const ApproveEthButton: FunctionComponent<
                     h='60px'
                     px={8}
                     _focus={{
-                      borderColor: 'blue.1',
+                      borderColor: isError ? 'red.1' : 'blue.1',
                     }}
                     _focusVisible={{
-                      boxShadow: `0 0 0 1px var(--chakra-colors-blue-1)`,
+                      boxShadow: `0 0 0 1px var(--chakra-colors-${
+                        isError ? 'red-1' : 'blue-1'
+                      })`,
                     }}
                   />
                 </NumberInput>
@@ -350,10 +353,11 @@ const ApproveEthButton: FunctionComponent<
                 )}
               </InputGroup>
 
-              {isError && (
-                <Text mt={2} color='red.1'>
-                  {errorMsg}
-                  {/* <SvgComponent
+              <Text mt={2} color={isError ? 'red.1' : 'gray.3'}>
+                {isError
+                  ? errorMsg
+                  : `Minimum input: ${formatFloat(floorPrice * 0.1)}`}
+                {/* <SvgComponent
                     svgId='icon-refresh'
                     onClick={fetchLatestWethBalance}
                     animation={
@@ -362,8 +366,7 @@ const ApproveEthButton: FunctionComponent<
                     cursor={'pointer'}
                     display='inline-block'
                   /> */}
-                </Text>
-              )}
+              </Text>
             </FormControl>
             <Text
               fontSize={'12px'}
