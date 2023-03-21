@@ -1,12 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import viteCompression from 'vite-plugin-compression'
 import { join } from 'path'
 
 // https://vitejs.dev/config/
 /** @type {import('vite').UserConfig} */
 export default defineConfig({
-  base: './xlending',
-  plugins: [react()],
+  base: '/xlending',
+  plugins: [
+    react(),
+    //  viteCompression()
+  ],
   css: {
     preprocessorOptions: {
       // 预编译支持 less
