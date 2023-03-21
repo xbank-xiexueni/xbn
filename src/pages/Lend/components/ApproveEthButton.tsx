@@ -109,11 +109,17 @@ const ApproveEthButton: FunctionComponent<
     //  amount < balance + Has been lent
     const NumberAmount = Number(amount)
     if (NumberAmount > Number(wei2Eth(wethData))) {
-      setErrorMsg(`Maximum input: ${formatFloat(Number(wei2Eth(wethData)))}`)
+      setErrorMsg(
+        ` Insufficient wallet balance: ${formatFloat(
+          Number(wei2Eth(wethData)),
+        )} WETH`,
+      )
       return true
     }
     if (NumberAmount < floorPrice * 0.1) {
-      setErrorMsg(`Minimum input: ${formatFloat(floorPrice * 0.1)}`)
+      setErrorMsg(
+        `Insufficient funds, Minimum input: ${formatFloat(floorPrice * 0.1)}`,
+      )
       return true
     }
     return false
@@ -346,7 +352,7 @@ const ApproveEthButton: FunctionComponent<
 
               {isError && (
                 <Text mt={2} color='red.1'>
-                  Insufficient funds, {errorMsg}
+                  {errorMsg}
                   {/* <SvgComponent
                     svgId='icon-refresh'
                     onClick={fetchLatestWethBalance}
