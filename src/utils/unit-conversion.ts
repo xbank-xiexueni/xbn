@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import Web3 from 'web3'
+import Web3 from 'web3/dist/web3.min.js'
 
 const wei2Eth = (wei: BigNumber | number | string) => {
   try {

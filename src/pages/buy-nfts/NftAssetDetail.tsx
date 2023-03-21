@@ -427,7 +427,7 @@ const NftAssetDetail = () => {
           status: 'success',
           title: 'The loan is being generated, please wait',
         })
-        navigate('/buy-nfts/loans')
+        navigate('/xlending/buy-nfts/loans')
       } catch {
         //
       }
@@ -466,7 +466,9 @@ const NftAssetDetail = () => {
   })
 
   if (!state || isEmpty(state) || (isEmpty(detail) && !assetFetchLoading))
-    return <NotFound title='Asset not found' backTo='/buy-nfts/market' />
+    return (
+      <NotFound title='Asset not found' backTo='/xlending/buy-nfts/market' />
+    )
 
   return (
     <Flex

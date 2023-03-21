@@ -12,6 +12,10 @@ import {
   IconButton,
   MenuButton,
   Menu,
+  MenuList,
+  MenuOptionGroup,
+  MenuItemOption,
+  MenuDivider,
 } from '@chakra-ui/react'
 import kebabCase from 'lodash-es/kebabCase'
 import { useCallback, useMemo } from 'react'
@@ -34,13 +38,13 @@ const Header = () => {
     useWallet()
 
   const activePath = useMemo((): 'LEND' | 'BUY_NFTS' | 'SELL_NFTS' | '' => {
-    if (pathname.startsWith('/lending')) {
+    if (pathname.startsWith('/xlending/lending')) {
       return 'LEND'
     }
-    if (pathname.startsWith('/buy-nfts')) {
+    if (pathname.startsWith('/xlending/buy-nfts')) {
       return 'BUY_NFTS'
     }
-    if (pathname.startsWith('/sell-nfts')) {
+    if (pathname.startsWith('/xlending/sell-nfts')) {
       return 'SELL_NFTS'
     }
     return ''
@@ -89,6 +93,8 @@ const Header = () => {
     })
   }, [interceptFn])
 
+  console.log(pathname)
+
   return (
     <Box position={'sticky'} top={0} zIndex={21}>
       <Box
@@ -113,8 +119,8 @@ const Header = () => {
           <Flex
             alignItems={'center'}
             onClick={() => {
-              if (pathname === '/demo') return
-              navigate('/lending/my-pools')
+              if (pathname === '/xlending/demo') return
+              navigate('/xlending/lending/my-pools')
             }}
             cursor='pointer'
           >
@@ -140,7 +146,7 @@ const Header = () => {
               lg: 'flex',
             }}
             gap={10}
-            hidden={pathname === '/demo'}
+            hidden={pathname === '/xlending/demo'}
           >
             <Popover isLazy trigger='hover' placement='bottom-start'>
               <PopoverTrigger>
@@ -174,7 +180,10 @@ const Header = () => {
                     'My Pools',
                     'Loans',
                   ].map((item) => (
-                    <Link to={`/lending/${kebabCase(item)}`} key={item}>
+                    <Link
+                      to={`/xlending/lending/${kebabCase(item)}`}
+                      key={item}
+                    >
                       <Flex
                         borderBottomColor='gray.5'
                         gap={1}
@@ -231,7 +240,10 @@ const Header = () => {
                     // 'My assets',
                     'Loans',
                   ].map((item) => (
-                    <Link to={`/buy-nfts/${kebabCase(item)}`} key={item}>
+                    <Link
+                      to={`/xlending/buy-nfts/${kebabCase(item)}`}
+                      key={item}
+                    >
                       <Flex
                         borderBottomColor={`gray.5`}
                         px={3}
@@ -362,14 +374,14 @@ const Header = () => {
               <MenuButton aria-label='Options'>
                 <SvgComponent svgId='icon-expand1' svgSize={'24px'} />
               </MenuButton>
-              {/* <MenuList minWidth='240px'>
+              <MenuList minWidth='240px' hidden={pathname === '/xlending/demo'}>
                 <MenuOptionGroup title='Lend' type='radio'>
-                  <Link to='/lending/my-pools'>
+                  <Link to='/xlending/lending/my-pools'>
                     <MenuItemOption as='span' color={'black.1'}>
                       My pools
                     </MenuItemOption>
                   </Link>
-                  <Link to='/lending/loans'>
+                  <Link to='/xlending/lending/loans'>
                     <MenuItemOption as='span' color={'black.1'}>
                       Loans
                     </MenuItemOption>
@@ -377,18 +389,18 @@ const Header = () => {
                 </MenuOptionGroup>
                 <MenuDivider />
                 <MenuOptionGroup title='Buy nfts'>
-                  <Link to='/buy-nfts/market'>
+                  <Link to='/xlending/buy-nfts/market'>
                     <MenuItemOption as='span' color={'black.1'}>
                       Market
                     </MenuItemOption>
                   </Link>
-                  <Link to='/buy-nfts/loans'>
+                  <Link to='/xlending/buy-nfts/loans'>
                     <MenuItemOption as='span' color={'black.1'}>
                       Loans
                     </MenuItemOption>
                   </Link>
                 </MenuOptionGroup>
-              </MenuList> */}
+              </MenuList>
             </Menu>
           </Flex>
         </Flex>

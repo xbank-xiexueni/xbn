@@ -176,10 +176,10 @@ const Lend = () => {
       switch (pathname) {
         // case '/lending/pools':
         //   return 0
-        case '/lending/my-pools':
+        case '/xlending/lending/my-pools':
           interceptFn()
           return 0
-        case '/lending/loans':
+        case '/xlending/lending/loans':
           interceptFn()
           return 1
         default:
@@ -305,7 +305,7 @@ const Lend = () => {
               <Text
                 color='gray.3'
                 onClick={() => {
-                  navigate('/lending/loans')
+                  navigate('/xlending/lending/loans')
                   setSelectKeyForOpenLoans(value as number)
                 }}
                 cursor='pointer'
@@ -460,10 +460,10 @@ const Lend = () => {
             //   navigate('/lending/pools')
             //   break
             case 0:
-              navigate('/lending/my-pools')
+              navigate('/xlending/lending/my-pools')
               break
             case 1:
-              navigate('/lending/loans')
+              navigate('/xlending/lending/loans')
               break
 
             default:
@@ -508,7 +508,9 @@ const Lend = () => {
                 variant={'secondary'}
                 minW='200px'
                 onClick={() =>
-                  interceptFn(() => navigate('/lending/my-pools/create'))
+                  interceptFn(() =>
+                    navigate('/xlending/lending/my-pools/create'),
+                  )
                 }
               >
                 + Creative new pool
@@ -646,7 +648,7 @@ const Lend = () => {
                           minW='200px'
                           onClick={() =>
                             interceptFn(() =>
-                              navigate('/lending/my-pools/create'),
+                              navigate('/xlending/lending/my-pools/create'),
                             )
                           }
                         >

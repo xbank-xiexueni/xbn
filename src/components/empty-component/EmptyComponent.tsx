@@ -12,7 +12,7 @@ const EmptyComponent: FunctionComponent<
     description?: string
     action?: () => ReactElement
   } & BoxProps
-> = ({ icon, description, action, ...rest }) => {
+> = ({ description, action, ...rest }) => {
   return (
     <Box textAlign={'center'} my={20} {...rest}>
       <Flex justify={'center'} mb={4}>

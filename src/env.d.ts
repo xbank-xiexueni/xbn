@@ -18,3 +18,5 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+declare module 'web3/dist/web3.min.js'
