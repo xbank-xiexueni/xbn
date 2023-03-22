@@ -42,10 +42,7 @@ const MarketNftListCard: FunctionComponent<
       borderRadius={8}
       border='none'
       w='100%'
-      h={{
-        xl: '100%',
-        lg: '320px',
-      }}
+      h={'100%'}
     >
       <CardBody p={0}>
         <Box
@@ -59,9 +56,10 @@ const MarketNftListCard: FunctionComponent<
             borderTopRadius={'lg'}
             h={{
               xl: '100%',
-              lg: '200px',
+              lg: '160px',
               md: '160px',
               sm: '50%',
+              // xs: '50%',
             }}
             w='100%'
             fit='contain'
@@ -77,6 +75,7 @@ const MarketNftListCard: FunctionComponent<
           mb={{
             xl: 2,
             lg: 1,
+            md: 1,
           }}
         >
           <Text color={`gray.3`} fontSize='sm' noOfLines={1}>
@@ -118,6 +117,9 @@ const MarketNftListCard: FunctionComponent<
             ? {
                 xl: '48px',
                 lg: '40px',
+                md: '40px',
+                sm: '40px',
+                // xs: '40px',
               }
             : 0
         }
@@ -136,6 +138,9 @@ const MarketNftListCard: FunctionComponent<
         h={{
           xl: '48px',
           lg: '40px',
+          md: '40px',
+          sm: '40px',
+          // xs: '40px',
         }}
       >
         <Flex alignItems={'center'} gap={1}>
