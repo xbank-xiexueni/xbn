@@ -57,6 +57,7 @@ const AllPoolsDescription: FunctionComponent<{
             mb={10}
             fontSize={'xl'}
             fontWeight='medium'
+            whiteSpace={'pre-wrap'}
           >
             {description}
           </Text>

@@ -129,13 +129,20 @@ const ApproveEthButton: FunctionComponent<
 
   const isError = useMemo(() => {
     //  amount < balance + Has been lent
+    if (!amount) return false
     const NumberAmount = Number(amount)
     if (NumberAmount > Number(wei2Eth(wethData))) {
-      setErrorMsg(`Maximum input: ${formatFloat(Number(wei2Eth(wethData)))}`)
+      setErrorMsg(
+        ` Insufficient wallet balance: ${formatFloat(
+          Number(wei2Eth(wethData)),
+        )} WETH`,
+      )
       return true
     }
     if (NumberAmount < floorPrice * 0.1) {
-      setErrorMsg(`Minimum input: ${formatFloat(floorPrice * 0.1)}`)
+      setErrorMsg(
+        `Insufficient funds, Minimum input: ${formatFloat(floorPrice * 0.1)}`,
+      )
       return true
     }
     return false
@@ -366,10 +373,12 @@ const ApproveEthButton: FunctionComponent<
                     h='60px'
                     px={8}
                     _focus={{
-                      borderColor: 'blue.1',
+                      borderColor: isError ? 'red.1' : 'blue.1',
                     }}
                     _focusVisible={{
-                      boxShadow: `0 0 0 1px var(--chakra-colors-blue-1)`,
+                      boxShadow: `0 0 0 1px var(--chakra-colors-${
+                        isError ? 'red-1' : 'blue-1'
+                      })`,
                     }}
                   />
                 </NumberInput>
@@ -381,10 +390,11 @@ const ApproveEthButton: FunctionComponent<
                 )}
               </InputGroup>
 
-              {isError && (
-                <Text mt={2} color='red.1'>
-                  Insufficient funds, {errorMsg}
-                  {/* <SvgComponent
+              <Text mt={2} color={isError ? 'red.1' : 'gray.3'}>
+                {isError
+                  ? errorMsg
+                  : `Minimum input: ${formatFloat(floorPrice * 0.1)}`}
+                {/* <SvgComponent
                     svgId='icon-refresh'
                     onClick={fetchLatestWethBalance}
                     animation={
@@ -393,9 +403,19 @@ const ApproveEthButton: FunctionComponent<
                     cursor={'pointer'}
                     display='inline-block'
                   /> */}
-                </Text>
-              )}
+              </Text>
             </FormControl>
+            <Text
+              fontSize={'12px'}
+              color='gray.4'
+              textAlign={'center'}
+              px={8}
+              mt={5}
+            >
+              This is a Georli based demo, you may need to swap your GeorliETH
+              into GoerliWETH with the “Deposit” function of this DEX contract:
+              {import.meta.env.VITE_WETH_CONTRACT_ADDRESS}
+            </Text>
           </ModalBody>
 
           {/* <ModalFooter justifyContent={'center'}> */}

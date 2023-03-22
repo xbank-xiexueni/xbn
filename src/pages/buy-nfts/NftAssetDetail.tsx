@@ -785,7 +785,7 @@ const NftAssetDetail = () => {
             <VStack bg='gray.5' py={6} px={4} borderRadius={12} spacing={4}>
               <PlanItem
                 value={wei2Eth(downPaymentWei)}
-                label='Down payment on today'
+                label='Down payment now'
               />
 
               {range(installmentValue).map((value, index) => (
@@ -807,7 +807,7 @@ const NftAssetDetail = () => {
 
         {/* Trading Information */}
         <LabelComponent
-          label='Trading Information'
+          label='Deal Details'
           borderBottom={'none'}
           isEmpty={isEmpty(pools)}
           loading={
@@ -825,7 +825,7 @@ const NftAssetDetail = () => {
             >
               {/* Commodity price */}
               <Flex justify={'space-between'}>
-                <Text color='gray.3'>Commodity price</Text>
+                <Text color='gray.3'>NFT price</Text>
                 <Text color='gray.3'>
                   {wei2Eth(commodityWeiPrice)}
                   {UNIT}
@@ -912,7 +912,7 @@ const NftAssetDetail = () => {
           }
           isLoading={transferFromLoading || loanOrderGenerateLoading}
         >
-          <Text fontWeight={'400'}>Down payment</Text>&nbsp;
+          <Text fontWeight={'400'}>Pay now with</Text>&nbsp;
           {wei2Eth(downPaymentWei)} {UNIT}
         </Button>
       </Box>

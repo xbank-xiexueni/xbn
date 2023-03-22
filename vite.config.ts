@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import viteCompression from 'vite-plugin-compression'
+// import viteCompression from 'vite-plugin-compression'
 import { join } from 'path'
 
 // https://vitejs.dev/config/

@@ -256,7 +256,7 @@ const Lend = () => {
         },
       },
       {
-        title: 'TVL (USD)',
+        title: 'TVL',
         dataIndex: 'pool_amount',
         key: 'pool_amount',
         align: 'right',
@@ -272,7 +272,7 @@ const Lend = () => {
         render: (value: any) => <Text>{Number(value) / 100} %</Text>,
       },
       {
-        title: 'Tenor',
+        title: 'Duration',
         dataIndex: 'pool_maximum_days',
         key: 'pool_maximum_days',
         align: 'right',
@@ -286,7 +286,7 @@ const Lend = () => {
         render: (value: any) => <Text>{Number(value) / 100}% APR</Text>,
       },
       {
-        title: 'Loans',
+        title: 'Supporting Loans',
         dataIndex: 'loan_count',
         key: 'loan_count',
         align: 'center',
@@ -445,7 +445,7 @@ const Lend = () => {
             img: ImgLend,
             title: 'Lend',
             description:
-              'Provide funds to support NFT installment, obtain interest or collateral.',
+              'Provide funds to support NFT Buy Now Pay Later, \nreceive interests or discounts on NFTs as collateral.',
           }}
         />
       </Box>
@@ -513,7 +513,7 @@ const Lend = () => {
                   )
                 }
               >
-                + Creative new pool
+                + Create New Pool
               </Button>
             )}
           </Flex>
@@ -579,7 +579,7 @@ const Lend = () => {
             }}
             fontWeight='bold'
           >
-            Open Loans
+            Outstanding Loans
           </Tab>
         </TabList>
 
@@ -620,7 +620,7 @@ const Lend = () => {
                             interceptFn(() => navigate('/lending/my-pools/create'))
                           }
                         >
-                          + Creative new pool
+                          + Create new pool
                         </Button>
                       )
                     }}
@@ -652,7 +652,7 @@ const Lend = () => {
                             )
                           }
                         >
-                          + Creative new pool
+                          + Create New Pool
                         </Button>
                       )
                     }}
