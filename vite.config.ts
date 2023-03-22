@@ -5,7 +5,7 @@ import { join } from 'path'
 // https://vitejs.dev/config/
 /** @type {import('vite').UserConfig} */
 export default defineConfig({
-  base: './xlending',
+  base: '/xlending',
   plugins: [react()],
   css: {
     preprocessorOptions: {
