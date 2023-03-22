@@ -620,7 +620,7 @@ const Lend = () => {
                             interceptFn(() => navigate('/lending/my-pools/create'))
                           }
                         >
-                          + Creative new pool
+                          + Create new pool
                         </Button>
                       )
                     }}
@@ -652,7 +652,7 @@ const Lend = () => {
                             )
                           }
                         >
-                          + Creative new pool
+                          + Create New Pool
                         </Button>
                       )
                     }}
