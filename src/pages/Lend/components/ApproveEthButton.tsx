@@ -20,7 +20,6 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { useRequest } from 'ahooks'
-import { debounce } from 'lodash-es'
 import {
   type ReactNode,
   useCallback,
@@ -183,33 +182,7 @@ const ApproveEthButton: FunctionComponent<
         const supportERC20Denomination = WETH_CONTRACT_ADDRESS
 
         const xBankContract = createXBankContract()
-        xBankContract.events
-          .PoolCreated({
-            filter: {},
-            fromBlock: 'latest',
-          })
-          .on(
-            'data',
-            flag
-              ? debounce((event) => {
-                  console.log(event, 'on data') // same results as the optional callback above
-                  setFlag(false)
-                  setCreateLoading(false)
-                  onCloseApprove()
-                  if (toast.isActive('Created-Successfully-ID')) {
-                    // toast.closeAll()
-                  } else {
-                    toast({
-                      status: 'success',
-                      title: 'Created successfully! ',
-                      id: 'Created-Successfully-ID',
-                    })
-                  }
-                  navigate('/xlending/lending/my-pools')
-                }, 10000)
-              : () => console.log(flag, 'flag false '),
-          )
-        await xBankContract.methods
+        const createBlock = await xBankContract.methods
           .createPool(
             // supportERC20Denomination
             supportERC20Denomination,
@@ -232,6 +205,48 @@ const ApproveEthButton: FunctionComponent<
           .send({
             from: currentAccount,
           })
+        console.log(createBlock, 'createBlock', flag)
+        setFlag(false)
+        setCreateLoading(false)
+        onCloseApprove()
+        if (toast.isActive('Created-Successfully-ID')) {
+          // toast.closeAll()
+        } else {
+          toast({
+            status: 'success',
+            title: 'Created successfully! ',
+            id: 'Created-Successfully-ID',
+          })
+        }
+        navigate('/xlending/lending/my-pools')
+        // xBankContract.events
+        //   .PoolCreated({
+        //     filter: {
+        //       //
+        //     },
+        //     fromBlock: createBlock?.blockNumber || 'latest',
+        //   })
+        //   .on(
+        //     'data',
+        //     flag
+        //       ? debounce((event) => {
+        //           console.log(event, 'on data') // same results as the optional callback above
+        //           setFlag(false)
+        //           setCreateLoading(false)
+        //           onCloseApprove()
+        //           if (toast.isActive('Created-Successfully-ID')) {
+        //             // toast.closeAll()
+        //           } else {
+        //             toast({
+        //               status: 'success',
+        //               title: 'Created successfully! ',
+        //               id: 'Created-Successfully-ID',
+        //             })
+        //           }
+        //           navigate('/xlending/lending/my-pools')
+        //         }, 10000)
+        //       : () => console.log(flag, 'flag false '),
+        //   )
       } catch (error: any) {
         console.log(error?.message, error?.code, error?.data)
         const code: string = error?.code

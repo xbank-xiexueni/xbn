@@ -32,6 +32,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useRef,
 } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -79,10 +80,12 @@ type PoolType = {
   pool_id: number
   pool_apr: number
   pool_days: LOAN_DAYS_ENUM
+  lp_address: string
 }
 
 const NftAssetDetail = () => {
   const navigate = useNavigate()
+  const timer = useRef<NodeJS.Timeout>()
   const toast = useToast()
   const { isOpen, onClose, currentAccount, interceptFn } = useWallet()
   const {
@@ -98,12 +101,15 @@ const NftAssetDetail = () => {
   useEffect(() => {
     const web3 = createWeb3Provider()
     web3.eth.clearSubscriptions()
-    toast.closeAll()
+  }, [])
+
+  useEffect(() => {
     return () => {
-      web3.eth.clearSubscriptions()
-      toast.closeAll()
+      if (timer?.current) {
+        clearTimeout(timer.current)
+      }
     }
-  }, [toast])
+  }, [timer])
 
   const [commodityWeiPrice, setCommodityWeiPrice] = useState(BigNumber(0))
   // const [, setUpdatedAt] = useState('')
@@ -280,6 +286,7 @@ const NftAssetDetail = () => {
             loan_time_concession_flexibility,
             pool_maximum_percentage,
             loan_ratio_preferential_flexibility,
+            owner_address,
           }) => {
             return {
               pool_id,
@@ -292,6 +299,7 @@ const NftAssetDetail = () => {
                 ((pool_maximum_percentage - loanPercentage) / 1000) *
                   loan_ratio_preferential_flexibility,
               pool_days: item,
+              lp_address: owner_address,
             }
           },
         ),
@@ -341,7 +349,8 @@ const NftAssetDetail = () => {
     [selectPool, loanWeiAmount],
   )
 
-  const [transferFromLoading, setTransferFromHashLoading] = useState(false)
+  const [transferFromLoading, setTransferFromLoading] = useState(false)
+  const [subscribeLoading, setSubscribeLoading] = useState(false)
   const { runAsync: generateLoanOrder, loading: loanOrderGenerateLoading } =
     useRequest(apiPostLoanOrder, {
       manual: true,
@@ -353,32 +362,13 @@ const NftAssetDetail = () => {
       if (!selectPool || isEmpty(selectPool)) {
         return
       }
-      const { pool_apr, pool_days, pool_id } = selectPool
+      const xBankContract = createXBankContract()
+      const { pool_apr, pool_days, pool_id, lp_address } = selectPool
+      let transferBlock
 
       try {
-        setTransferFromHashLoading(true)
-        const xBankContract = createXBankContract()
-        // 监听 loan 是否生成
-        xBankContract.events
-          .LoanCreated({
-            filter: {},
-            fromBlock: 'latest',
-          })
-          .on(
-            'data',
-            flag
-              ? debounce((event) => {
-                  console.log(event, 'on data') // same results as the optional callback above
-                  setFlag(false)
-                  toast({
-                    status: 'success',
-                    title: 'The loan is being generated, please wait',
-                  })
-                  navigate('/xlending/buy-nfts/loans')
-                }, 10000)
-              : () => console.log(flag, 'flag false '),
-          )
-        await xBankContract.methods
+        setTransferFromLoading(true)
+        transferBlock = await xBankContract.methods
           .transferFrom(pool_id, loanWeiAmount.toNumber().toString())
           .send({
             from: currentAccount,
@@ -386,7 +376,7 @@ const NftAssetDetail = () => {
             gas: 300000,
             // gasPrice:''
           })
-        setTransferFromHashLoading(false)
+        setTransferFromLoading(false)
       } catch (error: any) {
         console.log(
           '🚀 ~ file: NftAssetDetail.tsx:254 ~ handleClickPay ~ error:',
@@ -435,7 +425,7 @@ const NftAssetDetail = () => {
           description,
           duration: 5000,
         })
-        setTransferFromHashLoading(false)
+        setTransferFromLoading(false)
         return
       }
       try {
@@ -457,6 +447,41 @@ const NftAssetDetail = () => {
       } catch {
         //
       }
+
+      setSubscribeLoading(true)
+      // 监听 loan 是否生成
+      xBankContract.events
+        .LoanCreated({
+          filter: {
+            lender: lp_address,
+            borrower: currentAccount,
+          },
+          fromBlock: transferBlock?.BlockNumber || 'latest',
+        })
+        .on(
+          'data',
+          flag
+            ? debounce((event) => {
+                console.log(event, 'on data') // same results as the optional callback above
+                setFlag(false)
+                setSubscribeLoading(false)
+                toast({
+                  status: 'success',
+                  title: 'loan successfully!',
+                })
+                navigate('/xlending/buy-nfts/loans')
+              }, 10000)
+            : () => console.log(flag, 'flag false '),
+        )
+      // 如果一直监听不到
+      timer.current = setTimeout(() => {
+        setSubscribeLoading(false)
+        toast({
+          status: 'info',
+          title: 'The loan is being generated, please wait',
+        })
+        navigate('/xlending/buy-nfts/loans')
+      }, 5 * 60 * 1000)
     })
   }, [
     currentAccount,
@@ -491,6 +516,11 @@ const NftAssetDetail = () => {
     ready: false,
     // refreshDeps: [commodityWeiPrice],
   })
+
+  const clickLoading = useMemo(
+    () => transferFromLoading || subscribeLoading || loanOrderGenerateLoading,
+    [transferFromLoading, subscribeLoading, loanOrderGenerateLoading],
+  )
 
   if (!state || isEmpty(state) || (isEmpty(detail) && !assetFetchLoading))
     return (
@@ -648,11 +678,7 @@ const NftAssetDetail = () => {
               onChange={(target) => {
                 setPercentage(target)
               }}
-              isDisabled={
-                balanceFetchLoading ||
-                transferFromLoading ||
-                loanOrderGenerateLoading
-              }
+              isDisabled={balanceFetchLoading || clickLoading}
               value={percentage}
             >
               {COLLATERALS.map((item) => (
@@ -705,7 +731,7 @@ const NftAssetDetail = () => {
           }
         >
           <Flex gap={2} flexWrap='wrap'>
-            {pools.map(({ pool_id, pool_apr, pool_days }) => {
+            {pools.map(({ pool_id, pool_apr, pool_days, lp_address }) => {
               return (
                 <Flex
                   key={`${pool_id}-${pool_apr}-${pool_days}`}
@@ -714,12 +740,13 @@ const NftAssetDetail = () => {
                   maxW={136}
                 >
                   <RadioCard
-                    isDisabled={transferFromLoading || loanOrderGenerateLoading}
+                    isDisabled={clickLoading}
                     onClick={() =>
                       setSelectPool({
                         pool_apr,
                         pool_id,
                         pool_days,
+                        lp_address,
                       })
                     }
                     isActive={selectPool?.pool_days === pool_days}
@@ -754,7 +781,7 @@ const NftAssetDetail = () => {
                   maxW={206}
                 >
                   <RadioCard
-                    isDisabled={transferFromLoading || loanOrderGenerateLoading}
+                    isDisabled={clickLoading}
                     onClick={() => setInstallmentValue(value)}
                     isActive={value === installmentValue}
                   >
@@ -910,7 +937,7 @@ const NftAssetDetail = () => {
             assetFetchLoading ||
             ordersPriceFetchLoading
           }
-          isLoading={transferFromLoading || loanOrderGenerateLoading}
+          isLoading={clickLoading}
         >
           <Text fontWeight={'400'}>Pay now with</Text>&nbsp;
           {wei2Eth(downPaymentWei)} {UNIT}

@@ -32,8 +32,8 @@ import {
   SvgComponent,
   EthText,
   ImageWithFallback,
+  type ColumnProps,
 } from '@/components'
-import type { ColumnProps } from '@/components/my-table'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
 import { useWallet, useBatchAsset } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'

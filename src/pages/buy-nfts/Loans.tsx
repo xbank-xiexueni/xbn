@@ -21,8 +21,12 @@ import {
 } from 'react'
 
 import { apiGetLoans } from '@/api'
-import { ConnectWalletModal, ImageWithFallback, TableList } from '@/components'
-import type { ColumnProps } from '@/components/my-table'
+import {
+  ConnectWalletModal,
+  ImageWithFallback,
+  TableList,
+  type ColumnProps,
+} from '@/components'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
 import { useBatchAsset, useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'

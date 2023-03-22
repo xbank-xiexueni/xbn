@@ -3,8 +3,12 @@ import isEmpty from 'lodash-es/isEmpty'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { BaseRateTable, Select, SvgComponent } from '@/components'
-import AsyncSelectCollection from '@/components/async-select/AsyncSelectCollection'
+import {
+  BaseRateTable,
+  Select,
+  SvgComponent,
+  AsyncSelectCollection,
+} from '@/components'
 import {
   SUB_RESPONSIVE_MAX_W,
   TENORS,
