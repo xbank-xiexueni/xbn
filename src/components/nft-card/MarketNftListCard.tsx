@@ -59,7 +59,7 @@ const MarketNftListCard: FunctionComponent<
               lg: '160px',
               md: '160px',
               sm: '50%',
-              // xs: '50%',
+              xs: '50%',
             }}
             w='100%'
             fit='contain'
@@ -119,7 +119,7 @@ const MarketNftListCard: FunctionComponent<
                 lg: '40px',
                 md: '40px',
                 sm: '40px',
-                // xs: '40px',
+                xs: '40px',
               }
             : 0
         }
@@ -140,7 +140,7 @@ const MarketNftListCard: FunctionComponent<
           lg: '40px',
           md: '40px',
           sm: '40px',
-          // xs: '40px',
+          xs: '40px',
         }}
       >
         <Flex alignItems={'center'} gap={1}>

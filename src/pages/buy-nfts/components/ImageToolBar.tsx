@@ -35,6 +35,7 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({ data }) => {
         xl: '600px',
         lg: '380px',
         sm: '100%',
+        xs: '100%',
       }}
     >
       {!!likeCount && (

@@ -671,6 +671,7 @@ const Lend = () => {
                   lg: '25%',
                   md: '30%',
                   sm: '100%',
+                  xs: '100%',
                 }}
               >
                 <Heading size={'md'} mb={4}>
@@ -743,6 +744,7 @@ const Lend = () => {
                   lg: '72%',
                   md: '65%',
                   sm: '100%',
+                  xs: '100%',
                 }}
               >
                 <TableList

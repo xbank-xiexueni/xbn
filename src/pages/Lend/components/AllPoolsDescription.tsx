@@ -32,6 +32,7 @@ const AllPoolsDescription: FunctionComponent<{
   return (
     <Flex
       justify={{
+        xs: 'center',
         sm: 'center',
         md: 'space-between',
       }}
@@ -43,6 +44,7 @@ const AllPoolsDescription: FunctionComponent<{
           md: '40%',
           xl: '50%',
           sm: '100%',
+          xs: '100%',
         }}
       >
         {typeof title === 'string' ? (
@@ -85,10 +87,12 @@ const AllPoolsDescription: FunctionComponent<{
       <ImageWithFallback
         src={img}
         w={{
+          xs: '100%',
           sm: '100%',
           md: '440px',
         }}
         h={{
+          xs: '100%',
           sm: 'auto',
           md: '218px',
         }}

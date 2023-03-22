@@ -36,6 +36,7 @@ const CollectionDescription: FunctionComponent<{
               lg: '520px',
               md: '100%',
               sm: '100%',
+              xs: '100%',
             }}
             borderRadius={16}
           />
@@ -75,7 +76,7 @@ const CollectionDescription: FunctionComponent<{
         <Box pos='relative'>
           <Flex>
             <Heading
-              fontSize={{ lg: '3xl', md: 'xl', sm: 'xl' }}
+              fontSize={{ lg: '3xl', md: 'xl', sm: 'xl', xs: 'xl' }}
               display='flex'
             >
               {name}

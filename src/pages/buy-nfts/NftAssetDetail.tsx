@@ -477,7 +477,7 @@ const NftAssetDetail = () => {
         md: 'center',
       }}
       alignItems='flex-start'
-      flexWrap={{ lg: 'nowrap', md: 'wrap', sm: 'wrap' }}
+      flexWrap={{ lg: 'nowrap', md: 'wrap', sm: 'wrap', xs: 'wrap' }}
       gap={10}
       mx='58px'
       mt={8}
@@ -518,6 +518,7 @@ const NftAssetDetail = () => {
             lg: '450px',
             md: '80%',
             sm: '100%',
+            xs: '100%',
           }}
         />
       ) : (
@@ -535,6 +536,7 @@ const NftAssetDetail = () => {
             lg: '450px',
             md: '80%',
             sm: '100%',
+            xs: '100%',
           }}
           flexDirection={'column'}
         >
