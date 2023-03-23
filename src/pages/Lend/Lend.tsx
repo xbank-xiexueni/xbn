@@ -472,7 +472,17 @@ const Lend = () => {
         }}
       >
         {tabKey === 0 && (
-          <Flex position={'absolute'} right={0} top={0} gap={4} zIndex={3}>
+          <Flex
+            position={'absolute'}
+            right={0}
+            top={{
+              md: 0,
+              sm: 20,
+              xs: 20,
+            }}
+            gap={4}
+            zIndex={3}
+          >
             {/* {showSearch || isEmpty(activeCollectionData?.list) ? (
               <SearchInput
                 value={tabKey === 0 ? activeCollectionSearch : myPoolsSearch}
@@ -525,9 +535,9 @@ const Lend = () => {
             fontWeight: 'bold',
           }}
           position='sticky'
-          top={'74px'}
+          top={{ md: 74, sm: '56px', xs: '56px' }}
           bg='white'
-          zIndex={2}
+          zIndex={4}
         >
           {/* <Tab
             pt={4}
@@ -629,7 +639,14 @@ const Lend = () => {
               }}
             />
           </TabPanel> */}
-          <TabPanel p={0}>
+          <TabPanel
+            p={0}
+            pt={{
+              md: 0,
+              sm: 16,
+              xs: 16,
+            }}
+          >
             <MyTable
               loading={myPoolsLoading || collectionLoading}
               columns={myPoolsColumns}
@@ -661,7 +678,14 @@ const Lend = () => {
               }}
             />
           </TabPanel>
-          <TabPanel p={0}>
+          <TabPanel
+            pt={{
+              md: 0,
+              sm: 16,
+              xs: 16,
+            }}
+            p={0}
+          >
             <Flex justify={'space-between'} mt={4} flexWrap='wrap'>
               <Box
                 border={`1px solid var(--chakra-colors-gray-2)`}

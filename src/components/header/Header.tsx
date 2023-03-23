@@ -10,15 +10,21 @@ import {
   PopoverContent,
   PopoverBody,
   IconButton,
-  MenuButton,
-  Menu,
-  MenuList,
-  MenuOptionGroup,
-  MenuItemOption,
-  MenuDivider,
+  Drawer,
+  DrawerBody,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  useDisclosure,
+  Accordion,
+  AccordionItem,
+  AccordionIcon,
+  AccordionButton,
+  AccordionPanel,
 } from '@chakra-ui/react'
 import kebabCase from 'lodash-es/kebabCase'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import Jazzicon from 'react-jazzicon'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
@@ -33,7 +39,12 @@ import { ConnectWalletModal, SvgComponent } from '..'
 const Header = () => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
-
+  const {
+    isOpen: drawVisible,
+    onOpen: openDraw,
+    onClose: closeDraw,
+  } = useDisclosure()
+  const btnRef = useRef<HTMLButtonElement>(null)
   const { isOpen, onClose, currentAccount, interceptFn, handleDisconnect } =
     useWallet()
 
@@ -93,8 +104,6 @@ const Header = () => {
     })
   }, [interceptFn])
 
-  console.log(pathname)
-
   return (
     <Box
       position={'sticky'}
@@ -106,7 +115,7 @@ const Header = () => {
       <Box
         bg='linear-gradient(270deg, #E404E6 0%, #5843F4 53.65%, #1EF6F0
       100%)'
-        h={1}
+        h={{ md: 1, sm: '1px', xs: '1px' }}
       />
       <Container
         bg='white'
@@ -376,38 +385,105 @@ const Header = () => {
               bg='white'
               icon={<SvgComponent svgId='icon-wallet-outline' svgSize='32px' />}
             />
-            <Menu>
-              <MenuButton aria-label='Options'>
-                <SvgComponent svgId='icon-expand1' svgSize={'24px'} />
-              </MenuButton>
-              <MenuList minWidth='240px' hidden={pathname === '/xlending/demo'}>
-                <MenuOptionGroup title='Lend' type='radio'>
-                  <Link to='/xlending/lending/my-pools'>
-                    <MenuItemOption as='span' color={'black.1'}>
-                      My pools
-                    </MenuItemOption>
-                  </Link>
-                  <Link to='/xlending/lending/loans'>
-                    <MenuItemOption as='span' color={'black.1'}>
-                      Loans
-                    </MenuItemOption>
-                  </Link>
-                </MenuOptionGroup>
-                <MenuDivider />
-                <MenuOptionGroup title='Buy nfts'>
-                  <Link to='/xlending/buy-nfts/market'>
-                    <MenuItemOption as='span' color={'black.1'}>
-                      Market
-                    </MenuItemOption>
-                  </Link>
-                  <Link to='/xlending/buy-nfts/loans'>
-                    <MenuItemOption as='span' color={'black.1'}>
-                      Loans
-                    </MenuItemOption>
-                  </Link>
-                </MenuOptionGroup>
-              </MenuList>
-            </Menu>
+            <IconButton
+              icon={<SvgComponent svgId='icon-expand1' svgSize={'24px'} />}
+              ref={btnRef}
+              aria-label=''
+              onClick={openDraw}
+              bg='white'
+            />
+
+            <Drawer
+              isOpen={drawVisible}
+              placement='right'
+              onClose={closeDraw}
+              finalFocusRef={btnRef}
+            >
+              <DrawerOverlay bg='transparent' top={1} />
+              <DrawerContent maxW='100%'>
+                <Box
+                  bg='linear-gradient(270deg, #E404E6 0%, #5843F4 53.65%, #1EF6F0
+      100%)'
+                  h={'1px'}
+                />
+                <DrawerCloseButton />
+                <DrawerHeader h={8} />
+
+                <DrawerBody>
+                  <Accordion allowMultiple>
+                    <AccordionItem border={'none'}>
+                      <Text>
+                        <AccordionButton>
+                          <Box
+                            as='span'
+                            flex='1'
+                            textAlign='left'
+                            fontSize={'24px'}
+                            fontWeight='700'
+                          >
+                            Lend
+                          </Box>
+                          <AccordionIcon />
+                        </AccordionButton>
+                      </Text>
+                      <AccordionPanel px={8} py={'28px'}>
+                        <Flex flexDir={'column'} gap={8} onClick={closeDraw}>
+                          {[
+                            // 'Pools',
+                            'My Pools',
+                            'Loans',
+                          ].map((item) => (
+                            <Link
+                              to={`/xlending/lending/${kebabCase(item)}`}
+                              key={item}
+                            >
+                              <Flex fontSize='md' color='gray.3'>
+                                {item}
+                              </Flex>
+                            </Link>
+                          ))}
+                        </Flex>
+                      </AccordionPanel>
+                    </AccordionItem>
+                    <AccordionItem border={'none'}>
+                      <Text>
+                        <AccordionButton>
+                          <Box
+                            as='span'
+                            flex='1'
+                            textAlign='left'
+                            fontSize={'24px'}
+                            fontWeight='700'
+                          >
+                            Buy NFTs
+                          </Box>
+                          <AccordionIcon />
+                        </AccordionButton>
+                      </Text>
+                      <AccordionPanel px={8} py={'28px'}>
+                        <Flex flexDir={'column'} gap={8} onClick={closeDraw}>
+                          {[
+                            'Market',
+
+                            // 'My assets',
+                            'Loans',
+                          ].map((item) => (
+                            <Link
+                              to={`/xlending/buy-nfts/${kebabCase(item)}`}
+                              key={item}
+                            >
+                              <Flex fontSize='md' color='gray.3'>
+                                {item}
+                              </Flex>
+                            </Link>
+                          ))}
+                        </Flex>
+                      </AccordionPanel>
+                    </AccordionItem>
+                  </Accordion>
+                </DrawerBody>
+              </DrawerContent>
+            </Drawer>
           </Flex>
         </Flex>
       </Container>
