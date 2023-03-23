@@ -253,6 +253,16 @@ const Market = () => {
   // grid
   const [grid, setGrid] = useState(4)
 
+  const responsiveSpan = useMemo(
+    () => ({
+      xl: grid,
+      lg: grid,
+      md: grid,
+      sm: 2,
+    }),
+    [grid],
+  )
+
   return (
     <>
       <Box mb={10} mt={'60px'}>
@@ -411,26 +421,14 @@ const Market = () => {
             <SimpleGrid
               spacingX={4}
               spacingY={5}
-              columns={{
-                xl: grid,
-                lg: grid,
-                md: grid,
-                sm: 2,
-              }}
+              columns={responsiveSpan}
               position={'relative'}
             >
               <LoadingComponent
                 loading={assetLoading || poolsLoading || collectionLoading}
               />
               {isEmpty(assetsData?.list) ? (
-                <GridItem
-                  colSpan={{
-                    xl: grid,
-                    lg: grid,
-                    md: grid,
-                    sm: 2,
-                  }}
-                >
+                <GridItem colSpan={responsiveSpan}>
                   <EmptyComponent />
                 </GridItem>
               ) : (
@@ -468,7 +466,7 @@ const Market = () => {
                   )
                 })
               )}
-              <GridItem colSpan={grid}>
+              <GridItem colSpan={responsiveSpan}>
                 <Flex justifyContent='center' mb={5}>
                   {!noMore &&
                     (assetLoadingMore ? (
@@ -489,12 +487,7 @@ const Market = () => {
             <SimpleGrid
               spacingX={4}
               spacingY={5}
-              columns={{
-                xl: grid,
-                lg: grid,
-                md: grid,
-                sm: 2,
-              }}
+              columns={responsiveSpan}
               // overflowY='auto'
               position={'relative'}
               // overflowX='hidden'
@@ -503,14 +496,7 @@ const Market = () => {
                 loading={fetchAssetBySearchLoading || poolsLoading}
               />
               {!searchedAsset ? (
-                <GridItem
-                  colSpan={{
-                    xl: grid,
-                    lg: grid,
-                    md: grid,
-                    sm: 2,
-                  }}
-                >
+                <GridItem colSpan={responsiveSpan}>
                   <EmptyComponent />
                 </GridItem>
               ) : (
@@ -543,7 +529,7 @@ const Market = () => {
                   }}
                 />
               )}
-              <GridItem colSpan={4} hidden={!!debounceSearchValue}>
+              <GridItem colSpan={responsiveSpan} hidden={!!debounceSearchValue}>
                 <Flex justifyContent='center' mb={5}>
                   {!noMore &&
                     (assetLoadingMore ? (

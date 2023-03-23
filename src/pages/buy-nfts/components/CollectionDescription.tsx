@@ -133,7 +133,13 @@ const CollectionDescription: FunctionComponent<{
         </Box>
       </Flex>
 
-      <HStack spacing={20}>
+      <HStack
+        columnGap={20}
+        rowGap={4}
+        wrap='wrap'
+        alignItems={'flex-start'}
+        justify='flex-start'
+      >
         <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' svgSize='20px' />
