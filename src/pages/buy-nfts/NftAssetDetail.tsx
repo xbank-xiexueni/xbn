@@ -940,6 +940,7 @@ const NftAssetDetail = () => {
             ordersPriceFetchLoading
           }
           isLoading={clickLoading}
+          loadingText='The loan is being generated, please wait'
         >
           <Text fontWeight={'400'}>Pay now with</Text>&nbsp;
           {wei2Eth(downPaymentWei)} {UNIT}
