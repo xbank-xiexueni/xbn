@@ -101,7 +101,6 @@ export const TransactionsProvider = ({
   children: ReactElement
 }) => {
   // collection 提取到外层
-
   const [collectionAddressArr, setCollectionAddressArr] = useState<string[]>([])
   const { loading } = useRequest(apiGetActiveCollection, {
     debounceWait: 100,
@@ -133,19 +132,14 @@ export const TransactionsProvider = ({
     }, [collectionData])
 
   const toast = useToast()
-  const [currentAccount, setCurrentAccount] = useState('')
 
   const [connectLoading, setConnectLoading] = useState(false)
-  const [message, setMessage] = useLocalStorageState<string | undefined>(
-    'metamask-connect-status',
+  const [currentAccount, setCurrentAccount] = useLocalStorageState<string>(
+    'metamask-connect-address',
     {
-      defaultValue: 'connected',
+      defaultValue: '',
     },
   )
-  const handleDisconnect = useCallback(() => {
-    setMessage('')
-    window.location.reload()
-  }, [setMessage])
 
   const handleSwitchNetwork = useCallback(async () => {
     if (!ethereum) {
@@ -240,7 +234,7 @@ export const TransactionsProvider = ({
       window.location.reload()
       setCurrentAccount('')
     })
-  }, [])
+  }, [setCurrentAccount])
 
   const checkIfWalletIsConnect = useCallback(async () => {
     try {
@@ -259,7 +253,7 @@ export const TransactionsProvider = ({
 
       const accounts = await ethereum.request({ method: 'eth_accounts' })
 
-      if (accounts.length && message) {
+      if (accounts.length && currentAccount) {
         setCurrentAccount(accounts[0])
 
         // getAllTransactions();
@@ -271,7 +265,7 @@ export const TransactionsProvider = ({
       setCurrentAccount('')
       console.log(error)
     }
-  }, [toast, message])
+  }, [toast, currentAccount, setCurrentAccount])
 
   const connectWallet = useCallback(async () => {
     try {
@@ -295,7 +289,6 @@ export const TransactionsProvider = ({
       })
 
       setCurrentAccount(accounts[0])
-      setMessage('connected')
       setConnectLoading(false)
     } catch (error) {
       console.log(error)
@@ -303,7 +296,7 @@ export const TransactionsProvider = ({
 
       throw new Error('No ethereum object')
     }
-  }, [toast, handleSwitchNetwork, setMessage])
+  }, [toast, handleSwitchNetwork, setCurrentAccount])
 
   // const sendTransaction = async () => {
   //   try {
@@ -360,7 +353,7 @@ export const TransactionsProvider = ({
         // handleChange,
         // formData,
         handleSwitchNetwork,
-        handleDisconnect,
+        handleDisconnect: () => setCurrentAccount(''),
         // @ts-ignore
         collectionList,
         collectionLoading: loading || collectionLoading,
