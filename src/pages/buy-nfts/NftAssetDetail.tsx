@@ -19,11 +19,15 @@ import {
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
-import { debounce, get, head, map, min } from 'lodash-es'
+import map from 'lodash/map'
 import ceil from 'lodash-es/ceil'
+import debounce from 'lodash-es/debounce'
 import floor from 'lodash-es/floor'
+import get from 'lodash-es/get'
+import head from 'lodash-es/head'
 import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
+import min from 'lodash-es/min'
 import minBy from 'lodash-es/minBy'
 import range from 'lodash-es/range'
 import {
@@ -156,7 +160,6 @@ const NftAssetDetail = () => {
     const updatedAt = get(head(openSeaOrders), 'node.updatedAt', '')
     if (updatedAt) {
       const updatedAtObj = dayjs(updatedAt)
-      console.log(updatedAtObj.format('YYYY-MM-DD HH:MM:ss'))
       if (updatedAtObj.isValid()) {
         const msTime = dayjs(Date.now()).diff(updatedAtObj, 'minute')
         if (msTime > 1) {
@@ -475,10 +478,9 @@ const NftAssetDetail = () => {
         )
       // 如果一直监听不到
       timer.current = setTimeout(() => {
-        setSubscribeLoading(false)
         toast({
           status: 'info',
-          title: 'The loan is being generated, please wait',
+          title: 'The loan is being generated, please wait and refresh later',
         })
         navigate('/xlending/buy-nfts/loans')
       }, 5 * 60 * 1000)
