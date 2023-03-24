@@ -66,7 +66,6 @@ function AsyncSelectCollection({ w, ...rest }: any) {
 
   return (
     <AsyncSelect
-      menuIsOpen
       isLoading={collectionLoading}
       defaultOptions={collectionList || []}
       cacheOptions

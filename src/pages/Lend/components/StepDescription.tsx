@@ -27,11 +27,16 @@ const StepDescription: FunctionComponent<
           {step}
         </Flex>
 
-        <Heading size={'md'} color='black.1' w='80%'>
+        <Heading fontSize={'18px'} color='black.1' w='80%'>
           {title}
         </Heading>
       </Flex>
-      <Text color='gray.3' fontWeight={'500'} whiteSpace='pre-wrap'>
+      <Text
+        color='gray.3'
+        fontWeight={'500'}
+        whiteSpace='pre-wrap'
+        fontSize={'14px'}
+      >
         {text}
       </Text>
     </Box>
