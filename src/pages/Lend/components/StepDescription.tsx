@@ -22,6 +22,7 @@ const StepDescription: FunctionComponent<
           w={'32px'}
           h={'32px'}
           justifyContent='center'
+          fontSize='18px'
           lineHeight={2}
         >
           {step}

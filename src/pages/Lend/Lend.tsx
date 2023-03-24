@@ -458,7 +458,7 @@ const Lend = () => {
   } = useDisclosure()
 
   return (
-    <>
+    <Box mb='100px'>
       <Box
         my={{
           md: '60px',
@@ -715,7 +715,7 @@ const Lend = () => {
                   xs: 'none',
                 }}
               >
-                <Heading size={'md'} mb='16px'>
+                <Heading mb='16px' fontSize={'16px'}>
                   My Collection Pools
                 </Heading>
                 {/* <SearchInput placeholder='Collections...' /> */}
@@ -790,7 +790,7 @@ const Lend = () => {
                     {
                       tableTitle: () => (
                         <Heading
-                          size={'20px'}
+                          fontSize={'20px'}
                           mt={{
                             md: '16px',
                             sm: '20px',
@@ -808,7 +808,7 @@ const Lend = () => {
                     {
                       tableTitle: () => (
                         <Heading
-                          size={'20px'}
+                          fontSize={'20px'}
                           mt={{
                             md: '16px',
                             sm: '40px',
@@ -835,7 +835,7 @@ const Lend = () => {
                     {
                       tableTitle: () => (
                         <Heading
-                          size={'20px'}
+                          fontSize={'20px'}
                           mt={{
                             md: '16px',
                             sm: '40px',
@@ -983,7 +983,7 @@ const Lend = () => {
         </DrawerContent>
       </Drawer>
       <ConnectWalletModal visible={isOpen} handleClose={onClose} />
-    </>
+    </Box>
   )
 }
 

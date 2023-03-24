@@ -24,7 +24,7 @@ import {
   AccordionPanel,
 } from '@chakra-ui/react'
 import kebabCase from 'lodash-es/kebabCase'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef, type FunctionComponent } from 'react'
 import Jazzicon from 'react-jazzicon'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
@@ -36,30 +36,216 @@ import { formatAddress } from '@/utils/format'
 
 import { ConnectWalletModal, SvgComponent } from '..'
 
-const Header = () => {
+const useActivePath = () => {
   const { pathname } = useLocation()
-  const navigate = useNavigate()
+
+  return useMemo((): 'lending' | 'buy-nfts' | 'sell-nfts' | '' => {
+    if (pathname.startsWith('/xlending/lending')) {
+      return 'lending'
+    }
+    if (pathname.startsWith('/xlending/buy-nfts')) {
+      return 'buy-nfts'
+    }
+    if (pathname.startsWith('/xlending/sell-nfts')) {
+      return 'sell-nfts'
+    }
+    return ''
+  }, [pathname])
+}
+
+const PopoverWrapper: FunctionComponent<{
+  routes: string[]
+  route: string
+  pageName: string
+}> = ({ routes, route, pageName }) => {
+  const activePath = useActivePath()
+  return (
+    <Popover isLazy trigger='hover' placement='bottom-start'>
+      {({ isOpen: visible }) => {
+        return (
+          <>
+            <PopoverTrigger>
+              <Flex
+                fontSize='16px'
+                px={0}
+                gap={'4px'}
+                _focus={{ bg: 'transparent' }}
+                _hover={{
+                  bg: 'transparent',
+                  color: 'var(--chakra-colors-blue-1)',
+                }}
+                color={activePath === route || visible ? 'blue.1' : 'black.1'}
+                fontWeight='700'
+                alignItems={'center'}
+                cursor='pointer'
+              >
+                {pageName}
+                <SvgComponent
+                  svgId={'icon-arrow-down'}
+                  fill={
+                    activePath === route || visible
+                      ? 'var(--chakra-colors-blue-1)'
+                      : 'var(--chakra-colors-black-1)'
+                  }
+                  transition='all 0.2s'
+                  transform={`rotate(${visible ? '180deg' : '0deg'})`}
+                />
+              </Flex>
+              {/* </Link> */}
+            </PopoverTrigger>
+            <PopoverContent w={48} top='16px' borderRadius={8}>
+              <PopoverBody px={0} p={'20px'}>
+                <Flex flexDir={'column'} gap='20px'>
+                  {routes.map((item) => (
+                    <Link
+                      to={`/xlending/${route}/${kebabCase(item)}`}
+                      key={item}
+                    >
+                      <Flex borderBottomColor='gray.5' flexDir='column'>
+                        <Text
+                          fontSize='16px'
+                          _hover={{
+                            color: `blue.1`,
+                          }}
+                          color='black.1'
+                        >
+                          {item}
+                        </Text>
+                      </Flex>
+                    </Link>
+                  ))}
+                </Flex>
+              </PopoverBody>
+            </PopoverContent>
+          </>
+        )
+      }}
+    </Popover>
+  )
+}
+
+const MobileDrawBtn = () => {
   const {
     isOpen: drawVisible,
     onOpen: openDraw,
     onClose: closeDraw,
   } = useDisclosure()
+  const activePath = useActivePath()
   const btnRef = useRef<HTMLButtonElement>(null)
+
+  return (
+    <>
+      <IconButton
+        icon={<SvgComponent svgId='icon-expand1' svgSize={'24px'} />}
+        ref={btnRef}
+        aria-label=''
+        onClick={openDraw}
+        bg='white'
+      />
+      <Drawer
+        isOpen={drawVisible}
+        placement='right'
+        onClose={closeDraw}
+        finalFocusRef={btnRef}
+      >
+        <DrawerOverlay bg='transparent' top={'4px'} />
+        <DrawerContent maxW='100%'>
+          <Box
+            bg='linear-gradient(270deg, #E404E6 0%, #5843F4 53.65%, #1EF6F0 100%)'
+            h={'1px'}
+          />
+          <DrawerCloseButton pt='30px' size={'24px'} mr='24px' />
+          <DrawerHeader />
+
+          <DrawerBody mt='40px'>
+            <Accordion
+              allowMultiple
+              defaultIndex={
+                activePath === 'lending' ? 0 : activePath === 'buy-nfts' ? 1 : 0
+              }
+            >
+              <AccordionItem border={'none'}>
+                <Text>
+                  <AccordionButton>
+                    <Box
+                      as='span'
+                      flex='1'
+                      textAlign='left'
+                      fontSize={'24px'}
+                      fontWeight='700'
+                    >
+                      Lend
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </Text>
+                <AccordionPanel px={8} py={'28px'}>
+                  <Flex flexDir={'column'} gap={8} onClick={closeDraw}>
+                    {[
+                      // 'Pools',
+                      'My Pools',
+                      'Loans',
+                    ].map((item) => (
+                      <Link
+                        to={`/xlending/lending/${kebabCase(item)}`}
+                        key={item}
+                      >
+                        <Flex fontSize='16px' color='gray.3'>
+                          {item}
+                        </Flex>
+                      </Link>
+                    ))}
+                  </Flex>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem border={'none'}>
+                <Text>
+                  <AccordionButton>
+                    <Box
+                      as='span'
+                      flex='1'
+                      textAlign='left'
+                      fontSize={'24px'}
+                      fontWeight='700'
+                    >
+                      Buy NFTs
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </Text>
+                <AccordionPanel px={8} py={'28px'}>
+                  <Flex flexDir={'column'} gap={8} onClick={closeDraw}>
+                    {[
+                      'Market',
+
+                      // 'My assets',
+                      'Loans',
+                    ].map((item) => (
+                      <Link
+                        to={`/xlending/buy-nfts/${kebabCase(item)}`}
+                        key={item}
+                      >
+                        <Flex fontSize='16px' color='gray.3'>
+                          {item}
+                        </Flex>
+                      </Link>
+                    ))}
+                  </Flex>
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+    </>
+  )
+}
+const Header = () => {
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
+
   const { isOpen, onClose, currentAccount, interceptFn, handleDisconnect } =
     useWallet()
-
-  const activePath = useMemo((): 'LEND' | 'BUY_NFTS' | 'SELL_NFTS' | '' => {
-    if (pathname.startsWith('/xlending/lending')) {
-      return 'LEND'
-    }
-    if (pathname.startsWith('/xlending/buy-nfts')) {
-      return 'BUY_NFTS'
-    }
-    if (pathname.startsWith('/xlending/sell-nfts')) {
-      return 'SELL_NFTS'
-    }
-    return ''
-  }, [pathname])
 
   const handleOpenEtherscan = useCallback(() => {
     interceptFn(() => {
@@ -116,7 +302,7 @@ const Header = () => {
             hidden={!currentAccount}
           />
         </PopoverTrigger>
-        <PopoverContent w='160px'>
+        <PopoverContent w='160px' top='8px'>
           <PopoverBody p={'10px'}>
             <Button
               variant={'link'}
@@ -151,6 +337,9 @@ const Header = () => {
       zIndex={21}
       borderBottomColor='rgba(0, 0, 0, 0.05)'
       borderBottomWidth={1}
+      onClick={
+        import.meta.env.MODE === 'development' ? handleClickWallet : undefined
+      }
     >
       <Box
         bg='linear-gradient(270deg, #E404E6 0%, #5843F4 53.65%, #1EF6F0
@@ -203,124 +392,25 @@ const Header = () => {
             gap='40px'
             hidden={pathname === '/xlending/demo'}
           >
-            <Popover isLazy trigger='hover' placement='bottom-start'>
-              <PopoverTrigger>
-                {/* <Link to='/lending/my-pools'> */}
-                <Flex
-                  fontSize='16px'
-                  px={0}
-                  gap={'4px'}
-                  _focus={{ bg: 'transparent' }}
-                  _hover={{ bg: 'transparent' }}
-                  color={activePath === 'LEND' ? 'blue.1' : 'black.1'}
-                  fontWeight='700'
-                  alignItems={'center'}
-                  cursor='pointer'
-                >
-                  Lend
-                  <SvgComponent
-                    svgId={
-                      activePath === 'LEND'
-                        ? 'icon-arrow-down-active'
-                        : 'icon-arrow-down'
-                    }
-                  />
-                </Flex>
-                {/* </Link> */}
-              </PopoverTrigger>
-              <PopoverContent w={48}>
-                <PopoverBody px={0} py={'4px'}>
-                  {[
-                    // 'Pools',
-                    'My Pools',
-                    'Loans',
-                  ].map((item) => (
-                    <Link
-                      to={`/xlending/lending/${kebabCase(item)}`}
-                      key={item}
-                    >
-                      <Flex
-                        borderBottomColor='gray.5'
-                        gap={'4px'}
-                        px='12px'
-                        py={'4px'}
-                        flexDir='column'
-                      >
-                        <Text
-                          fontSize='16px'
-                          _hover={{
-                            color: `blue.1`,
-                          }}
-                          color='black.1'
-                        >
-                          {item}
-                        </Text>
-                      </Flex>
-                    </Link>
-                  ))}
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
+            <PopoverWrapper
+              routes={[
+                // 'Pools',
+                'My Pools',
+                'Loans',
+              ]}
+              route='lending'
+              pageName='Lend'
+            />
 
-            <Popover isLazy trigger='hover' placement='bottom-start'>
-              <PopoverTrigger>
-                {/* <Link to='/buy-nfts/market'> */}
-                <Flex
-                  fontSize='16px'
-                  px={0}
-                  _focus={{ bg: 'transparent' }}
-                  _hover={{ bg: 'transparent' }}
-                  color={activePath === 'BUY_NFTS' ? `blue.1` : `black.1`}
-                  fontWeight='700'
-                  alignItems={'center'}
-                  gap={'4px'}
-                  cursor='pointer'
-                >
-                  Buy NFTs
-                  <SvgComponent
-                    svgId={
-                      activePath === 'BUY_NFTS'
-                        ? 'icon-arrow-down-active'
-                        : 'icon-arrow-down'
-                    }
-                  />
-                </Flex>
-                {/* </Link> */}
-              </PopoverTrigger>
-              <PopoverContent w={48}>
-                <PopoverBody px={0} py={'4px'}>
-                  {[
-                    'Market',
-
-                    // 'My assets',
-                    'Loans',
-                  ].map((item) => (
-                    <Link
-                      to={`/xlending/buy-nfts/${kebabCase(item)}`}
-                      key={item}
-                    >
-                      <Flex
-                        borderBottomColor={`gray.5`}
-                        px='12px'
-                        py={'4px'}
-                        gap={'4px'}
-                        flexDir='column'
-                      >
-                        <Text
-                          fontSize='16px'
-                          _hover={{
-                            color: `blue.1`,
-                          }}
-                          color={`black.1`}
-                        >
-                          {item}
-                        </Text>
-                      </Flex>
-                    </Link>
-                  ))}
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
+            <PopoverWrapper
+              route='buy-nfts'
+              pageName='Buy NFTs'
+              routes={[
+                'Market',
+                // 'My assets',
+                'Loans',
+              ]}
+            />
           </Flex>
 
           <Flex
@@ -385,113 +475,7 @@ const Header = () => {
               hidden={!currentAccount}
             />
             {ConnectedIconWallet}
-            <IconButton
-              icon={<SvgComponent svgId='icon-expand1' svgSize={'24px'} />}
-              ref={btnRef}
-              aria-label=''
-              onClick={openDraw}
-              bg='white'
-            />
-
-            <Drawer
-              isOpen={drawVisible}
-              placement='right'
-              onClose={closeDraw}
-              finalFocusRef={btnRef}
-            >
-              <DrawerOverlay bg='transparent' top={'4px'} />
-              <DrawerContent maxW='100%'>
-                <Box
-                  bg='linear-gradient(270deg, #E404E6 0%, #5843F4 53.65%, #1EF6F0 100%)'
-                  h={'1px'}
-                />
-                <DrawerCloseButton pt='30px' size={'24px'} mr='24px' />
-                <DrawerHeader />
-
-                <DrawerBody mt='40px'>
-                  <Accordion
-                    allowMultiple
-                    defaultIndex={
-                      activePath === 'LEND'
-                        ? 0
-                        : activePath === 'BUY_NFTS'
-                        ? 1
-                        : 0
-                    }
-                  >
-                    <AccordionItem border={'none'}>
-                      <Text>
-                        <AccordionButton>
-                          <Box
-                            as='span'
-                            flex='1'
-                            textAlign='left'
-                            fontSize={'24px'}
-                            fontWeight='700'
-                          >
-                            Lend
-                          </Box>
-                          <AccordionIcon />
-                        </AccordionButton>
-                      </Text>
-                      <AccordionPanel px={8} py={'28px'}>
-                        <Flex flexDir={'column'} gap={8} onClick={closeDraw}>
-                          {[
-                            // 'Pools',
-                            'My Pools',
-                            'Loans',
-                          ].map((item) => (
-                            <Link
-                              to={`/xlending/lending/${kebabCase(item)}`}
-                              key={item}
-                            >
-                              <Flex fontSize='16px' color='gray.3'>
-                                {item}
-                              </Flex>
-                            </Link>
-                          ))}
-                        </Flex>
-                      </AccordionPanel>
-                    </AccordionItem>
-                    <AccordionItem border={'none'}>
-                      <Text>
-                        <AccordionButton>
-                          <Box
-                            as='span'
-                            flex='1'
-                            textAlign='left'
-                            fontSize={'24px'}
-                            fontWeight='700'
-                          >
-                            Buy NFTs
-                          </Box>
-                          <AccordionIcon />
-                        </AccordionButton>
-                      </Text>
-                      <AccordionPanel px={8} py={'28px'}>
-                        <Flex flexDir={'column'} gap={8} onClick={closeDraw}>
-                          {[
-                            'Market',
-
-                            // 'My assets',
-                            'Loans',
-                          ].map((item) => (
-                            <Link
-                              to={`/xlending/buy-nfts/${kebabCase(item)}`}
-                              key={item}
-                            >
-                              <Flex fontSize='16px' color='gray.3'>
-                                {item}
-                              </Flex>
-                            </Link>
-                          ))}
-                        </Flex>
-                      </AccordionPanel>
-                    </AccordionItem>
-                  </Accordion>
-                </DrawerBody>
-              </DrawerContent>
-            </Drawer>
+            <MobileDrawBtn />
           </Flex>
         </Flex>
       </Container>

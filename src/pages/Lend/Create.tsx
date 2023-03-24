@@ -149,7 +149,14 @@ const Create = () => {
           }}
         >
           <Box mb={8}>
-            <Heading size={'lg'} mb={'4px'}>
+            <Heading
+              fontSize={{
+                md: '40px',
+                sm: '24px',
+                xs: '24px',
+              }}
+              mb={'8px'}
+            >
               Create New Pool
             </Heading>
             <Text color='gray.3'>

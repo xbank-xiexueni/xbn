@@ -2,7 +2,6 @@ import {
   Table as ChakraTable,
   TableContainer,
   Tbody,
-  Td,
   Th,
   Thead,
   Tr,
@@ -61,138 +60,136 @@ const MyTable = ({
   return (
     <Box position={'relative'}>
       {!!tableTitle && tableTitle()}
-      {<LoadingComponent loading={loading} />}
-      <TableContainer position={'relative'} maxW={maxW || '100%'}>
-        {/* 为了让  EmptyComponent 居中*/}
-        {isEmpty(data) && (
+      {<LoadingComponent loading={loading} h='250px' />}
+      {isEmpty(data) && (
+        <Box h='250px'>
           <Box left={0} right={0} top={'40px'} bottom={0} pos='absolute'>
             {emptyRender ? emptyRender() : <EmptyComponent />}
           </Box>
-        )}
+        </Box>
+      )}
+      {!isEmpty(data) && (
+        <TableContainer position={'relative'} maxW={maxW || '100%'}>
+          <ChakraTable
+            variant='unstyled'
+            style={{
+              borderCollapse: 'collapse',
+              borderSpacing: '0 10px',
+            }}
+            className='my-table'
+          >
+            <Thead>
+              <Tr pos='relative'>
+                {columns.map(
+                  ({
+                    key,
+                    sortable,
+                    width,
+                    thAlign,
+                    title,
+                    dataIndex,
+                    fixedRight,
+                  }) => (
+                    <Th
+                      textAlign={thAlign}
+                      key={key}
+                      color={
+                        sortParams.field === dataIndex ? 'blue.1' : 'gray.4'
+                      }
+                      position={fixedRight ? 'sticky' : 'relative'}
+                      zIndex={fixedRight ? 1 : 'inherit'}
+                      bg='white'
+                      right={0}
+                      fontSize={'16px'}
+                      fontWeight='medium'
+                      cursor={sortable ? 'pointer' : 'default'}
+                      w={width || `${100 / columns.length}%`}
+                      py={0}
+                      paddingInlineStart={0}
+                      paddingInlineEnd={0}
+                      // textAlign={align}
+                      onClick={() => {
+                        if (!sortable) return
+                        const { direction, field } = sortParams
+                        if (field === dataIndex) {
+                          let nextDirection: 'ASC' | 'DESC' | '' = ''
+                          let newField = field
+                          if (direction === '') {
+                            nextDirection = 'ASC'
+                          }
+                          if (direction === 'ASC') {
+                            nextDirection = 'DESC'
+                          }
+                          if (direction === 'DESC') {
+                            nextDirection = ''
+                            newField = ''
+                          }
+                          if (onSort) {
+                            onSort({
+                              ...sortParams,
+                              direction: nextDirection,
+                              field: newField,
+                            })
+                          }
 
-        <ChakraTable
-          variant='unstyled'
-          style={{
-            borderCollapse: 'collapse',
-            borderSpacing: '0 10px',
-          }}
-          className='my-table'
-        >
-          <Thead>
-            <Tr pos='relative'>
-              {columns.map(
-                ({
-                  key,
-                  sortable,
-                  width,
-                  thAlign,
-                  title,
-                  dataIndex,
-                  fixedRight,
-                }) => (
-                  <Th
-                    textAlign={thAlign}
-                    key={key}
-                    color={sortParams.field === dataIndex ? 'blue.1' : 'gray.4'}
-                    position={fixedRight ? 'sticky' : 'relative'}
-                    zIndex={fixedRight ? 1 : 'inherit'}
-                    bg='white'
-                    right={0}
-                    fontSize={'16px'}
-                    fontWeight='medium'
-                    cursor={sortable ? 'pointer' : 'default'}
-                    w={width || `${100 / columns.length}%`}
-                    py={0}
-                    paddingInlineStart={0}
-                    paddingInlineEnd={0}
-                    // textAlign={align}
-                    onClick={() => {
-                      if (!sortable) return
-                      const { direction, field } = sortParams
-                      if (field === dataIndex) {
-                        let nextDirection: 'ASC' | 'DESC' | '' = ''
-                        let newField = field
-                        if (direction === '') {
-                          nextDirection = 'ASC'
-                        }
-                        if (direction === 'ASC') {
-                          nextDirection = 'DESC'
-                        }
-                        if (direction === 'DESC') {
-                          nextDirection = ''
-                          newField = ''
-                        }
-                        if (onSort) {
-                          onSort({
+                          setSortParam(() => ({
                             ...sortParams,
                             direction: nextDirection,
                             field: newField,
-                          })
-                        }
+                          }))
+                        } else {
+                          // 字段改变
+                          if (onSort) {
+                            onSort({
+                              field: dataIndex,
+                              direction: 'ASC',
+                            })
+                          }
 
-                        setSortParam(() => ({
-                          ...sortParams,
-                          direction: nextDirection,
-                          field: newField,
-                        }))
-                      } else {
-                        // 字段改变
-                        if (onSort) {
-                          onSort({
+                          setSortParam({
                             field: dataIndex,
                             direction: 'ASC',
                           })
                         }
-
-                        setSortParam({
-                          field: dataIndex,
-                          direction: 'ASC',
-                        })
-                      }
-                    }}
-                  >
-                    <Flex
-                      justify={
-                        thAlign === 'center'
-                          ? 'center'
-                          : thAlign === 'right'
-                          ? 'flex-end'
-                          : 'flex-start'
-                      }
-                      boxShadow={
-                        fixedRight
-                          ? `-4px 0 5px -3px var(--chakra-colors-gray-2)`
-                          : ''
-                      }
-                      py={'16px'}
-                      minW={isEmpty(data) ? '100px' : ''}
+                      }}
                     >
-                      {title}
-                      {sortable && sortParams.field !== dataIndex && (
-                        <SvgComponent svgId='icon-unsort' />
-                      )}
+                      <Flex
+                        justify={
+                          thAlign === 'center'
+                            ? 'center'
+                            : thAlign === 'right'
+                            ? 'flex-end'
+                            : 'flex-start'
+                        }
+                        boxShadow={
+                          fixedRight
+                            ? `-4px 0 5px -3px var(--chakra-colors-gray-2)`
+                            : ''
+                        }
+                        py={'16px'}
+                        minW={isEmpty(data) ? '100px' : ''}
+                      >
+                        {title}
+                        {sortable && sortParams.field !== dataIndex && (
+                          <SvgComponent svgId='icon-unsort' />
+                        )}
 
-                      {sortParams.field === dataIndex &&
-                        sortParams.direction === 'ASC' && (
-                          <SvgComponent svgId='icon-sort-down' />
-                        )}
-                      {sortParams.field === dataIndex &&
-                        sortParams.direction === 'DESC' && (
-                          <SvgComponent svgId='icon-sort-up' />
-                        )}
-                    </Flex>
-                  </Th>
-                ),
-              )}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {isEmpty(data) ? (
-              <Tr h='240px'>
-                <Td colSpan={columns.length} />
+                        {sortParams.field === dataIndex &&
+                          sortParams.direction === 'ASC' && (
+                            <SvgComponent svgId='icon-sort-down' />
+                          )}
+                        {sortParams.field === dataIndex &&
+                          sortParams.direction === 'DESC' && (
+                            <SvgComponent svgId='icon-sort-up' />
+                          )}
+                      </Flex>
+                    </Th>
+                  ),
+                )}
               </Tr>
-            ) : (
-              data?.map((item) => (
+            </Thead>
+            <Tbody>
+              {data?.map((item) => (
                 <Tr
                   key={JSON.stringify(item)}
                   bg='gray.5'
@@ -270,11 +267,12 @@ const MyTable = ({
                     ),
                   )}
                 </Tr>
-              ))
-            )}
-          </Tbody>
-        </ChakraTable>
-      </TableContainer>
+              ))}
+            </Tbody>
+          </ChakraTable>
+        </TableContainer>
+      )}
+
       {!!caption && (
         <Flex justify={'center'} my={'64px'}>
           {!loading && caption()}

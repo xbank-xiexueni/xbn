@@ -403,7 +403,11 @@ const Market = () => {
                   </Heading>
                   <SearchInput
                     placeholder='Collections...'
-                    isDisabled={collectionLoading || poolsLoading}
+                    isDisabled={
+                      collectionLoading ||
+                      poolsLoading ||
+                      isEmpty(filteredCollectionList)
+                    }
                     value={collectionSearchValue}
                     onChange={(e) => {
                       setCollectionSearchValue(e.target.value)

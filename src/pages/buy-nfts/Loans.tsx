@@ -377,7 +377,7 @@ const Loans = () => {
             tables={[
               {
                 tableTitle: () => (
-                  <Heading size={'20px'}>Current Loans as Borrower</Heading>
+                  <Heading fontSize={'20px'}>Current Loans as Borrower</Heading>
                 ),
                 columns: [
                   ...loansForBuyerColumns,
@@ -454,7 +454,7 @@ const Loans = () => {
               },
               {
                 tableTitle: () => (
-                  <Heading size={'20px'} mt={'40px'}>
+                  <Heading fontSize={'20px'} mt={'40px'}>
                     <Highlight
                       styles={{
                         fontSize: '18px',
@@ -475,7 +475,7 @@ const Loans = () => {
               },
               {
                 tableTitle: () => (
-                  <Heading size={'20px'} mt={'40px'}>
+                  <Heading fontSize={'20px'} mt={'40px'}>
                     <Highlight
                       styles={{
                         fontSize: '18px',

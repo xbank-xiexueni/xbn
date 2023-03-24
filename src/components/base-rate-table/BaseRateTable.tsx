@@ -105,12 +105,21 @@ const BaseRateTable: FunctionComponent<{
           {TOP_SLIDER_STEPS.map((item) => (
             <SliderMark value={item} fontSize='14px' key={item} zIndex={1}>
               <Box
-                w={'4px'}
-                h={'4px'}
+                w={'12px'}
+                h={'12px'}
+                boxSize={{
+                  md: '12px',
+                  sm: '6px',
+                  xs: '6px',
+                }}
                 borderRadius={8}
-                borderWidth={1}
+                borderWidth={{ md: 3, sm: 1, xs: 1 }}
                 borderColor='white'
-                mt={-1}
+                mt={{
+                  md: '-6px',
+                  sm: -1,
+                  xs: -1,
+                }}
                 bg={sliderTopValue > item ? `blue.1` : `gray.1`}
               />
             </SliderMark>
@@ -120,17 +129,17 @@ const BaseRateTable: FunctionComponent<{
             value={TOP_SLIDER_STEPS[0]}
             mt='16px'
             ml='-2.5'
-            fontSize='14px'
+            fontSize='12px'
             color={`gray.3`}
           >
             min
           </SliderMark>
           <SliderMark
             value={TOP_SLIDER_STEPS[TOP_SLIDER_STEPS.length - 1]}
-            ml='-2.5'
-            fontSize='14px'
+            fontSize='12px'
             mt='16px'
             color={`gray.3`}
+            ml='-3.5'
           >
             max
           </SliderMark>
@@ -153,7 +162,7 @@ const BaseRateTable: FunctionComponent<{
           </SliderTrack>
           <SliderThumb
             boxSize='24px'
-            borderWidth={5}
+            borderWidth={'5px'}
             borderColor={`blue.1`}
             _focus={{
               boxShadow: 'none',
