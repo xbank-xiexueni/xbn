@@ -10,15 +10,21 @@ import {
   PopoverContent,
   PopoverBody,
   IconButton,
-  MenuButton,
-  MenuList,
-  Menu,
-  MenuDivider,
-  MenuOptionGroup,
-  MenuItemOption,
+  Drawer,
+  DrawerBody,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  useDisclosure,
+  Accordion,
+  AccordionItem,
+  AccordionIcon,
+  AccordionButton,
+  AccordionPanel,
 } from '@chakra-ui/react'
 import kebabCase from 'lodash-es/kebabCase'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef, type FunctionComponent } from 'react'
 import Jazzicon from 'react-jazzicon'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
@@ -30,25 +36,216 @@ import { formatAddress } from '@/utils/format'
 
 import { ConnectWalletModal, SvgComponent } from '..'
 
+const useActivePath = () => {
+  const { pathname } = useLocation()
+
+  return useMemo((): 'lending' | 'buy-nfts' | 'sell-nfts' | '' => {
+    if (pathname.startsWith('/xlending/lending')) {
+      return 'lending'
+    }
+    if (pathname.startsWith('/xlending/buy-nfts')) {
+      return 'buy-nfts'
+    }
+    if (pathname.startsWith('/xlending/sell-nfts')) {
+      return 'sell-nfts'
+    }
+    return ''
+  }, [pathname])
+}
+
+const PopoverWrapper: FunctionComponent<{
+  routes: string[]
+  route: string
+  pageName: string
+}> = ({ routes, route, pageName }) => {
+  const activePath = useActivePath()
+  return (
+    <Popover isLazy trigger='hover' placement='bottom-start'>
+      {({ isOpen: visible }) => {
+        return (
+          <>
+            <PopoverTrigger>
+              <Flex
+                fontSize='16px'
+                px={0}
+                gap={'4px'}
+                _focus={{ bg: 'transparent' }}
+                _hover={{
+                  bg: 'transparent',
+                  color: 'var(--chakra-colors-blue-1)',
+                }}
+                color={activePath === route || visible ? 'blue.1' : 'black.1'}
+                fontWeight='700'
+                alignItems={'center'}
+                cursor='pointer'
+              >
+                {pageName}
+                <SvgComponent
+                  svgId={'icon-arrow-down'}
+                  fill={
+                    activePath === route || visible
+                      ? 'var(--chakra-colors-blue-1)'
+                      : 'var(--chakra-colors-black-1)'
+                  }
+                  transition='all 0.2s'
+                  transform={`rotate(${visible ? '180deg' : '0deg'})`}
+                />
+              </Flex>
+              {/* </Link> */}
+            </PopoverTrigger>
+            <PopoverContent w={48} top='16px' borderRadius={8}>
+              <PopoverBody px={0} p={'20px'}>
+                <Flex flexDir={'column'} gap='20px'>
+                  {routes.map((item) => (
+                    <Link
+                      to={`/xlending/${route}/${kebabCase(item)}`}
+                      key={item}
+                    >
+                      <Flex borderBottomColor='gray.5' flexDir='column'>
+                        <Text
+                          fontSize='16px'
+                          _hover={{
+                            color: `blue.1`,
+                          }}
+                          color='black.1'
+                        >
+                          {item}
+                        </Text>
+                      </Flex>
+                    </Link>
+                  ))}
+                </Flex>
+              </PopoverBody>
+            </PopoverContent>
+          </>
+        )
+      }}
+    </Popover>
+  )
+}
+
+const MobileDrawBtn = () => {
+  const {
+    isOpen: drawVisible,
+    onOpen: openDraw,
+    onClose: closeDraw,
+  } = useDisclosure()
+  const activePath = useActivePath()
+  const btnRef = useRef<HTMLButtonElement>(null)
+
+  return (
+    <>
+      <IconButton
+        icon={<SvgComponent svgId='icon-expand1' svgSize={'24px'} />}
+        ref={btnRef}
+        aria-label=''
+        onClick={openDraw}
+        bg='white'
+      />
+      <Drawer
+        isOpen={drawVisible}
+        placement='right'
+        onClose={closeDraw}
+        finalFocusRef={btnRef}
+      >
+        <DrawerOverlay bg='transparent' top={'4px'} />
+        <DrawerContent maxW='100%'>
+          <Box
+            bg='linear-gradient(270deg, #E404E6 0%, #5843F4 53.65%, #1EF6F0 100%)'
+            h={'1px'}
+          />
+          <DrawerCloseButton pt='30px' size={'24px'} mr='24px' />
+          <DrawerHeader />
+
+          <DrawerBody mt='40px'>
+            <Accordion
+              allowMultiple
+              defaultIndex={
+                activePath === 'lending' ? 0 : activePath === 'buy-nfts' ? 1 : 0
+              }
+            >
+              <AccordionItem border={'none'}>
+                <Text>
+                  <AccordionButton>
+                    <Box
+                      as='span'
+                      flex='1'
+                      textAlign='left'
+                      fontSize={'24px'}
+                      fontWeight='700'
+                    >
+                      Lend
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </Text>
+                <AccordionPanel px={8} py={'28px'}>
+                  <Flex flexDir={'column'} gap={8} onClick={closeDraw}>
+                    {[
+                      // 'Pools',
+                      'My Pools',
+                      'Loans',
+                    ].map((item) => (
+                      <Link
+                        to={`/xlending/lending/${kebabCase(item)}`}
+                        key={item}
+                      >
+                        <Flex fontSize='16px' color='gray.3'>
+                          {item}
+                        </Flex>
+                      </Link>
+                    ))}
+                  </Flex>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem border={'none'}>
+                <Text>
+                  <AccordionButton>
+                    <Box
+                      as='span'
+                      flex='1'
+                      textAlign='left'
+                      fontSize={'24px'}
+                      fontWeight='700'
+                    >
+                      Buy NFTs
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </Text>
+                <AccordionPanel px={8} py={'28px'}>
+                  <Flex flexDir={'column'} gap={8} onClick={closeDraw}>
+                    {[
+                      'Market',
+
+                      // 'My assets',
+                      'Loans',
+                    ].map((item) => (
+                      <Link
+                        to={`/xlending/buy-nfts/${kebabCase(item)}`}
+                        key={item}
+                      >
+                        <Flex fontSize='16px' color='gray.3'>
+                          {item}
+                        </Flex>
+                      </Link>
+                    ))}
+                  </Flex>
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+    </>
+  )
+}
 const Header = () => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
   const { isOpen, onClose, currentAccount, interceptFn, handleDisconnect } =
     useWallet()
-
-  const activePath = useMemo((): 'LEND' | 'BUY_NFTS' | 'SELL_NFTS' | '' => {
-    if (pathname.startsWith('/lending')) {
-      return 'LEND'
-    }
-    if (pathname.startsWith('/buy-nfts')) {
-      return 'BUY_NFTS'
-    }
-    if (pathname.startsWith('/sell-nfts')) {
-      return 'SELL_NFTS'
-    }
-    return ''
-  }, [pathname])
 
   const handleOpenEtherscan = useCallback(() => {
     interceptFn(() => {
@@ -93,6 +290,46 @@ const Header = () => {
     })
   }, [interceptFn])
 
+  const ConnectedIconWallet = useMemo(
+    () => (
+      <Popover isLazy trigger='click' placement='bottom-end'>
+        <PopoverTrigger>
+          <IconButton
+            justifyContent={'center'}
+            aria-label=''
+            bg='white'
+            icon={<SvgComponent svgId='icon-wallet-outline' svgSize='30px' />}
+            hidden={!currentAccount}
+          />
+        </PopoverTrigger>
+        <PopoverContent w='160px' top='8px'>
+          <PopoverBody p={'10px'}>
+            <Button
+              variant={'link'}
+              color='black.1'
+              p={'10px'}
+              onClick={handleOpenEtherscan}
+            >
+              {formatAddress(currentAccount)}
+            </Button>
+            <Button
+              variant={'link'}
+              color='black.1'
+              p={'10px'}
+              _hover={{
+                textDecoration: 'none',
+              }}
+              onClick={handleDisconnect}
+            >
+              Disconnect
+            </Button>
+          </PopoverBody>
+        </PopoverContent>
+      </Popover>
+    ),
+    [handleOpenEtherscan, handleDisconnect, currentAccount],
+  )
+
   return (
     <Box
       position={'sticky'}
@@ -100,158 +337,87 @@ const Header = () => {
       zIndex={21}
       borderBottomColor='rgba(0, 0, 0, 0.05)'
       borderBottomWidth={1}
+      onClick={
+        import.meta.env.MODE === 'development' ? handleClickWallet : undefined
+      }
     >
       <Box
         bg='linear-gradient(270deg, #E404E6 0%, #5843F4 53.65%, #1EF6F0
       100%)'
-        h={1}
+        h={{ md: 1, sm: '1px', xs: '1px' }}
       />
-      <Container bg='white' maxW={RESPONSIVE_MAX_W}>
-        <Flex justify={'space-between'} h={74} alignItems='center'>
+      <Container
+        bg='white'
+        maxW={RESPONSIVE_MAX_W}
+        boxShadow='0px 1px 0px rgba(0, 0, 0, 0.08)'
+      >
+        <Flex
+          justify={'space-between'}
+          h={{
+            md: 74,
+            sm: '56px',
+            xs: '56px',
+          }}
+          alignItems='center'
+        >
           <Flex
             alignItems={'center'}
             onClick={() => {
+              if (pathname === '/xlending/demo') return
               navigate('/xlending/lending/my-pools')
             }}
             cursor='pointer'
           >
-            <Flex gap={2} onClick={() => {}} alignItems='center'>
-              <Image src={Icon} h={25} alt='icon' loading='lazy' />
+            <Flex gap={'8px'} onClick={() => {}} alignItems='center'>
+              <Image
+                src={Icon}
+                h={{
+                  md: 25,
+                  xs: '20px',
+                  sm: '20px',
+                }}
+                alt='icon'
+                loading='lazy'
+              />
             </Flex>
           </Flex>
 
           <Flex
             display={{
+              xs: 'none',
               sm: 'none',
               md: 'none',
               lg: 'flex',
             }}
-            gap={10}
+            gap='40px'
+            hidden={pathname === '/xlending/demo'}
           >
-            <Popover isLazy trigger='hover' placement='bottom-start'>
-              <PopoverTrigger>
-                {/* <Link to='/lending/my-pools'> */}
-                <Flex
-                  fontSize={'md'}
-                  px={0}
-                  gap={1}
-                  _focus={{ bg: 'transparent' }}
-                  _hover={{ bg: 'transparent' }}
-                  color={activePath === 'LEND' ? 'blue.1' : 'black.1'}
-                  fontWeight='700'
-                  alignItems={'center'}
-                  cursor='pointer'
-                >
-                  Lend
-                  <SvgComponent
-                    svgId={
-                      activePath === 'LEND'
-                        ? 'icon-arrow-down-active'
-                        : 'icon-arrow-down'
-                    }
-                  />
-                </Flex>
-                {/* </Link> */}
-              </PopoverTrigger>
-              <PopoverContent w={48}>
-                <PopoverBody px={0} py={2}>
-                  {[
-                    // 'Pools',
-                    'My Pools',
-                    'Loans',
-                  ].map((item) => (
-                    <Link
-                      to={`/xlending/lending/${kebabCase(item)}`}
-                      key={item}
-                    >
-                      <Flex
-                        borderBottomColor='gray.5'
-                        gap={1}
-                        px={3}
-                        py={2}
-                        flexDir='column'
-                      >
-                        <Text
-                          fontSize='md'
-                          _hover={{
-                            color: `blue.1`,
-                          }}
-                          color='black.1'
-                        >
-                          {item}
-                        </Text>
-                      </Flex>
-                    </Link>
-                  ))}
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
+            <PopoverWrapper
+              routes={[
+                // 'Pools',
+                'My Pools',
+                'Loans',
+              ]}
+              route='lending'
+              pageName='Lend'
+            />
 
-            <Popover isLazy trigger='hover' placement='bottom-start'>
-              <PopoverTrigger>
-                {/* <Link to='/buy-nfts/market'> */}
-                <Flex
-                  fontSize={'md'}
-                  px={0}
-                  _focus={{ bg: 'transparent' }}
-                  _hover={{ bg: 'transparent' }}
-                  color={activePath === 'BUY_NFTS' ? `blue.1` : `black.1`}
-                  fontWeight='700'
-                  alignItems={'center'}
-                  gap={1}
-                  cursor='pointer'
-                >
-                  Buy NFTs
-                  <SvgComponent
-                    svgId={
-                      activePath === 'BUY_NFTS'
-                        ? 'icon-arrow-down-active'
-                        : 'icon-arrow-down'
-                    }
-                  />
-                </Flex>
-                {/* </Link> */}
-              </PopoverTrigger>
-              <PopoverContent w={48}>
-                <PopoverBody px={0} py={2}>
-                  {[
-                    'Market',
-
-                    // 'My assets',
-                    'Loans',
-                  ].map((item) => (
-                    <Link
-                      to={`/xlending/buy-nfts/${kebabCase(item)}`}
-                      key={item}
-                    >
-                      <Flex
-                        borderBottomColor={`gray.5`}
-                        px={3}
-                        py={2}
-                        gap={1}
-                        flexDir='column'
-                      >
-                        <Text
-                          fontSize='md'
-                          _hover={{
-                            color: `blue.1`,
-                          }}
-                          color={`black.1`}
-                        >
-                          {item}
-                        </Text>
-                      </Flex>
-                    </Link>
-                  ))}
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
+            <PopoverWrapper
+              route='buy-nfts'
+              pageName='Buy NFTs'
+              routes={[
+                'Market',
+                // 'My assets',
+                'Loans',
+              ]}
+            />
           </Flex>
 
           <Flex
-            gap={6}
+            gap='24px'
             alignItems='center'
             display={{
+              xs: 'none',
               sm: 'none',
               md: 'none',
               lg: 'flex',
@@ -282,101 +448,35 @@ const Header = () => {
                 }
               />
             )}
-
-            <Popover isLazy trigger='hover' placement='bottom-start'>
-              <PopoverTrigger>
-                <IconButton
-                  justifyContent={'center'}
-                  aria-label=''
-                  bg='white'
-                  icon={
-                    <SvgComponent svgId='icon-wallet-outline' svgSize='30px' />
-                  }
-                  hidden={!currentAccount}
-                />
-              </PopoverTrigger>
-              <PopoverContent w='160px'>
-                <PopoverBody p={'10px'}>
-                  <Button
-                    variant={'link'}
-                    color='black.1'
-                    p={'10px'}
-                    onClick={handleOpenEtherscan}
-                  >
-                    {formatAddress(currentAccount)}
-                  </Button>
-                  <Button
-                    variant={'link'}
-                    color='black.1'
-                    p={'10px'}
-                    _hover={{
-                      textDecoration: 'none',
-                    }}
-                    onClick={handleDisconnect}
-                  >
-                    Disconnect
-                  </Button>
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
+            {ConnectedIconWallet}
           </Flex>
 
-          <Menu>
-            <MenuButton
-              aria-label='Options'
-              display={{
-                md: 'flex',
-                lg: 'none',
-              }}
-            >
-              <SvgComponent svgId='icon-open' svgSize={'24px'} />
-            </MenuButton>
-            <MenuList minWidth='240px'>
-              <MenuOptionGroup title='Lend' type='radio'>
-                <Link to='/xlending/lending/my-pools'>
-                  <MenuItemOption as='span' color={'black.1'}>
-                    My pools
-                  </MenuItemOption>
-                </Link>
-                <Link to='/xlending/lending/loans'>
-                  <MenuItemOption as='span' color={'black.1'}>
-                    Loans
-                  </MenuItemOption>
-                </Link>
-              </MenuOptionGroup>
-              <MenuDivider />
-              <MenuOptionGroup title='Buy nfts'>
-                <Link to='/xlending/buy-nfts/market'>
-                  <MenuItemOption as='span' color={'black.1'}>
-                    Market
-                  </MenuItemOption>
-                </Link>
-                <Link to='/xlending/buy-nfts/loans'>
-                  <MenuItemOption as='span' color={'black.1'}>
-                    Loans
-                  </MenuItemOption>
-                </Link>
-              </MenuOptionGroup>
-
-              <MenuDivider />
-              <Flex justify={'center'} py={2} onClick={handleClickWallet}>
-                {!!currentAccount ? (
-                  <Flex alignItems={'center'} gap={1} color='gray.3'>
-                    <Jazzicon
-                      diameter={30}
-                      seed={parseInt(currentAccount.slice(2, 10), 16)}
-                    />
-                    &nbsp;{formatAddress(currentAccount)}
-                  </Flex>
-                ) : (
-                  <Button>
-                    <SvgComponent svgId='icon-wallet-outline' svgSize='24px' />
-                    &nbsp;Connect
-                  </Button>
-                )}
-              </Flex>
-            </MenuList>
-          </Menu>
+          {/*  移动端 */}
+          <Flex
+            gap={'20px'}
+            display={{
+              xs: 'flex',
+              sm: 'flex',
+              md: 'flex',
+              lg: 'none',
+            }}
+          >
+            <IconButton
+              onClick={handleOpenEtherscan}
+              justifyContent={'center'}
+              aria-label=''
+              bg='white'
+              icon={
+                <Jazzicon
+                  diameter={30}
+                  seed={parseInt(currentAccount.slice(2, 10), 16)}
+                />
+              }
+              hidden={!currentAccount}
+            />
+            {ConnectedIconWallet}
+            <MobileDrawBtn />
+          </Flex>
         </Flex>
       </Container>
 

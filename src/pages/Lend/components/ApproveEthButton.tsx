@@ -47,8 +47,8 @@ import { wei2Eth } from '@/utils/unit-conversion'
 //       <Text fontWeight={'medium'} color={`var(--chakra-colors-gray-3)`}>
 //         {label}
 //       </Text>
-//       <Flex alignItems={'center'} mt={2} justify='center'>
-//         <Image src={IconEth} w={2} />
+//       <Flex alignItems={'center'} mt={'4px'} justify='center'>
+//         <Image src={IconEth} w={'4px'} />
 //         <Text fontSize={'lg'} fontWeight='bold'>
 //           &nbsp;{data}
 //         </Text>
@@ -279,22 +279,37 @@ const ApproveEthButton: FunctionComponent<
         isCentered
       >
         <ModalOverlay bg='black.2' />
-        <ModalContent maxW='576px' px={10}>
+        <ModalContent
+          maxW={{
+            xl: '526px',
+            lg: '526px',
+            md: '400px',
+            sm: '326px',
+            xs: '326px',
+          }}
+          px={{ md: '40px', sm: '20px', xs: '20px' }}
+        >
           <ModalHeader
-            pt={10}
+            pt={'40px'}
             px={0}
             alignItems='center'
             display={'flex'}
             justifyContent='space-between'
           >
-            <Text>Approve WETH</Text>
+            <Text
+              fontSize={{ md: '28px', sm: '24px', xs: '24px' }}
+              fontWeight='700'
+            >
+              Approve WETH
+            </Text>
             <SvgComponent
               svgId='icon-close'
               onClick={handleClose}
               cursor='pointer'
+              svgSize='16px'
             />
           </ModalHeader>
-          <ModalBody pb={6} px={0}>
+          <ModalBody pb={'24px'} px={0}>
             {/* 数值们 */}
             {/* <Flex
               py={8}
@@ -334,7 +349,7 @@ const ApproveEthButton: FunctionComponent<
                 >
                   <NumberInputField
                     h='60px'
-                    px={8}
+                    px={'32px'}
                     _focus={{
                       borderColor: isError ? 'red.1' : 'blue.1',
                     }}
@@ -353,7 +368,7 @@ const ApproveEthButton: FunctionComponent<
                 )}
               </InputGroup>
 
-              <Text mt={2} color={isError ? 'red.1' : 'gray.3'}>
+              <Text mt={'8px'} color={isError ? 'red.1' : 'gray.3'}>
                 {isError
                   ? errorMsg
                   : `Minimum input: ${formatFloat(floorPrice * 0.1)}`}
@@ -372,8 +387,8 @@ const ApproveEthButton: FunctionComponent<
               fontSize={'12px'}
               color='gray.4'
               textAlign={'center'}
-              px={8}
-              mt={5}
+              px={'32px'}
+              mt={'20px'}
             >
               This is a Georli based demo, you may need to swap your GeorliETH
               into GoerliWETH with the “Deposit” function of this DEX contract:
@@ -384,16 +399,17 @@ const ApproveEthButton: FunctionComponent<
           {/* <ModalFooter justifyContent={'center'}> */}
           <Button
             variant='primary'
-            mr={3}
-            mt={2}
-            mb={10}
-            mx={10}
+            mr={'12px'}
+            mt={'8px'}
+            mb={'40px'}
+            mx={'40px'}
             h='52px'
             isDisabled={isError || !Number(amount)}
             onClick={onConfirm}
             loadingText={
               approveLoading ? 'approving' : createLoading ? 'creating' : ''
             }
+            fontSize='16px'
             isLoading={approveLoading || createLoading || refreshLoading}
           >
             Approve

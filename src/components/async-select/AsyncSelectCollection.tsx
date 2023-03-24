@@ -20,7 +20,7 @@ const Option = ({ children, isSelected, ...props }: any) => {
   )
 }
 
-function AsyncSelectCollection({ ...rest }) {
+function AsyncSelectCollection({ w, ...rest }: any) {
   const { collectionList, collectionLoading } = useContext(TransactionContext)
   // const [collectionAddressArr, setCollectionAddressArr] = useState<string[]>([])
   // const { loading } = useRequest(apiGetActiveCollection, {
@@ -75,7 +75,6 @@ function AsyncSelectCollection({ ...rest }) {
       theme={(theme) => ({
         ...theme,
         borderRadius: 0,
-        width: 240,
         colors: {
           ...theme.colors,
           primary: `var(--chakra-colors-blue-1)`,
@@ -105,14 +104,14 @@ function AsyncSelectCollection({ ...rest }) {
           return {
             ...base,
             border: 'none',
-            borderRadius: 0,
+            borderRadius: 8,
             top: '65%',
             boxShadow: 'none',
           }
         },
         control: (baseStyles, { isFocused }) => ({
           ...baseStyles,
-          width: 240,
+          width: w,
           fontWeight: 700,
           borderRadius: 8,
           border: `1px solid ${
@@ -152,7 +151,7 @@ function AsyncSelectCollection({ ...rest }) {
       }}
       components={{
         IndicatorSeparator: () => null,
-        NoOptionsMessage: () => <EmptyComponent my={0} mt={4} />,
+        NoOptionsMessage: () => <EmptyComponent my={0} mt='16px' />,
         Option,
       }}
       // @ts-ignore
@@ -166,11 +165,16 @@ function AsyncSelectCollection({ ...rest }) {
           safelistRequestStatus = nftCollection.safelistRequestStatus
         }
         return (
-          <Flex alignItems={'center'} key={contractAddress} gap={2} pl={1}>
+          <Flex
+            alignItems={'center'}
+            key={contractAddress}
+            gap={'8px'}
+            pl={'4px'}
+          >
             <ImageWithFallback
               src={imagePreviewUrl}
-              w={5}
-              h={5}
+              w={'20px'}
+              h={'20px'}
               borderRadius={4}
             />
             {name?.length > 10 ? `${name?.substring(0, 10)}...` : name}

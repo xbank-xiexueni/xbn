@@ -14,9 +14,9 @@ const PlanItem: FunctionComponent<{ label: string; value: string }> = ({
       <Flex>
         <SvgComponent svgId='icon-calendar' />
         &nbsp;&nbsp;
-        <Text fontSize={'sm'}>{label}</Text>
+        <Text fontSize='14px'>{label}</Text>
       </Flex>
-      <Text fontSize={'sm'}>
+      <Text fontSize='14px'>
         {value} {UNIT}
       </Text>
     </Flex>
