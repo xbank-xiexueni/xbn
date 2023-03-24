@@ -81,15 +81,18 @@ const MyTable = ({
             <Thead>
               <Tr pos='relative'>
                 {columns.map(
-                  ({
-                    key,
-                    sortable,
-                    width,
-                    thAlign,
-                    title,
-                    dataIndex,
-                    fixedRight,
-                  }) => (
+                  (
+                    {
+                      key,
+                      sortable,
+                      width,
+                      thAlign,
+                      title,
+                      dataIndex,
+                      fixedRight,
+                    },
+                    i,
+                  ) => (
                     <Th
                       textAlign={thAlign}
                       key={key}
@@ -167,7 +170,7 @@ const MyTable = ({
                             : ''
                         }
                         py={'16px'}
-                        minW={isEmpty(data) ? '100px' : ''}
+                        px={i !== 0 ? '24px' : 0}
                       >
                         {title}
                         {sortable && sortParams.field !== dataIndex && (

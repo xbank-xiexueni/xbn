@@ -296,6 +296,8 @@ const Lend = () => {
         title: 'Interest',
         dataIndex: 'pool_maximum_interest_rate',
         key: 'pool_maximum_interest_rate',
+        thAlign: 'right',
+        align: 'right',
         render: (value: any) => <Text>{Number(value) / 100}% APR</Text>,
       },
       {
