@@ -57,7 +57,7 @@ function CustomSelect<
           return {
             ...base,
             border: 'none',
-            borderRadius: 0,
+            borderRadius: 8,
             top: '65%',
             boxShadow: 'none',
           }

@@ -41,7 +41,7 @@ import {
   SvgComponent,
   NftMedia,
 } from '@/components'
-import { COLLATERALS, TENORS, UNIT } from '@/constants'
+import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
 import {
   useWallet,
   useAssetOrdersPriceLazyQuery,
@@ -501,16 +501,20 @@ const NftAssetDetail = () => {
           sm: 'flex',
           xs: 'flex',
         }}
-        onClick={() => {
-          navigate(-1)
-        }}
         pb={'20px'}
+        justify='space-between'
+        w='100%'
       >
         <SvgComponent
           svgId='icon-arrow-down'
           fill={'black.1'}
           transform='rotate(90deg)'
+          onClick={() => {
+            navigate(-1)
+          }}
         />
+        <Text fontWeight={'700'}>Buy NFTs</Text>
+        <Flex w='30px' />
       </Flex>
       {assetFetchLoading ? (
         <Skeleton
@@ -919,11 +923,10 @@ const NftAssetDetail = () => {
               <Flex justify={'space-between'}>
                 <Text color='gray.3'>Interest fee</Text>
                 <Text color='gray.3'>
-                  {formatFloat(
-                    getPlanPer(installmentValue)
-                      .multipliedBy(installmentValue)
-                      .minus(Number(wei2Eth(loanWeiAmount))),
-                  )}
+                  {getPlanPer(installmentValue)
+                    .multipliedBy(installmentValue)
+                    .minus(Number(wei2Eth(loanWeiAmount)))
+                    .toFormat(FORMAT_NUMBER)}
                   {UNIT}
                 </Text>
               </Flex>

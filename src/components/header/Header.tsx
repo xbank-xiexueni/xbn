@@ -104,6 +104,46 @@ const Header = () => {
     })
   }, [interceptFn])
 
+  const ConnectedIconWallet = useMemo(
+    () => (
+      <Popover isLazy trigger='click' placement='bottom-end'>
+        <PopoverTrigger>
+          <IconButton
+            justifyContent={'center'}
+            aria-label=''
+            bg='white'
+            icon={<SvgComponent svgId='icon-wallet-outline' svgSize='30px' />}
+            hidden={!currentAccount}
+          />
+        </PopoverTrigger>
+        <PopoverContent w='160px'>
+          <PopoverBody p={'10px'}>
+            <Button
+              variant={'link'}
+              color='black.1'
+              p={'10px'}
+              onClick={handleOpenEtherscan}
+            >
+              {formatAddress(currentAccount)}
+            </Button>
+            <Button
+              variant={'link'}
+              color='black.1'
+              p={'10px'}
+              _hover={{
+                textDecoration: 'none',
+              }}
+              onClick={handleDisconnect}
+            >
+              Disconnect
+            </Button>
+          </PopoverBody>
+        </PopoverContent>
+      </Popover>
+    ),
+    [handleOpenEtherscan, handleDisconnect, currentAccount],
+  )
+
   return (
     <Box
       position={'sticky'}
@@ -318,45 +358,10 @@ const Header = () => {
                 }
               />
             )}
-
-            <Popover isLazy trigger='hover' placement='bottom-start'>
-              <PopoverTrigger>
-                <IconButton
-                  justifyContent={'center'}
-                  aria-label=''
-                  bg='white'
-                  icon={
-                    <SvgComponent svgId='icon-wallet-outline' svgSize='30px' />
-                  }
-                  hidden={!currentAccount}
-                />
-              </PopoverTrigger>
-              <PopoverContent w='160px'>
-                <PopoverBody p={'10px'}>
-                  <Button
-                    variant={'link'}
-                    color='black.1'
-                    p={'10px'}
-                    onClick={handleOpenEtherscan}
-                  >
-                    {formatAddress(currentAccount)}
-                  </Button>
-                  <Button
-                    variant={'link'}
-                    color='black.1'
-                    p={'10px'}
-                    _hover={{
-                      textDecoration: 'none',
-                    }}
-                    onClick={handleDisconnect}
-                  >
-                    Disconnect
-                  </Button>
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
+            {ConnectedIconWallet}
           </Flex>
 
+          {/*  移动端 */}
           <Flex
             gap={'20px'}
             display={{
@@ -379,12 +384,7 @@ const Header = () => {
               }
               hidden={!currentAccount}
             />
-            <IconButton
-              justifyContent={'center'}
-              aria-label=''
-              bg='white'
-              icon={<SvgComponent svgId='icon-wallet-outline' svgSize='32px' />}
-            />
+            {ConnectedIconWallet}
             <IconButton
               icon={<SvgComponent svgId='icon-expand1' svgSize={'24px'} />}
               ref={btnRef}
@@ -409,7 +409,16 @@ const Header = () => {
                 <DrawerHeader />
 
                 <DrawerBody mt='40px'>
-                  <Accordion allowMultiple>
+                  <Accordion
+                    allowMultiple
+                    defaultIndex={
+                      activePath === 'LEND'
+                        ? 0
+                        : activePath === 'BUY_NFTS'
+                        ? 1
+                        : 0
+                    }
+                  >
                     <AccordionItem border={'none'}>
                       <Text>
                         <AccordionButton>

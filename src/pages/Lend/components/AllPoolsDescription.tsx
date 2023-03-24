@@ -51,8 +51,8 @@ const AllPoolsDescription: FunctionComponent<{
           <Heading
             fontSize={{
               md: '64px',
-              sm: '20px',
-              xs: '20px',
+              sm: '24px',
+              xs: '24px',
             }}
           >
             {title}

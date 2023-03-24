@@ -9,8 +9,8 @@ const Index = ({ loading }: { loading: boolean }) => {
       position={'absolute'}
       left={0}
       right={0}
-      top={0}
-      bottom={0}
+      top={'10px'}
+      bottom={'10px'}
       bg='rgba(27, 34, 44, 0.1)'
       borderRadius={16}
       justify={'center'}

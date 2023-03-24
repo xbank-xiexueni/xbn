@@ -301,7 +301,7 @@ const Market = () => {
         <Box
           borderColor='gray.2'
           borderWidth={{ md: 1, sm: 0, xs: 0 }}
-          borderRadius={{ md: '48px', sm: 0, xs: 0 }}
+          borderRadius={{ md: '12px', sm: 0, xs: 0 }}
           p={{ md: '24px', sm: 0, xs: 0 }}
           w={{
             xl: '360px',
@@ -381,6 +381,7 @@ const Market = () => {
               xs: 'block',
             }}
             mt={'16px'}
+            position='relative'
           >
             <CollectionListItem
               isActive

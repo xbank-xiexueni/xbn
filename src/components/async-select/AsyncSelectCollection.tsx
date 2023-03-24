@@ -66,6 +66,7 @@ function AsyncSelectCollection({ w, ...rest }: any) {
 
   return (
     <AsyncSelect
+      menuIsOpen
       isLoading={collectionLoading}
       defaultOptions={collectionList || []}
       cacheOptions
@@ -104,7 +105,7 @@ function AsyncSelectCollection({ w, ...rest }: any) {
           return {
             ...base,
             border: 'none',
-            borderRadius: 0,
+            borderRadius: 8,
             top: '65%',
             boxShadow: 'none',
           }
