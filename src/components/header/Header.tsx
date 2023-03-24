@@ -139,7 +139,7 @@ const Header = () => {
             }}
             cursor='pointer'
           >
-            <Flex gap={2} onClick={() => {}} alignItems='center'>
+            <Flex gap={'8px'} onClick={() => {}} alignItems='center'>
               <Image
                 src={Icon}
                 h={{
@@ -160,16 +160,16 @@ const Header = () => {
               md: 'none',
               lg: 'flex',
             }}
-            gap={10}
+            gap='40px'
             hidden={pathname === '/xlending/demo'}
           >
             <Popover isLazy trigger='hover' placement='bottom-start'>
               <PopoverTrigger>
                 {/* <Link to='/lending/my-pools'> */}
                 <Flex
-                  fontSize={'md'}
+                  fontSize='16px'
                   px={0}
-                  gap={1}
+                  gap={'4px'}
                   _focus={{ bg: 'transparent' }}
                   _hover={{ bg: 'transparent' }}
                   color={activePath === 'LEND' ? 'blue.1' : 'black.1'}
@@ -189,7 +189,7 @@ const Header = () => {
                 {/* </Link> */}
               </PopoverTrigger>
               <PopoverContent w={48}>
-                <PopoverBody px={0} py={2}>
+                <PopoverBody px={0} py={'4px'}>
                   {[
                     // 'Pools',
                     'My Pools',
@@ -201,13 +201,13 @@ const Header = () => {
                     >
                       <Flex
                         borderBottomColor='gray.5'
-                        gap={1}
-                        px={3}
-                        py={2}
+                        gap={'4px'}
+                        px='12px'
+                        py={'4px'}
                         flexDir='column'
                       >
                         <Text
-                          fontSize='md'
+                          fontSize='16px'
                           _hover={{
                             color: `blue.1`,
                           }}
@@ -226,14 +226,14 @@ const Header = () => {
               <PopoverTrigger>
                 {/* <Link to='/buy-nfts/market'> */}
                 <Flex
-                  fontSize={'md'}
+                  fontSize='16px'
                   px={0}
                   _focus={{ bg: 'transparent' }}
                   _hover={{ bg: 'transparent' }}
                   color={activePath === 'BUY_NFTS' ? `blue.1` : `black.1`}
                   fontWeight='700'
                   alignItems={'center'}
-                  gap={1}
+                  gap={'4px'}
                   cursor='pointer'
                 >
                   Buy NFTs
@@ -248,7 +248,7 @@ const Header = () => {
                 {/* </Link> */}
               </PopoverTrigger>
               <PopoverContent w={48}>
-                <PopoverBody px={0} py={2}>
+                <PopoverBody px={0} py={'4px'}>
                   {[
                     'Market',
 
@@ -261,13 +261,13 @@ const Header = () => {
                     >
                       <Flex
                         borderBottomColor={`gray.5`}
-                        px={3}
-                        py={2}
-                        gap={1}
+                        px='12px'
+                        py={'4px'}
+                        gap={'4px'}
                         flexDir='column'
                       >
                         <Text
-                          fontSize='md'
+                          fontSize='16px'
                           _hover={{
                             color: `blue.1`,
                           }}
@@ -284,7 +284,7 @@ const Header = () => {
           </Flex>
 
           <Flex
-            gap={6}
+            gap='24px'
             alignItems='center'
             display={{
               xs: 'none',
@@ -358,7 +358,7 @@ const Header = () => {
           </Flex>
 
           <Flex
-            gap={5}
+            gap={'20px'}
             display={{
               xs: 'flex',
               sm: 'flex',
@@ -399,17 +399,16 @@ const Header = () => {
               onClose={closeDraw}
               finalFocusRef={btnRef}
             >
-              <DrawerOverlay bg='transparent' top={1} />
+              <DrawerOverlay bg='transparent' top={'4px'} />
               <DrawerContent maxW='100%'>
                 <Box
-                  bg='linear-gradient(270deg, #E404E6 0%, #5843F4 53.65%, #1EF6F0
-      100%)'
+                  bg='linear-gradient(270deg, #E404E6 0%, #5843F4 53.65%, #1EF6F0 100%)'
                   h={'1px'}
                 />
-                <DrawerCloseButton />
-                <DrawerHeader h={8} />
+                <DrawerCloseButton pt='30px' size={'24px'} mr='24px' />
+                <DrawerHeader />
 
-                <DrawerBody>
+                <DrawerBody mt='40px'>
                   <Accordion allowMultiple>
                     <AccordionItem border={'none'}>
                       <Text>
@@ -437,7 +436,7 @@ const Header = () => {
                               to={`/xlending/lending/${kebabCase(item)}`}
                               key={item}
                             >
-                              <Flex fontSize='md' color='gray.3'>
+                              <Flex fontSize='16px' color='gray.3'>
                                 {item}
                               </Flex>
                             </Link>
@@ -472,7 +471,7 @@ const Header = () => {
                               to={`/xlending/buy-nfts/${kebabCase(item)}`}
                               key={item}
                             >
-                              <Flex fontSize='md' color='gray.3'>
+                              <Flex fontSize='16px' color='gray.3'>
                                 {item}
                               </Flex>
                             </Link>

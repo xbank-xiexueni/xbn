@@ -28,7 +28,7 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({ data }) => {
   return (
     <Flex
       h='40px'
-      mt={6}
+      mt='24px'
       alignItems='center'
       justify={!!likeCount ? 'space-between' : 'flex-end'}
       w={{
@@ -39,7 +39,7 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({ data }) => {
       }}
     >
       {!!likeCount && (
-        <Flex alignItems={'center'} gap={1}>
+        <Flex alignItems={'center'} gap={'4px'}>
           <SvgComponent svgId='icon-like' fontSize={'20px'} />
           <Text fontWeight={'700'} color='black.1'>
             {numeral(likeCount).format('0.00 a')}
@@ -48,7 +48,7 @@ const ImageToolBar: FunctionComponent<ImageToolBarProps> = ({ data }) => {
       )}
 
       {judgeNftMediaType(animationUrl) === NFT_MEDIA_TYPE.IMAGE_MEDIA && (
-        <Flex gap={2}>
+        <Flex gap={'8px'}>
           <IconButton
             icon={<SvgComponent svgId='icon-download' />}
             aria-label='download'

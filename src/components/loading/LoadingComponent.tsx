@@ -22,7 +22,7 @@ const Index = ({ loading }: { loading: boolean }) => {
         emptyColor='gray.200'
         color='blue.1'
         size='xl'
-        mt={20}
+        mt={'80px'}
       />
     </Flex>
   )

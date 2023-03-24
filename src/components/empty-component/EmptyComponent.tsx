@@ -14,8 +14,8 @@ const EmptyComponent: FunctionComponent<
   } & BoxProps
 > = ({ description, action, ...rest }) => {
   return (
-    <Box textAlign={'center'} my={20} {...rest}>
-      <Flex justify={'center'} mb={4}>
+    <Box textAlign={'center'} my={'80px'} {...rest}>
+      <Flex justify={'center'} mb='16px'>
         <svg
           width='40'
           height='40'
@@ -60,7 +60,7 @@ const EmptyComponent: FunctionComponent<
 
         {/* <ImageWithFallback src={icon || defaultEmptyIcon} w='40px' h='40px' /> */}
       </Flex>
-      <Text color='gray.3' mb={6} fontSize='sm' fontWeight={'700'}>
+      <Text color='gray.3' mb='24px' fontSize='14px' fontWeight={'700'}>
         {description || 'no Data yet...'}
       </Text>
       {action && action()}

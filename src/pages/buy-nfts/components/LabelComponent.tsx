@@ -8,17 +8,21 @@ const LabelComponent: FunctionComponent<
     <Box
       borderBottomColor={'gray.2'}
       borderBottomWidth={1}
-      mt={'44px'}
-      pb={'44px'}
+      mt={{
+        md: '44px',
+        sm: '40px',
+        xs: '40px',
+      }}
+      pb={{ md: '44px', sm: '40px', xs: '40px' }}
       {...rest}
     >
-      <Heading mb={5} size='lg'>
+      <Heading mb={5} fontSize={{ md: '24px', sm: '20px', xs: '20px' }}>
         {label}
       </Heading>
 
       {loading && <Skeleton h='100px' borderRadius={16} />}
       {!loading && isEmpty && (
-        <Flex alignItems={'center'} justify='center' color='gray.3' py={6}>
+        <Flex alignItems={'center'} justify='center' color='gray.3' py='24px'>
           no data yet...
         </Flex>
       )}

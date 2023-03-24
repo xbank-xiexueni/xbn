@@ -65,7 +65,7 @@ const MyTable = ({
       <TableContainer position={'relative'} maxW={maxW || '100%'}>
         {/* 为了让  EmptyComponent 居中*/}
         {isEmpty(data) && (
-          <Box left={0} right={0} top={10} bottom={0} pos='absolute'>
+          <Box left={0} right={0} top={'40px'} bottom={0} pos='absolute'>
             {emptyRender ? emptyRender() : <EmptyComponent />}
           </Box>
         )}
@@ -98,7 +98,7 @@ const MyTable = ({
                     zIndex={fixedRight ? 1 : 'inherit'}
                     bg='white'
                     right={0}
-                    fontSize={'md'}
+                    fontSize={'16px'}
                     fontWeight='medium'
                     cursor={sortable ? 'pointer' : 'default'}
                     w={width || `${100 / columns.length}%`}
@@ -164,9 +164,8 @@ const MyTable = ({
                           ? `-4px 0 5px -3px var(--chakra-colors-gray-2)`
                           : ''
                       }
-                      py={4}
-                      paddingInlineStart={6}
-                      paddingInlineEnd={6}
+                      py={'16px'}
+                      minW={isEmpty(data) ? '100px' : ''}
                     >
                       {title}
                       {sortable && sortParams.field !== dataIndex && (
@@ -197,7 +196,7 @@ const MyTable = ({
                 <Tr
                   key={JSON.stringify(item)}
                   bg='gray.5'
-                  mb={4}
+                  mb={'16px'}
                   pos='relative'
                 >
                   {columns.map(
@@ -213,7 +212,7 @@ const MyTable = ({
                       colIndex,
                     ) => (
                       <Th
-                        fontSize='md'
+                        fontSize={{ md: '16px', sm: '14px', xs: '14px' }}
                         key={key}
                         w={width}
                         textAlign={align}
@@ -238,16 +237,16 @@ const MyTable = ({
                         borderTopLeftRadius={colIndex === 0 ? 10 : 0}
                       >
                         <Box
-                          lineHeight='40px'
+                          lineHeight={{ md: '40px', sm: '20px', xs: '20px' }}
                           boxShadow={
                             fixedRight
                               ? `-4px 0 5px -3px var(--chakra-colors-gray-2)`
                               : ''
                           }
-                          py={4}
+                          py={'16px'}
                           w={width}
-                          paddingInlineStart={6}
-                          paddingInlineEnd={6}
+                          paddingInlineStart={'24px'}
+                          paddingInlineEnd={'24px'}
                           // display={'table-cell'}
                           bg='gray.5'
                           borderTopLeftRadius={colIndex === 0 ? 10 : 0}
@@ -276,9 +275,11 @@ const MyTable = ({
           </Tbody>
         </ChakraTable>
       </TableContainer>
-      <Flex justify={'center'} my={8}>
-        {!!caption && !loading && caption()}
-      </Flex>
+      {!!caption && (
+        <Flex justify={'center'} my={'64px'}>
+          {!loading && caption()}
+        </Flex>
+      )}
     </Box>
   )
 }

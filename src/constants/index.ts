@@ -11,14 +11,7 @@ export const RESPONSIVE_MAX_W = {
   lg: 968,
   md: 768,
   sm: 390,
-  xs: '95%',
-}
-
-export const SUB_RESPONSIVE_MAX_W = {
-  lg: 1024,
-  md: 768,
-  sm: 390,
-  xs: '95%',
+  xs: 320,
 }
 
 export const UNIT = 'ETH'
