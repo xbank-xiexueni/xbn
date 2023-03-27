@@ -393,11 +393,7 @@ const Header = () => {
             hidden={pathname === '/xlending/demo'}
           >
             <PopoverWrapper
-              routes={[
-                // 'Pools',
-                'My Pools',
-                'Loans',
-              ]}
+              routes={['Collections', 'My Pools', 'Loans']}
               route='lending'
               pageName='Lend'
             />
