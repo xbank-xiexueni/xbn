@@ -38,12 +38,21 @@ function App() {
       <Routes>
         <Route
           path='/xlending'
-          element={<Navigate replace to='/xlending/lending/my-pools' />}
+          element={<Navigate replace to='/xlending/lending/collections' />}
         />
         <Route
           path='/xlending/lending'
-          element={<Navigate replace to='/xlending/lending/my-pools' />}
+          element={<Navigate replace to='/xlending/lending/collections' />}
         />
+        <Route
+          path='/xlending/lending/my-pools'
+          element={
+            <Suspense fallback={<Fallback />}>
+              <Lend />
+            </Suspense>
+          }
+        />
+
         {/* <Route
           path='lending/pools'
           element={
@@ -53,7 +62,7 @@ function App() {
           }
         /> */}
         <Route
-          path='/xlending/lending/my-pools/create'
+          path='/xlending/lending/pools/create'
           element={
             <Suspense fallback={<Fallback />}>
               <PoolCreate />
@@ -69,7 +78,7 @@ function App() {
           }
         /> */}
         <Route
-          path='/xlending/lending/my-pools'
+          path='/xlending/lending/collections'
           element={
             <Suspense fallback={<Fallback />}>
               <Lend />

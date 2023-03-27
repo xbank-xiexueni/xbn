@@ -364,7 +364,7 @@ const Header = () => {
             alignItems={'center'}
             onClick={() => {
               if (pathname === '/xlending/demo') return
-              navigate('/xlending/lending/my-pools')
+              navigate('/xlending/lending/collections')
             }}
             cursor='pointer'
           >

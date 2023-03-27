@@ -61,7 +61,6 @@ const Wrapper: FunctionComponent<
 
 const Create = () => {
   const navigate = useNavigate()
-  // const params = useParams()
   const { state } = useLocation()
   const [selectCollateral, setSelectCollateral] = useState(INITIAL_COLLATERAL)
   const [selectTenor, setSelectTenor] = useState(INITIAL_TENOR)
