@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Flex, Text } from '@chakra-ui/react'
 import { useCallback, useContext } from 'react'
 import { components } from 'react-select'
 import AsyncSelect from 'react-select/async'
@@ -213,7 +213,7 @@ function AsyncSelectCollection({
               h={'20px'}
               borderRadius={4}
             />
-            {name?.length > 10 ? `${name?.substring(0, 10)}...` : name}
+            <Text noOfLines={1}>{name}</Text>
             {safelistRequestStatus === 'verified' && (
               <SvgComponent svgId='icon-verified-fill' />
             )}
