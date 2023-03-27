@@ -20,3 +20,5 @@ export { default as ImageWithFallback } from './image-with-fallback/ImageWithFal
 export { default as NotFound } from './not-found/NotFound'
 export { default as NftMedia } from './nft-media/NftMedia'
 export { default as ScrollNumber } from './scroll-number/ScrollNumber'
+
+export { type ColumnProps } from './my-table/index'
