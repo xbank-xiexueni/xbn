@@ -15,14 +15,18 @@ export const DropdownIndicator = ({ isDisabled, ...props }: any) => {
   )
 }
 
-const Option = ({ children, isSelected, ...props }: any) => {
+export const Option = ({
+  children,
+  isSelected,
+  selectedIcon = '',
+  unSelectedIcon = '',
+  ...props
+}: any) => {
   return (
     <components.Option isSelected={isSelected} {...props}>
       <Flex justify={'space-between'} alignItems='center'>
         {children}
-        <SvgComponent
-          svgId={isSelected ? 'icon-radio-active' : 'icon-radio-inactive'}
-        />
+        <SvgComponent svgId={isSelected ? selectedIcon : unSelectedIcon} />
       </Flex>
     </components.Option>
   )
@@ -175,7 +179,13 @@ function AsyncSelectCollection({
       components={{
         IndicatorSeparator: () => null,
         NoOptionsMessage: () => <EmptyComponent my={0} mt='16px' />,
-        Option,
+        Option: (p) => (
+          <Option
+            {...p}
+            selectedIcon='icon-radio-active'
+            unSelectedIcon='icon-radio-inactive'
+          />
+        ),
         DropdownIndicator: !isDisabled
           ? components.DropdownIndicator
           : DropdownIndicator,

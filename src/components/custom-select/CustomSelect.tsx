@@ -1,14 +1,6 @@
 import Select, { components, type GroupBase, type Props } from 'react-select'
 
-import { DropdownIndicator } from './AsyncSelectCollection'
-
-export interface ColorOption {
-  readonly value: string
-  readonly label: string
-  readonly color: string
-  readonly isFixed?: boolean
-  readonly isDisabled?: boolean
-}
+import { DropdownIndicator, Option } from './AsyncSelectCollection'
 
 function CustomSelect<
   Option,
@@ -127,6 +119,7 @@ function CustomSelect<
         DropdownIndicator: !isDisabled
           ? components.DropdownIndicator
           : DropdownIndicator,
+        Option: (p) => <Option {...p} selectedIcon='icon-checked' />,
       }}
     />
   )
