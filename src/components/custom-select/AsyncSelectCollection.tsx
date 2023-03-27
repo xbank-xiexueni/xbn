@@ -7,6 +7,14 @@ import { TransactionContext } from '@/context/TransactionContext'
 
 import { EmptyComponent, ImageWithFallback, SvgComponent } from '..'
 
+export const DropdownIndicator = ({ isDisabled, ...props }: any) => {
+  return (
+    <components.DropdownIndicator isDisabled={isDisabled} {...props}>
+      <SvgComponent svgId='icon-locked' fill={'var(--chakra-colors-black-1)'} />
+    </components.DropdownIndicator>
+  )
+}
+
 const Option = ({ children, isSelected, ...props }: any) => {
   return (
     <components.Option isSelected={isSelected} {...props}>
@@ -20,7 +28,7 @@ const Option = ({ children, isSelected, ...props }: any) => {
   )
 }
 
-function AsyncSelectCollection({ w, ...rest }: any) {
+function AsyncSelectCollection({ w, isDisabled, ...rest }: any) {
   const { collectionList, collectionLoading } = useContext(TransactionContext)
   // const [collectionAddressArr, setCollectionAddressArr] = useState<string[]>([])
   // const { loading } = useRequest(apiGetActiveCollection, {
@@ -66,6 +74,7 @@ function AsyncSelectCollection({ w, ...rest }: any) {
 
   return (
     <AsyncSelect
+      isDisabled={isDisabled}
       isLoading={collectionLoading}
       defaultOptions={collectionList || []}
       cacheOptions
@@ -109,13 +118,19 @@ function AsyncSelectCollection({ w, ...rest }: any) {
             boxShadow: 'none',
           }
         },
-        control: (baseStyles, { isFocused }) => ({
+        singleValue: (baseStyles) => ({
+          ...baseStyles,
+          color: 'var(--chakra-colors-black-1)',
+        }),
+        control: (baseStyles, { isFocused, isDisabled: _isDisabled }) => ({
           ...baseStyles,
           width: w,
           fontWeight: 700,
           borderRadius: 8,
           border: `1px solid ${
-            isFocused
+            _isDisabled
+              ? 'var(--chakra-colors-black-1)'
+              : isFocused
               ? 'var(--chakra-colors-blue-1)'
               : 'var(--chakra-colors-blue-4)'
           }`,
@@ -130,7 +145,10 @@ function AsyncSelectCollection({ w, ...rest }: any) {
             borderColor: 'var(--chakra-colors-blue-1)',
           },
         }),
-        option: (baseStyles, { isDisabled, isSelected, isFocused }) => ({
+        option: (
+          baseStyles,
+          { isDisabled: _isDisabled, isSelected, isFocused },
+        ) => ({
           ...baseStyles,
           backgroundColor: isSelected
             ? `var(--chakra-colors-blue-2)`
@@ -143,7 +161,7 @@ function AsyncSelectCollection({ w, ...rest }: any) {
 
           ':active': {
             ...baseStyles[':active'],
-            backgroundColor: !isDisabled
+            backgroundColor: !_isDisabled
               ? 'var(--chakra-colors-blue-2)'
               : undefined,
           },
@@ -153,6 +171,9 @@ function AsyncSelectCollection({ w, ...rest }: any) {
         IndicatorSeparator: () => null,
         NoOptionsMessage: () => <EmptyComponent my={0} mt='16px' />,
         Option,
+        DropdownIndicator: !isDisabled
+          ? components.DropdownIndicator
+          : DropdownIndicator,
       }}
       // @ts-ignore
       formatOptionLabel={({ nftCollection, contractAddress }) => {
