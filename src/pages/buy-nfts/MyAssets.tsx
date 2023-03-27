@@ -9,50 +9,82 @@ import {
   Tag,
   // Flex,
   SimpleGrid,
-  Button,
+  GridItem,
+  Flex,
 } from '@chakra-ui/react'
-import { useRequest } from 'ahooks'
-import {
-  Network,
-  Alchemy,
-  type OwnedNftsResponse,
-  type OwnedNft,
-} from 'alchemy-sdk'
-import { useCallback, useState } from 'react'
+import isEmpty from 'lodash-es/isEmpty'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import {
   EmptyComponent,
   LoadingComponent,
   MyAssetNftListCard,
+  SvgComponent,
   // SearchInput, Select
 } from '@/components'
-
-const settings = {
-  apiKey: 'CKEavYcmO1qrcMnHtPmu78N_5TZLUt0n',
-  network: Network.ETH_MAINNET,
-}
-const alchemy = new Alchemy(settings)
+import {
+  NftAssetOrderByField,
+  OrderDirection,
+  useAssetsQuery,
+  useWallet,
+} from '@/hooks'
 
 const MyAssets = () => {
-  const [data, setData] = useState<OwnedNft[]>()
-  const getNftsForOwner = useCallback(async () => {
-    const nfts = await alchemy.nft.getNftsForOwner('0xshah.eth')
-    return nfts
-  }, [])
-  const { loading } = useRequest(getNftsForOwner, {
-    onSuccess: ({ ownedNfts }: OwnedNftsResponse) => {
-      console.log('🚀 ~ file: MyAssets.tsx:36 ~ MyAssets ~ data:', data)
-      setData(ownedNfts)
+  const navigate = useNavigate()
+  const { interceptFn } = useWallet()
+  useEffect(() => {
+    interceptFn()
+  }, [interceptFn])
+  const { data, loading } = useAssetsQuery({
+    variables: {
+      tag: 'ART',
+      orderBy: {
+        direction: OrderDirection.Asc,
+        field: NftAssetOrderByField.CreatedAt,
+      },
     },
-    debounceWait: 100,
   })
 
+  const [grid] = useState(4)
+
+  const responsiveSpan = useMemo(
+    () => ({
+      xl: grid,
+      lg: grid,
+      md: grid,
+      sm: 2,
+      xs: 1,
+    }),
+    [grid],
+  )
   return (
     <Box>
-      <Heading mt={'60px'} mb={14}>
+      <Flex
+        py='20px'
+        onClick={() => navigate(-1)}
+        display={{
+          md: 'none',
+          sm: 'flex',
+          xs: 'flex',
+        }}
+      >
+        <SvgComponent svgId='icon-arrow-down' transform={'rotate(90deg)'} />
+      </Flex>
+      <Heading
+        mt={{
+          md: '60px',
+          sm: '10px',
+          xs: '10px',
+        }}
+        mb={{
+          md: '56px',
+          sm: '32px',
+          xs: '32px',
+        }}
+      >
         My Assets
       </Heading>
-      <Button onClick={async () => {}}>aaa</Button>
       <Tabs position='relative'>
         <TabList
           _active={{
@@ -72,15 +104,17 @@ const MyAssets = () => {
             fontWeight='bold'
           >
             Collected &nbsp;
-            <Tag
-              bg='blue.1'
-              color='white'
-              borderRadius={15}
-              fontSize={'12px'}
-              h={'20px'}
-            >
-              10
-            </Tag>
+            {!isEmpty(data) && (
+              <Tag
+                bg='blue.1'
+                color='white'
+                borderRadius={15}
+                fontSize={'12px'}
+                h={'20px'}
+              >
+                {data?.assets.edges?.length}
+              </Tag>
+            )}
           </Tab>
         </TabList>
 
@@ -104,17 +138,22 @@ const MyAssets = () => {
               />
             </Flex> */}
             <SimpleGrid
-              minChildWidth='330px'
-              spacing={'16px'}
-              mt={'40px'}
-              position='relative'
+              spacingX={'16px'}
+              spacingY={'20px'}
+              columns={responsiveSpan}
+              position={'relative'}
+              mt='20px'
             >
               <LoadingComponent loading={loading} />
-              {!data || (data?.length === 0 && <EmptyComponent />)}
-              {data?.map((item) => (
+              {(!data || isEmpty(data)) && (
+                <GridItem colSpan={responsiveSpan}>
+                  <EmptyComponent />
+                </GridItem>
+              )}
+              {data?.assets?.edges?.map((item) => (
                 <MyAssetNftListCard
                   data={item}
-                  key={item.tokenId + item.title + item.contract.address}
+                  key={`${item?.node?.tokenID} + ${item?.node?.name} + $after{item?.node?.nftAssetContract.address}`}
                   onClick={() => {}}
                 />
               ))}
