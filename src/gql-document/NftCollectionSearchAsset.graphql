@@ -1,0 +1,56 @@
+query NftCollectionSearchAsset($collectionId: ID!, $search: String!) {
+  nftCollectionSearchAsset(collectionId: $collectionId, search: $search) {
+    id
+    createdAt
+    updatedAt
+    assetContractAddress
+    tokenID
+    imageUrl
+    imagePreviewUrl
+    imageThumbnailUrl
+    imageOriginalUrl
+    animationUrl
+    animationOriginalUrl
+    backgroundColor
+    name
+    description
+    externalLink
+    creator
+    owner
+    transferFee
+    transferFeePaymentToken
+    orderChain
+    orderCoin
+    orderPrice
+    rarity
+    rarityRank
+    rarityLevel
+    chain
+    nftAssetMetaData {
+      like
+      likeCount
+    }
+    nftAssetContract {
+      id
+      createdAt
+      updatedAt
+      address
+      assetContractType
+      createdDate
+      name
+      nftVersion
+      openseaVersion
+      schemaName
+      symbol
+      totalSupply
+      description
+      externalLink
+      imageUrl
+      openseaBuyerFeeBasisPoints
+      openseaSellerFeeBasisPoints
+      buyerFeeBasisPoints
+      sellerFeeBasisPoints
+      payoutAddress
+    }
+  }
+}

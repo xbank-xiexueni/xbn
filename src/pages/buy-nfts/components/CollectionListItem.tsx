@@ -1,26 +1,33 @@
 import { Flex, Text } from '@chakra-ui/react'
 
-import type { CollectionListItemType } from '@/api'
 import { ImageWithFallback, SvgComponent } from '@/components'
 
+import type { FlexProps } from '@chakra-ui/react'
 import type { FunctionComponent } from 'react'
 
-const CollectionListItem: FunctionComponent<{
-  data: CollectionListItemType
-  onClick?: () => void
-  isActive?: boolean
-  count?: number
-}> = ({
-  data: { contract_addr, name, image_url, safelist_request_status },
+const CollectionListItem: FunctionComponent<
+  {
+    data?: Record<string, any>
+    onClick?: () => void
+    isActive?: boolean
+    count?: number
+    iconSize?: number | string
+    rightIconId?: string
+  } & FlexProps
+> = ({
+  data,
   onClick,
   isActive,
   count,
+  iconSize = 6,
+  rightIconId = 'icon-checked',
+  ...rest
 }) => {
   return (
     <Flex
-      key={contract_addr}
-      px={4}
-      py={3}
+      key={`${data?.contractAddress}-${data?.nftCollection?.id}`}
+      px='16px'
+      py='12px'
       alignItems={'center'}
       justifyContent='space-between'
       border={`1px solid var(--chakra-colors-gray-2)`}
@@ -31,27 +38,36 @@ const CollectionListItem: FunctionComponent<{
       cursor='pointer'
       bg={isActive ? 'blue.2' : 'white'}
       onClick={onClick}
+      {...rest}
     >
-      <Flex alignItems={'center'} gap={1} w='80%'>
-        <ImageWithFallback src={image_url} w={6} h={6} borderRadius={8} />
+      <Flex alignItems={'center'} gap='16px' w='80%'>
+        <ImageWithFallback
+          src={
+            data?.nftCollection?.imagePreviewUrl ||
+            data?.nftCollection?.image_url
+          }
+          w={iconSize}
+          h={iconSize}
+          borderRadius={8}
+        />
         <Text
-          fontSize={'sm'}
+          fontSize='14px'
           display='inline-block'
           overflow='hidden'
           whiteSpace='nowrap'
           textOverflow='ellipsis'
         >
-          {name}
+          {data?.nftCollection?.name || '--'}
           &nbsp;
         </Text>
-        {safelist_request_status === 'verified' && (
+        {data?.nftCollection?.safelistRequestStatus === 'verified' && (
           <SvgComponent svgId='icon-verified-fill' />
         )}
       </Flex>
       {isActive ? (
-        <SvgComponent svgId='icon-checked' />
+        <SvgComponent svgId={rightIconId} />
       ) : (
-        !!count && <Text fontSize={'sm'}>{count}</Text>
+        !!count && <Text fontSize='14px'>{count}</Text>
       )}
     </Flex>
   )

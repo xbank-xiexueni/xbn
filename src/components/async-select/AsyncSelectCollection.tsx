@@ -1,10 +1,9 @@
 import { Flex } from '@chakra-ui/react'
-import useRequest from 'ahooks/lib/useRequest'
-import { useCallback } from 'react'
+import { useCallback, useContext } from 'react'
 import { components } from 'react-select'
 import AsyncSelect from 'react-select/async'
 
-import { apiGetActiveCollection, type CollectionListItemType } from '@/api'
+import { TransactionContext } from '@/context/TransactionContext'
 
 import { EmptyComponent, ImageWithFallback, SvgComponent } from '..'
 
@@ -21,38 +20,54 @@ const Option = ({ children, isSelected, ...props }: any) => {
   )
 }
 
-function AsyncSelectCollection({ ...rest }) {
-  const { loading, data: collectionsData } = useRequest(
-    apiGetActiveCollection,
-    {
-      debounceWait: 100,
-      retryCount: 5,
-    },
-  )
+function AsyncSelectCollection({ w, ...rest }: any) {
+  const { collectionList, collectionLoading } = useContext(TransactionContext)
+  // const [collectionAddressArr, setCollectionAddressArr] = useState<string[]>([])
+  // const { loading } = useRequest(apiGetActiveCollection, {
+  //   debounceWait: 100,
+  //   retryCount: 5,
+  //   onSuccess: ({ data }) => {
+  //     setCollectionAddressArr(data.map((i) => i.contract_addr))
+  //   },
+  // })
+
+  // const { loading: collectionLoading, data: collectionData } =
+  //   useNftCollectionsByContractAddressesQuery({
+  //     variables: {
+  //       assetContractAddresses: collectionAddressArr,
+  //     },
+  //     skip: isEmpty(collectionAddressArr),
+  //   })
+  // const collectionList = useMemo(
+  //   () => collectionData?.nftCollectionsByContractAddresses || [],
+  //   [collectionData],
+  // )
 
   const promiseOptions = useCallback(
     (inputValue: string) =>
-      new Promise<CollectionListItemType[]>((resolve) => {
-        if (loading) {
+      new Promise<any[]>((resolve) => {
+        if (collectionLoading) {
           return
         }
         if (!inputValue) {
           return
         } else {
           resolve(
-            collectionsData?.data?.filter((i: CollectionListItemType) =>
-              i.name.toLowerCase().includes(inputValue.toLowerCase()),
+            collectionList?.filter((i) =>
+              i?.nftCollection?.name
+                .toLowerCase()
+                .includes(inputValue.toLowerCase()),
             ) || [],
           )
         }
       }),
-    [collectionsData, loading],
+    [collectionList, collectionLoading],
   )
 
   return (
     <AsyncSelect
-      isLoading={loading}
-      defaultOptions={collectionsData?.data || []}
+      isLoading={collectionLoading}
+      defaultOptions={collectionList || []}
       cacheOptions
       // @ts-ignore
       isOptionSelected={(item, select) => item.contract_addr === select}
@@ -60,7 +75,6 @@ function AsyncSelectCollection({ ...rest }) {
       theme={(theme) => ({
         ...theme,
         borderRadius: 0,
-        width: 240,
         colors: {
           ...theme.colors,
           primary: `var(--chakra-colors-blue-1)`,
@@ -90,14 +104,14 @@ function AsyncSelectCollection({ ...rest }) {
           return {
             ...base,
             border: 'none',
-            borderRadius: 0,
+            borderRadius: 8,
             top: '65%',
             boxShadow: 'none',
           }
         },
         control: (baseStyles, { isFocused }) => ({
           ...baseStyles,
-          width: 240,
+          width: w,
           fontWeight: 700,
           borderRadius: 8,
           border: `1px solid ${
@@ -137,24 +151,39 @@ function AsyncSelectCollection({ ...rest }) {
       }}
       components={{
         IndicatorSeparator: () => null,
-        NoOptionsMessage: () => <EmptyComponent my={0} mt={4} />,
+        NoOptionsMessage: () => <EmptyComponent my={0} mt='16px' />,
         Option,
       }}
       // @ts-ignore
-      formatOptionLabel={({
-        name,
-        contract_addr,
-        image_url,
-        safelist_request_status,
-      }: CollectionListItemType) => (
-        <Flex alignItems={'center'} key={contract_addr} gap={2} pl={1}>
-          <ImageWithFallback src={image_url} w={5} h={5} borderRadius={4} />
-          {name?.length > 10 ? `${name?.substring(0, 10)}...` : name}
-          {safelist_request_status === 'verified' && (
-            <SvgComponent svgId='icon-verified-fill' />
-          )}
-        </Flex>
-      )}
+      formatOptionLabel={({ nftCollection, contractAddress }) => {
+        let imagePreviewUrl = '',
+          name = '',
+          safelistRequestStatus = ''
+        if (nftCollection) {
+          imagePreviewUrl = nftCollection.imagePreviewUrl
+          name = nftCollection.name
+          safelistRequestStatus = nftCollection.safelistRequestStatus
+        }
+        return (
+          <Flex
+            alignItems={'center'}
+            key={contractAddress}
+            gap={'8px'}
+            pl={'4px'}
+          >
+            <ImageWithFallback
+              src={imagePreviewUrl}
+              w={'20px'}
+              h={'20px'}
+              borderRadius={4}
+            />
+            {name?.length > 10 ? `${name?.substring(0, 10)}...` : name}
+            {safelistRequestStatus === 'verified' && (
+              <SvgComponent svgId='icon-verified-fill' />
+            )}
+          </Flex>
+        )
+      }}
       {...rest}
     />
   )

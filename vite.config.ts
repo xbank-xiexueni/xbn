@@ -3,7 +3,9 @@ import react from '@vitejs/plugin-react'
 import { join } from 'path'
 
 // https://vitejs.dev/config/
+/** @type {import('vite').UserConfig} */
 export default defineConfig({
+  base: './xlending',
   plugins: [react()],
   css: {
     preprocessorOptions: {
@@ -16,10 +18,16 @@ export default defineConfig({
   },
 
   server: {
-    open: true,
     port: 8000,
     proxy: {
-      '^/lending/api': {
+      '/lending/query': {
+        // mock
+        target: 'https://xbank.global',
+        changeOrigin: true,
+        secure: false,
+        // rewrite: (path) => path.replace(/^\/query/, ''),
+      },
+      '/lending/api': {
         // mock
         target: 'https://xbank.global',
         changeOrigin: true,
@@ -34,11 +42,19 @@ export default defineConfig({
     },
   },
   build: {
+    assetsDir: '',
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-venders': ['react', 'react-dom', 'react-router-dom'],
+          'react-venders': [
+            'react',
+            'react-dom',
+            'react-router-dom',
+            'video-react',
+            'react-photo-view',
+          ],
           'chakra-vendors': ['@chakra-ui/react'],
+          'apollo-vendors': ['@apollo/client', 'graphql'],
           'web3-vendors': ['web3'],
         },
       },

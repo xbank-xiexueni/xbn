@@ -28,16 +28,21 @@ const NftAssetDetail = lazyWithRetries(
   () => import('./pages/buy-nfts/NftAssetDetail'),
 )
 
+// nft detail
+const H5Demo = lazyWithRetries(() => import('./pages/h5-demo/H5Demo'))
 const NotFound = lazyWithRetries(() => import('./pages/404'))
 
 function App() {
   return (
     <>
       <Routes>
-        <Route path='/' element={<Navigate replace to='/lending/my-pools' />} />
         <Route
-          path='lending'
-          element={<Navigate replace to='/lending/my-pools' />}
+          path='/xlending'
+          element={<Navigate replace to='/xlending/lending/my-pools' />}
+        />
+        <Route
+          path='/xlending/lending'
+          element={<Navigate replace to='/xlending/lending/my-pools' />}
         />
         {/* <Route
           path='lending/pools'
@@ -48,7 +53,7 @@ function App() {
           }
         /> */}
         <Route
-          path='lending/my-pools/create'
+          path='/xlending/lending/my-pools/create'
           element={
             <Suspense fallback={<Fallback />}>
               <PoolCreate />
@@ -64,7 +69,7 @@ function App() {
           }
         /> */}
         <Route
-          path='lending/my-pools'
+          path='/xlending/lending/my-pools'
           element={
             <Suspense fallback={<Fallback />}>
               <Lend />
@@ -73,7 +78,7 @@ function App() {
         />
 
         <Route
-          path='lending/loans'
+          path='/xlending/lending/loans'
           element={
             <Suspense fallback={<Fallback />}>
               <Lend />
@@ -83,11 +88,11 @@ function App() {
 
         {/* buy nfts */}
         <Route
-          path='buy-nfts'
-          element={<Navigate replace to='/buy-nfts/market' />}
+          path='/xlending/buy-nfts'
+          element={<Navigate replace to='/xlending/buy-nfts/market' />}
         />
         <Route
-          path='/buy-nfts/market'
+          path='/xlending/buy-nfts/market'
           element={
             <Suspense fallback={<Fallback />}>
               <Market />
@@ -97,7 +102,7 @@ function App() {
 
         {/* asset */}
         <Route
-          path='/asset/detail'
+          path='/xlending/asset/detail'
           // path='/asset/:asset_contract_address'
           element={
             <Suspense fallback={<Fallback />}>
@@ -106,7 +111,7 @@ function App() {
           }
         />
         <Route
-          path='/buy-nfts/my-assets'
+          path='/xlending/buy-nfts/my-assets'
           element={
             <Suspense fallback={<Fallback />}>
               <MyAssets />
@@ -114,7 +119,7 @@ function App() {
           }
         />
         <Route
-          path='/buy-nfts/loans'
+          path='xlending/buy-nfts/loans'
           element={
             <Suspense fallback={<Fallback />}>
               <LoansForBuyer />
@@ -149,12 +154,21 @@ function App() {
           />
         </Route> */}
         <Route
+          path='/xlending/demo'
+          element={
+            <Suspense fallback={<Fallback />}>
+              <H5Demo />
+            </Suspense>
+          }
+        />
+
+        <Route
           element={
             <Suspense fallback={<Fallback />}>
               <NotFound />
             </Suspense>
           }
-          path='*'
+          path='/xlending/*'
         />
       </Routes>
     </>

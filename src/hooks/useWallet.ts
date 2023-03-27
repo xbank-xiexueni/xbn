@@ -3,27 +3,31 @@ import { useCallback, useContext } from 'react'
 
 import { TransactionContext } from '@/context/TransactionContext'
 
-export const useWallet = () => {
-  const { currentAccount, isSupportedChain, ...rest } =
+const useWallet = () => {
+  const { currentAccount, handleSwitchNetwork, ...rest } =
     useContext(TransactionContext)
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const interceptFn = useCallback(
-    (fn?: () => void) => {
-      // 判断是否连接钱包
+    async (fn?: () => void) => {
+      // 是否连接目标链
+      const currentChainId = window?.ethereum?.chainId
+
+      if (currentChainId !== import.meta.env.VITE_TARGET_CHAIN_ID) {
+        await handleSwitchNetwork()
+        return
+      }
+      // 是否连接账户
       if (!currentAccount) {
         onOpen()
         return
       }
-      if (!isSupportedChain) {
-        console.warn('chainId warn')
-        return
-      }
+
       if (fn) {
         fn()
       }
     },
-    [currentAccount, onOpen, isSupportedChain],
+    [currentAccount, onOpen, handleSwitchNetwork],
   )
   return {
     isOpen,
@@ -31,7 +35,7 @@ export const useWallet = () => {
     onClose,
     interceptFn,
     currentAccount,
-    isSupportedChain,
+    handleSwitchNetwork,
     ...rest,
   }
 }

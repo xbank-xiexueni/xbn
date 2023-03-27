@@ -1,4 +1,4 @@
-export type PoolsListItemType = {
+interface PoolsListItemType {
   id: number
   pool_id: number
   owner_address: string
@@ -16,7 +16,8 @@ export type PoolsListItemType = {
   collection_info: CollectionListItemType
 }
 
-export type CollectionListItemType = {
+interface CollectionListItemType {
+  id: string
   name: string
   image_url: string
   contract_addr: string
@@ -24,7 +25,7 @@ export type CollectionListItemType = {
   description?: string
 }
 
-export type AssetListItemType = {
+interface AssetListItemType {
   id: number
   asset_contract_address: string
   token_id: string
@@ -46,7 +47,7 @@ export type AssetListItemType = {
   updated_at: string
 }
 
-export type LoanOrderDataType = {
+interface LoanOrderDataType {
   // pool id
   pool_id: string
   // 买家地址
@@ -67,4 +68,32 @@ export type LoanOrderDataType = {
   repay_times: number
   // token ID
   nft_collateral_id: string
+}
+
+interface LoanListItemType {
+  id: number
+  loan_id: number
+  pool_id: number
+  pool_maximum_percentage: number
+  pool_maximum_days: number
+  pool_interest_rate: number
+  loan_time_concession_flexibility: number
+  loan_ratio_preferential_flexibility: number
+  lender_address: string
+  borrower_address: string
+  load_principal_amount: string
+  total_repayment: string
+  repayed_amount: string
+  loan_status: 1 | 2 | 3
+  loan_interest: string
+  loan_interest_rate: number
+  loan_start_time: number
+  loan_duration: number
+  repay_times: number
+  commodity_price: string
+  oracle_floor_price: string
+  nft_collateral_contract: string
+  nft_collateral_id: string
+  loan_erc20_denomination: string
+  activity: boolean
 }

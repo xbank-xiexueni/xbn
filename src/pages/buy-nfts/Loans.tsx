@@ -6,111 +6,29 @@ import {
   Highlight,
   useToast,
   Spinner,
+  Button,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import { unix } from 'dayjs'
 import groupBy from 'lodash-es/groupBy'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 
 import { apiGetLoans } from '@/api'
 import { ConnectWalletModal, ImageWithFallback, TableList } from '@/components'
 import type { ColumnProps } from '@/components/my-table'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
-import { useWallet } from '@/hooks'
+import { useBatchAsset, useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
 import { formatAddress } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
-
-export const loansForBuyerColumns: ColumnProps[] = [
-  {
-    title: 'Asset',
-    dataIndex: 'nft_asset_info',
-    key: 'nft_asset_info',
-    align: 'left',
-    width: 180,
-    render: (info: any) => {
-      return (
-        <Flex alignItems={'center'} gap={2}>
-          <ImageWithFallback
-            src={info?.image_preview_url as string}
-            w={10}
-            h={10}
-            borderRadius={4}
-          />
-          <Text
-            w={'60%'}
-            display='inline-block'
-            overflow='hidden'
-            whiteSpace='nowrap'
-            textOverflow='ellipsis'
-          >
-            {info?.name}
-          </Text>
-        </Flex>
-      )
-    },
-  },
-  {
-    title: 'Lender',
-    dataIndex: 'lender_address',
-    key: 'lender_address',
-    render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
-  },
-  {
-    title: 'Borrower',
-    dataIndex: 'borrower_address',
-    key: 'borrower_address',
-    render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
-  },
-  {
-    title: 'Start time',
-    dataIndex: 'loan_start_time',
-    key: 'loan_start_time',
-    render: (value: any) => <Text>{unix(value).format('YYYY/MM/DD')}</Text>,
-  },
-  {
-    title: 'Loan value',
-    dataIndex: 'total_repayment',
-    key: 'total_repayment',
-    render: (value: any) => (
-      <Text>
-        {wei2Eth(value)} {UNIT}
-      </Text>
-    ),
-  },
-  {
-    title: 'Duration',
-    dataIndex: 'loan_duration',
-    key: 'loan_duration',
-    render: (value: any) => <Text>{value / 24 / 60 / 60} days</Text>,
-  },
-  {
-    title: 'Interest',
-    dataIndex: 'loan_interest_rate',
-    key: 'loan_interest_rate',
-    render: (_: any, item: Record<string, any>) => {
-      return (
-        <Text>
-          {BigNumber(
-            wei2Eth(
-              amortizationCalByDays(
-                item?.total_repayment,
-                item?.loan_interest_rate / 10000,
-                (item?.loan_duration / 24 / 60 / 60) as 7 | 14 | 30 | 60 | 90,
-                item?.repay_times,
-              )
-                .multipliedBy(item?.repay_times)
-                .minus(item.total_repayment),
-            ),
-          ).toFormat(FORMAT_NUMBER)}
-          {UNIT}
-        </Text>
-      )
-    },
-  },
-]
 
 const Loans = () => {
   // const navigate = useNavigate()
@@ -120,9 +38,9 @@ const Loans = () => {
   const [repayLoadingMap, setRepayLoadingMap] =
     useState<Record<string, boolean>>()
 
-  useEffect(() => interceptFn(), [interceptFn])
-
-  // const [selectCollection, setSelectCollection] = useState<number>()
+  useEffect(() => {
+    interceptFn()
+  }, [interceptFn])
 
   const { loading, data, refresh } = useRequest(apiGetLoans, {
     ready: !!currentAccount,
@@ -150,6 +68,15 @@ const Loans = () => {
       ),
     [data],
   )
+
+  const batchAssetParams = useMemo(() => {
+    if (!data) return []
+    return data?.data?.map((i) => ({
+      assetContractAddress: i.nft_collateral_contract,
+      assetTokenId: i.nft_collateral_id,
+    }))
+  }, [data])
+  const { data: bactNftListInfo } = useBatchAsset(batchAssetParams)
 
   // const collectionList = useMemo(() => {
   //   const arr = data?.data || []
@@ -227,16 +154,54 @@ const Loans = () => {
           })
           refresh()
         } catch (error: any) {
+          // 0x13dbffe7546510d2428edef6e609a2e2d4ed6c7cd90f5c0845d33a31688b9f6b
           console.log('🚀 ~ file: Loans.tsx:197 ~ interceptFn ~ error:', error)
+          const code: string = error?.code
+          const originMessage: string = error?.message
+          let title: string | ReactNode = code
+          let description: string | ReactNode = originMessage
+          if (!code && originMessage?.includes('{')) {
+            const firstIndex = originMessage.indexOf('{')
+            description = ''
+            try {
+              const hash = JSON.parse(
+                originMessage.substring(firstIndex, originMessage.length),
+              )?.transactionHash
+
+              title = (
+                <Text>
+                  {originMessage?.substring(0, firstIndex)} &nbsp;
+                  <Button
+                    variant={'link'}
+                    px={0}
+                    onClick={() => {
+                      window.open(
+                        `${
+                          import.meta.env.VITE_TARGET_CHAIN_BASE_URL
+                        }/tx/${hash}`,
+                      )
+                    }}
+                    textDecoration='underline'
+                    color='white'
+                  >
+                    see more
+                  </Button>
+                </Text>
+              )
+            } catch {
+              console.log('here')
+              title = originMessage?.substring(0, firstIndex)
+            }
+          }
+
           setRepayLoadingMap((prev) => ({
             ...prev,
             [loan_id]: false,
           }))
           toast({
             status: 'error',
-            title: error?.code,
-            description: error?.message,
-            duration: 5000,
+            title,
+            description,
           })
         }
       })
@@ -244,34 +209,131 @@ const Loans = () => {
     [interceptFn, currentAccount, refresh, toast],
   )
 
+  const loansForBuyerColumns: ColumnProps[] = [
+    {
+      title: 'Asset',
+      dataIndex: 'nft_asset_info',
+      key: 'nft_asset_info',
+      align: 'left',
+      width: 180,
+      render: (_: any, info: any) => {
+        const currentInfo = bactNftListInfo?.find(
+          (i) =>
+            i?.tokenID === info.nft_collateral_id &&
+            i?.assetContractAddress.toLowerCase() ===
+              info.nft_collateral_contract.toLowerCase(),
+        )
+        return (
+          <Flex alignItems={'center'} gap={'8px'}>
+            <ImageWithFallback
+              src={currentInfo?.imagePreviewUrl as string}
+              w='40px'
+              h='40px'
+              borderRadius={4}
+            />
+            <Text
+              w={'60%'}
+              display='inline-block'
+              overflow='hidden'
+              whiteSpace='nowrap'
+              textOverflow='ellipsis'
+            >
+              {currentInfo
+                ? currentInfo?.name || `#${currentInfo?.tokenID}`
+                : '--'}
+            </Text>
+          </Flex>
+        )
+      },
+    },
+    {
+      title: 'Lender',
+      dataIndex: 'lender_address',
+      key: 'lender_address',
+      render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
+    },
+    {
+      title: 'Borrower',
+      dataIndex: 'borrower_address',
+      key: 'borrower_address',
+      render: (value: any) => <Text>{formatAddress(value.toString())}</Text>,
+    },
+    {
+      title: 'Start time',
+      dataIndex: 'loan_start_time',
+      key: 'loan_start_time',
+      render: (value: any) => <Text>{unix(value).format('YYYY/MM/DD')}</Text>,
+    },
+    {
+      title: 'Loan value',
+      dataIndex: 'total_repayment',
+      key: 'total_repayment',
+      render: (value: any) => (
+        <Text>
+          {wei2Eth(value)} {UNIT}
+        </Text>
+      ),
+    },
+    {
+      title: 'Duration',
+      dataIndex: 'loan_duration',
+      key: 'loan_duration',
+      render: (value: any) => <Text>{value / 24 / 60 / 60} days</Text>,
+    },
+    {
+      title: 'Interest',
+      dataIndex: 'loan_interest_rate',
+      key: 'loan_interest_rate',
+      render: (_: any, item: Record<string, any>) => {
+        return (
+          <Text>
+            {BigNumber(
+              wei2Eth(
+                amortizationCalByDays(
+                  item?.total_repayment,
+                  item?.loan_interest_rate / 10000,
+                  (item?.loan_duration / 24 / 60 / 60) as 7 | 14 | 30 | 60 | 90,
+                  item?.repay_times,
+                )
+                  .multipliedBy(item?.repay_times)
+                  .minus(item.total_repayment),
+              ),
+            ).toFormat(FORMAT_NUMBER)}
+            {UNIT}
+          </Text>
+        )
+      },
+    },
+  ]
+
   return (
     <Box mt='60px'>
       <Heading size={'2xl'} mb='60px'>
         Loans
       </Heading>
 
-      <Flex justify={'space-between'} mt={4}>
+      <Flex justify={'space-between'} mt='16px'>
         {/* <Box
           border={`1px solid var(--chakra-colors-gray-2)`}
           borderRadius={12}
-          p={6}
+          p='24px'
           w={{
             lg: '25%',
             md: '30%',
           }}
         >
-          <Heading size={'md'} mb={4}>
+          <Heading size={'md'} mb='16px'>
             Collections
           </Heading>
 
-          <List spacing={4} mt={4} position='relative'>
+          <List spacing='16px' mt='16px' position='relative'>
             <LoadingComponent loading={false} />
             {isEmpty(collectionList) && <EmptyComponent />}
             {!isEmpty(collectionList) && (
               <Flex
                 justify={'space-between'}
-                py={3}
-                px={4}
+                py='12px'
+                px='16px'
                 alignItems='center'
                 borderRadius={8}
                 border={`1px solid var(--chakra-colors-gray-2)`}
@@ -281,13 +343,13 @@ const Loans = () => {
                 }}
                 bg={!selectCollection ? 'blue.2' : 'white'}
               >
-                <Text fontSize={'sm'} fontWeight='700'>
+                <Text fontSize='14px'  fontWeight='700'>
                   All my Collections
                 </Text>
                 {!selectCollection ? (
                   <SvgComponent svgId='icon-checked' />
                 ) : (
-                  <Text fontSize={'sm'}>{10}</Text>
+                  <Text fontSize='14px' >{10}</Text>
                 )}
               </Flex>
             )}
@@ -315,11 +377,8 @@ const Loans = () => {
             tables={[
               {
                 tableTitle: () => (
-                  <Heading size={'md'} mt={6}>
-                    Current Loans as Borrower
-                  </Heading>
+                  <Heading fontSize={'20px'}>Current Loans as Borrower</Heading>
                 ),
-                // loading: loading,
                 columns: [
                   ...loansForBuyerColumns,
                   // {
@@ -328,7 +387,7 @@ const Loans = () => {
                   //   key: 'col10',
                   // },
                   {
-                    title: 'amount',
+                    title: 'Next payment amount',
                     dataIndex: 'col9',
                     key: 'col9',
                     render: (_: any, item: Record<string, any>) => (
@@ -360,7 +419,7 @@ const Loans = () => {
                     fixedRight: true,
                     render: (value: any) => (
                       <Box
-                        px={3}
+                        px='12px'
                         bg='white'
                         borderRadius={8}
                         cursor='pointer'
@@ -376,7 +435,11 @@ const Loans = () => {
                         {repayLoadingMap && repayLoadingMap[value] ? (
                           <Spinner color='blue.1' size={'sm'} />
                         ) : (
-                          <Text color='blue.1' fontSize='sm' fontWeight={'700'}>
+                          <Text
+                            color='blue.1'
+                            fontSize='14px'
+                            fontWeight={'700'}
+                          >
                             Repay
                           </Text>
                         )}
@@ -391,7 +454,7 @@ const Loans = () => {
               },
               {
                 tableTitle: () => (
-                  <Heading size={'md'} mt={6}>
+                  <Heading fontSize={'20px'} mt={'40px'}>
                     <Highlight
                       styles={{
                         fontSize: '18px',
@@ -412,7 +475,7 @@ const Loans = () => {
               },
               {
                 tableTitle: () => (
-                  <Heading size={'md'} mt={6}>
+                  <Heading fontSize={'20px'} mt={'40px'}>
                     <Highlight
                       styles={{
                         fontSize: '18px',

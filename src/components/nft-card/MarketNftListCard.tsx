@@ -9,30 +9,29 @@ import {
   Text,
   Button,
   CardFooter,
+  type ImageProps,
 } from '@chakra-ui/react'
 import { useMemo, useState, type FunctionComponent } from 'react'
 
-import type { AssetListItemType } from '@/api'
 import { ImageWithFallback, SvgComponent } from '@/components'
-import { wei2Eth } from '@/utils/unit-conversion'
 
 const MarketNftListCard: FunctionComponent<
   {
-    data: AssetListItemType & Record<string, string | number | undefined>
+    data: Record<string, any>
+    imageSize?: ImageProps['w']
   } & CardProps
-> = ({
-  data: { name, image_thumbnail_url, highestRate, order_price },
-  ...rest
-}) => {
+> = ({ data: { node, highestRate }, imageSize, ...rest }) => {
+  const { imageThumbnailUrl, orderPrice, name, backgroundColor, tokenID } =
+    node || {}
   const [show, setShow] = useState(false)
   const formattedDownPayment = useMemo(() => {
-    if (!order_price || !highestRate) {
+    if (!orderPrice || !highestRate) {
       return '--'
     }
 
-    const eth = wei2Eth(order_price)
-    return (Number(eth) * (10000 - Number(highestRate))) / 10000
-  }, [order_price, highestRate])
+    // const eth = wei2Eth(orderPrice)
+    return (Number(orderPrice) * (10000 - Number(highestRate))) / 10000
+  }, [orderPrice, highestRate])
   return (
     <Card
       {...rest}
@@ -44,102 +43,186 @@ const MarketNftListCard: FunctionComponent<
       onMouseLeave={() => setShow(false)}
       borderRadius={8}
       border='none'
-      h={{
-        xl: '355px',
-        lg: '320px',
-      }}
+      w='100%'
+      h={'100%'}
     >
       <CardBody p={0}>
-        <Box bg='white' borderTopRadius={'lg'}>
+        <Box
+          bg={backgroundColor || 'white'}
+          borderTopRadius={'lg'}
+          overflow='hidden'
+        >
           <ImageWithFallback
-            src={image_thumbnail_url}
+            src={imageThumbnailUrl}
             alt='Green double couch with wooden legs'
             borderTopRadius={'lg'}
-            h={{
-              xl: '230px',
-              lg: '200px',
-              md: '160px',
-              sm: '50%',
-            }}
+            h={
+              imageSize || {
+                xl: '233px',
+                lg: '100%',
+                md: '100%',
+                sm: '50%',
+                xs: '50%',
+              }
+            }
             w='100%'
             fit='contain'
+            transform={`scale(${show ? 1.2 : 1})`}
+            transition='all 0.6s'
           />
         </Box>
 
         <Stack
-          mt={3}
-          spacing={2}
-          px={4}
+          mt={'12px'}
+          spacing={'8px'}
+          px={{
+            md: '16px',
+            sm: '12px',
+            xs: '12px',
+          }}
           mb={{
-            xl: 2,
-            lg: 1,
+            xl: '8px',
+            lg: '4px',
+            md: '4px',
           }}
         >
-          <Text color={`gray.3`} fontSize='sm'>
-            {name}
+          <Text color={`gray.3`} fontSize='14px' noOfLines={1}>
+            {name || `#${tokenID}`}
           </Text>
-          <Flex justify={'space-between'} alignItems='center'>
-            <Text fontSize={'sm'} fontWeight='700' color={'black'}>
-              Down Payment
-            </Text>
+          <Flex alignItems={'center'} justify='space-between'>
             <Flex
-              alignItems={'center'}
-              gap={1}
-              maxWidth='40%'
-              justify={'space-between'}
+              w={{
+                md: '100%',
+                sm: '70%',
+                xs: '70%',
+              }}
+              justify={{
+                md: 'space-between',
+                sm: 'flex-start',
+                xs: 'flex-start',
+              }}
+              alignItems={{
+                md: 'center',
+                sm: 'flex-start',
+                xs: 'flex-start',
+              }}
+              flexDir={{ md: 'row', sm: 'column', xs: 'column' }}
+              pb={{
+                md: '8px',
+                sm: '6px',
+                xs: '6px',
+              }}
             >
-              <SvgComponent svgId='icon-eth' w={2} />
               <Text
-                fontSize={'md'}
-                display='inline-block'
-                overflow='hidden'
-                whiteSpace='nowrap'
-                textOverflow='ellipsis'
+                fontSize={{
+                  md: '14px',
+                  xs: '12px',
+                  sm: '12px',
+                }}
+                transform={{
+                  md: 'none',
+                  sm: 'scale(0.83333)',
+                  xs: 'scale(0.83333)',
+                }}
+                transformOrigin='center'
+                fontWeight='700'
+                color={'black'}
+                ml={{
+                  md: 0,
+                  sm: '-4px',
+                  xs: '-4px',
+                }}
               >
-                &nbsp;{formattedDownPayment}
+                Down Payment
               </Text>
+              <Flex
+                alignItems={'center'}
+                gap={'4px'}
+                maxWidth={{ md: '40%', sm: '100%', xs: '100%' }}
+                justify={'space-between'}
+              >
+                <SvgComponent svgId='icon-eth' w={'4px'} />
+                <Text
+                  fontSize={'16px'}
+                  display='inline-block'
+                  overflow='hidden'
+                  whiteSpace='nowrap'
+                  textOverflow='ellipsis'
+                >
+                  &nbsp;{formattedDownPayment}
+                </Text>
+              </Flex>
             </Flex>
+            <Text
+              display={{
+                md: 'none',
+                xs: 'block',
+                sm: 'block',
+              }}
+              color='blue.3'
+              fontWeight={'700'}
+            >
+              BUY
+            </Text>
           </Flex>
         </Stack>
       </CardBody>
       <Divider color={`gray.2`} />
 
-      {show ? (
-        <Button
-          borderRadius={8}
-          borderTopLeftRadius={0}
-          borderTopRightRadius={0}
-          variant='other'
-          h={{
-            xl: '56px',
-            lg: '46px',
-          }}
-        >
-          Buy
-        </Button>
-      ) : (
-        <CardFooter
-          px={4}
-          justify={'space-between'}
-          alignItems='center'
-          h={{
-            xl: '56px',
-            lg: '46px',
-          }}
-        >
-          <Flex alignItems={'center'} gap={1}>
-            <Text color={`gray.3`} fontSize='sm'>
-              Price
-            </Text>
-          </Flex>
-          <Flex alignItems={'center'} gap={1}>
-            <SvgComponent svgId='icon-eth' w={2} />
-            <Text fontSize={'sm'} color={`gray.3`}>
-              &nbsp; {wei2Eth(order_price)}
-            </Text>
-          </Flex>
-        </CardFooter>
-      )}
+      <Button
+        borderRadius={8}
+        borderTopLeftRadius={0}
+        borderTopRightRadius={0}
+        variant='other'
+        h={
+          show
+            ? {
+                xl: '48px',
+                lg: '40px',
+                md: '40px',
+                sm: '40px',
+                xs: '40px',
+              }
+            : 0
+        }
+        position='absolute'
+        bottom={0}
+        right={0}
+        left={0}
+        transition='all 0.15s'
+      >
+        {show && 'Buy'}
+      </Button>
+      <CardFooter
+        px={{ md: '16px', sm: '12px', xs: '12px' }}
+        justify={'space-between'}
+        alignItems='center'
+        h={{
+          xl: '48px',
+          lg: '40px',
+          md: '40px',
+          sm: '40px',
+          xs: '40px',
+        }}
+        flexDir={{
+          md: 'row',
+          sm: 'row-reverse',
+          xs: 'row-reverse',
+        }}
+      >
+        <Flex alignItems={'center'} gap={'4px'}>
+          <Text color={`gray.3`} fontSize='14px'>
+            Price
+          </Text>
+        </Flex>
+        <Flex alignItems={'center'} gap={'4px'}>
+          <SvgComponent svgId='icon-eth' w={'4px'} />
+          <Text fontSize={'14px'} color={`gray.3`}>
+            &nbsp; {orderPrice}
+            {/* &nbsp; {wei2Eth(orderPrice)} */}
+          </Text>
+        </Flex>
+      </CardFooter>
     </Card>
   )
 }

@@ -12,7 +12,12 @@ import {
   Button,
 } from '@chakra-ui/react'
 import { useRequest } from 'ahooks'
-import { Network, Alchemy } from 'alchemy-sdk'
+import {
+  Network,
+  Alchemy,
+  type OwnedNftsResponse,
+  type OwnedNft,
+} from 'alchemy-sdk'
 import { useCallback, useState } from 'react'
 
 import {
@@ -22,7 +27,6 @@ import {
   // SearchInput, Select
 } from '@/components'
 
-import type { OwnedNftsResponse, OwnedNft } from 'alchemy-sdk'
 const settings = {
   apiKey: 'CKEavYcmO1qrcMnHtPmu78N_5TZLUt0n',
   network: Network.ETH_MAINNET,
@@ -57,9 +61,9 @@ const MyAssets = () => {
           }}
         >
           <Tab
-            pt={4}
-            px={2}
-            pb={5}
+            pt='16px'
+            px={'4px'}
+            pb={'20px'}
             _selected={{
               color: 'blue.1',
               borderBottomWidth: 2,
@@ -72,8 +76,8 @@ const MyAssets = () => {
               bg='blue.1'
               color='white'
               borderRadius={15}
-              fontSize={'xs'}
-              h={5}
+              fontSize={'12px'}
+              h={'20px'}
             >
               10
             </Tag>
@@ -82,7 +86,7 @@ const MyAssets = () => {
 
         <TabPanels>
           <TabPanel p={0}>
-            {/* <Flex justify={'space-between'} mb={6} mt={10}>
+            {/* <Flex justify={'space-between'} mb='24px' mt={'40px'}>
               <Box w='70%'>
                 <SearchInput />
               </Box>
@@ -102,7 +106,7 @@ const MyAssets = () => {
             <SimpleGrid
               minChildWidth='330px'
               spacing={'16px'}
-              mt={10}
+              mt={'40px'}
               position='relative'
             >
               <LoadingComponent loading={loading} />

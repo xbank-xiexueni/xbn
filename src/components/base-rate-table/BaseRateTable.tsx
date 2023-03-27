@@ -9,10 +9,13 @@ import {
   Box,
   SlideFade,
 } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
 import slice from 'lodash-es/slice'
 import { type FunctionComponent, useMemo, useState } from 'react'
 
 import { COLLATERALS, LP_BASE_RATE, TENORS } from '@/constants'
+
+import ScrollNumber from '../scroll-number/ScrollNumber'
 
 const TOP_SLIDER_STEPS = [0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6]
 
@@ -86,8 +89,12 @@ const BaseRateTable: FunctionComponent<{
           min={TOP_SLIDER_STEPS[0]}
           max={TOP_SLIDER_STEPS[TOP_SLIDER_STEPS.length - 1]}
           step={0.2}
-          mt={10}
-          mx={12}
+          mt={'40px'}
+          mx={{
+            md: 12,
+            xs: 2,
+            sm: 2,
+          }}
           onChange={(target) => {
             setSliderTopValue(target)
             if (!onChange) return
@@ -96,14 +103,23 @@ const BaseRateTable: FunctionComponent<{
           mb={8}
         >
           {TOP_SLIDER_STEPS.map((item) => (
-            <SliderMark value={item} fontSize='sm' key={item} zIndex={1}>
+            <SliderMark value={item} fontSize='14px' key={item} zIndex={1}>
               <Box
-                w={2}
-                h={2}
+                w={'12px'}
+                h={'12px'}
+                boxSize={{
+                  md: '12px',
+                  sm: '6px',
+                  xs: '6px',
+                }}
                 borderRadius={8}
-                borderWidth={1}
+                borderWidth={{ md: 3, sm: 1, xs: 1 }}
                 borderColor='white'
-                mt={-1}
+                mt={{
+                  md: '-6px',
+                  sm: -1,
+                  xs: -1,
+                }}
                 bg={sliderTopValue > item ? `blue.1` : `gray.1`}
               />
             </SliderMark>
@@ -111,19 +127,19 @@ const BaseRateTable: FunctionComponent<{
 
           <SliderMark
             value={TOP_SLIDER_STEPS[0]}
-            mt={4}
+            mt='16px'
             ml='-2.5'
-            fontSize='sm'
+            fontSize='12px'
             color={`gray.3`}
           >
             min
           </SliderMark>
           <SliderMark
             value={TOP_SLIDER_STEPS[TOP_SLIDER_STEPS.length - 1]}
-            ml='-2.5'
-            fontSize='sm'
-            mt={4}
+            fontSize='12px'
+            mt='16px'
             color={`gray.3`}
+            ml='-3.5'
           >
             max
           </SliderMark>
@@ -138,7 +154,6 @@ const BaseRateTable: FunctionComponent<{
           >
             {sliderTopValue}%
           </SliderMark> */}
-
           <SliderTrack bg={`gray.1`}>
             <SliderFilledTrack
               // bg={`var(--chakra-colors-blue-2)`}
@@ -146,8 +161,8 @@ const BaseRateTable: FunctionComponent<{
             />
           </SliderTrack>
           <SliderThumb
-            boxSize={6}
-            borderWidth={5}
+            boxSize='24px'
+            borderWidth={'5px'}
             borderColor={`blue.1`}
             _focus={{
               boxShadow: 'none',
@@ -157,34 +172,61 @@ const BaseRateTable: FunctionComponent<{
         </Slider>
       </Flex>
 
-      <Flex justify={'flex-end'} w='100%' alignItems={'center'} gap={8}>
+      <Flex
+        justify={{
+          md: 'flex-end',
+          sm: 'space-between',
+          xs: 'space-between',
+        }}
+        w='100%'
+        alignItems={'center'}
+        gap={{
+          md: 8,
+          sm: '4px',
+          xs: '4px',
+        }}
+      >
         <Box
           bg='white'
           borderRadius={8}
-          padding={2}
-          mt={6}
-          w='660px'
+          p={{
+            md: 2,
+            sm: 0,
+            xs: 0,
+          }}
+          mt='24px'
+          w={{
+            md: '660px',
+            sm: '95%',
+            xs: '95%',
+          }}
           pos={'relative'}
         >
           <Flex>
             {[
               'Collateral Factor/ Tenor',
               ...currentTenors.map((i) => `${i} Days`),
-            ].map((item) => (
+            ].map((item, i) => (
               <Flex
                 key={item}
                 w={`${(1 / (colCount || 1)) * 100}%`}
                 alignItems={'center'}
                 justify='center'
-                h='40px'
+                h={'40px'}
                 borderBottomColor='gray.2'
                 borderBottomWidth={1}
               >
                 <Text
                   textAlign={'center'}
-                  fontSize='xs'
+                  fontSize='12px'
                   fontWeight={'bold'}
                   lineHeight='12px'
+                  transform={{
+                    md: 'none',
+                    sm: `scale(${i !== 0 ? 0.83333 : 0.66666})`,
+                    xs: `scale(${i !== 0 ? 0.83333 : 0.66666})`,
+                  }}
+                  transformOrigin='center'
                 >
                   {item}
                 </Text>
@@ -197,7 +239,7 @@ const BaseRateTable: FunctionComponent<{
             return (
               <Flex
                 /* eslint-disable */
-                key={`${JSON.stringify(row)}-${index}`}
+                key={index}
                 /* eslint-disable */
                 borderBottom={
                   index !== tableData?.length - 1
@@ -209,21 +251,49 @@ const BaseRateTable: FunctionComponent<{
                   (value: string, i: number) => (
                     <Flex
                       /* eslint-disable */
-                      key={`${value}-${i}`}
+                      key={i}
                       /* eslint-disable */
                       alignItems={'center'}
                       justify='center'
-                      h='40px'
+                      h={{
+                        md: '40px',
+                        sm: '35px',
+                        xs: '35px',
+                      }}
                       w={`${(1 / (colCount || 1)) * 100}%`}
                     >
-                      <Text
-                        textAlign={'center'}
-                        fontSize='xs'
-                        fontWeight={i === 0 ? 'bold' : 'normal'}
-                        color={i === 0 ? `black.1` : `gray.3`}
-                      >
-                        {Number(value) / 100}%
-                      </Text>
+                      {i === 0 ? (
+                        <Text
+                          textAlign={'center'}
+                          fontSize='12px'
+                          fontWeight={'bold'}
+                          color={'black.1'}
+                          transform={{
+                            md: 'none',
+                            sm: 'scale(0.83333)',
+                            xs: 'scale(0.83333)',
+                          }}
+                          transformOrigin='center'
+                        >
+                          {Number(value) / 100}%
+                        </Text>
+                      ) : (
+                        <ScrollNumber
+                          value={`${BigNumber(value)
+                            .dividedBy(100)
+                            .toFormat(2)}%`}
+                          color={
+                            i === row?.length && index === tableData?.length - 1
+                              ? 'blue.1'
+                              : 'gray.3'
+                          }
+                          fontWeight={
+                            i === row?.length && index === tableData?.length - 1
+                              ? '700'
+                              : '500'
+                          }
+                        />
+                      )}
                     </Flex>
                   ),
                 )}
@@ -235,7 +305,7 @@ const BaseRateTable: FunctionComponent<{
         <Flex
           flexDir={'column'}
           alignItems='center'
-          gap={1}
+          gap={'4px'}
           onMouseEnter={() => setRightTipVisible(true)}
           onMouseLeave={() => setRightTipVisible(false)}
         >
@@ -259,7 +329,7 @@ const BaseRateTable: FunctionComponent<{
               <SliderFilledTrack bg={`blue.1`} />
             </SliderTrack>
             <SliderThumb
-              boxSize={4}
+              boxSize={'16px'}
               borderWidth={'2px'}
               borderColor={`blue.1`}
               _focus={{
@@ -270,10 +340,10 @@ const BaseRateTable: FunctionComponent<{
           {rightTipVisible && <Box color={'gray.4'}>+</Box>}
         </Flex>
       </Flex>
-      <Flex justify={'center'} mt={5}>
+      <Flex justify={'center'} mt={'20px'}>
         <Flex
           alignItems={'center'}
-          gap={2}
+          gap={'8px'}
           justify='center'
           onMouseEnter={() => setBottomTipVisible(true)}
           onMouseLeave={() => setBottomTipVisible(false)}
@@ -287,7 +357,7 @@ const BaseRateTable: FunctionComponent<{
             w='140px'
             step={50}
             defaultValue={100}
-            mt={1}
+            mt={'4px'}
             onChange={(target) => {
               setSliderBottomValue(target)
               if (!onChange) return
@@ -298,7 +368,7 @@ const BaseRateTable: FunctionComponent<{
               <SliderFilledTrack bg={`blue.1`} />
             </SliderTrack>
             <SliderThumb
-              boxSize={4}
+              boxSize={'16px'}
               borderWidth={'2px'}
               borderColor={`blue.1`}
               _focus={{

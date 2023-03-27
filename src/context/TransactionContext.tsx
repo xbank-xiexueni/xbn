@@ -1,28 +1,96 @@
 import { useToast } from '@chakra-ui/react'
+import { useLocalStorageState, useRequest } from 'ahooks'
+import isEmpty from 'lodash-es/isEmpty'
 import {
   useEffect,
   useState,
   createContext,
   type ReactElement,
   useCallback,
+  useMemo,
 } from 'react'
-import Web3 from 'web3'
 
-import { createWeb3Provider } from '@/utils/createContract'
+import { apiGetActiveCollection } from '@/api'
+import { useNftCollectionsByContractAddressesQuery } from '@/hooks'
 
 export const TransactionContext = createContext({
   connectWallet: () => {},
-  getBalance: async (address: string) => {
-    console.log(
-      '🚀 ~ file: TransactionContext.tsx:15 ~ getBalance: ~ address:',
-      address,
-    )
-    return 0
-  },
   currentAccount: '',
   connectLoading: false,
-  isSupportedChain: false,
-  chainId: '',
+  handleSwitchNetwork: async () => {},
+  handleDisconnect: () => {},
+  collectionList: [
+    {
+      contractAddress: '',
+      nftCollection: {
+        assetsCount: 0,
+        bannerImageUrl: '',
+        chatUrl: '',
+        createdAt: '2023-02-23T08:35:14Z',
+        createdDate: '2022-12-12T08:18:30Z',
+        description: '',
+        discordUrl: '',
+        externalUrl: '',
+        featuredImageUrl: '',
+        fees: [],
+        id: 0,
+        imagePreviewUrl: '',
+        imageThumbnailUrl: '',
+        imageUrl: '',
+        instagramUsername: '',
+        largeImageUrl: '',
+        mediumUsername: '',
+        name: '',
+        nftCollectionStat: {
+          averagePrice: 0,
+          count: 0,
+          createdAt: '',
+          floorPrice: 0,
+          floorPriceRate: 0,
+          id: 0,
+          marketCap: 0,
+          numOwners: 0,
+          numReports: 0,
+          oneDayAveragePrice: 0,
+          oneDayChange: 0,
+          oneDaySales: 0,
+          oneDayVolume: 0,
+          sevenDayAveragePrice: 0,
+          sevenDayChange: 0,
+          sevenDaySales: 0,
+          sevenDayVolume: 0,
+          thirtyDayAveragePrice: 0,
+          thirtyDayChange: 0,
+          thirtyDaySales: 0,
+          thirtyDayVolume: 0,
+          totalSales: 0,
+          totalSupply: 0,
+          totalVolume: 0,
+          updatedAt: '',
+          __typename: 'NFTCollectionStat',
+        },
+        onlyProxiedTransfers: false,
+        openseaBuyerFeeBasisPoints: '0',
+        openseaSellerFeeBasisPoints: '50',
+        payoutAddress: '',
+        safelistRequestStatus: '',
+        shortDescription: '',
+        slug: '',
+        subscriberCount: 0,
+        telegramUrl: '',
+        twitterUsername: '',
+        updatedAt: '',
+        wikiUrl: '',
+        nftCollectionMetaData: {
+          subscribe: false,
+          subscribeCount: 0,
+          __typename: 'NFTCollectionMetaData',
+        },
+        __typename: 'NFTCollection',
+      },
+    },
+  ],
+  collectionLoading: false,
 })
 
 const { ethereum } = window
@@ -32,11 +100,86 @@ export const TransactionsProvider = ({
 }: {
   children: ReactElement
 }) => {
+  // collection 提取到外层
+  const [collectionAddressArr, setCollectionAddressArr] = useState<string[]>([])
+  const { loading } = useRequest(apiGetActiveCollection, {
+    debounceWait: 100,
+    retryCount: 5,
+    onSuccess: ({ data }) => {
+      setCollectionAddressArr(data.map((i) => i.contract_addr))
+    },
+  })
+
+  const { loading: collectionLoading, data: collectionData } =
+    useNftCollectionsByContractAddressesQuery({
+      variables: {
+        assetContractAddresses: collectionAddressArr,
+      },
+      skip: isEmpty(collectionAddressArr),
+    })
+  const collectionList = useMemo(() =>
+    // collectionAddressArr.map((item) => {
+    //   return {
+    //     contractAddress: item,
+    //     nftCollection:
+    //       collectionData?.nftCollectionsByContractAddresses?.find(
+    //         (i) => i.contractAddress.toLowerCase() === item.toLowerCase(),
+    //       )?.nftCollection,
+    //   }
+    // }),
+    {
+      return collectionData?.nftCollectionsByContractAddresses || []
+    }, [collectionData])
+
   const toast = useToast()
-  const [currentAccount, setCurrentAccount] = useState('')
-  const [isSupportedChain, setIsSupportedChain] = useState(false)
 
   const [connectLoading, setConnectLoading] = useState(false)
+  const [currentAccount, setCurrentAccount] = useLocalStorageState<string>(
+    'metamask-connect-address',
+    {
+      defaultValue: '',
+    },
+  )
+
+  const handleSwitchNetwork = useCallback(async () => {
+    if (!ethereum) {
+      return
+    }
+    try {
+      await ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: import.meta.env.VITE_TARGET_CHAIN_ID }],
+      })
+    } catch (switchError: any) {
+      // This error code indicates that the chain has not been added to MetaMask.
+      if (switchError.code === 4902) {
+        toast({
+          status: 'error',
+          title: 'please add Ethereum Chain',
+        })
+        // try {
+        //   await ethereum.request({
+        //     method: 'wallet_addEthereumChain',
+        //     params: [
+        //       {
+        //         chainId: '0xf00',
+        //         chainName: '...',
+        //         rpcUrls: ['https://...'] /* ... */,
+        //       },
+        //     ],
+        //   })
+        // } catch (addError) {
+        //   // handle "add" error
+        // }
+      } else {
+        console.log(switchError)
+        toast({
+          status: 'info',
+          title: 'please switch Ethereum Chain first',
+        })
+      }
+    }
+  }, [toast])
 
   // const getAllTransactions = async () => {
   //   try {
@@ -72,7 +215,6 @@ export const TransactionsProvider = ({
 
   useEffect(() => {
     if (!ethereum) return
-    setIsSupportedChain(['0x1', '0x5'].includes(ethereum.chainId))
 
     ethereum.on('accountsChanged', function () // accounts: string[]
     {
@@ -84,23 +226,15 @@ export const TransactionsProvider = ({
       //   return
       // }
     })
-    ethereum.on('chainChanged', (_chainId: string) => {
+    ethereum.on('chainChanged', () => {
       window.location.reload()
-      setIsSupportedChain(['0x1', '0x5'].includes(_chainId))
+      setCurrentAccount('')
     })
-  }, [])
-
-  const getBalance = useCallback(async (address: string) => {
-    const provider = createWeb3Provider()
-
-    const currentBalance = await provider.eth.getBalance(address)
-    console.log(
-      '🚀 ~ file: TransactionContext.tsx:89 ~ getBalance ~ currentBalance:',
-      currentBalance,
-    )
-
-    return Number(Web3.utils.fromWei(currentBalance, 'ether'))
-  }, [])
+    ethereum.on('disconnect', () => {
+      window.location.reload()
+      setCurrentAccount('')
+    })
+  }, [setCurrentAccount])
 
   const checkIfWalletIsConnect = useCallback(async () => {
     try {
@@ -113,10 +247,13 @@ export const TransactionsProvider = ({
         })
         return
       }
+      if (ethereum.chainId !== import.meta.env.VITE_TARGET_CHAIN_ID) {
+        return
+      }
 
       const accounts = await ethereum.request({ method: 'eth_accounts' })
 
-      if (accounts.length) {
+      if (accounts.length && currentAccount) {
         setCurrentAccount(accounts[0])
 
         // getAllTransactions();
@@ -128,7 +265,7 @@ export const TransactionsProvider = ({
       setCurrentAccount('')
       console.log(error)
     }
-  }, [toast])
+  }, [toast, currentAccount, setCurrentAccount])
 
   const connectWallet = useCallback(async () => {
     try {
@@ -139,6 +276,10 @@ export const TransactionsProvider = ({
           status: 'error',
           isClosable: true,
         })
+        return
+      }
+      if (ethereum.chainId !== import.meta.env.VITE_TARGET_CHAIN_ID) {
+        await handleSwitchNetwork()
         return
       }
 
@@ -155,7 +296,7 @@ export const TransactionsProvider = ({
 
       throw new Error('No ethereum object')
     }
-  }, [toast])
+  }, [toast, handleSwitchNetwork, setCurrentAccount])
 
   // const sendTransaction = async () => {
   //   try {
@@ -204,7 +345,6 @@ export const TransactionsProvider = ({
       value={{
         // transactionCount,
         connectWallet,
-        getBalance,
         // transactions,
         currentAccount,
         connectLoading,
@@ -212,8 +352,11 @@ export const TransactionsProvider = ({
         // sendTransaction,
         // handleChange,
         // formData,
-        isSupportedChain,
-        chainId: ethereum.chainId,
+        handleSwitchNetwork,
+        handleDisconnect: () => setCurrentAccount(''),
+        // @ts-ignore
+        collectionList,
+        collectionLoading: loading || collectionLoading,
       }}
     >
       {children}
