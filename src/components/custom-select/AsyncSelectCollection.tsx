@@ -28,7 +28,12 @@ const Option = ({ children, isSelected, ...props }: any) => {
   )
 }
 
-function AsyncSelectCollection({ w, isDisabled, ...rest }: any) {
+function AsyncSelectCollection({
+  w,
+  isDisabled,
+  borderColor = 'var(--chakra-colors-blue-4)',
+  ...rest
+}: any) {
   const { collectionList, collectionLoading } = useContext(TransactionContext)
   // const [collectionAddressArr, setCollectionAddressArr] = useState<string[]>([])
   // const { loading } = useRequest(apiGetActiveCollection, {
@@ -132,7 +137,7 @@ function AsyncSelectCollection({ w, isDisabled, ...rest }: any) {
               ? 'var(--chakra-colors-black-1)'
               : isFocused
               ? 'var(--chakra-colors-blue-1)'
-              : 'var(--chakra-colors-blue-4)'
+              : borderColor
           }`,
           boxShadow: 'none',
           // boxShadow: isFocused
