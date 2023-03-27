@@ -1,12 +1,6 @@
 import Select, { components, type GroupBase, type Props } from 'react-select'
 
-export interface ColorOption {
-  readonly value: string
-  readonly label: string
-  readonly color: string
-  readonly isFixed?: boolean
-  readonly isDisabled?: boolean
-}
+import { DropdownIndicator, Option } from './AsyncSelectCollection'
 
 function CustomSelect<
   Option,
@@ -14,19 +8,23 @@ function CustomSelect<
   Group extends GroupBase<Option> = GroupBase<Option>,
 >({
   img,
+  w,
+  isDisabled,
   borderColor = 'var(--chakra-colors-blue-4)',
   ...restProps
 }: Props<Option, IsMulti, Group> & {
+  w?: string
   img?: React.ReactElement
+  isDisabled?: boolean
   borderColor?: string
 }) {
   return (
     <Select
       {...restProps}
+      isDisabled={isDisabled}
       theme={(theme) => ({
         ...theme,
         borderRadius: 0,
-        width: 240,
         colors: {
           ...theme.colors,
           primary: `var(--chakra-colors-blue-1)`,
@@ -56,18 +54,26 @@ function CustomSelect<
           return {
             ...base,
             border: 'none',
-            borderRadius: 0,
+            borderRadius: 8,
             top: '65%',
             boxShadow: 'none',
           }
         },
-        control: (baseStyles, { isFocused }) => ({
+        singleValue: (baseStyles) => ({
           ...baseStyles,
-          width: 240,
+          color: 'var(--chakra-colors-black-1)',
+        }),
+        control: (baseStyles, { isFocused, isDisabled: _isDisabled }) => ({
+          ...baseStyles,
+          width: w,
           fontWeight: 700,
           borderRadius: 8,
           border: `1px solid ${
-            isFocused ? 'var(--chakra-colors-blue-1)' : borderColor
+            _isDisabled
+              ? 'var(--chakra-colors-black-1)'
+              : isFocused
+              ? 'var(--chakra-colors-blue-1)'
+              : borderColor
           }`,
           boxShadow: 'none',
           // boxShadow: isFocused
@@ -80,7 +86,10 @@ function CustomSelect<
             borderColor: 'var(--chakra-colors-blue-1)',
           },
         }),
-        option: (baseStyles, { isDisabled, isSelected, isFocused }) => ({
+        option: (
+          baseStyles,
+          { isDisabled: _isDisabled, isSelected, isFocused },
+        ) => ({
           ...baseStyles,
           backgroundColor: isSelected
             ? `var(--chakra-colors-blue-2)`
@@ -93,7 +102,7 @@ function CustomSelect<
 
           ':active': {
             ...baseStyles[':active'],
-            backgroundColor: !isDisabled
+            backgroundColor: !_isDisabled
               ? 'var(--chakra-colors-blue-2)'
               : undefined,
           },
@@ -107,6 +116,10 @@ function CustomSelect<
           </components.Control>
         ),
         IndicatorSeparator: () => null,
+        DropdownIndicator: !isDisabled
+          ? components.DropdownIndicator
+          : DropdownIndicator,
+        Option: (p) => <Option {...p} selectedIcon='icon-checked' />,
       }}
     />
   )

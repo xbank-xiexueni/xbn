@@ -26,12 +26,19 @@ const BelongToCollection: FunctionComponent<
         xl: '600px',
         lg: '380px',
         sm: '100%',
+        xs: '100%',
       }}
     >
-      <Heading size={'lg'} mb={4}>
+      <Heading size={'lg'} mb='16px'>
         Collection
       </Heading>
-      <Flex alignItems={'center'} p={4} borderRadius={16} bg='gray.5' gap={4}>
+      <Flex
+        alignItems={'center'}
+        p='16px'
+        borderRadius={16}
+        bg='gray.5'
+        gap='16px'
+      >
         <ImageWithFallback
           src={imagePreviewUrl}
           w='72px'

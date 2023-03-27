@@ -30,10 +30,10 @@ const NotFound: FunctionComponent<NotFoundProps> = ({
       py={8}
     >
       <AlertIcon boxSize='40px' mr={0} />
-      <AlertTitle mt={4} mb={1} fontSize='lg'>
+      <AlertTitle mt={'16px'} mb={'4px'} fontSize='32px'>
         {title}
       </AlertTitle>
-      <AlertDescription maxWidth='lg' my={5}>
+      <AlertDescription maxWidth='lg' my={'20px'}>
         Please contact us if you meet an invalid operation: help@xbank.plus
       </AlertDescription>
       <Button

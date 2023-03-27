@@ -11,6 +11,7 @@ const SvgComponent: FunctionComponent<
   // width,
   svgSize,
   fill,
+  _hover,
   ...rest
 }) => {
   return (
@@ -20,6 +21,7 @@ const SvgComponent: FunctionComponent<
         aria-hidden='true'
         fontSize={svgSize}
         fill={fill}
+        _hover={_hover}
       >
         <chakra.use xlinkHref={`#${svgId}`} />
       </chakra.svg>

@@ -26,11 +26,25 @@ const ScrollNumberItem: FunctionComponent<{
   if (value === '.' || value === '%')
     return (
       <Box
-        w='4px'
+        w={{
+          md: '4px',
+          sm: '2px',
+          xs: '2px',
+        }}
         h='2px'
-        top={'-2px'}
+        top={{
+          md: '-2px',
+          sm: 0,
+          xs: 0,
+        }}
         left={'-5px'}
         fontSize='12px'
+        transform={{
+          md: 'none',
+          sm: 'scale(0.83333)',
+          xs: 'scale(0.83333)',
+        }}
+        transformOrigin='center'
         position='relative'
       >
         {value}
@@ -39,8 +53,16 @@ const ScrollNumberItem: FunctionComponent<{
 
   return (
     <Box
-      w={'14px'}
-      h={'14px'}
+      w={{
+        md: '14px',
+        sm: '12px',
+        xs: '12px',
+      }}
+      h={{
+        md: '14px',
+        sm: '12px',
+        xs: '12px',
+      }}
       ml='-5px'
       position='relative'
       display='inline-block'
@@ -52,13 +74,24 @@ const ScrollNumberItem: FunctionComponent<{
         top={0}
         height='auto'
         width='100%'
-        transformOrigin='0 0'
+        transformOrigin='center'
         transition='top 0.6s'
         style={{ top: `${-1 * Number(value) * 16}px` }}
         ref={ref}
       >
         {range(0, 10).map((item) => (
-          <Box key={item} w='14px' h='16px' lineHeight={'16px'} fontSize='12px'>
+          <Box
+            key={item}
+            w='14px'
+            h='16px'
+            lineHeight={'16px'}
+            fontSize='12px'
+            transform={{
+              md: 'none',
+              sm: 'scale(0.83333)',
+              xs: 'scale(0.83333)',
+            }}
+          >
             {item}
           </Box>
         ))}
