@@ -288,7 +288,7 @@ const UpdatePoolAmountButton: FunctionComponent<
               mb='32px'
             >
               {AmountDataItems.map((item) => (
-                <AmountItem key={item.label} {...item} />
+                <AmountItem key={item.label} w='33%' {...item} />
               ))}
             </Flex>
             <FormControl>

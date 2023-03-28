@@ -28,6 +28,7 @@ const AmountItem: FunctionComponent<
           xs: 'scale(0.83333)',
         }}
         transformOrigin='center'
+        letterSpacing={'-0.2px'}
       >
         {label}
       </Flex>
@@ -47,7 +48,7 @@ const AmountItem: FunctionComponent<
               sm: '18px',
               xs: '18px',
             }}
-            fontStyle='700'
+            fontWeight='700'
             noOfLines={1}
           >
             {data}
