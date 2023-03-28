@@ -7,8 +7,6 @@ import {
   ModalHeader,
   FormControl,
   FormLabel,
-  // Flex,
-  // Box,
   Text,
   type ButtonProps,
   InputGroup,
@@ -18,7 +16,6 @@ import {
   NumberInput,
   useToast,
   useDisclosure,
-  Flex,
 } from '@chakra-ui/react'
 import { useRequest } from 'ahooks'
 import {
@@ -43,8 +40,6 @@ import {
 } from '@/utils/createContract'
 import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
-
-import AmountItem from './AmountItem'
 
 /**
  * create pool
@@ -140,24 +135,6 @@ const CreatePoolButton: FunctionComponent<
     }
     return false
   }, [amount, wethData, floorPrice])
-
-  const AmountDataItems = useMemo(
-    () => [
-      {
-        data: amount || '--',
-        label: 'Your balance',
-      },
-      {
-        data: 0,
-        label: 'Has been lent',
-      },
-      {
-        data: isError ? '--' : amount || '--',
-        label: 'Can be lent',
-      },
-    ],
-    [amount, isError],
-  )
 
   const onConfirm = useCallback(() => {
     interceptFn(async () => {
@@ -376,7 +353,7 @@ const CreatePoolButton: FunctionComponent<
           </ModalHeader>
           <ModalBody pb={'24px'} px={0}>
             {/* 数值们 */}
-            <Flex
+            {/* <Flex
               py={{ md: '32px', sm: '20px', xs: '20px' }}
               px={{ md: '36px', sm: '12px', xs: '12px' }}
               bg={`var(--chakra-colors-gray-5)`}
@@ -387,9 +364,9 @@ const CreatePoolButton: FunctionComponent<
               {AmountDataItems.map((item) => (
                 <AmountItem key={item.label} {...item} />
               ))}
-            </Flex>
+            </Flex> */}
             <FormControl>
-              <FormLabel>Amount</FormLabel>
+              <FormLabel fontWeight={'700'}>Amount</FormLabel>
               <InputGroup>
                 <InputLeftElement
                   pointerEvents='none'
@@ -438,15 +415,6 @@ const CreatePoolButton: FunctionComponent<
                 {isError
                   ? errorMsg
                   : `Minimum input: ${formatFloat(floorPrice * 0.1)}`}
-                {/* <SvgComponent
-                    svgId='icon-refresh'
-                    onClick={fetchLatestWethBalance}
-                    animation={
-                      refreshLoading ? 'loading 1s linear infinite' : ''
-                    }
-                    cursor={'pointer'}
-                    display='inline-block'
-                  /> */}
               </Text>
             </FormControl>
             <Text

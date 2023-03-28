@@ -7,9 +7,7 @@ import {
   PopoverBody,
   Portal,
   type FlexProps,
-  Button,
 } from '@chakra-ui/react'
-import omit from 'lodash-es/omit'
 import { type FunctionComponent, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 

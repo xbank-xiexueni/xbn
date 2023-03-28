@@ -89,24 +89,22 @@ const UpdatePoolAmountButton: FunctionComponent<
   const AmountDataItems = useMemo(
     () => [
       {
-        data: amount || '--',
-        label: 'Your balance',
+        data: wei2Eth(poolAmount) || '--',
+        label: 'Approved Amount',
         loading: false,
       },
       {
         data: poolUsedAmount ? wei2Eth(poolUsedAmount) : 0,
-        label: 'Has been lent',
+        label: 'Has Been Lent',
         loading: false,
       },
       {
-        data: poolUsedAmount
-          ? Number(amount) - Number(wei2Eth(poolUsedAmount))
-          : amount || '--',
-        label: 'Can be lent',
+        data: wei2Eth(poolAmount - poolUsedAmount),
+        label: 'Can Be Lent',
         loading: false,
       },
     ],
-    [amount, poolUsedAmount],
+    [poolUsedAmount, poolAmount],
   )
 
   const isError = useMemo(() => {
@@ -294,7 +292,7 @@ const UpdatePoolAmountButton: FunctionComponent<
               ))}
             </Flex>
             <FormControl>
-              <FormLabel>Amount</FormLabel>
+              <FormLabel fontWeight={'700'}>Amount</FormLabel>
               <InputGroup>
                 <InputLeftElement
                   pointerEvents='none'
