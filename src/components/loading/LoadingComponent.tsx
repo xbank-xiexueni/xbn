@@ -1,6 +1,13 @@
 import { Flex, Spinner } from '@chakra-ui/react'
 
-const Index = ({ loading, h }: { loading: boolean; h?: string }) => {
+import type { FlexProps } from '@chakra-ui/react'
+
+const Index = ({
+  loading,
+  minHeight,
+  top = '24px',
+  ...rest
+}: { loading: boolean } & FlexProps) => {
   if (!loading) {
     return null
   }
@@ -9,13 +16,14 @@ const Index = ({ loading, h }: { loading: boolean; h?: string }) => {
       position={'absolute'}
       left={0}
       right={0}
-      top={'24px'}
+      top={top}
       bottom={0}
       bg='rgba(27, 34, 44, 0.1)'
       borderRadius={16}
       justify={'center'}
       zIndex={4}
-      h={h}
+      minHeight={minHeight}
+      {...rest}
     >
       <Spinner
         thickness='4px'

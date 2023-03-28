@@ -18,6 +18,7 @@ import {
   NumberInput,
   useToast,
   useDisclosure,
+  Flex,
 } from '@chakra-ui/react'
 import { useRequest } from 'ahooks'
 import {
@@ -43,26 +44,13 @@ import {
 import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
-// const DataItem: FunctionComponent<{ label: string; data: number }> = ({
-//   label,
-//   data,
-// }) => {
-//   return (
-//     <Box textAlign={'center'}>
-//       <Text fontWeight={'medium'} color={`var(--chakra-colors-gray-3)`}>
-//         {label}
-//       </Text>
-//       <Flex alignItems={'center'} mt={'4px'} justify='center'>
-//         <Image src={IconEth} w={'4px'} />
-//         <Text fontSize={'lg'} fontWeight='bold'>
-//           &nbsp;{data}
-//         </Text>
-//       </Flex>
-//     </Box>
-//   )
-// }
+import AmountItem from './AmountItem'
 
-const ApproveEthButton: FunctionComponent<
+/**
+ * create pool
+ * use createPool
+ */
+const CreatePoolButton: FunctionComponent<
   ButtonProps & {
     data: {
       poolMaximumPercentage: number
@@ -126,6 +114,12 @@ const ApproveEthButton: FunctionComponent<
     },
   )
 
+  /**
+   * Your balance = LP 设定的数值
+   * Has been lent = 这个 pool 当前进行中的贷款，尚未归还的本金金额
+   * Can ben lent = Your balance - Has been lent （如果相减结果为负数，则显示0）
+   */
+
   const isError = useMemo(() => {
     //  amount < balance + Has been lent
     if (!amount) return false
@@ -146,6 +140,24 @@ const ApproveEthButton: FunctionComponent<
     }
     return false
   }, [amount, wethData, floorPrice])
+
+  const AmountDataItems = useMemo(
+    () => [
+      {
+        data: amount || '--',
+        label: 'Your balance',
+      },
+      {
+        data: 0,
+        label: 'Has been lent',
+      },
+      {
+        data: isError ? '--' : amount || '--',
+        label: 'Can be lent',
+      },
+    ],
+    [amount, isError],
+  )
 
   const onConfirm = useCallback(() => {
     interceptFn(async () => {
@@ -332,9 +344,10 @@ const ApproveEthButton: FunctionComponent<
       >
         <ModalOverlay bg='black.2' />
         <ModalContent
+          borderRadius={16}
           maxW={{
-            xl: '526px',
-            lg: '526px',
+            xl: '576px',
+            lg: '576px',
             md: '400px',
             sm: '326px',
             xs: '326px',
@@ -363,17 +376,18 @@ const ApproveEthButton: FunctionComponent<
           </ModalHeader>
           <ModalBody pb={'24px'} px={0}>
             {/* 数值们 */}
-            {/* <Flex
-              py={8}
-              px={9}
+            <Flex
+              py={{ md: '32px', sm: '20px', xs: '20px' }}
+              px={{ md: '36px', sm: '12px', xs: '12px' }}
               bg={`var(--chakra-colors-gray-5)`}
               borderRadius={16}
               justify='space-between'
+              mb='32px'
             >
-              <DataItem label='Your balance' data={0} />
-              <DataItem label='Has been lent' data={0} />
-              <DataItem label='Can be lent' data={0} />
-            </Flex> */}
+              {AmountDataItems.map((item) => (
+                <AmountItem key={item.label} {...item} />
+              ))}
+            </Flex>
             <FormControl>
               <FormLabel>Amount</FormLabel>
               <InputGroup>
@@ -396,7 +410,6 @@ const ApproveEthButton: FunctionComponent<
                   // lineHeight='60px'
                   borderRadius={8}
                   borderColor='gray.3'
-                  placeholder='Enter the approve ETH amount...'
                   isDisabled={approveLoading || createLoading || refreshLoading}
                 >
                   <NumberInputField
@@ -410,6 +423,7 @@ const ApproveEthButton: FunctionComponent<
                         isError ? 'red-1' : 'blue-1'
                       })`,
                     }}
+                    placeholder='Enter the approve ETH amount...'
                   />
                 </NumberInput>
 
@@ -474,4 +488,4 @@ const ApproveEthButton: FunctionComponent<
   )
 }
 
-export default ApproveEthButton
+export default CreatePoolButton

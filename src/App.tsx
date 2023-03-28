@@ -15,8 +15,7 @@ import lazyWithRetries from './utils/lazyWithRetries'
 
 // Lend
 const Lend = lazyWithRetries(() => import('./pages/Lend/Lend'))
-const PoolCreate = lazyWithRetries(() => import('./pages/Lend/Create'))
-// const PoolEdit = lazy(() => import('./pages/Lend/Edit'))
+const PoolCreateAndEdit = lazyWithRetries(() => import('./pages/Lend/Create'))
 
 // buy nfts
 const Market = lazyWithRetries(() => import('./pages/buy-nfts/Market'))
@@ -53,21 +52,13 @@ function App() {
           }
         /> */}
         <Route
-          path='/xlending/lending/my-pools/create'
+          path='/xlending/lending/my-pools/:action'
           element={
             <Suspense fallback={<Fallback />}>
-              <PoolCreate />
+              <PoolCreateAndEdit />
             </Suspense>
           }
         />
-        {/* <Route
-          path='lending/pools/edit/:collectionId?'
-          element={
-            <Suspense fallback={<Fallback />}>
-              <PoolEdit />
-            </Suspense>
-          }
-        /> */}
         <Route
           path='/xlending/lending/my-pools'
           element={

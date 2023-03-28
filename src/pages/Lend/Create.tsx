@@ -1,13 +1,14 @@
 import { Box, Button, Container, Flex, Heading, Text } from '@chakra-ui/react'
 import isEmpty from 'lodash-es/isEmpty'
 import { useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import {
   BaseRateTable,
   Select,
   SvgComponent,
   AsyncSelectCollection,
+  NotFound,
 } from '@/components'
 import {
   TENORS,
@@ -20,8 +21,8 @@ import {
 } from '@/constants'
 import type { NftCollection } from '@/hooks'
 
-import ApproveEthButton from './components/ApproveEthButton'
 import CardWithBg from './components/CardWithBg'
+import CreatePoolButton from './components/CreatePoolButton'
 import StepDescription from './components/StepDescription'
 
 import type { CardProps } from '@chakra-ui/react'
@@ -65,14 +66,47 @@ const Wrapper: FunctionComponent<
 
 const Create = () => {
   const navigate = useNavigate()
-  // const params = useParams()
-  const { state } = useLocation()
-  const [selectCollateral, setSelectCollateral] = useState(INITIAL_COLLATERAL)
-  const [selectTenor, setSelectTenor] = useState(INITIAL_TENOR)
+  const params = useParams() as {
+    action: 'create' | 'edit'
+  }
+  const { state } = useLocation() as {
+    state: {
+      contractAddress: string
+      nftCollection: NftCollection
+      poolData: PoolsListItemType
+    }
+  }
+  const initialItems = useMemo(
+    () => ({
+      tenor: state?.poolData?.pool_maximum_days || INITIAL_TENOR,
+      collateral:
+        state?.poolData?.pool_maximum_percentage || INITIAL_COLLATERAL,
+      loanRatioPreferentialFlexibility:
+        state?.poolData?.loan_ratio_preferential_flexibility || 100,
+      loanTimeConcessionFlexibility:
+        state?.poolData?.loan_time_concession_flexibility || 100,
+    }),
+    [state],
+  )
+
+  const [selectCollateral, setSelectCollateral] = useState(
+    initialItems?.collateral,
+  )
+  const [selectTenor, setSelectTenor] = useState(initialItems?.tenor)
   const [selectCollection, setSelectCollection] = useState<{
     contractAddress: string
     nftCollection: NftCollection
-  }>({ ...state })
+  }>({
+    contractAddress: state?.contractAddress,
+    nftCollection: state?.nftCollection,
+  })
+
+  const initialPoolMaximumInterestRate = useMemo(() => {
+    return (
+      state?.poolData?.pool_maximum_interest_rate ||
+      LP_BASE_RATE[`${selectTenor}-${selectCollateral}`]
+    )
+  }, [state, selectCollateral, selectTenor])
 
   const [rateData, setRateData] = useState<{
     poolMaximumInterestRate: number
@@ -80,19 +114,19 @@ const Create = () => {
     loanTimeConcessionFlexibility: number
   }>({
     poolMaximumInterestRate:
-      LP_BASE_RATE[`${INITIAL_TENOR}-${INITIAL_COLLATERAL}`],
+      LP_BASE_RATE[`${initialItems.tenor}-${initialItems.collateral}`],
     loanRatioPreferentialFlexibility: 100,
     loanTimeConcessionFlexibility: 100,
   })
 
   useEffect(() => {
     setRateData({
-      poolMaximumInterestRate:
-        LP_BASE_RATE[`${selectTenor}-${selectCollateral}`],
-      loanRatioPreferentialFlexibility: 100,
-      loanTimeConcessionFlexibility: 100,
+      poolMaximumInterestRate: initialPoolMaximumInterestRate,
+      loanRatioPreferentialFlexibility:
+        initialItems.loanRatioPreferentialFlexibility,
+      loanTimeConcessionFlexibility: initialItems.loanTimeConcessionFlexibility,
     })
-  }, [selectCollateral, selectTenor])
+  }, [initialPoolMaximumInterestRate, initialItems])
 
   const collectionSelectorProps = useMemo(
     () => ({
@@ -103,17 +137,23 @@ const Create = () => {
       }) => {
         setSelectCollection(e)
       },
-      defaultValue: state,
+      defaultValue: state
+        ? {
+            contractAddress: state?.contractAddress,
+            nftCollection: state?.nftCollection,
+          }
+        : undefined,
+      isDisabled: params.action === 'edit',
     }),
-    [state],
+    [state, params],
   )
 
   const tenorSelectorProps = useMemo(
     () => ({
       placeholder: 'Please select',
       defaultValue: {
-        label: `${INITIAL_TENOR} Days`,
-        value: INITIAL_TENOR,
+        label: `${initialItems.tenor} Days`,
+        value: initialItems.tenor,
       },
       img: <SvgComponent svgId='icon-calendar' ml='12px' svgSize={'20px'} />,
       onChange: (e: any) => setSelectTenor(e?.value as number),
@@ -122,7 +162,7 @@ const Create = () => {
         value: item,
       })),
     }),
-    [],
+    [initialItems],
   )
 
   const collateralSelectorProps = useMemo(
@@ -131,8 +171,8 @@ const Create = () => {
       // w={'240px'}
       img: <SvgComponent svgId='icon-intersect' ml={'12px'} svgSize={'20px'} />,
       defaultValue: {
-        label: `${INITIAL_COLLATERAL / 100} %`,
-        value: INITIAL_COLLATERAL,
+        label: `${initialItems.collateral / 100} %`,
+        value: initialItems.collateral,
       },
       onChange: (e: any) => setSelectCollateral(e?.value as number),
       options: COLLATERALS?.map((item) => ({
@@ -140,8 +180,12 @@ const Create = () => {
         value: item,
       })),
     }),
-    [],
+    [initialItems],
   )
+
+  if (!params || !['edit', 'create'].includes(params?.action)) {
+    return <NotFound />
+  }
   return (
     <Container
       maxW={{
@@ -209,12 +253,14 @@ const Create = () => {
               }}
               mb={'8px'}
             >
-              Create New Pool
+              {params.action === 'create' ? 'Create New Pool' : 'Manage Pool'}
             </Heading>
-            <Text color='gray.3'>
-              Setting up a new pool to lend against borrowers with preferred
-              length of duration and collateral factor ratio.
-            </Text>
+            {params.action === 'create' && (
+              <Text color='gray.3'>
+                Setting up a new pool to lend against borrowers with preferred
+                length of duration and collateral factor ratio.
+              </Text>
+            )}
           </Box>
           <Wrapper stepIndex={1}>
             <Box
@@ -292,6 +338,18 @@ const Create = () => {
               }}
             />
             <BaseRateTable
+              defaultValue={
+                state?.poolData
+                  ? {
+                      pool_maximum_interest_rate:
+                        state.poolData.pool_maximum_interest_rate,
+                      loan_ratio_preferential_flexibility:
+                        state.poolData.loan_ratio_preferential_flexibility,
+                      loan_time_concession_flexibility:
+                        state.poolData.loan_time_concession_flexibility,
+                    }
+                  : undefined
+              }
               selectCollateral={selectCollateral}
               selectTenor={selectTenor}
               onChange={(
@@ -310,23 +368,37 @@ const Create = () => {
           </CardWithBg>
 
           <Flex justify={'center'} mb={'40px'}>
-            <ApproveEthButton
-              variant={'primary'}
-              w='240px'
-              h='52px'
-              isDisabled={isEmpty(selectCollection)}
-              data={{
-                poolMaximumPercentage: selectCollateral,
-                poolMaximumDays: selectTenor,
-                allowCollateralContract: selectCollection?.contractAddress,
-                floorPrice:
-                  selectCollection?.nftCollection?.nftCollectionStat
-                    ?.floorPrice,
-                ...rateData,
-              }}
-            >
-              Confirm
-            </ApproveEthButton>
+            {params.action === 'create' && (
+              <CreatePoolButton
+                variant={'primary'}
+                w='240px'
+                h='52px'
+                isDisabled={isEmpty(selectCollection)}
+                data={{
+                  poolMaximumPercentage: selectCollateral,
+                  poolMaximumDays: selectTenor,
+                  allowCollateralContract: selectCollection?.contractAddress,
+                  floorPrice:
+                    selectCollection?.nftCollection?.nftCollectionStat
+                      ?.floorPrice,
+                  ...rateData,
+                }}
+              >
+                Confirm
+              </CreatePoolButton>
+            )}
+            {params.action === 'edit' && (
+              <Button
+                variant={'primary'}
+                w='240px'
+                h='52px'
+                onClick={() => {
+                  console.log(rateData, '11', selectCollateral, selectTenor)
+                }}
+              >
+                Confirm
+              </Button>
+            )}
           </Flex>
         </Box>
       </Flex>
