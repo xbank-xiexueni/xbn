@@ -3,22 +3,20 @@ import {
   Flex,
   Heading,
   Skeleton,
-  // HStack,
+  type FlexProps,
   Text,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import reduce from 'lodash/reduce'
+import range from 'lodash-es/range'
 import numeral from 'numeral'
-import { useCallback } from 'react'
+import { useCallback, type FunctionComponent } from 'react'
 
 import { ImageWithFallback, SvgComponent } from '@/components'
 import { createXBankContract } from '@/utils/createContract'
 import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
-
-import type { FlexProps } from '@chakra-ui/react'
-import type { ReactElement, FunctionComponent } from 'react'
 
 const Item: FunctionComponent<
   FlexProps & {
@@ -61,13 +59,9 @@ const Item: FunctionComponent<
 const AllPoolsDescription: FunctionComponent<{
   data: {
     titleImage?: string
-    title?: string | ReactElement
-    description?: string | ReactElement
+    title?: string
+    description?: string
     img?: string
-    keys?: {
-      value: string | ReactElement
-      label: string | ReactElement
-    }[]
   }
 }> = ({ data: { title = '', description = '', img = '' } }) => {
   const fetchSummaryData = useCallback(async () => {
@@ -77,9 +71,9 @@ const AllPoolsDescription: FunctionComponent<{
     const collectionWithPools = [
       ...new Set(listPool.map((item: any) => item.allowCollateralContract)),
     ]
-    const totalLoanRepaymentAmount = reduce(
+    const totalLoanPrincipal = reduce(
       listLoan,
-      (sum, i) => BigNumber(sum).plus(BigNumber(i.loanRepaymentAmount)),
+      (sum, i) => BigNumber(sum).plus(BigNumber(i.loanPrincipal)),
       BigNumber(0),
     )
     const totalPoolAmount = reduce(
@@ -90,7 +84,7 @@ const AllPoolsDescription: FunctionComponent<{
 
     return {
       collectionCount: collectionWithPools?.length,
-      totalLoanRepaymentAmount,
+      totalLoanPrincipal,
       totalPoolAmount,
     }
   }, [])
@@ -116,53 +110,52 @@ const AllPoolsDescription: FunctionComponent<{
           xs: '100%',
         }}
       >
-        {typeof title === 'string' ? (
-          <Heading
-            fontSize={{
-              md: '64px',
-              sm: '24px',
-              xs: '24px',
-            }}
-          >
-            {title}
-          </Heading>
-        ) : (
-          title
-        )}
-        {typeof description === 'string' ? (
-          <Text
-            color='gray.3'
-            mt={'8px'}
-            mb={{ md: '40px', sm: '32px', xs: '32px' }}
-            fontSize={{ md: '20px', sm: '14px', xs: '14px' }}
-            fontWeight='medium'
-            whiteSpace={'pre-wrap'}
-          >
-            {description}
-          </Text>
-        ) : (
-          description
-        )}
+        <Heading
+          fontSize={{
+            md: '64px',
+            sm: '24px',
+            xs: '24px',
+          }}
+        >
+          {title}
+        </Heading>
+
+        <Text
+          color='gray.3'
+          mt={'8px'}
+          mb={{ md: '40px', sm: '32px', xs: '32px' }}
+          fontSize={{ md: '20px', sm: '14px', xs: '14px' }}
+          fontWeight='medium'
+          whiteSpace={'pre-wrap'}
+        >
+          {description}
+        </Text>
+
         {/* 总览数据 */}
         {loading || !data ? (
-          <Skeleton
-            w={{
-              md: '500px',
-              sm: '100%',
-              xs: '100%',
-            }}
-            borderRadius={16}
-            h={{
-              md: '66px',
-              sm: '44px',
-              xs: '44px',
-            }}
-            mb={{
-              md: 0,
-              sm: '30px',
-              xs: '30px',
-            }}
-          />
+          <Flex gap={'10px'}>
+            {range(3).map((i) => (
+              <Skeleton
+                w={{
+                  md: '160px',
+                  sm: '33%',
+                  xs: '33%',
+                }}
+                key={i}
+                borderRadius={16}
+                h={{
+                  md: '66px',
+                  sm: '44px',
+                  xs: '44px',
+                }}
+                mb={{
+                  md: 0,
+                  sm: '30px',
+                  xs: '30px',
+                }}
+              />
+            ))}
+          </Flex>
         ) : (
           <Flex
             alignItems={'center'}
@@ -174,19 +167,24 @@ const AllPoolsDescription: FunctionComponent<{
               sm: '30px',
               xs: '30px',
             }}
+            justify={{
+              md: 'flex-start',
+              sm: 'space-between',
+              xs: 'space-between',
+            }}
           >
             <Item label='Collection' value={data?.collectionCount} />
             <Item
               label='Historical Lent Out'
               value={formatFloat(
-                Number(wei2Eth(data?.totalLoanRepaymentAmount.toNumber())),
+                Number(wei2Eth(data?.totalLoanPrincipal.toNumber())),
               )}
               isEth
             />
             <Item
               label='Total Value Locked'
               value={numeral(wei2Eth(data?.totalPoolAmount)).format('0.00 a')}
-              isDollar
+              isEth
             />
           </Flex>
         )}

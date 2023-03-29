@@ -125,6 +125,78 @@ const PopoverWrapper: FunctionComponent<{
   )
 }
 
+const ConnectedIconWallet: FunctionComponent = () => {
+  const { currentAccount, handleDisconnect, handleOpenEtherscan } = useWallet()
+  const fetchDataFromContract = useCallback(async () => {
+    // const wethContract = createWethContract()
+    const xBankContract = createXBankContract()
+    const listPool = await xBankContract.methods.listPool().call()
+    const listLoan = await xBankContract.methods.listLoan().call()
+    // const _allowance = await wethContract.methods
+    //   .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
+    //   .call()
+
+    // const balanceOf = await wethContract.methods
+    //   .balanceOf(currentAccount)
+    //   .call()
+    // console.log('🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:', balanceOf)
+
+    // const allowanceEth = wei2Eth(_allowance)
+    // console.log(
+    //   '🚀 ~ file: Header.tsx:59 ~ testClick ~ allowanceEth:',
+    //   allowanceEth,
+    // )
+    console.log('listLoan:', listLoan)
+    console.log('listPool:', listPool)
+  }, [])
+  const { run, loading } = useRequest(fetchDataFromContract, {
+    manual: true,
+  })
+  return (
+    <Popover isLazy trigger='click' placement='bottom-end'>
+      <PopoverTrigger>
+        <IconButton
+          justifyContent={'center'}
+          aria-label=''
+          bg='white'
+          icon={<SvgComponent svgId='icon-wallet-outline' svgSize='30px' />}
+          hidden={!currentAccount}
+        />
+      </PopoverTrigger>
+      <PopoverContent w='160px' top='8px'>
+        <PopoverBody p={'10px'}>
+          <Button
+            variant={'link'}
+            color='black.1'
+            p={'10px'}
+            onClick={handleOpenEtherscan}
+          >
+            {formatAddress(currentAccount)}
+          </Button>
+          <Button
+            variant={'link'}
+            color='black.1'
+            p={'10px'}
+            _hover={{
+              textDecoration: 'none',
+            }}
+            onClick={handleDisconnect}
+          >
+            Disconnect
+          </Button>
+
+          {(import.meta.env.DEV ||
+            window.location.hostname.startsWith('feat-')) && (
+            <Button isLoading={loading} onClick={run} variant='primary'>
+              TEST
+            </Button>
+          )}
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 const MobileDrawBtn = () => {
   const {
     isOpen: drawVisible,
@@ -241,95 +313,12 @@ const Header = () => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
-  const { isOpen, onClose, currentAccount, interceptFn, handleDisconnect } =
+  const { isOpen, onClose, currentAccount, interceptFn, handleOpenEtherscan } =
     useWallet()
-
-  const fetchDataFromContract = useCallback(async () => {
-    // const wethContract = createWethContract()
-    const xBankContract = createXBankContract()
-    const listPool = await xBankContract.methods.listPool().call()
-    const listLoan = await xBankContract.methods.listLoan().call()
-    // const _allowance = await wethContract.methods
-    //   .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
-    //   .call()
-
-    // const balanceOf = await wethContract.methods
-    //   .balanceOf(currentAccount)
-    //   .call()
-    // console.log('🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:', balanceOf)
-
-    // const allowanceEth = wei2Eth(_allowance)
-    // console.log(
-    //   '🚀 ~ file: Header.tsx:59 ~ testClick ~ allowanceEth:',
-    //   allowanceEth,
-    // )
-    console.log('listLoan:', listLoan)
-    console.log('listPool:', listPool)
-  }, [])
-  const { run, loading } = useRequest(fetchDataFromContract, {
-    manual: true,
-  })
-
-  const handleOpenEtherscan = useCallback(() => {
-    interceptFn(async () => {
-      window.open(
-        `${
-          import.meta.env.VITE_TARGET_CHAIN_BASE_URL
-        }/address/${currentAccount}`,
-      )
-    })
-  }, [interceptFn, currentAccount])
 
   const handleClickWallet = useCallback(async () => {
     interceptFn(() => {})
   }, [interceptFn])
-
-  const ConnectedIconWallet = useMemo(
-    () => (
-      <Popover isLazy trigger='click' placement='bottom-end'>
-        <PopoverTrigger>
-          <IconButton
-            justifyContent={'center'}
-            aria-label=''
-            bg='white'
-            icon={<SvgComponent svgId='icon-wallet-outline' svgSize='30px' />}
-            hidden={!currentAccount}
-          />
-        </PopoverTrigger>
-        <PopoverContent w='160px' top='8px'>
-          <PopoverBody p={'10px'}>
-            <Button
-              variant={'link'}
-              color='black.1'
-              p={'10px'}
-              onClick={handleOpenEtherscan}
-            >
-              {formatAddress(currentAccount)}
-            </Button>
-            <Button
-              variant={'link'}
-              color='black.1'
-              p={'10px'}
-              _hover={{
-                textDecoration: 'none',
-              }}
-              onClick={handleDisconnect}
-            >
-              Disconnect
-            </Button>
-
-            {(import.meta.env.DEV ||
-              window.location.hostname.startsWith('feat-')) && (
-              <Button isLoading={loading} onClick={run} variant='primary'>
-                TEST
-              </Button>
-            )}
-          </PopoverBody>
-        </PopoverContent>
-      </Popover>
-    ),
-    [handleOpenEtherscan, handleDisconnect, currentAccount, run, loading],
-  )
 
   return (
     <Box
@@ -438,7 +427,7 @@ const Header = () => {
                 }
               />
             )}
-            {ConnectedIconWallet}
+            <ConnectedIconWallet />
           </Flex>
 
           {/*  移动端 */}
@@ -464,7 +453,7 @@ const Header = () => {
               }
               hidden={!currentAccount}
             />
-            {ConnectedIconWallet}
+            <ConnectedIconWallet />
             <MobileDrawBtn />
           </Flex>
         </Flex>

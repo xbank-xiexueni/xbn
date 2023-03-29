@@ -29,6 +29,16 @@ const useWallet = () => {
     },
     [currentAccount, onOpen, handleSwitchNetwork],
   )
+
+  const handleOpenEtherscan = useCallback(() => {
+    interceptFn(async () => {
+      window.open(
+        `${
+          import.meta.env.VITE_TARGET_CHAIN_BASE_URL
+        }/address/${currentAccount}`,
+      )
+    })
+  }, [interceptFn, currentAccount])
   return {
     isOpen,
     onOpen,
@@ -36,6 +46,7 @@ const useWallet = () => {
     interceptFn,
     currentAccount,
     handleSwitchNetwork,
+    handleOpenEtherscan,
     ...rest,
   }
 }

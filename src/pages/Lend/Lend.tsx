@@ -19,6 +19,7 @@ import {
   DrawerContent,
   DrawerCloseButton,
   type TabProps,
+  ScaleFade,
 } from '@chakra-ui/react'
 import useDebounce from 'ahooks/lib/useDebounce'
 import useRequest from 'ahooks/lib/useRequest'
@@ -28,6 +29,7 @@ import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
 import reduce from 'lodash-es/reduce'
+import sortBy from 'lodash-es/sortBy'
 import { useEffect, useMemo, useState, type FunctionComponent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -99,6 +101,8 @@ const TabWrapper: FunctionComponent<TabProps> = ({ children, ...rest }) => {
  */
 const Lend = () => {
   const [tabKey, setTabKey] = useState<0 | 1 | 2>(0)
+
+  const { isOpen: showSearch, onToggle: toggleShowSearch } = useDisclosure()
 
   const {
     isOpen,
@@ -172,37 +176,60 @@ const Lend = () => {
     const collectionsWithPools = collectionList.filter((i) =>
       collectionsAddressWithPools.includes(i.contractAddress.toLowerCase()),
     )
-    return collectionsWithPools.map(({ contractAddress, ...rest }) => {
-      const currentCollectionPools = allPoolsData.filter(
-        (item) =>
-          item.allow_collateral_contract.toLowerCase() ===
-          contractAddress.toLowerCase(),
-      )
-      const pool_maximum_percentage = maxBy(
-        currentCollectionPools,
-        (i) => i.pool_maximum_percentage,
-      )?.pool_maximum_percentage
+    return sortBy(
+      collectionsWithPools.map(({ contractAddress, ...rest }) => {
+        const currentCollectionPools = allPoolsData.filter(
+          (item) =>
+            item.allow_collateral_contract.toLowerCase() ===
+            contractAddress.toLowerCase(),
+        )
+        const pool_maximum_percentage = maxBy(
+          currentCollectionPools,
+          (i) => i.pool_maximum_percentage,
+        )?.pool_maximum_percentage
 
-      const pool_maximum_interest_rate = maxBy(
-        currentCollectionPools,
-        (i) => i.pool_maximum_interest_rate,
-      )?.pool_maximum_interest_rate
+        const pool_maximum_interest_rate = maxBy(
+          currentCollectionPools,
+          (i) => i.pool_maximum_interest_rate,
+        )?.pool_maximum_interest_rate
 
-      const pool_amount = reduce(
-        currentCollectionPools,
-        (sum, i) => BigNumber(sum).plus(Number(i.pool_amount)),
-        BigNumber(0),
-      ).toNumber()
+        const pool_amount = wei2Eth(
+          reduce(
+            currentCollectionPools,
+            (sum, i) => BigNumber(sum).plus(Number(i.pool_amount)),
+            BigNumber(0),
+          ),
+        )
 
-      return {
-        pool_maximum_percentage,
-        pool_maximum_interest_rate,
-        pool_amount,
-        contractAddress,
-        ...rest,
-      }
-    })
+        return {
+          pool_maximum_percentage,
+          pool_maximum_interest_rate,
+          pool_amount,
+          contractAddress,
+          ...rest,
+        }
+      }),
+      'pool_amount',
+      (i) => Number(i.pool_amount),
+    )
   }, [collectionList, allPoolsData])
+
+  const [activeCollectionSearchValue, setActiveCollectionSearchValue] =
+    useState('')
+  const debounceActiveCollectionSearchValue = useDebounce(
+    activeCollectionSearchValue,
+    {
+      wait: 500,
+    },
+  )
+  const filteredActiveCollectionList = useMemo(() => {
+    if (!debounceActiveCollectionSearchValue) return activeCollectionList || []
+    return activeCollectionList.filter((item) =>
+      item.nftCollection?.name
+        .toLocaleLowerCase()
+        .includes(debounceActiveCollectionSearchValue.toLocaleLowerCase()),
+    )
+  }, [debounceActiveCollectionSearchValue, activeCollectionList])
 
   /**
    * My Pools Tab
@@ -222,6 +249,20 @@ const Lend = () => {
       }
     })
   }, [myPoolsData, collectionList])
+
+  const [myPoolsSearchValue, setMyPoolsSearchValue] = useState('')
+  const debounceMyPoolsSearchValue = useDebounce(myPoolsSearchValue, {
+    wait: 500,
+  })
+
+  const filteredPoolList = useMemo(() => {
+    if (!debounceMyPoolsSearchValue) return poolList || []
+    return poolList.filter((item) =>
+      item.nftCollection?.name
+        .toLocaleLowerCase()
+        .includes(debounceMyPoolsSearchValue.toLocaleLowerCase()),
+    )
+  }, [debounceMyPoolsSearchValue, poolList])
 
   /**
    * Loan Tab 左侧
@@ -344,7 +385,6 @@ const Lend = () => {
         key: 'pool_amount',
         align: 'right',
         thAlign: 'right',
-        render: (value: any) => <EthText>{wei2Eth(value)}</EthText>,
       },
       {
         title: 'Collateral Factor',
@@ -667,40 +707,43 @@ const Lend = () => {
             gap={'16px'}
             zIndex={3}
             display={{
-              md: 'block',
+              md: 'flex',
               sm: 'none',
             }}
           >
-            {/* {showSearch || isEmpty(activeCollectionData?.list) ? (
+            <ScaleFade in={showSearch} initialScale={0.9}>
               <SearchInput
-                value={tabKey === 0 ? activeCollectionSearch : myPoolsSearch}
+                value={
+                  tabKey === 0
+                    ? activeCollectionSearchValue
+                    : myPoolsSearchValue
+                }
                 onChange={(e) => {
                   if (tabKey === 0) {
-                    setSearchForActiveCollection(e.target.value)
-                    handleSearchActiveCollections(e.target.value)
+                    setActiveCollectionSearchValue(e.target.value)
                   }
                   if (tabKey === 1) {
-                    setSearchForMyPools(e.target.value)
-                    handleSearchMyPools(e.target.value)
+                    setMyPoolsSearchValue(e.target.value)
                   }
                 }}
               />
-            ) : (
-              <Flex
-                h='44px'
-                w='44px'
-                borderRadius={44}
-                justify='center'
-                alignItems={'center'}
-                cursor='pointer'
-                onClick={() => setShowSearch(true)}
-                _hover={{
-                  bg: `var(--chakra-colors-gray-5)`,
-                }}
-              >
-                <ImageWithFallback src={IconSearch} />
-              </Flex>
-            )} */}
+            </ScaleFade>
+
+            <Flex
+              h='44px'
+              w='44px'
+              borderRadius={44}
+              justify='center'
+              alignItems={'center'}
+              cursor='pointer'
+              onClick={toggleShowSearch}
+              _hover={{
+                bg: `var(--chakra-colors-gray-5)`,
+              }}
+              hidden={showSearch}
+            >
+              <SvgComponent svgId='icon-search' fill={'gray.3'} />
+            </Flex>
             {!isEmpty(poolList) && (
               <Button
                 variant={'secondary'}
@@ -754,7 +797,7 @@ const Lend = () => {
             <MyTable
               loading={poolsLoading || collectionLoading}
               columns={activeCollectionColumns}
-              data={activeCollectionList || []}
+              data={filteredActiveCollectionList || []}
               // onSort={(args: any) => {
               //   console.log(args)
               //   handleFetchMyPools({ address: currentAccount })
@@ -786,7 +829,7 @@ const Lend = () => {
             <MyTable
               loading={poolsLoading || collectionLoading}
               columns={myPoolsColumns}
-              data={poolList || []}
+              data={filteredPoolList || []}
               // onSort={(args: any) => {
               //   console.log(args)
               //   handleFetchMyPools({ address: currentAccount })
@@ -1013,7 +1056,7 @@ const Lend = () => {
         </Flex>
       )}
 
-      {tabKey === 1 && (
+      {tabKey === 2 && (
         <Flex
           bg='white'
           position={'fixed'}
