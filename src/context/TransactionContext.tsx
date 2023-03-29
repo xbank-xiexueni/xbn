@@ -238,6 +238,7 @@ export const TransactionsProvider = ({
 
   const checkIfWalletIsConnect = useCallback(async () => {
     try {
+      if (window.location.pathname === '/xlending/demo') return
       if (!ethereum) {
         toast.closeAll()
         toast({
@@ -269,6 +270,8 @@ export const TransactionsProvider = ({
 
   const connectWallet = useCallback(async () => {
     try {
+      if (window.location.pathname === '/xlending/demo') return
+
       if (!ethereum) {
         toast.closeAll()
         toast({
