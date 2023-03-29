@@ -11,14 +11,7 @@ export const RESPONSIVE_MAX_W = {
   lg: 968,
   md: 768,
   sm: 390,
-  xs: '95%',
-}
-
-export const SUB_RESPONSIVE_MAX_W = {
-  lg: 1024,
-  md: 768,
-  sm: 390,
-  xs: '95%',
+  xs: 320,
 }
 
 export const UNIT = 'ETH'
@@ -82,19 +75,19 @@ export const INITIAL_COLLATERAL = COLLATERALS[4]
 export const STEPS_DESCRIPTIONS = [
   {
     title: 'Select Collection',
-    text: 'In order to open a new pool we will first Have to determine which FT Collection you will want this pool to represent. You can start searching for any collection currently listed on OpenSea, X2Y2 and LooksRare.',
+    text: 'Please choose a preferred collection that you will accept to lend against. All the collections listed on OpenSea, X2Y2 and LookRare are available',
   },
   {
     title: 'Select Tenor',
-    text: 'Determine the Tenor length for which potential borrowers can open a loan against. We commonly see a 60-days Tenor.',
+    text: 'Please choose the max length of duration acceptable for potential borrowers. A 60-day length of duration will be more commonly used.',
   },
   {
     title: 'Select Collateral Factor',
-    text: 'Indicate the Collateral Factor % which will help determine how much liquidity (Ethereum) borrowers can receive against the desired NFT collection. The higher the %, the more liquidity they can pull out of the pool. We typically recommend a 50% Collateral Factor.',
+    text: 'Indicate the ratio which will determine how much money borrowers can receive to borrow against expected NFT collection. The higher the ratio, the more money they can borrow from the pool. A 50% of collateral factor will be more commonly used.',
   },
   {
-    title: 'Set the interest rate for each loan condition',
-    text: 'According to the limit value of the loan conditions set in steps 1 and 2, the system refers to the historical order data to generate a suggested loan interest rate for you, and the funds approved by you under this interest rate are expected to generate income soon.If the current loan conditions and suggested interest rates do not meet your expectations, you can adjust the loan interest rate through the big slider below, and all interest rate values in the table will increase or decrease, You can also use the small sliders on the right and bottom of the table to adjust the impact of changes in the two factors of collateral fat and loan duration on the interest rate.',
+    title: 'Generate the interest rate table for outstanding loans',
+    text: 'According to the limit value of the loan conditions set in steps 1 and 2, the system refers to the historical order data to generate a suggested loan interest rate for you, and the funds approved by you under this interest rate are expected to generate income soon.If the current loan conditions and suggested interest rates do not meet your expectations, you can adjust the loan interest rate through the big slider below, and all interest rate values in the table will increase or decrease\nYou can also use the small sliders on the right and bottom of the table to adjust the impact of changes in the two factors of collateral ratio and loan duration on the interest rate.',
   },
 ]
 

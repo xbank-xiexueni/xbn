@@ -9,6 +9,7 @@ import {
   Text,
   Button,
   CardFooter,
+  type ImageProps,
 } from '@chakra-ui/react'
 import { useMemo, useState, type FunctionComponent } from 'react'
 
@@ -17,8 +18,9 @@ import { ImageWithFallback, SvgComponent } from '@/components'
 const MarketNftListCard: FunctionComponent<
   {
     data: Record<string, any>
+    imageSize?: ImageProps['w']
   } & CardProps
-> = ({ data: { node, highestRate }, ...rest }) => {
+> = ({ data: { node, highestRate }, imageSize, ...rest }) => {
   const { imageThumbnailUrl, orderPrice, name, backgroundColor, tokenID } =
     node || {}
   const [show, setShow] = useState(false)
@@ -42,10 +44,7 @@ const MarketNftListCard: FunctionComponent<
       borderRadius={8}
       border='none'
       w='100%'
-      h={{
-        xl: '100%',
-        lg: '320px',
-      }}
+      h={'100%'}
     >
       <CardBody p={0}>
         <Box
@@ -57,13 +56,15 @@ const MarketNftListCard: FunctionComponent<
             src={imageThumbnailUrl}
             alt='Green double couch with wooden legs'
             borderTopRadius={'lg'}
-            h={{
-              xl: '100%',
-              lg: '200px',
-              md: '160px',
-              sm: '50%',
-              xs: '50%',
-            }}
+            h={
+              imageSize || {
+                xl: '233px',
+                lg: '100%',
+                md: '100%',
+                sm: '50%',
+                xs: '50%',
+              }
+            }
             w='100%'
             fit='contain'
             transform={`scale(${show ? 1.2 : 1})`}
@@ -72,38 +73,97 @@ const MarketNftListCard: FunctionComponent<
         </Box>
 
         <Stack
-          mt={3}
-          spacing={2}
-          px={4}
+          mt={'12px'}
+          spacing={'8px'}
+          px={{
+            md: '16px',
+            sm: '12px',
+            xs: '12px',
+          }}
           mb={{
-            xl: 2,
-            lg: 1,
+            xl: '8px',
+            lg: '4px',
+            md: '4px',
           }}
         >
-          <Text color={`gray.3`} fontSize='sm' noOfLines={1}>
+          <Text color={`gray.3`} fontSize='14px' noOfLines={1}>
             {name || `#${tokenID}`}
           </Text>
-          <Flex justify={'space-between'} alignItems='center'>
-            <Text fontSize={'sm'} fontWeight='700' color={'black'}>
-              Down Payment
-            </Text>
+          <Flex alignItems={'center'} justify='space-between'>
             <Flex
-              alignItems={'center'}
-              gap={1}
-              maxWidth='40%'
-              justify={'space-between'}
+              w={{
+                md: '100%',
+                sm: '70%',
+                xs: '70%',
+              }}
+              justify={{
+                md: 'space-between',
+                sm: 'flex-start',
+                xs: 'flex-start',
+              }}
+              alignItems={{
+                md: 'center',
+                sm: 'flex-start',
+                xs: 'flex-start',
+              }}
+              flexDir={{ md: 'row', sm: 'column', xs: 'column' }}
+              pb={{
+                md: '8px',
+                sm: '6px',
+                xs: '6px',
+              }}
             >
-              <SvgComponent svgId='icon-eth' w={2} />
               <Text
-                fontSize={'md'}
-                display='inline-block'
-                overflow='hidden'
-                whiteSpace='nowrap'
-                textOverflow='ellipsis'
+                fontSize={{
+                  md: '14px',
+                  xs: '12px',
+                  sm: '12px',
+                }}
+                transform={{
+                  md: 'none',
+                  sm: 'scale(0.83333)',
+                  xs: 'scale(0.83333)',
+                }}
+                transformOrigin='center'
+                fontWeight='700'
+                color={'black'}
+                ml={{
+                  md: 0,
+                  sm: '-4px',
+                  xs: '-4px',
+                }}
               >
-                &nbsp;{formattedDownPayment}
+                Down Payment
               </Text>
+              <Flex
+                alignItems={'center'}
+                gap={'4px'}
+                maxWidth={{ md: '40%', sm: '100%', xs: '100%' }}
+                justify={'space-between'}
+              >
+                <SvgComponent svgId='icon-eth' w={'4px'} />
+                <Text
+                  fontSize={'16px'}
+                  display='inline-block'
+                  overflow='hidden'
+                  whiteSpace='nowrap'
+                  textOverflow='ellipsis'
+                >
+                  &nbsp;{formattedDownPayment}
+                </Text>
+              </Flex>
             </Flex>
+            <Text
+              display={{
+                md: 'none',
+                xs: 'block',
+                sm: 'block',
+              }}
+              color='blue.3'
+              fontWeight={'700'}
+            >
+              BUY
+            </Text>
           </Flex>
         </Stack>
       </CardBody>
@@ -119,6 +179,9 @@ const MarketNftListCard: FunctionComponent<
             ? {
                 xl: '48px',
                 lg: '40px',
+                md: '40px',
+                sm: '40px',
+                xs: '40px',
               }
             : 0
         }
@@ -131,22 +194,30 @@ const MarketNftListCard: FunctionComponent<
         {show && 'Buy'}
       </Button>
       <CardFooter
-        px={4}
+        px={{ md: '16px', sm: '12px', xs: '12px' }}
         justify={'space-between'}
         alignItems='center'
         h={{
           xl: '48px',
           lg: '40px',
+          md: '40px',
+          sm: '40px',
+          xs: '40px',
+        }}
+        flexDir={{
+          md: 'row',
+          sm: 'row-reverse',
+          xs: 'row-reverse',
         }}
       >
-        <Flex alignItems={'center'} gap={1}>
-          <Text color={`gray.3`} fontSize='sm'>
+        <Flex alignItems={'center'} gap={'4px'}>
+          <Text color={`gray.3`} fontSize='14px'>
             Price
           </Text>
         </Flex>
-        <Flex alignItems={'center'} gap={1}>
-          <SvgComponent svgId='icon-eth' w={2} />
-          <Text fontSize={'sm'} color={`gray.3`}>
+        <Flex alignItems={'center'} gap={'4px'}>
+          <SvgComponent svgId='icon-eth' w={'4px'} />
+          <Text fontSize={'14px'} color={`gray.3`}>
             &nbsp; {orderPrice}
             {/* &nbsp; {wei2Eth(orderPrice)} */}
           </Text>

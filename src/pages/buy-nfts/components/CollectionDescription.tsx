@@ -1,12 +1,4 @@
-import {
-  Flex,
-  Box,
-  Text,
-  Heading,
-  Skeleton,
-  HStack,
-  Highlight,
-} from '@chakra-ui/react'
+import { Flex, Box, Text, Heading, Skeleton, Highlight } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import isEmpty from 'lodash-es/isEmpty'
 import { useRef, useState, type FunctionComponent } from 'react'
@@ -22,12 +14,12 @@ const CollectionDescription: FunctionComponent<{
 }> = ({ data, loading, highestRate }) => {
   const [show, setShow] = useState(false)
   const ref = useRef<HTMLParagraphElement>(null)
-  const current = ref.current
+  const offsetHeight = ref.current?.offsetHeight
 
   if (loading) {
     return (
-      <Flex flexDirection={'column'} mb={12}>
-        <Flex mb={4} gap={3}>
+      <Flex flexDirection={'column'} mb={'48px'}>
+        <Flex mb={'16px'} gap={'12px'}>
           <Skeleton h='108px' w='108px' borderRadius={8} />
           <Skeleton
             h='108px'
@@ -63,20 +55,27 @@ const CollectionDescription: FunctionComponent<{
   } = data
 
   return (
-    <Box mb={12}>
-      <Flex gap={5} mb={8}>
+    <Box mb={'48px'}>
+      <Flex gap={'20px'} mb={'32px'}>
         <ImageWithFallback
           src={imagePreviewUrl}
-          borderRadius={16}
+          borderRadius={{
+            md: 16,
+            sm: 8,
+            xs: 8,
+          }}
           fit='contain'
-          w='108px'
-          h='108px'
           bg='gray.100'
+          boxSize={{
+            md: '108px',
+            sm: '48px',
+            xs: '48px',
+          }}
         />
         <Box pos='relative'>
           <Flex>
             <Heading
-              fontSize={{ lg: '3xl', md: 'xl', sm: 'xl', xs: 'xl' }}
+              fontSize={{ md: '32px', sm: '20px', xs: '20px' }}
               display='flex'
             >
               {name}
@@ -88,8 +87,7 @@ const CollectionDescription: FunctionComponent<{
 
           <Text
             color='gray.3'
-            mt={2}
-            fontSize={'md'}
+            mt={'4px'}
             fontWeight='medium'
             noOfLines={!show ? 2 : undefined}
             lineHeight='20px'
@@ -98,21 +96,19 @@ const CollectionDescription: FunctionComponent<{
           </Text>
           <Text
             color='transparent'
-            mt={2}
-            fontSize={'md'}
+            mt={'8px'}
             fontWeight='medium'
-            // noOfLines={!show ? 2 : undefined}
             lineHeight='20px'
             ref={ref}
             position='absolute'
             left={0}
             right={0}
-            top={9}
+            top={'36px'}
             zIndex={-1}
           >
             {description}
           </Text>
-          {!!current?.offsetHeight && current?.offsetHeight > 40 && (
+          {!!offsetHeight && offsetHeight > 40 && (
             <Box
               as='a'
               color='blue.1'
@@ -123,9 +119,9 @@ const CollectionDescription: FunctionComponent<{
               _hover={{
                 bg: 'gray.5',
               }}
-              px={4}
-              py={2}
-              ml={-4}
+              px={'16px'}
+              py={'8px'}
+              ml={'-16px'}
               hidden={!description}
             >
               {show ? 'Less' : 'More'}
@@ -134,22 +130,42 @@ const CollectionDescription: FunctionComponent<{
         </Box>
       </Flex>
 
-      <HStack spacing={20}>
-        <Flex flexDir='column' alignItems='center'>
+      <Flex
+        rowGap={'16px'}
+        wrap='wrap'
+        justify='flex-start'
+        columnGap={{ md: '80px', sm: '60px', xs: '60px' }}
+      >
+        <Flex flexDir='column' alignItems='center' m={0}>
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' svgSize='20px' />
-            <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
+            <Heading
+              fontSize={{ md: '24px', sm: '20px', xs: '20px' }}
+              fontWeight='700'
+              display='flex'
+              mb={'4px'}
+            >
               {floorPrice || '--'}
             </Heading>
           </Flex>
 
-          <Text color='gray.4'>Floor price</Text>
+          <Text
+            color='gray.4'
+            fontSize={{ md: '14px', sm: '12px', xs: '12px' }}
+          >
+            Floor price
+          </Text>
         </Flex>
         {/* min dp */}
         <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' svgSize='20px' />
-            <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
+            <Heading
+              fontSize={{ md: '24px', sm: '20px', xs: '20px' }}
+              fontWeight='700'
+              display='flex'
+              mb={'4px'}
+            >
               {formatFloat(
                 BigNumber(floorPrice)
                   .multipliedBy(BigNumber(10000).minus(Number(highestRate)))
@@ -159,18 +175,31 @@ const CollectionDescription: FunctionComponent<{
             </Heading>
           </Flex>
 
-          <Text color='gray.4'>Min DP</Text>
+          <Text
+            color='gray.4'
+            fontSize={{ md: '14px', sm: '12px', xs: '12px' }}
+          >
+            Min DP
+          </Text>
         </Flex>
         {/* 24h */}
         <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>
             <SvgComponent svgId='icon-eth' svgSize='20px' />
-            <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
+            <Heading
+              fontSize={{ md: '24px', sm: '20px', xs: '20px' }}
+              fontWeight='700'
+              display='flex'
+              mb={'4px'}
+            >
               {formatFloat(oneDayAveragePrice) || '--'}
             </Heading>
           </Flex>
 
-          <Text color={oneDayChange < 0 ? 'red.1' : 'green.1'}>
+          <Text
+            color={oneDayChange < 0 ? 'red.1' : 'green.1'}
+            fontSize={{ md: '14px', sm: '12px', xs: '12px' }}
+          >
             <Highlight
               styles={{
                 color: `gray.4`,
@@ -184,24 +213,44 @@ const CollectionDescription: FunctionComponent<{
         {/* supply */}
         <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>
-            <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
+            <Heading
+              fontSize={{ md: '24px', sm: '20px', xs: '20px' }}
+              fontWeight='700'
+              display='flex'
+              mb={'4px'}
+            >
               {totalSupply.toLocaleString() || '--'}
             </Heading>
           </Flex>
 
-          <Text color='gray.4'>Supply</Text>
+          <Text
+            color='gray.4'
+            fontSize={{ md: '14px', sm: '12px', xs: '12px' }}
+          >
+            Supply
+          </Text>
         </Flex>
         {/* listing */}
         <Flex flexDir='column' alignItems='center'>
           <Flex alignItems={'center'}>
-            <Heading fontSize={'24px'} fontWeight='700' display='flex' mb={1}>
+            <Heading
+              fontSize={{ md: '24px', sm: '20px', xs: '20px' }}
+              fontWeight='700'
+              display='flex'
+              mb={'4px'}
+            >
               {totalSales?.toLocaleString() || '--'}
             </Heading>
           </Flex>
 
-          <Text color='gray.4'>Listing</Text>
+          <Text
+            color='gray.4'
+            fontSize={{ md: '14px', sm: '12px', xs: '12px' }}
+          >
+            Listing
+          </Text>
         </Flex>
-      </HStack>
+      </Flex>
     </Box>
   )
 }

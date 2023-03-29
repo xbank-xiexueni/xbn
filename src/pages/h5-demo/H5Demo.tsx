@@ -78,10 +78,10 @@ const InfoCard: FunctionComponent<
       borderBottomWidth={1}
       {...rest}
     >
-      <Text fontSize={'20px'} fontWeight='700' mb={6}>
+      <Text fontSize={'20px'} fontWeight='700' mb='24px'>
         {title}
       </Text>
-      {isNull ? <EmptyComponent mt={10} mb={0} /> : children}
+      {isNull ? <EmptyComponent mt={'40px'} mb={0} /> : children}
     </Flex>
   )
 }
@@ -225,7 +225,7 @@ const H5Demo = () => {
   return (
     <Flex flexDirection={'column'} pb='200px'>
       {/* header*/}
-      <Flex py='5' justify={'space-between'}>
+      <Flex py='20px' justify={'space-between'}>
         <SvgComponent
           svgId='icon-arrow-down'
           transform={'rotate(90deg)'}
@@ -241,7 +241,7 @@ const H5Demo = () => {
       </Flex>
       {/* nft info */}
       <Flex flexDir={'column'}>
-        <Flex gap={3} alignItems='center'>
+        <Flex gap={'12px'} alignItems='center'>
           <ImageWithFallback src={ImgNft} w='16' h='16' />
           <Flex flexDir={'column'}>
             <Text fontSize={'16px'} fontWeight='700'>
@@ -252,7 +252,7 @@ const H5Demo = () => {
             </Text>
           </Flex>
         </Flex>
-        <Flex borderRadius={8} bg='green.2' p={2} mt={7} gap='2'>
+        <Flex borderRadius={8} bg='green.2' p={'4px'} mt={'28px'} gap='8px'>
           <SvgComponent
             svgId='icon-arrow'
             transform={'rotate(135deg)'}
@@ -266,22 +266,22 @@ const H5Demo = () => {
       {/* down payment */}
       <InfoCard title='Down Payment'>
         <Flex
-          p={4}
-          pr={6}
+          p='16px'
+          pr={'24px'}
           border={`1px solid var(--chakra-colors-gray-1)`}
           borderRadius={16}
           alignItems='center'
-          gap={2}
+          gap={'8px'}
         >
           {downPaymentWei && (
             <Flex
-              py={3}
+              py='12px'
               bg='gray.5'
               borderRadius={8}
-              gap={1}
+              gap={'4px'}
               alignItems='center'
               justify={'center'}
-              px={2}
+              px={'4px'}
             >
               <SvgComponent svgId='icon-eth' svgSize='20px' />
               <Text fontSize={'12px'} fontWeight='700'>
@@ -290,7 +290,7 @@ const H5Demo = () => {
             </Flex>
           )}
 
-          <Divider orientation='vertical' h={6} />
+          <Divider orientation='vertical' h='24px' />
           <Slider
             min={COLLATERALS[0]}
             max={COLLATERALS[COLLATERALS.length - 1]}
@@ -319,7 +319,7 @@ const H5Demo = () => {
               />
             </SliderTrack>
             <SliderThumb
-              boxSize={6}
+              boxSize='24px'
               borderWidth={5}
               borderColor={'blue.1'}
               _focus={{
@@ -330,12 +330,12 @@ const H5Demo = () => {
           </Slider>
         </Flex>
 
-        <Flex justify={'center'} gap={1} alignItems='center' mt={6}>
-          <Text fontSize={'xs'} fontWeight='500'>
+        <Flex justify={'center'} gap={'4px'} alignItems='center' mt='24px'>
+          <Text fontSize='12px' fontWeight='500'>
             Loan amount
           </Text>
           <SvgComponent svgId='icon-eth' svgSize='12px' />
-          <Text fontSize={'xs'} fontWeight='500'>
+          <Text fontSize='12px' fontWeight='500'>
             {wei2Eth(loanWeiAmount)}
           </Text>
         </Flex>
@@ -343,14 +343,14 @@ const H5Demo = () => {
 
       {/* Loan Period */}
       <InfoCard title='Loan Period' isNull={isEmpty(pools)}>
-        <Flex flexDir={'column'} gap={2}>
+        <Flex flexDir={'column'} gap={'8px'}>
           {pools.map((item) => (
             <Flex
               h='72px'
               alignItems={'center'}
               justify={'space-between'}
               key={JSON.stringify(item)}
-              px={4}
+              px='16px'
               borderWidth={selectPool?.pool_days === item.pool_days ? 2 : 1}
               borderRadius={8}
               onClick={() => setSelectPool(item)}
@@ -374,7 +374,7 @@ const H5Demo = () => {
         title='Number of installments'
         isNull={isEmpty(installmentOptions)}
       >
-        <Flex flexDir={'column'} gap={2}>
+        <Flex flexDir={'column'} gap={'8px'}>
           {installmentOptions?.map((value) => {
             return (
               <Flex
@@ -382,8 +382,8 @@ const H5Demo = () => {
                 flexDir={'column'}
                 justify='center'
                 key={JSON.stringify(value)}
-                px={4}
-                gap={2}
+                px='16px'
+                gap={'8px'}
                 borderWidth={installmentValue === value ? 2 : 1}
                 borderRadius={8}
                 onClick={() => setInstallmentValue(value)}
@@ -392,7 +392,7 @@ const H5Demo = () => {
                 <Text fontWeight={700} fontSize='16px'>
                   Pay in {value} installments
                 </Text>
-                <Text fontWeight={500} fontSize='xs'>
+                <Text fontWeight={500} fontSize='12px'>
                   {formatFloat(getPlanPer(value))}
                   &nbsp;
                   {UNIT}/per
@@ -406,16 +406,22 @@ const H5Demo = () => {
       {/* Repayment Plan */}
       {!commodityWeiPrice.eq(0) && !loanWeiAmount.eq(0) && (
         <InfoCard title='Repayment Plan' isNull={!selectPool}>
-          <VStack bg='gray.5' py={4} px={4} borderRadius={12} spacing={2}>
+          <VStack
+            bg='gray.5'
+            py={'16px'}
+            px={'16px'}
+            borderRadius={12}
+            spacing={'8px'}
+          >
             <Flex justify={'space-between'} w='100%'>
               <Flex>
                 <SvgComponent svgId='icon-calendar' />
                 &nbsp;&nbsp;
-                <Text fontSize={'sm'} fontWeight='400'>
+                <Text fontSize='14px' fontWeight='400'>
                   Down payment on today
                 </Text>
               </Flex>
-              <Text fontSize={'sm'} fontWeight='medium'>
+              <Text fontSize='14px' fontWeight='medium'>
                 {wei2Eth(downPaymentWei)}
               </Text>
             </Flex>
@@ -424,7 +430,7 @@ const H5Demo = () => {
                 <Flex>
                   <SvgComponent svgId='icon-calendar' />
                   &nbsp;&nbsp;
-                  <Text fontSize={'sm'} fontWeight='400'>
+                  <Text fontSize='14px' fontWeight='400'>
                     {dayjs()
                       .add(
                         ((selectPool?.pool_days || 0) / installmentValue) *
@@ -434,7 +440,7 @@ const H5Demo = () => {
                       .format('YYYY/MM/DD')}
                   </Text>
                 </Flex>
-                <Text fontSize={'sm'} fontWeight='medium'>
+                <Text fontSize='14px' fontWeight='medium'>
                   {formatFloat(getPlanPer(installmentValue))} {UNIT}
                 </Text>
               </Flex>

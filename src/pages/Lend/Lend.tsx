@@ -12,6 +12,12 @@ import {
   Tag,
   List,
   Highlight,
+  Drawer,
+  useDisclosure,
+  DrawerBody,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
@@ -32,8 +38,8 @@ import {
   SvgComponent,
   EthText,
   ImageWithFallback,
+  type ColumnProps,
 } from '@/components'
-import type { ColumnProps } from '@/components/my-table'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
 import { useWallet, useBatchAsset } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
@@ -212,9 +218,16 @@ const Lend = () => {
           }
 
           return (
-            <Flex alignItems={'center'} gap={2} w='100%'>
-              {/* <Box h={12} w={12} borderRadius={12} bg='pink' /> */}
-              <ImageWithFallback src={img} h={12} w={12} borderRadius={12} />
+            <Flex alignItems={'center'} gap={'8px'} w='100%'>
+              <ImageWithFallback
+                src={img}
+                boxSize={{
+                  md: '42px',
+                  sm: '32px',
+                  xs: '32px',
+                }}
+                borderRadius={8}
+              />
               <Text
                 display='inline-block'
                 overflow='hidden'
@@ -256,7 +269,7 @@ const Lend = () => {
         },
       },
       {
-        title: 'TVL (USD)',
+        title: 'TVL',
         dataIndex: 'pool_amount',
         key: 'pool_amount',
         align: 'right',
@@ -272,7 +285,7 @@ const Lend = () => {
         render: (value: any) => <Text>{Number(value) / 100} %</Text>,
       },
       {
-        title: 'Tenor',
+        title: 'Duration',
         dataIndex: 'pool_maximum_days',
         key: 'pool_maximum_days',
         align: 'right',
@@ -283,10 +296,12 @@ const Lend = () => {
         title: 'Interest',
         dataIndex: 'pool_maximum_interest_rate',
         key: 'pool_maximum_interest_rate',
+        thAlign: 'right',
+        align: 'right',
         render: (value: any) => <Text>{Number(value) / 100}% APR</Text>,
       },
       {
-        title: 'Loans',
+        title: 'Supporting Loans',
         dataIndex: 'loan_count',
         key: 'loan_count',
         align: 'center',
@@ -301,7 +316,7 @@ const Lend = () => {
         thAlign: 'right',
         render: (value: any) => {
           return (
-            <Flex alignItems='center' gap={2}>
+            <Flex alignItems='center' gap={'8px'}>
               <Text
                 color='gray.3'
                 onClick={() => {
@@ -315,8 +330,8 @@ const Lend = () => {
               {/* <Link to={`/lending/pools/edit/${id}`}>
               <Text
                 color={'blue.1'}
-                py={3}
-                px={4}
+                py='12px'
+                px='16px'
                 borderRadius={8}
                 bg='white'
               >
@@ -335,9 +350,10 @@ const Lend = () => {
       {
         title: 'Asset',
         dataIndex: 'id',
-        key: 'od',
+        key: 'id',
         align: 'left',
         width: 180,
+        thAlign: 'left',
         render: (_: any, info: any) => {
           const currentInfo = bactNftListInfo?.find(
             (i) =>
@@ -346,11 +362,11 @@ const Lend = () => {
                 info.nft_collateral_contract.toLowerCase(),
           )
           return (
-            <Flex alignItems={'center'} gap={2}>
+            <Flex alignItems={'center'} gap={'8px'}>
               <ImageWithFallback
                 src={currentInfo?.imagePreviewUrl as string}
-                w={10}
-                h={10}
+                w='40px'
+                h='40px'
                 borderRadius={4}
               />
               <Text
@@ -437,15 +453,27 @@ const Lend = () => {
     ]
   }, [bactNftListInfo])
 
+  const {
+    isOpen: drawVisible,
+    onOpen: openDraw,
+    onClose: closeDraw,
+  } = useDisclosure()
+
   return (
-    <>
-      <Box my={10}>
+    <Box mb='100px'>
+      <Box
+        my={{
+          md: '60px',
+          sm: '24px',
+          xs: '24px',
+        }}
+      >
         <AllPoolsDescription
           data={{
             img: ImgLend,
             title: 'Lend',
             description:
-              'Provide funds to support NFT installment, obtain interest or collateral.',
+              'Provide funds to support NFT Buy Now Pay Later, \nreceive interests or discounts on NFTs as collateral.',
           }}
         />
       </Box>
@@ -472,7 +500,17 @@ const Lend = () => {
         }}
       >
         {tabKey === 0 && (
-          <Flex position={'absolute'} right={0} top={0} gap={4} zIndex={3}>
+          <Flex
+            position={'absolute'}
+            right={0}
+            top={0}
+            gap={'16px'}
+            zIndex={3}
+            display={{
+              md: 'block',
+              sm: 'none',
+            }}
+          >
             {/* {showSearch || isEmpty(activeCollectionData?.list) ? (
               <SearchInput
                 value={tabKey === 0 ? activeCollectionSearch : myPoolsSearch}
@@ -513,7 +551,7 @@ const Lend = () => {
                   )
                 }
               >
-                + Creative new pool
+                + Create New Pool
               </Button>
             )}
           </Flex>
@@ -525,14 +563,14 @@ const Lend = () => {
             fontWeight: 'bold',
           }}
           position='sticky'
-          top={'74px'}
+          top={{ md: '74px', sm: '56px', xs: '56px' }}
           bg='white'
           zIndex={2}
         >
           {/* <Tab
-            pt={4}
-            px={2}
-            pb={5}
+            pt='16px'
+            px={'4px'}
+            pb={'20px'}
             _selected={{
               color: 'blue.1',
               borderBottomWidth: 2,
@@ -543,15 +581,16 @@ const Lend = () => {
             Active Collections
           </Tab> */}
           <Tab
-            pt={4}
-            px={2}
-            pb={5}
+            pt={'16px'}
+            px={'8px'}
+            pb={'20px'}
             _selected={{
               color: 'blue.1',
               borderBottomWidth: 2,
               borderColor: 'blue.1',
             }}
             fontWeight='bold'
+            fontSize={'16px'}
           >
             My Pools&nbsp;
             {!isEmpty(myPoolsData) && (
@@ -559,8 +598,8 @@ const Lend = () => {
                 bg={'blue.1'}
                 color='white'
                 borderRadius={15}
-                fontSize={'xs'}
-                h={5}
+                fontSize='12px'
+                h={'20px'}
                 alignItems='center'
                 lineHeight={2}
               >
@@ -569,17 +608,18 @@ const Lend = () => {
             )}
           </Tab>
           <Tab
-            pt={4}
-            px={2}
-            pb={5}
+            pt={'16px'}
+            px={'8px'}
+            pb={'20px'}
             _selected={{
               color: 'blue.1',
               borderBottomWidth: 2,
               borderColor: 'blue.1',
             }}
             fontWeight='bold'
+            fontSize={'16px'}
           >
-            Open Loans
+            Outstanding Loans
           </Tab>
         </TabList>
 
@@ -620,7 +660,7 @@ const Lend = () => {
                             interceptFn(() => navigate('/lending/my-pools/create'))
                           }
                         >
-                          + Creative new pool
+                          + Create new pool
                         </Button>
                       )
                     }}
@@ -652,7 +692,7 @@ const Lend = () => {
                             )
                           }
                         >
-                          + Creative new pool
+                          + Create New Pool
                         </Button>
                       )
                     }}
@@ -662,24 +702,27 @@ const Lend = () => {
             />
           </TabPanel>
           <TabPanel p={0}>
-            <Flex justify={'space-between'} mt={4} flexWrap='wrap'>
+            <Flex justify={'space-between'} mt='16px' flexWrap='wrap'>
               <Box
                 border={`1px solid var(--chakra-colors-gray-2)`}
                 borderRadius={12}
-                p={6}
+                p={'24px'}
                 w={{
                   lg: '25%',
                   md: '30%',
-                  sm: '100%',
-                  xs: '100%',
+                }}
+                display={{
+                  md: 'block',
+                  sm: 'none',
+                  xs: 'none',
                 }}
               >
-                <Heading size={'md'} mb={4}>
+                <Heading mb='16px' fontSize={'16px'}>
                   My Collection Pools
                 </Heading>
                 {/* <SearchInput placeholder='Collections...' /> */}
 
-                <List spacing={4} mt={4} position='relative'>
+                <List spacing='16px' mt='16px' position='relative'>
                   <LoadingComponent
                     loading={myPoolsLoading || collectionLoading}
                   />
@@ -689,8 +732,8 @@ const Lend = () => {
                   {!isEmpty(myPoolsData) && (
                     <Flex
                       justify={'space-between'}
-                      py={3}
-                      px={4}
+                      py='12px'
+                      px='16px'
                       alignItems='center'
                       borderRadius={8}
                       border={`1px solid var(--chakra-colors-gray-2)`}
@@ -700,13 +743,13 @@ const Lend = () => {
                         selectKeyForOpenLoans === undefined ? 'blue.2' : 'white'
                       }
                     >
-                      <Text fontSize={'sm'} fontWeight='700'>
+                      <Text fontSize='14px' fontWeight='700'>
                         All my Collections
                       </Text>
                       {selectKeyForOpenLoans === undefined ? (
                         <SvgComponent svgId='icon-checked' />
                       ) : (
-                        <Text fontSize={'sm'}>{myPoolsData?.length}</Text>
+                        <Text fontSize='14px'>{myPoolsData?.length}</Text>
                       )}
                     </Flex>
                   )}
@@ -725,10 +768,7 @@ const Lend = () => {
                         )
                         return (
                           <CollectionListItem
-                            data={{
-                              contractAddress: collection_info?.contractAddress,
-                              ...collection_info?.nftCollection,
-                            }}
+                            data={collection_info}
                             key={`${pool_id}${allow_collateral_contract}`}
                             onClick={() => setSelectKeyForOpenLoans(pool_id)}
                             isActive={selectKeyForOpenLoans === pool_id}
@@ -751,7 +791,14 @@ const Lend = () => {
                   tables={[
                     {
                       tableTitle: () => (
-                        <Heading size={'md'} mt={6}>
+                        <Heading
+                          fontSize={'20px'}
+                          mt={{
+                            md: '16px',
+                            sm: '20px',
+                            xs: '20px',
+                          }}
+                        >
                           Current Loans as Lender
                         </Heading>
                       ),
@@ -762,7 +809,14 @@ const Lend = () => {
                     },
                     {
                       tableTitle: () => (
-                        <Heading size={'md'} mt={6}>
+                        <Heading
+                          fontSize={'20px'}
+                          mt={{
+                            md: '16px',
+                            sm: '40px',
+                            xs: '40px',
+                          }}
+                        >
                           <Highlight
                             styles={{
                               fontSize: '18px',
@@ -782,7 +836,14 @@ const Lend = () => {
                     },
                     {
                       tableTitle: () => (
-                        <Heading size={'md'} mt={6}>
+                        <Heading
+                          fontSize={'20px'}
+                          mt={{
+                            md: '16px',
+                            sm: '40px',
+                            xs: '40px',
+                          }}
+                        >
                           <Highlight
                             styles={{
                               fontSize: '18px',
@@ -808,8 +869,123 @@ const Lend = () => {
         </TabPanels>
       </Tabs>
 
+      {tabKey === 0 && !isEmpty(myPoolsData) && (
+        <Flex
+          bg='white'
+          position={'fixed'}
+          bottom={0}
+          left={0}
+          right={0}
+          h='74px'
+          display={{ md: 'none', sm: 'flex', xs: 'flex' }}
+          alignItems='center'
+          justify={'center'}
+          zIndex={5}
+          px={8}
+        >
+          <Button
+            variant={'primary'}
+            w='100%'
+            h='42px'
+            onClick={() =>
+              interceptFn(() => navigate('/xlending/lending/my-pools/create'))
+            }
+          >
+            + Create New Pool
+          </Button>
+        </Flex>
+      )}
+
+      {tabKey === 1 && (
+        <Flex
+          bg='white'
+          position={'fixed'}
+          bottom={0}
+          left={0}
+          right={0}
+          h='74px'
+          display={{ md: 'none', sm: 'flex', xs: 'flex' }}
+          alignItems='center'
+          justify={'center'}
+          zIndex={5}
+          px={8}
+        >
+          <Button
+            variant={'primary'}
+            w='100%'
+            h='42px'
+            onClick={openDraw}
+            leftIcon={<SvgComponent svgId='icon-search' fill={'white'} />}
+          >
+            My Collection Pools
+          </Button>
+        </Flex>
+      )}
+      <Drawer placement={'bottom'} onClose={closeDraw} isOpen={drawVisible}>
+        <DrawerOverlay />
+        <DrawerContent borderTopRadius={16} pb='40px' h='85vh'>
+          <DrawerBody>
+            <DrawerCloseButton mt='40px' />
+            <Heading fontSize={'24px'} pt='40px' pb='32px'>
+              Collections
+            </Heading>
+            <List spacing={'16px'} position='relative'>
+              <LoadingComponent loading={myPoolsLoading || collectionLoading} />
+              {isEmpty(myPoolsData) &&
+                !myPoolsLoading &&
+                !collectionLoading && <EmptyComponent />}
+              {!isEmpty(myPoolsData) && (
+                <Flex
+                  justify={'space-between'}
+                  py='12px'
+                  px='16px'
+                  alignItems='center'
+                  borderRadius={8}
+                  border={`1px solid var(--chakra-colors-gray-2)`}
+                  cursor='pointer'
+                  onClick={() => setSelectKeyForOpenLoans(undefined)}
+                  bg={selectKeyForOpenLoans === undefined ? 'blue.2' : 'white'}
+                >
+                  <Text fontSize='14px' fontWeight='700'>
+                    All my Collections
+                  </Text>
+                  {selectKeyForOpenLoans === undefined ? (
+                    <SvgComponent svgId='icon-checked' />
+                  ) : (
+                    <Text fontSize='14px'>{myPoolsData?.length}</Text>
+                  )}
+                </Flex>
+              )}
+
+              {!isEmpty(myPoolsData) &&
+                myPoolsData.map(
+                  ({
+                    pool_id,
+                    allow_collateral_contract,
+                    loan_count,
+                  }: PoolsListItemType) => {
+                    const collection_info = collectionList?.find(
+                      (i) =>
+                        i.contractAddress.toLowerCase() ===
+                        allow_collateral_contract.toLowerCase(),
+                    )
+                    return (
+                      <CollectionListItem
+                        data={collection_info}
+                        key={`${pool_id}${allow_collateral_contract}`}
+                        onClick={() => setSelectKeyForOpenLoans(pool_id)}
+                        isActive={selectKeyForOpenLoans === pool_id}
+                        count={loan_count}
+                      />
+                    )
+                  },
+                )}
+            </List>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
       <ConnectWalletModal visible={isOpen} handleClose={onClose} />
-    </>
+    </Box>
   )
 }
 

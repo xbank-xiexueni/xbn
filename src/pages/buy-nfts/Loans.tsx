@@ -21,8 +21,12 @@ import {
 } from 'react'
 
 import { apiGetLoans } from '@/api'
-import { ConnectWalletModal, ImageWithFallback, TableList } from '@/components'
-import type { ColumnProps } from '@/components/my-table'
+import {
+  ConnectWalletModal,
+  ImageWithFallback,
+  TableList,
+  type ColumnProps,
+} from '@/components'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
 import { useBatchAsset, useWallet } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
@@ -224,11 +228,11 @@ const Loans = () => {
               info.nft_collateral_contract.toLowerCase(),
         )
         return (
-          <Flex alignItems={'center'} gap={2}>
+          <Flex alignItems={'center'} gap={'8px'}>
             <ImageWithFallback
               src={currentInfo?.imagePreviewUrl as string}
-              w={10}
-              h={10}
+              w='40px'
+              h='40px'
               borderRadius={4}
             />
             <Text
@@ -312,28 +316,28 @@ const Loans = () => {
         Loans
       </Heading>
 
-      <Flex justify={'space-between'} mt={4}>
+      <Flex justify={'space-between'} mt='16px'>
         {/* <Box
           border={`1px solid var(--chakra-colors-gray-2)`}
           borderRadius={12}
-          p={6}
+          p='24px'
           w={{
             lg: '25%',
             md: '30%',
           }}
         >
-          <Heading size={'md'} mb={4}>
+          <Heading size={'md'} mb='16px'>
             Collections
           </Heading>
 
-          <List spacing={4} mt={4} position='relative'>
+          <List spacing='16px' mt='16px' position='relative'>
             <LoadingComponent loading={false} />
             {isEmpty(collectionList) && <EmptyComponent />}
             {!isEmpty(collectionList) && (
               <Flex
                 justify={'space-between'}
-                py={3}
-                px={4}
+                py='12px'
+                px='16px'
                 alignItems='center'
                 borderRadius={8}
                 border={`1px solid var(--chakra-colors-gray-2)`}
@@ -343,13 +347,13 @@ const Loans = () => {
                 }}
                 bg={!selectCollection ? 'blue.2' : 'white'}
               >
-                <Text fontSize={'sm'} fontWeight='700'>
+                <Text fontSize='14px'  fontWeight='700'>
                   All my Collections
                 </Text>
                 {!selectCollection ? (
                   <SvgComponent svgId='icon-checked' />
                 ) : (
-                  <Text fontSize={'sm'}>{10}</Text>
+                  <Text fontSize='14px' >{10}</Text>
                 )}
               </Flex>
             )}
@@ -377,9 +381,7 @@ const Loans = () => {
             tables={[
               {
                 tableTitle: () => (
-                  <Heading size={'md'} mt={6}>
-                    Current Loans as Borrower
-                  </Heading>
+                  <Heading fontSize={'20px'}>Current Loans as Borrower</Heading>
                 ),
                 columns: [
                   ...loansForBuyerColumns,
@@ -421,7 +423,7 @@ const Loans = () => {
                     fixedRight: true,
                     render: (value: any) => (
                       <Box
-                        px={3}
+                        px='12px'
                         bg='white'
                         borderRadius={8}
                         cursor='pointer'
@@ -437,7 +439,11 @@ const Loans = () => {
                         {repayLoadingMap && repayLoadingMap[value] ? (
                           <Spinner color='blue.1' size={'sm'} />
                         ) : (
-                          <Text color='blue.1' fontSize='sm' fontWeight={'700'}>
+                          <Text
+                            color='blue.1'
+                            fontSize='14px'
+                            fontWeight={'700'}
+                          >
                             Repay
                           </Text>
                         )}
@@ -452,7 +458,7 @@ const Loans = () => {
               },
               {
                 tableTitle: () => (
-                  <Heading size={'md'} mt={6}>
+                  <Heading fontSize={'20px'} mt={'40px'}>
                     <Highlight
                       styles={{
                         fontSize: '18px',
@@ -473,7 +479,7 @@ const Loans = () => {
               },
               {
                 tableTitle: () => (
-                  <Heading size={'md'} mt={6}>
+                  <Heading fontSize={'20px'} mt={'40px'}>
                     <Highlight
                       styles={{
                         fontSize: '18px',

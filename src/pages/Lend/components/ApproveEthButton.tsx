@@ -27,6 +27,7 @@ import {
   useRef,
   useState,
   type FunctionComponent,
+  useEffect,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Web3 from 'web3/dist/web3.min.js'
@@ -34,7 +35,11 @@ import Web3 from 'web3/dist/web3.min.js'
 import { ConnectWalletModal, SvgComponent } from '@/components'
 import { WETH_CONTRACT_ADDRESS, XBANK_CONTRACT_ADDRESS } from '@/constants'
 import { useWallet } from '@/hooks'
-import { createWethContract, createXBankContract } from '@/utils/createContract'
+import {
+  createWeb3Provider,
+  createWethContract,
+  createXBankContract,
+} from '@/utils/createContract'
 import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
@@ -47,8 +52,8 @@ import { wei2Eth } from '@/utils/unit-conversion'
 //       <Text fontWeight={'medium'} color={`var(--chakra-colors-gray-3)`}>
 //         {label}
 //       </Text>
-//       <Flex alignItems={'center'} mt={2} justify='center'>
-//         <Image src={IconEth} w={2} />
+//       <Flex alignItems={'center'} mt={'4px'} justify='center'>
+//         <Image src={IconEth} w={'4px'} />
 //         <Text fontSize={'lg'} fontWeight='bold'>
 //           &nbsp;{data}
 //         </Text>
@@ -79,13 +84,29 @@ const ApproveEthButton: FunctionComponent<
     allowCollateralContract,
     floorPrice,
   } = data
-  const { currentAccount, interceptFn, isOpen, onClose } = useWallet()
+  const toast = useToast()
+  const [flag, setFlag] = useState(true)
   const navigate = useNavigate()
+  const { currentAccount, interceptFn, isOpen, onClose } = useWallet()
   const {
     isOpen: isOpenApprove,
     onOpen: onOpenApprove,
     onClose: onCloseApprove,
   } = useDisclosure()
+
+  const [approveLoading, setApproveLoading] = useState(false)
+  const [createLoading, setCreateLoading] = useState(false)
+
+  useEffect(() => {
+    const web3 = createWeb3Provider()
+    web3.eth.clearSubscriptions()
+    toast.closeAll()
+    return () => {
+      web3.eth.clearSubscriptions()
+      toast.closeAll()
+    }
+  }, [toast])
+
   const [amount, setAmount] = useState('')
 
   const initialRef = useRef(null)
@@ -107,21 +128,24 @@ const ApproveEthButton: FunctionComponent<
 
   const isError = useMemo(() => {
     //  amount < balance + Has been lent
+    if (!amount) return false
     const NumberAmount = Number(amount)
     if (NumberAmount > Number(wei2Eth(wethData))) {
-      setErrorMsg(`Maximum input: ${formatFloat(Number(wei2Eth(wethData)))}`)
+      setErrorMsg(
+        ` Insufficient wallet balance: ${formatFloat(
+          Number(wei2Eth(wethData)),
+        )} WETH`,
+      )
       return true
     }
     if (NumberAmount < floorPrice * 0.1) {
-      setErrorMsg(`Minimum input: ${formatFloat(floorPrice * 0.1)}`)
+      setErrorMsg(
+        `Insufficient funds, Minimum input: ${formatFloat(floorPrice * 0.1)}`,
+      )
       return true
     }
     return false
   }, [amount, wethData, floorPrice])
-
-  const [approveLoading, setApproveLoading] = useState(false)
-  const [createLoading, setCreateLoading] = useState(false)
-  const toast = useToast()
 
   const onConfirm = useCallback(() => {
     interceptFn(async () => {
@@ -158,7 +182,7 @@ const ApproveEthButton: FunctionComponent<
         const supportERC20Denomination = WETH_CONTRACT_ADDRESS
 
         const xBankContract = createXBankContract()
-        await xBankContract.methods
+        const createBlock = await xBankContract.methods
           .createPool(
             // supportERC20Denomination
             supportERC20Denomination,
@@ -181,14 +205,48 @@ const ApproveEthButton: FunctionComponent<
           .send({
             from: currentAccount,
           })
+        console.log(createBlock, 'createBlock', flag)
+        setFlag(false)
         setCreateLoading(false)
-        console.log(new Date().getTime(), '----------------end')
         onCloseApprove()
-        toast({
-          status: 'success',
-          title: 'Created successfully! ',
-        })
+        if (toast.isActive('Created-Successfully-ID')) {
+          // toast.closeAll()
+        } else {
+          toast({
+            status: 'success',
+            title: 'Created successfully! ',
+            id: 'Created-Successfully-ID',
+          })
+        }
         navigate('/xlending/lending/my-pools')
+        // xBankContract.events
+        //   .PoolCreated({
+        //     filter: {
+        //       //
+        //     },
+        //     fromBlock: createBlock?.blockNumber || 'latest',
+        //   })
+        //   .on(
+        //     'data',
+        //     flag
+        //       ? debounce((event) => {
+        //           console.log(event, 'on data') // same results as the optional callback above
+        //           setFlag(false)
+        //           setCreateLoading(false)
+        //           onCloseApprove()
+        //           if (toast.isActive('Created-Successfully-ID')) {
+        //             // toast.closeAll()
+        //           } else {
+        //             toast({
+        //               status: 'success',
+        //               title: 'Created successfully! ',
+        //               id: 'Created-Successfully-ID',
+        //             })
+        //           }
+        //           navigate('/xlending/lending/my-pools')
+        //         }, 10000)
+        //       : () => console.log(flag, 'flag false '),
+        //   )
       } catch (error: any) {
         console.log(error?.message, error?.code, error?.data)
         const code: string = error?.code
@@ -247,10 +305,11 @@ const ApproveEthButton: FunctionComponent<
     loanRatioPreferentialFlexibility,
     loanTimeConcessionFlexibility,
     allowCollateralContract,
-    onCloseApprove,
-    navigate,
     currentAccount,
     interceptFn,
+    flag,
+    navigate,
+    onCloseApprove,
   ])
 
   const handleClose = useCallback(() => {
@@ -272,22 +331,37 @@ const ApproveEthButton: FunctionComponent<
         isCentered
       >
         <ModalOverlay bg='black.2' />
-        <ModalContent maxW='576px' px={10}>
+        <ModalContent
+          maxW={{
+            xl: '526px',
+            lg: '526px',
+            md: '400px',
+            sm: '326px',
+            xs: '326px',
+          }}
+          px={{ md: '40px', sm: '20px', xs: '20px' }}
+        >
           <ModalHeader
-            pt={10}
+            pt={'40px'}
             px={0}
             alignItems='center'
             display={'flex'}
             justifyContent='space-between'
           >
-            <Text>Approve WETH</Text>
+            <Text
+              fontSize={{ md: '28px', sm: '24px', xs: '24px' }}
+              fontWeight='700'
+            >
+              Approve WETH
+            </Text>
             <SvgComponent
               svgId='icon-close'
               onClick={handleClose}
               cursor='pointer'
+              svgSize='16px'
             />
           </ModalHeader>
-          <ModalBody pb={6} px={0}>
+          <ModalBody pb={'24px'} px={0}>
             {/* 数值们 */}
             {/* <Flex
               py={8}
@@ -327,12 +401,14 @@ const ApproveEthButton: FunctionComponent<
                 >
                   <NumberInputField
                     h='60px'
-                    px={8}
+                    px={'32px'}
                     _focus={{
-                      borderColor: 'blue.1',
+                      borderColor: isError ? 'red.1' : 'blue.1',
                     }}
                     _focusVisible={{
-                      boxShadow: `0 0 0 1px var(--chakra-colors-blue-1)`,
+                      boxShadow: `0 0 0 1px var(--chakra-colors-${
+                        isError ? 'red-1' : 'blue-1'
+                      })`,
                     }}
                   />
                 </NumberInput>
@@ -344,10 +420,11 @@ const ApproveEthButton: FunctionComponent<
                 )}
               </InputGroup>
 
-              {isError && (
-                <Text mt={2} color='red.1'>
-                  Insufficient funds, {errorMsg}
-                  {/* <SvgComponent
+              <Text mt={'8px'} color={isError ? 'red.1' : 'gray.3'}>
+                {isError
+                  ? errorMsg
+                  : `Minimum input: ${formatFloat(floorPrice * 0.1)}`}
+                {/* <SvgComponent
                     svgId='icon-refresh'
                     onClick={fetchLatestWethBalance}
                     animation={
@@ -356,24 +433,35 @@ const ApproveEthButton: FunctionComponent<
                     cursor={'pointer'}
                     display='inline-block'
                   /> */}
-                </Text>
-              )}
+              </Text>
             </FormControl>
+            <Text
+              fontSize={'12px'}
+              color='gray.4'
+              textAlign={'center'}
+              px={'32px'}
+              mt={'20px'}
+            >
+              This is a Georli based demo, you may need to swap your GeorliETH
+              into GoerliWETH with the “Deposit” function of this DEX contract:
+              {import.meta.env.VITE_WETH_CONTRACT_ADDRESS}
+            </Text>
           </ModalBody>
 
           {/* <ModalFooter justifyContent={'center'}> */}
           <Button
             variant='primary'
-            mr={3}
-            mt={2}
-            mb={10}
-            mx={10}
+            mr={'12px'}
+            mt={'8px'}
+            mb={'40px'}
+            mx={'40px'}
             h='52px'
             isDisabled={isError || !Number(amount)}
             onClick={onConfirm}
             loadingText={
               approveLoading ? 'approving' : createLoading ? 'creating' : ''
             }
+            fontSize='16px'
             isLoading={approveLoading || createLoading || refreshLoading}
           >
             Approve

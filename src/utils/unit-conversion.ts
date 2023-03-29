@@ -4,6 +4,7 @@ import Web3 from 'web3/dist/web3.min.js'
 const wei2Eth = (wei: BigNumber | number | string) => {
   try {
     let weiStr = wei
+    if (!weiStr) return '--'
     if (BigNumber.isBigNumber(weiStr)) {
       weiStr = weiStr.integerValue().toFormat().replaceAll(',', '')
     } else if (typeof weiStr === 'number') {

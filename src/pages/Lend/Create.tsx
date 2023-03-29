@@ -1,24 +1,67 @@
 import { Box, Button, Container, Flex, Heading, Text } from '@chakra-ui/react'
 import isEmpty from 'lodash-es/isEmpty'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { BaseRateTable, Select, SvgComponent } from '@/components'
-import AsyncSelectCollection from '@/components/async-select/AsyncSelectCollection'
 import {
-  SUB_RESPONSIVE_MAX_W,
+  BaseRateTable,
+  Select,
+  SvgComponent,
+  AsyncSelectCollection,
+} from '@/components'
+import {
   TENORS,
   COLLATERALS,
   INITIAL_COLLATERAL,
   INITIAL_TENOR,
   STEPS_DESCRIPTIONS,
   LP_BASE_RATE,
+  RESPONSIVE_MAX_W,
 } from '@/constants'
 import type { NftCollection } from '@/hooks'
 
 import ApproveEthButton from './components/ApproveEthButton'
 import CardWithBg from './components/CardWithBg'
 import StepDescription from './components/StepDescription'
+
+import type { CardProps } from '@chakra-ui/react'
+import type { FunctionComponent } from 'react'
+
+const Wrapper: FunctionComponent<
+  {
+    stepIndex: number
+  } & CardProps
+> = ({ stepIndex, children }) => {
+  return (
+    <CardWithBg mb={'32px'}>
+      <Flex
+        justify={'space-between'}
+        alignItems='start'
+        flexWrap={{
+          md: 'nowrap',
+          sm: 'wrap',
+          xs: 'wrap',
+        }}
+        rowGap={'24px'}
+        columnGap={'16px'}
+        display={{
+          md: 'flex',
+          xs: 'block',
+          sm: 'block',
+        }}
+      >
+        <StepDescription
+          data={{
+            step: stepIndex,
+            ...STEPS_DESCRIPTIONS[stepIndex - 1],
+          }}
+        />
+        {children}
+        {/* {isEmpty(params) ? <InputSearch /> : params.collectionId} */}
+      </Flex>
+    </CardWithBg>
+  )
+}
 
 const Create = () => {
   const navigate = useNavigate()
@@ -50,20 +93,102 @@ const Create = () => {
       loanTimeConcessionFlexibility: 100,
     })
   }, [selectCollateral, selectTenor])
+
+  const collectionSelectorProps = useMemo(
+    () => ({
+      placeholder: 'Please select',
+      onChange: (e: {
+        contractAddress: string
+        nftCollection: NftCollection
+      }) => {
+        setSelectCollection(e)
+      },
+      defaultValue: state,
+    }),
+    [state],
+  )
+
+  const tenorSelectorProps = useMemo(
+    () => ({
+      placeholder: 'Please select',
+      defaultValue: {
+        label: `${INITIAL_TENOR} Days`,
+        value: INITIAL_TENOR,
+      },
+      img: <SvgComponent svgId='icon-calendar' ml='12px' svgSize={'20px'} />,
+      onChange: (e: any) => setSelectTenor(e?.value as number),
+      options: TENORS?.map((item) => ({
+        label: `${item} Days`,
+        value: item,
+      })),
+    }),
+    [],
+  )
+
+  const collateralSelectorProps = useMemo(
+    () => ({
+      placeholder: 'Please select',
+      // w={'240px'}
+      img: <SvgComponent svgId='icon-intersect' ml={'12px'} svgSize={'20px'} />,
+      defaultValue: {
+        label: `${INITIAL_COLLATERAL / 100} %`,
+        value: INITIAL_COLLATERAL,
+      },
+      onChange: (e: any) => setSelectCollateral(e?.value as number),
+      options: COLLATERALS?.map((item) => ({
+        label: `${item / 100} %`,
+        value: item,
+      })),
+    }),
+    [],
+  )
   return (
-    <Container maxW={SUB_RESPONSIVE_MAX_W}>
+    <Container
+      maxW={{
+        ...RESPONSIVE_MAX_W,
+        lg: 1024,
+        xl: 1024,
+      }}
+      px={'2px'}
+    >
       <Flex
         justify={{
           lg: 'space-between',
           md: 'flex-start',
         }}
         wrap='wrap'
-        mt={10}
+        mt={{
+          md: 10,
+          sm: 0,
+          xs: 0,
+        }}
       >
+        <Flex
+          display={{
+            md: 'none',
+            sm: 'flex',
+            xs: 'flex',
+          }}
+          onClick={() => {
+            navigate(-1)
+          }}
+          py={'20px'}
+        >
+          <SvgComponent
+            svgId='icon-arrow-down'
+            fill={'black.1'}
+            transform='rotate(90deg)'
+          />
+        </Flex>
         <Button
           leftIcon={<SvgComponent svgId='icon-arrow-left' />}
           onClick={() => {
             navigate(-1)
+          }}
+          display={{
+            md: 'flex',
+            sm: 'none',
+            xs: 'none',
           }}
         >
           Back
@@ -76,103 +201,89 @@ const Create = () => {
           }}
         >
           <Box mb={8}>
-            <Heading size={'lg'} mb={2}>
+            <Heading
+              fontSize={{
+                md: '40px',
+                sm: '24px',
+                xs: '24px',
+              }}
+              mb={'8px'}
+            >
               Create New Pool
             </Heading>
             <Text color='gray.3'>
-              Determine the Tenor length for which potential borrowers can open
-              a loan against. We commonly see a 14-days Tenor.
+              Setting up a new pool to lend against borrowers with preferred
+              length of duration and collateral factor ratio.
             </Text>
           </Box>
+          <Wrapper stepIndex={1}>
+            <Box
+              display={{
+                md: 'block',
+                sm: 'none',
+                xs: 'none',
+              }}
+            >
+              <AsyncSelectCollection {...collectionSelectorProps} w='240px' />
+            </Box>
 
-          <CardWithBg mb={8}>
-            <Flex justify={'space-between'} alignItems='start'>
-              <StepDescription
-                data={{
-                  step: 1,
-                  ...STEPS_DESCRIPTIONS[0],
-                }}
-              />
-              <AsyncSelectCollection
-                placeholder='Please select'
-                onChange={(e: {
-                  contractAddress: string
-                  nftCollection: NftCollection
-                }) => {
-                  setSelectCollection(e)
-                }}
-                defaultValue={state}
-              />
-              {/* {isEmpty(params) ? <InputSearch /> : params.collectionId} */}
-            </Flex>
-          </CardWithBg>
+            <Box
+              display={{
+                md: 'none',
+                sm: 'block',
+                xs: 'block',
+              }}
+              mt='24px'
+            >
+              <AsyncSelectCollection {...collectionSelectorProps} />
+            </Box>
+          </Wrapper>
 
-          <CardWithBg mb={8}>
-            <Flex justify={'space-between'} alignItems='start'>
-              <StepDescription
-                w={{
-                  lg: '50%',
-                  md: '100%',
-                }}
-                data={{
-                  step: 2,
-                  ...STEPS_DESCRIPTIONS[1],
-                }}
-              />
+          <Wrapper stepIndex={2}>
+            <Box
+              display={{
+                md: 'block',
+                sm: 'none',
+                xs: 'none',
+              }}
+            >
+              <Select {...tenorSelectorProps} w='240px' />
+            </Box>
+            <Box
+              display={{
+                md: 'none',
+                sm: 'block',
+                xs: 'block',
+              }}
+              mt='24px'
+            >
+              <Select {...tenorSelectorProps} />
+            </Box>
+          </Wrapper>
 
-              <Select
-                placeholder='Please select'
-                defaultValue={{
-                  label: `${INITIAL_TENOR} Days`,
-                  value: INITIAL_TENOR,
-                }}
-                img={
-                  <SvgComponent svgId='icon-calendar' ml={3} svgSize={'20px'} />
-                }
-                onChange={(e) => setSelectTenor(e?.value as number)}
-                options={TENORS?.map((item) => ({
-                  label: `${item} Days`,
-                  value: item,
-                }))}
-                // options={[]}
-              />
-            </Flex>
-          </CardWithBg>
-          <CardWithBg mb={8}>
-            <Flex justify={'space-between'} alignItems='start'>
-              <StepDescription
-                w={{
-                  lg: '50%',
-                  md: '100%',
-                }}
-                data={{
-                  step: 3,
-                  ...STEPS_DESCRIPTIONS[2],
-                }}
-              />
-              <Select
-                placeholder='Please select'
-                // w={'240px'}
-                img={
-                  <SvgComponent
-                    svgId='icon-intersect'
-                    ml={3}
-                    svgSize={'20px'}
-                  />
-                }
-                defaultValue={{
-                  label: `${INITIAL_COLLATERAL / 100} %`,
-                  value: INITIAL_COLLATERAL,
-                }}
-                onChange={(e) => setSelectCollateral(e?.value as number)}
-                options={COLLATERALS?.map((item) => ({
-                  label: `${item / 100} %`,
-                  value: item,
-                }))}
-                // options={[]}
-              />
-            </Flex>
-          </CardWithBg>
+          <Wrapper stepIndex={3}>
+            <Box
+              display={{
+                md: 'block',
+                sm: 'none',
+                xs: 'none',
+              }}
+            >
+              <Select {...collateralSelectorProps} w='240px' />
+            </Box>
+
+            <Box
+              display={{
+                md: 'none',
+                sm: 'block',
+                xs: 'block',
+              }}
+              mt='24px'
+            >
+              <Select {...collateralSelectorProps} />
+            </Box>
+          </Wrapper>
+
           <CardWithBg mb={8} bg='gray.5'>
             <StepDescription
               data={{
@@ -198,7 +309,7 @@ const Create = () => {
             />
           </CardWithBg>
 
-          <Flex justify={'center'} mb={10}>
+          <Flex justify={'center'} mb={'40px'}>
             <ApproveEthButton
               variant={'primary'}
               w='240px'

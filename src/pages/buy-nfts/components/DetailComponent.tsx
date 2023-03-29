@@ -29,12 +29,13 @@ const DetailComponent: FunctionComponent<
   loading,
   onRefreshPrice,
   refreshLoading,
+  ...rest
 }) => {
   if (loading) {
     return <Skeleton h={200} borderRadius={16} />
   }
   return (
-    <Box mt={8}>
+    <Box mt={8} {...rest}>
       {/* 名称*/}
       <Flex alignItems={'baseline'}>
         <Text fontWeight={'500'} noOfLines={1}>
@@ -50,13 +51,13 @@ const DetailComponent: FunctionComponent<
         bg='gray.5'
         alignItems='end'
         borderRadius={16}
-        p={5}
+        p={'20px'}
         justify='space-between'
-        mt={6}
+        mt='24px'
       >
         <Box>
           <Text>Price</Text>
-          <Flex alignItems={'end'} mt={1} gap={1}>
+          <Flex alignItems={'end'} mt={1} gap={'4px'}>
             <SvgComponent svgId='icon-eth' svgSize='32px' />
             <Heading fontSize={'32px'} lineHeight='30px'>
               {price}
@@ -68,7 +69,7 @@ const DetailComponent: FunctionComponent<
               cursor={'pointer'}
             />
             {!!usdPrice && (
-              <Text fontSize={'xs'} lineHeight='14px'>
+              <Text fontSize='12px' lineHeight='14px'>
                 &nbsp;$ {usdPrice}
               </Text>
             )}
