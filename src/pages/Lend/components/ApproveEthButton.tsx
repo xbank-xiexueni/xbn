@@ -27,6 +27,7 @@ import {
   useRef,
   useState,
   type FunctionComponent,
+  useEffect,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Web3 from 'web3/dist/web3.min.js'
@@ -34,7 +35,11 @@ import Web3 from 'web3/dist/web3.min.js'
 import { ConnectWalletModal, SvgComponent } from '@/components'
 import { WETH_CONTRACT_ADDRESS, XBANK_CONTRACT_ADDRESS } from '@/constants'
 import { useWallet } from '@/hooks'
-import { createWethContract, createXBankContract } from '@/utils/createContract'
+import {
+  createWeb3Provider,
+  createWethContract,
+  createXBankContract,
+} from '@/utils/createContract'
 import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
@@ -79,13 +84,29 @@ const ApproveEthButton: FunctionComponent<
     allowCollateralContract,
     floorPrice,
   } = data
-  const { currentAccount, interceptFn, isOpen, onClose } = useWallet()
+  const toast = useToast()
+  const [flag, setFlag] = useState(true)
   const navigate = useNavigate()
+  const { currentAccount, interceptFn, isOpen, onClose } = useWallet()
   const {
     isOpen: isOpenApprove,
     onOpen: onOpenApprove,
     onClose: onCloseApprove,
   } = useDisclosure()
+
+  const [approveLoading, setApproveLoading] = useState(false)
+  const [createLoading, setCreateLoading] = useState(false)
+
+  useEffect(() => {
+    const web3 = createWeb3Provider()
+    web3.eth.clearSubscriptions()
+    toast.closeAll()
+    return () => {
+      web3.eth.clearSubscriptions()
+      toast.closeAll()
+    }
+  }, [toast])
+
   const [amount, setAmount] = useState('')
 
   const initialRef = useRef(null)
@@ -126,10 +147,6 @@ const ApproveEthButton: FunctionComponent<
     return false
   }, [amount, wethData, floorPrice])
 
-  const [approveLoading, setApproveLoading] = useState(false)
-  const [createLoading, setCreateLoading] = useState(false)
-  const toast = useToast()
-
   const onConfirm = useCallback(() => {
     interceptFn(async () => {
       /**
@@ -165,7 +182,7 @@ const ApproveEthButton: FunctionComponent<
         const supportERC20Denomination = WETH_CONTRACT_ADDRESS
 
         const xBankContract = createXBankContract()
-        await xBankContract.methods
+        const createBlock = await xBankContract.methods
           .createPool(
             // supportERC20Denomination
             supportERC20Denomination,
@@ -188,14 +205,48 @@ const ApproveEthButton: FunctionComponent<
           .send({
             from: currentAccount,
           })
+        console.log(createBlock, 'createBlock', flag)
+        setFlag(false)
         setCreateLoading(false)
-        console.log(new Date().getTime(), '----------------end')
         onCloseApprove()
-        toast({
-          status: 'success',
-          title: 'Created successfully! ',
-        })
+        if (toast.isActive('Created-Successfully-ID')) {
+          // toast.closeAll()
+        } else {
+          toast({
+            status: 'success',
+            title: 'Created successfully! ',
+            id: 'Created-Successfully-ID',
+          })
+        }
         navigate('/xlending/lending/my-pools')
+        // xBankContract.events
+        //   .PoolCreated({
+        //     filter: {
+        //       //
+        //     },
+        //     fromBlock: createBlock?.blockNumber || 'latest',
+        //   })
+        //   .on(
+        //     'data',
+        //     flag
+        //       ? debounce((event) => {
+        //           console.log(event, 'on data') // same results as the optional callback above
+        //           setFlag(false)
+        //           setCreateLoading(false)
+        //           onCloseApprove()
+        //           if (toast.isActive('Created-Successfully-ID')) {
+        //             // toast.closeAll()
+        //           } else {
+        //             toast({
+        //               status: 'success',
+        //               title: 'Created successfully! ',
+        //               id: 'Created-Successfully-ID',
+        //             })
+        //           }
+        //           navigate('/xlending/lending/my-pools')
+        //         }, 10000)
+        //       : () => console.log(flag, 'flag false '),
+        //   )
       } catch (error: any) {
         console.log(error?.message, error?.code, error?.data)
         const code: string = error?.code
@@ -254,10 +305,11 @@ const ApproveEthButton: FunctionComponent<
     loanRatioPreferentialFlexibility,
     loanTimeConcessionFlexibility,
     allowCollateralContract,
-    onCloseApprove,
-    navigate,
     currentAccount,
     interceptFn,
+    flag,
+    navigate,
+    onCloseApprove,
   ])
 
   const handleClose = useCallback(() => {

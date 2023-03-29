@@ -1,10 +1,14 @@
 import { Box, Button, Container, Flex, Heading, Text } from '@chakra-ui/react'
 import isEmpty from 'lodash-es/isEmpty'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { BaseRateTable, Select, SvgComponent } from '@/components'
-import AsyncSelectCollection from '@/components/async-select/AsyncSelectCollection'
+import {
+  BaseRateTable,
+  Select,
+  SvgComponent,
+  AsyncSelectCollection,
+} from '@/components'
 import {
   TENORS,
   COLLATERALS,
@@ -89,6 +93,54 @@ const Create = () => {
     })
   }, [selectCollateral, selectTenor])
 
+  const collectionSelectorProps = useMemo(
+    () => ({
+      placeholder: 'Please select',
+      onChange: (e: {
+        contractAddress: string
+        nftCollection: NftCollection
+      }) => {
+        setSelectCollection(e)
+      },
+      defaultValue: state,
+    }),
+    [state],
+  )
+
+  const tenorSelectorProps = useMemo(
+    () => ({
+      placeholder: 'Please select',
+      defaultValue: {
+        label: `${INITIAL_TENOR} Days`,
+        value: INITIAL_TENOR,
+      },
+      img: <SvgComponent svgId='icon-calendar' ml='12px' svgSize={'20px'} />,
+      onChange: (e: any) => setSelectTenor(e?.value as number),
+      options: TENORS?.map((item) => ({
+        label: `${item} Days`,
+        value: item,
+      })),
+    }),
+    [],
+  )
+
+  const collateralSelectorProps = useMemo(
+    () => ({
+      placeholder: 'Please select',
+      // w={'240px'}
+      img: <SvgComponent svgId='icon-intersect' ml={'12px'} svgSize={'20px'} />,
+      defaultValue: {
+        label: `${INITIAL_COLLATERAL / 100} %`,
+        value: INITIAL_COLLATERAL,
+      },
+      onChange: (e: any) => setSelectCollateral(e?.value as number),
+      options: COLLATERALS?.map((item) => ({
+        label: `${item / 100} %`,
+        value: item,
+      })),
+    }),
+    [],
+  )
   return (
     <Container
       maxW={{
@@ -133,7 +185,7 @@ const Create = () => {
             navigate(-1)
           }}
           display={{
-            md: 'block',
+            md: 'flex',
             sm: 'none',
             xs: 'none',
           }}
@@ -171,17 +223,7 @@ const Create = () => {
                 xs: 'none',
               }}
             >
-              <AsyncSelectCollection
-                placeholder='Please select'
-                onChange={(e: {
-                  contractAddress: string
-                  nftCollection: NftCollection
-                }) => {
-                  setSelectCollection(e)
-                }}
-                defaultValue={state}
-                w='240px'
-              />
+              <AsyncSelectCollection {...collectionSelectorProps} w='240px' />
             </Box>
 
             <Box
@@ -192,16 +234,7 @@ const Create = () => {
               }}
               mt='24px'
             >
-              <AsyncSelectCollection
-                placeholder='Please select'
-                onChange={(e: {
-                  contractAddress: string
-                  nftCollection: NftCollection
-                }) => {
-                  setSelectCollection(e)
-                }}
-                defaultValue={state}
-              />
+              <AsyncSelectCollection {...collectionSelectorProps} />
             </Box>
           </Wrapper>
 
@@ -213,27 +246,7 @@ const Create = () => {
                 xs: 'none',
               }}
             >
-              <Select
-                placeholder='Please select'
-                defaultValue={{
-                  label: `${INITIAL_TENOR} Days`,
-                  value: INITIAL_TENOR,
-                }}
-                img={
-                  <SvgComponent
-                    svgId='icon-calendar'
-                    ml='12px'
-                    svgSize={'20px'}
-                  />
-                }
-                onChange={(e) => setSelectTenor(e?.value as number)}
-                options={TENORS?.map((item) => ({
-                  label: `${item} Days`,
-                  value: item,
-                }))}
-                w='240px'
-                // options={[]}
-              />
+              <Select {...tenorSelectorProps} w='240px' />
             </Box>
             <Box
               display={{
@@ -243,26 +256,7 @@ const Create = () => {
               }}
               mt='24px'
             >
-              <Select
-                placeholder='Please select'
-                defaultValue={{
-                  label: `${INITIAL_TENOR} Days`,
-                  value: INITIAL_TENOR,
-                }}
-                img={
-                  <SvgComponent
-                    svgId='icon-calendar'
-                    ml={'12px'}
-                    svgSize={'20px'}
-                  />
-                }
-                onChange={(e) => setSelectTenor(e?.value as number)}
-                options={TENORS?.map((item) => ({
-                  label: `${item} Days`,
-                  value: item,
-                }))}
-                // options={[]}
-              />
+              <Select {...tenorSelectorProps} />
             </Box>
           </Wrapper>
 
@@ -274,28 +268,7 @@ const Create = () => {
                 xs: 'none',
               }}
             >
-              <Select
-                placeholder='Please select'
-                // w={'240px'}
-                img={
-                  <SvgComponent
-                    svgId='icon-intersect'
-                    ml={'12px'}
-                    svgSize={'20px'}
-                  />
-                }
-                defaultValue={{
-                  label: `${INITIAL_COLLATERAL / 100} %`,
-                  value: INITIAL_COLLATERAL,
-                }}
-                onChange={(e) => setSelectCollateral(e?.value as number)}
-                options={COLLATERALS?.map((item) => ({
-                  label: `${item / 100} %`,
-                  value: item,
-                }))}
-                w='240px'
-                // options={[]}
-              />
+              <Select {...collateralSelectorProps} w='240px' />
             </Box>
 
             <Box
@@ -306,27 +279,7 @@ const Create = () => {
               }}
               mt='24px'
             >
-              <Select
-                placeholder='Please select'
-                // w={'240px'}
-                img={
-                  <SvgComponent
-                    svgId='icon-intersect'
-                    ml={'12px'}
-                    svgSize={'20px'}
-                  />
-                }
-                defaultValue={{
-                  label: `${INITIAL_COLLATERAL / 100} %`,
-                  value: INITIAL_COLLATERAL,
-                }}
-                onChange={(e) => setSelectCollateral(e?.value as number)}
-                options={COLLATERALS?.map((item) => ({
-                  label: `${item / 100} %`,
-                  value: item,
-                }))}
-                // options={[]}
-              />
+              <Select {...collateralSelectorProps} />
             </Box>
           </Wrapper>
 

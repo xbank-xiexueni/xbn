@@ -346,11 +346,7 @@ const Header = () => {
       100%)'
         h={{ md: 1, sm: '1px', xs: '1px' }}
       />
-      <Container
-        bg='white'
-        maxW={RESPONSIVE_MAX_W}
-        boxShadow='0px 1px 0px rgba(0, 0, 0, 0.08)'
-      >
+      <Container bg='white' maxW={RESPONSIVE_MAX_W}>
         <Flex
           justify={'space-between'}
           h={{
