@@ -25,6 +25,7 @@ import { unix } from 'dayjs'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
+import reduce from 'lodash-es/reduce'
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -82,6 +83,18 @@ const TabWrapper: FunctionComponent<TabProps> = ({ children, ...rest }) => {
   )
 }
 
+/**
+ * 1. Collections
+ *    1.1 /lending/api/v1/nft/pools = all pools
+ *    1.2 forEach CollectionList => filter collectionWithPool => calculate summary items
+ *    1.3 [{...collection, ...pools}]
+ * 2. MyPools
+ *    2.1 1.1 => filter currentAccount pools
+ * 3. Loans
+ *    3.1 /lending/api/v1/loans?lender_address=xxx = current loans
+ *    2.1 forEach useAssetQuery = nft info
+ * @returns Collections  MyPools Loans
+ */
 const Lend = () => {
   const [tabKey, setTabKey] = useState<0 | 1 | 2>(0)
 
@@ -126,16 +139,30 @@ const Lend = () => {
           item.allow_collateral_contract.toLowerCase() ===
           contractAddress.toLowerCase(),
       )
-      const maxAprPoolItem = maxBy(
-        currentPools,
-        (i) => i.pool_maximum_percentage,
-      )
-      if (maxAprPoolItem)
+      if (currentPools.length) {
+        const pool_maximum_percentage = maxBy(
+          currentPools,
+          (i) => i.pool_maximum_percentage,
+        )?.pool_maximum_percentage
+
+        const pool_maximum_interest_rate = maxBy(
+          currentPools,
+          (i) => i.pool_maximum_interest_rate,
+        )?.pool_maximum_interest_rate
+
+        const pool_amount = reduce(
+          currentPools,
+          (sum, i) => BigNumber(sum).plus(Number(i.pool_amount)),
+          BigNumber(0),
+        ).toNumber()
         _list.push({
           contractAddress,
           nftCollection,
-          ...maxAprPoolItem,
+          pool_maximum_percentage,
+          pool_maximum_interest_rate,
+          pool_amount,
         })
+      }
     })
     return _list
   }, [collectionList, allPoolsData])
@@ -157,7 +184,7 @@ const Lend = () => {
       onSuccess: async ({ data }) => {
         setLoansData(groupBy(data, 'loan_status'))
       },
-      ready: tabKey === 1 && !!currentAccount,
+      ready: tabKey === 2 && !!currentAccount,
       refreshDeps: [selectKeyForOpenLoans, currentAccount],
       debounceWait: 100,
     },
@@ -259,14 +286,6 @@ const Lend = () => {
         align: 'center',
         thAlign: 'center',
         render: (value: any) => <Text>{Number(value) / 100} %</Text>,
-      },
-      {
-        title: 'Duration',
-        dataIndex: 'pool_maximum_days',
-        key: 'pool_maximum_days',
-        align: 'right',
-        thAlign: 'right',
-        render: (value: any) => <Text>{value} days</Text>,
       },
       {
         title: 'Interest',
