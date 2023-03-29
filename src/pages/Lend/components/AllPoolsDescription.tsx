@@ -15,7 +15,6 @@ import { useCallback, type FunctionComponent } from 'react'
 
 import { ImageWithFallback, SvgComponent } from '@/components'
 import { createXBankContract } from '@/utils/createContract'
-import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
 const Item: FunctionComponent<
@@ -91,6 +90,7 @@ const AllPoolsDescription: FunctionComponent<{
 
   const { data, loading } = useRequest(fetchSummaryData, {
     retryCount: 5,
+    ready: !!window?.ethereum,
   })
   return (
     <Flex
@@ -132,7 +132,7 @@ const AllPoolsDescription: FunctionComponent<{
         </Text>
 
         {/* 总览数据 */}
-        {loading || !data ? (
+        {loading ? (
           <Flex gap={'10px'}>
             {range(3).map((i) => (
               <Skeleton
@@ -176,14 +176,14 @@ const AllPoolsDescription: FunctionComponent<{
             <Item label='Collection' value={data?.collectionCount} />
             <Item
               label='Historical Lent Out'
-              value={formatFloat(
-                Number(wei2Eth(data?.totalLoanPrincipal.toNumber())),
-              )}
+              value={Number(wei2Eth(data?.totalLoanPrincipal.toNumber() || ''))}
               isEth
             />
             <Item
               label='Total Value Locked'
-              value={numeral(wei2Eth(data?.totalPoolAmount)).format('0.00 a')}
+              value={numeral(wei2Eth(data?.totalPoolAmount || '')).format(
+                '0.00 a',
+              )}
               isEth
             />
           </Flex>

@@ -799,7 +799,11 @@ const Lend = () => {
             xs: 'block',
           }}
           mt='20px'
-          hidden={tabKey === 2}
+          hidden={
+            tabKey === 2 ||
+            (tabKey === 0 && isEmpty(activeCollectionList)) ||
+            (tabKey === 1 && isEmpty(poolList))
+          }
         >
           <SearchInput
             value={
