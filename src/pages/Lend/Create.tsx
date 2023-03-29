@@ -1,6 +1,14 @@
-import { Box, Button, Container, Flex, Heading, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  Text,
+  type CardProps,
+} from '@chakra-ui/react'
 import isEmpty from 'lodash-es/isEmpty'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type FunctionComponent } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import {
@@ -24,9 +32,7 @@ import type { NftCollection } from '@/hooks'
 import CardWithBg from './components/CardWithBg'
 import CreatePoolButton from './components/CreatePoolButton'
 import StepDescription from './components/StepDescription'
-
-import type { CardProps } from '@chakra-ui/react'
-import type { FunctionComponent } from 'react'
+import UpdatePoolItemsButton from './components/UpdatePoolItemsButton'
 
 const Wrapper: FunctionComponent<
   {
@@ -185,6 +191,9 @@ const Create = () => {
 
   if (!params || !['edit', 'create'].includes(params?.action)) {
     return <NotFound />
+  }
+  if (params.action === 'edit' && (!state || isEmpty(state))) {
+    return <NotFound title='pool not found' />
   }
   return (
     <Container
@@ -388,16 +397,15 @@ const Create = () => {
               </CreatePoolButton>
             )}
             {params.action === 'edit' && (
-              <Button
-                variant={'primary'}
-                w='240px'
-                h='52px'
-                onClick={() => {
-                  console.log(rateData, '11', selectCollateral, selectTenor)
+              <UpdatePoolItemsButton
+                data={{
+                  ...rateData,
+                  selectCollateral,
+                  selectTenor,
                 }}
               >
                 Confirm
-              </Button>
+              </UpdatePoolItemsButton>
             )}
           </Flex>
         </Box>

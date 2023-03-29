@@ -23,6 +23,7 @@ import {
   AccordionButton,
   AccordionPanel,
 } from '@chakra-ui/react'
+import useRequest from 'ahooks/lib/useRequest'
 import kebabCase from 'lodash-es/kebabCase'
 import { useCallback, useMemo, useRef, type FunctionComponent } from 'react'
 import Jazzicon from 'react-jazzicon'
@@ -243,8 +244,34 @@ const Header = () => {
   const { isOpen, onClose, currentAccount, interceptFn, handleDisconnect } =
     useWallet()
 
+  const fetchDataFromContract = useCallback(async () => {
+    // const wethContract = createWethContract()
+    const xBankContract = createXBankContract()
+    const listPool = await xBankContract.methods.listPool().call()
+    const listLoan = await xBankContract.methods.listLoan().call()
+    // const _allowance = await wethContract.methods
+    //   .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
+    //   .call()
+
+    // const balanceOf = await wethContract.methods
+    //   .balanceOf(currentAccount)
+    //   .call()
+    // console.log('🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:', balanceOf)
+
+    // const allowanceEth = wei2Eth(_allowance)
+    // console.log(
+    //   '🚀 ~ file: Header.tsx:59 ~ testClick ~ allowanceEth:',
+    //   allowanceEth,
+    // )
+    console.log('listLoan:', listLoan)
+    console.log('listPool:', listPool)
+  }, [])
+  const { run, loading } = useRequest(fetchDataFromContract, {
+    manual: true,
+  })
+
   const handleOpenEtherscan = useCallback(() => {
-    interceptFn(() => {
+    interceptFn(async () => {
       window.open(
         `${
           import.meta.env.VITE_TARGET_CHAIN_BASE_URL
@@ -254,36 +281,7 @@ const Header = () => {
   }, [interceptFn, currentAccount])
 
   const handleClickWallet = useCallback(async () => {
-    interceptFn(async () => {
-      // const wethContract = createWethContract()
-      const xBankContract = createXBankContract()
-      console.log(
-        '🚀 ~ file: Header.tsx:62 ~ handleClickWal ~ xBankContract:',
-        xBankContract,
-      )
-      const listPool = await xBankContract.methods.listPool().call()
-      const listLoan = await xBankContract.methods.listLoan().call()
-      // const _allowance = await wethContract.methods
-      //   .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
-      //   .call()
-
-      // const balanceOf = await wethContract.methods
-      //   .balanceOf(currentAccount)
-      //   .call()
-      // console.log('🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:', balanceOf)
-
-      // const allowanceEth = wei2Eth(_allowance)
-      // console.log(
-      //   '🚀 ~ file: Header.tsx:59 ~ testClick ~ allowanceEth:',
-      //   allowanceEth,
-      // )
-      console.log('transactionsContract', xBankContract.methods)
-      console.log('listLoan', listLoan)
-      console.log(
-        '🚀 ~ file: Header.tsx:67 ~ handleClickWal ~ listPool:',
-        listPool,
-      )
-    })
+    interceptFn(() => {})
   }, [interceptFn])
 
   const ConnectedIconWallet = useMemo(
@@ -319,11 +317,18 @@ const Header = () => {
             >
               Disconnect
             </Button>
+
+            {(import.meta.env.DEV ||
+              window.location.hostname.startsWith('feat-')) && (
+              <Button isLoading={loading} onClick={run} variant='primary'>
+                TEST
+              </Button>
+            )}
           </PopoverBody>
         </PopoverContent>
       </Popover>
     ),
-    [handleOpenEtherscan, handleDisconnect, currentAccount],
+    [handleOpenEtherscan, handleDisconnect, currentAccount, run, loading],
   )
 
   return (
@@ -333,9 +338,6 @@ const Header = () => {
       zIndex={21}
       borderBottomColor='rgba(0, 0, 0, 0.05)'
       borderBottomWidth={1}
-      onClick={
-        import.meta.env.MODE === 'development' ? handleClickWallet : undefined
-      }
     >
       <Box
         bg='linear-gradient(270deg, #E404E6 0%, #5843F4 53.65%, #1EF6F0
