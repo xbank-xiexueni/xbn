@@ -230,13 +230,12 @@ const H5Demo = () => {
     return (
       <Flex flexDir={'column'} justify='center' h='50vh'>
         <Flex
-          position={'fixed'}
+          position={'absolute'}
           onClick={() => setStep(1)}
-          zIndex={100}
           bg='white'
           left={0}
           right={0}
-          top={'0px'}
+          top={'56px'}
           h='58px'
         >
           <SvgComponent svgId='icon-arrow-down' transform={'rotate(90deg)'} />
@@ -274,18 +273,7 @@ const H5Demo = () => {
   return (
     <Flex flexDirection={'column'} pb='100px'>
       {/* header*/}
-      <Flex
-        justify={'space-between'}
-        position={'fixed'}
-        zIndex={100}
-        bg='white'
-        left={0}
-        right={0}
-        top={'0px'}
-        h='58px'
-        alignItems={'center'}
-        px='20px'
-      >
+      <Flex justify={'space-between'} h='58px' alignItems={'center'}>
         <SvgComponent
           svgId='icon-arrow-down'
           transform={'rotate(90deg)'}
