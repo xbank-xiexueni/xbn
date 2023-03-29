@@ -128,6 +128,7 @@ const Lend = () => {
 
   const [selectKeyForOpenLoans, setSelectKeyForOpenLoans] = useState<number>()
 
+  const [totalLoanCount, setTotalLoanCount] = useState(0)
   const { loading: loansLoading, data: loanDataForNft } = useRequest(
     () =>
       apiGetLoans({
@@ -137,6 +138,9 @@ const Lend = () => {
     {
       onSuccess: async ({ data }) => {
         setLoansData(groupBy(data, 'loan_status'))
+        if (selectKeyForOpenLoans === undefined) {
+          setTotalLoanCount(data?.length)
+        }
       },
       ready: tabKey === 1 && !!currentAccount,
       refreshDeps: [selectKeyForOpenLoans, currentAccount],
@@ -668,6 +672,7 @@ const Lend = () => {
                 <List spacing='16px' mt='16px' position='relative'>
                   <LoadingComponent
                     loading={myPoolsLoading || collectionLoading}
+                    top={0}
                   />
                   {isEmpty(filteredPoolCollectionList) &&
                     !myPoolsLoading &&
@@ -692,9 +697,7 @@ const Lend = () => {
                       {selectKeyForOpenLoans === undefined ? (
                         <SvgComponent svgId='icon-checked' />
                       ) : (
-                        <Text fontSize='14px'>
-                          {loanDataForNft?.data.length || ''}
-                        </Text>
+                        <Text fontSize='14px'>{totalLoanCount || ''}</Text>
                       )}
                     </Flex>
                   )}
@@ -906,9 +909,7 @@ const Lend = () => {
                   {selectKeyForOpenLoans === undefined ? (
                     <SvgComponent svgId='icon-checked' />
                   ) : (
-                    <Text fontSize='14px'>
-                      {loanDataForNft?.data.length || ''}
-                    </Text>
+                    <Text fontSize='14px'>{totalLoanCount || ''}</Text>
                   )}
                 </Flex>
               )}
