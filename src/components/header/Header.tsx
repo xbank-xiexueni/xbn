@@ -181,11 +181,7 @@ const MobileDrawBtn = () => {
                 </Text>
                 <AccordionPanel px={8} py={'28px'}>
                   <Flex flexDir={'column'} gap={8} onClick={closeDraw}>
-                    {[
-                      // 'Pools',
-                      'My Pools',
-                      'Loans',
-                    ].map((item) => (
+                    {['Collections', 'My Pools', 'Loans'].map((item) => (
                       <Link
                         to={`/xlending/lending/${kebabCase(item)}`}
                         key={item}
@@ -360,7 +356,7 @@ const Header = () => {
             alignItems={'center'}
             onClick={() => {
               if (pathname === '/xlending/demo') return
-              navigate('/xlending/lending/my-pools')
+              navigate('/xlending/lending/collections')
             }}
             cursor='pointer'
           >
@@ -389,11 +385,7 @@ const Header = () => {
             hidden={pathname === '/xlending/demo'}
           >
             <PopoverWrapper
-              routes={[
-                // 'Pools',
-                'My Pools',
-                'Loans',
-              ]}
+              routes={['Collections', 'My Pools', 'Loans']}
               route='lending'
               pageName='Lend'
             />
