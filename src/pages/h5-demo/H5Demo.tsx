@@ -20,6 +20,7 @@ import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
 import minBy from 'lodash-es/minBy'
 import range from 'lodash-es/range'
+import Lottie from 'lottie-react'
 import {
   useCallback,
   useEffect,
@@ -29,6 +30,7 @@ import {
 } from 'react'
 
 import ImgNft from '@/assets/nft.png'
+import uiSuccessJson from '@/assets/ui-sucess.json'
 import { EmptyComponent, ImageWithFallback, SvgComponent } from '@/components'
 import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
 import { amortizationCalByDays } from '@/utils/calculation'
@@ -240,28 +242,31 @@ const H5Demo = () => {
           <SvgComponent svgId='icon-arrow-down' transform={'rotate(90deg)'} />
         </Flex>
 
-        <Flex flexDir={'column'} alignItems='center'>
-          {/* 图片 */}
-          <Flex pos={'relative'}>
-            <ImageWithFallback src={ImgNft} />
-            <Flex
-              pos='absolute'
-              bottom={-3}
-              right={-3}
-              bg='white'
-              borderRadius={'100%'}
-              p='3px'
-            >
-              <SvgComponent svgId='icon-success' svgSize='28px' />
+        <SlideFade in={step === 2} offsetY='200px'>
+          <Flex flexDir={'column'} alignItems='center'>
+            {/* 图片 */}
+            <Flex pos={'relative'}>
+              <ImageWithFallback src={ImgNft} />
+              <Flex
+                pos='absolute'
+                bottom={-1}
+                right={-1}
+                bg='white'
+                borderRadius={'100%'}
+                h='30px'
+                w='30px'
+              >
+                <Lottie animationData={uiSuccessJson} loop={false} />
+              </Flex>
             </Flex>
+            <Text mt='28px' fontWeight={'700'} fontSize='24px'>
+              Purchase completed
+            </Text>
+            <Text color={'gray.3'} fontSize='14px' mt='8px' fontWeight={'500'}>
+              Loan has been initialized.
+            </Text>
           </Flex>
-          <Text mt='32px' fontWeight={'700'} fontSize='24px'>
-            Purchase completed
-          </Text>
-          <Text color={'gray.3'} fontSize='16px' mt='8px'>
-            Loan has been initialized.
-          </Text>
-        </Flex>
+        </SlideFade>
       </Flex>
     )
   }
