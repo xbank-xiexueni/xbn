@@ -32,7 +32,13 @@ const index: FunctionComponent<
 }) => {
   return (
     <InputGroup>
-      <InputLeftElement pointerEvents='none' color='gray.300' fontSize='1.2em'>
+      <InputLeftElement
+        pointerEvents='none'
+        color='gray.300'
+        fontSize='1.2em'
+        h={h || '42px'}
+        left={2}
+      >
         <SvgComponent svgId='icon-search' fill='var(chakra-colors-gray-3)' />
       </InputLeftElement>
       <Input

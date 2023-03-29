@@ -792,6 +792,29 @@ const Lend = () => {
           <TabWrapper>Outstanding Loans</TabWrapper>
         </TabList>
 
+        <Box
+          display={{
+            md: 'none',
+            sm: 'block',
+            xs: 'block',
+          }}
+          mt='20px'
+          hidden={tabKey === 2}
+        >
+          <SearchInput
+            value={
+              tabKey === 0 ? activeCollectionSearchValue : myPoolsSearchValue
+            }
+            onChange={(e) => {
+              if (tabKey === 0) {
+                setActiveCollectionSearchValue(e.target.value)
+              }
+              if (tabKey === 1) {
+                setMyPoolsSearchValue(e.target.value)
+              }
+            }}
+          />
+        </Box>
         <TabPanels>
           <TabPanel p={0}>
             <MyTable

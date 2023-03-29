@@ -28,9 +28,8 @@ const AmountItem: FunctionComponent<
           xs: 'scale(0.83333)',
         }}
         transformOrigin='center'
-        letterSpacing={'-0.2px'}
       >
-        {label}
+        <Text noOfLines={1}>{label}</Text>
       </Flex>
       <Flex justify={'center'} alignItems='center' h='35px'>
         <SvgComponent svgId='icon-eth' svgSize={'18px'} />

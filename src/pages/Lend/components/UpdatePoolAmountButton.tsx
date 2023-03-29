@@ -281,14 +281,14 @@ const UpdatePoolAmountButton: FunctionComponent<
             {/* 数值们 */}
             <Flex
               py={{ md: '32px', sm: '20px', xs: '20px' }}
-              px={{ md: '36px', sm: '12px', xs: '12px' }}
+              px={{ md: '36px', sm: '10px', xs: '10px' }}
               bg={'gray.5'}
               borderRadius={16}
               justify='space-between'
               mb='32px'
             >
               {AmountDataItems.map((item) => (
-                <AmountItem key={item.label} w='33%' {...item} />
+                <AmountItem key={item.label} {...item} />
               ))}
             </Flex>
             <FormControl>
