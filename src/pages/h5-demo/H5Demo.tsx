@@ -358,12 +358,12 @@ const H5Demo = () => {
             {COLLATERALS.map((item) => (
               <SliderMark value={item} key={item} zIndex={1}>
                 <Box
-                  w={'6px'}
-                  h={'6px'}
+                  w={'8px'}
+                  h={'8px'}
                   borderRadius={5}
                   borderWidth={'1px'}
                   borderColor='white'
-                  mt={-0.5}
+                  mt={-1}
                   bg={percentage > item ? 'blue.1' : 'gray.1'}
                 />
               </SliderMark>
