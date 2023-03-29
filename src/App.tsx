@@ -61,7 +61,7 @@ function App() {
           }
         /> */}
         <Route
-          path='/xlending/lending/my-pools/:action'
+          path='/xlending/lending/:action'
           element={
             <Suspense fallback={<Fallback />}>
               <PoolCreateAndEdit />

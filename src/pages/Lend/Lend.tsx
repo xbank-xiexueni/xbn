@@ -375,7 +375,7 @@ const Lend = () => {
               <Text
                 color='blue.1'
                 onClick={() => {
-                  navigate(`/xlending/lending/pools/create`, {
+                  navigate(`/xlending/lending/create`, {
                     state: {
                       contractAddress: info.contractAddress,
                       nftCollection: value,
@@ -706,7 +706,7 @@ const Lend = () => {
                 variant={'secondary'}
                 minW='200px'
                 onClick={() =>
-                  interceptFn(() => navigate('/xlending/lending/pools/create'))
+                  interceptFn(() => navigate('/xlending/lending/create'))
                 }
               >
                 + Create New Pool
@@ -769,7 +769,7 @@ const Lend = () => {
                           minW='200px'
                           onClick={() =>
                             interceptFn(() =>
-                              navigate('/xlending/lending/pools/create'),
+                              navigate('/xlending/lending/create'),
                             )
                           }
                         >
@@ -801,7 +801,7 @@ const Lend = () => {
                           minW='200px'
                           onClick={() =>
                             interceptFn(() =>
-                              navigate('/xlending/lending/pools/create'),
+                              navigate('/xlending/lending/create'),
                             )
                           }
                         >
@@ -1005,7 +1005,7 @@ const Lend = () => {
             w='100%'
             h='42px'
             onClick={() =>
-              interceptFn(() => navigate('/xlending/lending/pools/create'))
+              interceptFn(() => navigate('/xlending/lending/create'))
             }
           >
             + Create New Pool

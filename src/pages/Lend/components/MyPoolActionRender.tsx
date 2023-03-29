@@ -95,7 +95,7 @@ const MyPoolActionRender: FunctionComponent<
                     {/* <Button
                       {...BUTTON_PROPS}
                       onClick={() => {
-                        navigate('/xlending/lending/my-pools/edit', {
+                        navigate('/xlending/lending/edit', {
                           state: {
                             contractAddress: data.allow_collateral_contract,
                             nftCollection: data?.nftCollection,

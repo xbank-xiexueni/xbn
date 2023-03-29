@@ -348,7 +348,10 @@ const Market = () => {
                 xs: 'none',
               }}
             >
-              <LoadingComponent loading={collectionLoading || poolsLoading} />
+              <LoadingComponent
+                loading={collectionLoading || poolsLoading}
+                top={0}
+              />
               {filteredCollectionList &&
                 isEmpty(filteredCollectionList) &&
                 !collectionLoading && <EmptyComponent />}
@@ -416,6 +419,7 @@ const Market = () => {
                   <List spacing='16px' mt='16px' position='relative'>
                     <LoadingComponent
                       loading={collectionLoading || poolsLoading}
+                      top={0}
                     />
                     {filteredCollectionList &&
                       isEmpty(filteredCollectionList) &&
@@ -599,6 +603,7 @@ const Market = () => {
             >
               <LoadingComponent
                 loading={assetLoading || poolsLoading || collectionLoading}
+                top={0}
               />
               {isEmpty(assetsData?.list) ? (
                 <GridItem colSpan={responsiveSpan}>
@@ -674,6 +679,7 @@ const Market = () => {
             >
               <LoadingComponent
                 loading={fetchAssetBySearchLoading || poolsLoading}
+                top={0}
               />
               {!searchedAsset ? (
                 <GridItem colSpan={responsiveSpan}>
