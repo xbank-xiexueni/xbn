@@ -214,6 +214,7 @@ const MobileDrawBtn = () => {
         aria-label=''
         onClick={openDraw}
         bg='white'
+        isDisabled={window.location.pathname === '/xlending/demo'}
       />
       <Drawer
         isOpen={drawVisible}
