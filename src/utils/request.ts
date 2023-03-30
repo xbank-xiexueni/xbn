@@ -47,6 +47,9 @@ request.interceptors.response.use(
     const {
       response: { status, data },
     } = error
+    if (window.location.pathname === '/xlending/demo') {
+      throw error
+    }
     if (status >= 500) {
       toast({
         title: 'Oops, network error...',
