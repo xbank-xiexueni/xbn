@@ -39,7 +39,7 @@ const CollectionDescription: FunctionComponent<{
           rowGap={'16px'}
           wrap='wrap'
           justify='flex-start'
-          columnGap={{ md: '80px', sm: '60px', xs: '60px' }}
+          columnGap={{ md: '80px', sm: '40px', xs: '40px' }}
         >
           {[
             range(5).map((i) => (

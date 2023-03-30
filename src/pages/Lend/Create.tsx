@@ -17,6 +17,7 @@ import {
   SvgComponent,
   AsyncSelectCollection,
   NotFound,
+  H5SecondaryHeader,
 } from '@/components'
 import {
   TENORS,
@@ -216,23 +217,7 @@ const Create = () => {
           xs: 0,
         }}
       >
-        <Flex
-          display={{
-            md: 'none',
-            sm: 'flex',
-            xs: 'flex',
-          }}
-          onClick={() => {
-            navigate(-1)
-          }}
-          py={'20px'}
-        >
-          <SvgComponent
-            svgId='icon-arrow-down'
-            fill={'black.1'}
-            transform='rotate(90deg)'
-          />
-        </Flex>
+        <H5SecondaryHeader />
         <Button
           leftIcon={<SvgComponent svgId='icon-arrow-left' />}
           onClick={() => {

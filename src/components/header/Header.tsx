@@ -233,7 +233,6 @@ const MobileDrawBtn = () => {
 
           <DrawerBody mt='40px'>
             <Accordion
-              allowMultiple
               defaultIndex={
                 activePath === 'lending' ? 0 : activePath === 'buy-nfts' ? 1 : 0
               }
