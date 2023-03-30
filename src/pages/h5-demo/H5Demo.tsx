@@ -91,7 +91,7 @@ const InfoCard: FunctionComponent<
 
 const H5Demo = () => {
   const [percentage, setPercentage] = useState(COLLATERALS[4])
-  const [commodityWeiPrice] = useState(BigNumber(2000000000000000000))
+  const [commodityWeiPrice] = useState(BigNumber(28000000000000000))
 
   useEffect(() => {
     if (isEmpty(originPoolList) || !originPoolList) {
@@ -228,15 +228,13 @@ const H5Demo = () => {
   const [step, setStep] = useState<1 | 2>(1)
   if (step === 2) {
     return (
-      <Flex flexDir={'column'} justify='center' h='50vh'>
+      <Flex flexDir={'column'} h='50vh' gap='34px'>
         <Flex
-          position={'absolute'}
           onClick={() => setStep(1)}
           bg='white'
-          left={0}
-          right={0}
-          top={'56px'}
-          h='58px'
+          h='56px'
+          justify={'space-between'}
+          alignItems={'center'}
         >
           <SvgComponent
             svgId='icon-arrow-down'
@@ -300,7 +298,7 @@ const H5Demo = () => {
           <ImageWithFallback src={ImgNft} w='64px' h='64px' borderRadius={8} />
           <Flex flexDir={'column'}>
             <Text fontSize={'16px'} fontWeight='700'>
-              Azuki #3227
+              MimicShhans #4088
             </Text>
             <Text fontSize={'12px'} fontWeight='500'>
               {wei2Eth(commodityWeiPrice)} ETH
@@ -343,7 +341,7 @@ const H5Demo = () => {
               gap={'2px'}
               alignItems='center'
               justify={'center'}
-              px={'4px'}
+              w='80px'
             >
               <SvgComponent svgId='icon-eth' svgSize='14px' />
               <Text fontSize={'12px'} fontWeight='700'>
@@ -361,6 +359,7 @@ const H5Demo = () => {
               setPercentage(target)
             }}
             value={percentage}
+            w='220px'
           >
             {COLLATERALS.map((item) => (
               <SliderMark value={item} key={item} zIndex={1}>
@@ -626,8 +625,7 @@ const H5Demo = () => {
         bottom={0}
         alignItems='center'
         justify={'center'}
-        pt='20px'
-        pb='40px'
+        py='20px'
         px='48px'
         bg='white'
       >

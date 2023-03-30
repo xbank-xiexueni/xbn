@@ -23,7 +23,7 @@ const LabelComponent: FunctionComponent<
       {loading && <Skeleton h='100px' borderRadius={16} />}
       {!loading && isEmpty && (
         <Flex alignItems={'center'} justify='center' color='gray.3' py='24px'>
-          No Data yet...
+          No data yet...
         </Flex>
       )}
       {!loading && !isEmpty && children}
