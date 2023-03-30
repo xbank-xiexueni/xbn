@@ -61,7 +61,7 @@ const EmptyComponent: FunctionComponent<
         {/* <ImageWithFallback src={icon || defaultEmptyIcon} w='40px' h='40px' /> */}
       </Flex>
       <Text color='gray.3' mb='24px' fontSize='14px' fontWeight={'700'}>
-        {description || 'no Data yet...'}
+        {description || 'No Data yet...'}
       </Text>
       {action && action()}
     </Box>

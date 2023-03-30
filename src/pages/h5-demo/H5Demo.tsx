@@ -29,7 +29,7 @@ import {
   type FunctionComponent,
 } from 'react'
 
-import ImgNft from '@/assets/nft.png'
+import ImgNft from '@/assets/IMAGE.png'
 import uiSuccessJson from '@/assets/ui-sucess.json'
 import { EmptyComponent, ImageWithFallback, SvgComponent } from '@/components'
 import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
@@ -58,7 +58,7 @@ const originPoolList = [
     owner_address: '0x90FD70584270333a17f6E1f0022161AE495EA5F8',
     allow_collateral_contract: '0x10B8b56D53bFA5e374f38e6C0830BAd4ebeE33E6',
     support_erc20_denomination: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
-    pool_amount: 50000000000000000,
+    pool_amount: 30000000000000000000,
     pool_used_amount: 0,
     loan_count: 0,
     pool_maximum_percentage: 5000,
@@ -91,7 +91,7 @@ const InfoCard: FunctionComponent<
 
 const H5Demo = () => {
   const [percentage, setPercentage] = useState(COLLATERALS[4])
-  const [commodityWeiPrice] = useState(BigNumber(28000000000000000))
+  const [commodityWeiPrice] = useState(BigNumber(2000000000000000000))
 
   useEffect(() => {
     if (isEmpty(originPoolList) || !originPoolList) {
@@ -238,22 +238,27 @@ const H5Demo = () => {
           top={'56px'}
           h='58px'
         >
-          <SvgComponent svgId='icon-arrow-down' transform={'rotate(90deg)'} />
+          <SvgComponent
+            svgId='icon-arrow-down'
+            transform={'rotate(90deg)'}
+            svgSize='18px'
+            fill={'black.1'}
+          />
         </Flex>
 
         <SlideFade in={step === 2} offsetY='200px'>
           <Flex flexDir={'column'} alignItems='center'>
             {/* 图片 */}
             <Flex pos={'relative'}>
-              <ImageWithFallback src={ImgNft} />
+              <ImageWithFallback src={ImgNft} boxSize='160px' />
               <Flex
                 pos='absolute'
-                bottom={-1}
-                right={-1}
+                bottom={'-10px'}
+                right={'-10px'}
                 bg='white'
                 borderRadius={'100%'}
-                h='30px'
-                w='30px'
+                h='40px'
+                w='40px'
               >
                 <Lottie animationData={uiSuccessJson} loop={false} />
               </Flex>
@@ -273,7 +278,7 @@ const H5Demo = () => {
   return (
     <Flex flexDirection={'column'} pb='100px'>
       {/* header*/}
-      <Flex justify={'space-between'} h='58px' alignItems={'center'}>
+      <Flex justify={'space-between'} h='56px' alignItems={'center'} mb='20px'>
         <SvgComponent
           svgId='icon-arrow-down'
           transform={'rotate(90deg)'}
@@ -281,6 +286,8 @@ const H5Demo = () => {
           onClick={() => {
             window.history.back()
           }}
+          svgSize='18px'
+          fill={'black.1'}
         />
         <Text fontSize={'14px'} fontWeight='700'>
           Buy NFTs
@@ -290,17 +297,24 @@ const H5Demo = () => {
       {/* nft info */}
       <Flex flexDir={'column'}>
         <Flex gap={'12px'} alignItems='center'>
-          <ImageWithFallback src={ImgNft} w='16' h='16' />
+          <ImageWithFallback src={ImgNft} w='64px' h='64px' borderRadius={8} />
           <Flex flexDir={'column'}>
             <Text fontSize={'16px'} fontWeight='700'>
-              MimicShhans #4088
+              Azuki #3227
             </Text>
             <Text fontSize={'12px'} fontWeight='500'>
-              0.028 ETH
+              {wei2Eth(commodityWeiPrice)} ETH
             </Text>
           </Flex>
         </Flex>
-        <Flex borderRadius={8} bg='green.2' p={'4px'} mt={'28px'} gap='8px'>
+        <Flex
+          borderRadius={8}
+          bg='green.2'
+          px={'4px'}
+          mt={'28px'}
+          gap='8px'
+          py='8px'
+        >
           <SvgComponent
             svgId='icon-arrow'
             transform={'rotate(135deg)'}
@@ -326,12 +340,12 @@ const H5Demo = () => {
               py='12px'
               bg='gray.5'
               borderRadius={8}
-              gap={'4px'}
+              gap={'2px'}
               alignItems='center'
               justify={'center'}
               px={'4px'}
             >
-              <SvgComponent svgId='icon-eth' svgSize='20px' />
+              <SvgComponent svgId='icon-eth' svgSize='14px' />
               <Text fontSize={'12px'} fontWeight='700'>
                 {wei2Eth(downPaymentWei)}
               </Text>
@@ -382,10 +396,12 @@ const H5Demo = () => {
           <Text fontSize='12px' fontWeight='500'>
             Loan amount
           </Text>
-          <SvgComponent svgId='icon-eth' svgSize='12px' />
-          <Text fontSize='12px' fontWeight='500'>
-            {wei2Eth(loanWeiAmount)}
-          </Text>
+          <Flex alignItems={'base-line'}>
+            <SvgComponent svgId='icon-eth' svgSize='14px' mt='3px' />
+            <Text fontSize='14px' fontWeight='500'>
+              {wei2Eth(loanWeiAmount)}
+            </Text>
+          </Flex>
         </Flex>
       </InfoCard>
 
@@ -410,7 +426,7 @@ const H5Demo = () => {
                 {item.pool_days} Days
               </Text>
               <Text fontSize={'12px'} fontWeight='400'>
-                {item.pool_apr / 100} %{' '}
+                {item.pool_apr / 100}% APR
               </Text>
             </Flex>
           ))}
