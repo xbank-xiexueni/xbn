@@ -1113,7 +1113,7 @@ const Lend = () => {
         <DrawerContent borderTopRadius={16} pb='40px' h='85vh'>
           <DrawerBody>
             <DrawerCloseButton mt='40px' />
-            <Heading fontSize={'24px'} pt='40px' pb='32px' mb='16px'>
+            <Heading fontSize={'24px'} pt='40px' pb='32px'>
               My Collection Pools
             </Heading>
             <SearchInput
@@ -1124,7 +1124,7 @@ const Lend = () => {
             <List spacing={'16px'} position='relative' mt='16px'>
               <LoadingComponent
                 loading={poolsLoading || collectionLoading}
-                top='4px'
+                top={0}
                 borderRadius={8}
               />
               {isEmpty(filteredPoolCollectionList) &&
