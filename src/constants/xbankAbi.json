@@ -250,6 +250,12 @@
       {
         "indexed": false,
         "internalType": "address",
+        "name": "poolOwnerAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
         "name": "allowCollateralContract",
         "type": "address"
       },
@@ -271,6 +277,12 @@
         "internalType": "uint256",
         "name": "poolID",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "poolOwnerAddress",
+        "type": "address"
       }
     ],
     "name": "PoolUpdated",
@@ -534,19 +546,6 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getAdminAddress",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1269,6 +1268,34 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "poolID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "principal",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "downPaymentAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "borrowerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "refundLoan",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "renounceOwnership",
     "outputs": [],
@@ -1286,19 +1313,6 @@
     "name": "repayLoan",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "addrs",
-        "type": "address"
-      }
-    ],
-    "name": "setAdminAddress",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1378,7 +1392,7 @@
     ],
     "name": "transferUnwrapToWrap",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {

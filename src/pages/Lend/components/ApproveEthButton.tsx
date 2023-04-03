@@ -20,6 +20,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { useRequest } from 'ahooks'
+import debounce from 'lodash-es/debounce'
 import {
   type ReactNode,
   useCallback,
@@ -85,6 +86,7 @@ const ApproveEthButton: FunctionComponent<
     floorPrice,
   } = data
   const toast = useToast()
+  const timer = useRef<NodeJS.Timeout>()
   const [flag, setFlag] = useState(true)
   const navigate = useNavigate()
   const { currentAccount, interceptFn, isOpen, onClose } = useWallet()
@@ -96,16 +98,15 @@ const ApproveEthButton: FunctionComponent<
 
   const [approveLoading, setApproveLoading] = useState(false)
   const [createLoading, setCreateLoading] = useState(false)
+  const [subscribeLoading, setSubscribeLoading] = useState(false)
 
   useEffect(() => {
     const web3 = createWeb3Provider()
     web3.eth.clearSubscriptions()
-    toast.closeAll()
     return () => {
       web3.eth.clearSubscriptions()
-      toast.closeAll()
     }
-  }, [toast])
+  }, [])
 
   const [amount, setAmount] = useState('')
 
@@ -206,47 +207,46 @@ const ApproveEthButton: FunctionComponent<
             from: currentAccount,
           })
         console.log(createBlock, 'createBlock', flag)
-        setFlag(false)
         setCreateLoading(false)
-        onCloseApprove()
-        if (toast.isActive('Created-Successfully-ID')) {
-          // toast.closeAll()
-        } else {
-          toast({
-            status: 'success',
-            title: 'Created successfully! ',
-            id: 'Created-Successfully-ID',
+        setSubscribeLoading(true)
+        // 监听 loan 是否生成
+        xBankContract.events
+          .PoolCreated({
+            filter: {
+              poolOwnerAddress: currentAccount,
+            },
+            fromBlock: createBlock?.BlockNumber || 'latest',
           })
-        }
-        navigate('/xlending/lending/my-pools')
-        // xBankContract.events
-        //   .PoolCreated({
-        //     filter: {
-        //       //
-        //     },
-        //     fromBlock: createBlock?.blockNumber || 'latest',
-        //   })
-        //   .on(
-        //     'data',
-        //     flag
-        //       ? debounce((event) => {
-        //           console.log(event, 'on data') // same results as the optional callback above
-        //           setFlag(false)
-        //           setCreateLoading(false)
-        //           onCloseApprove()
-        //           if (toast.isActive('Created-Successfully-ID')) {
-        //             // toast.closeAll()
-        //           } else {
-        //             toast({
-        //               status: 'success',
-        //               title: 'Created successfully! ',
-        //               id: 'Created-Successfully-ID',
-        //             })
-        //           }
-        //           navigate('/xlending/lending/my-pools')
-        //         }, 10000)
-        //       : () => console.log(flag, 'flag false '),
-        //   )
+          .on(
+            'data',
+            flag
+              ? debounce((event) => {
+                  console.log(event, 'on data') // same results as the optional callback above
+                  if (toast.isActive('Created-Successfully-ID')) {
+                    // toast.closeAll()
+                  } else {
+                    toast({
+                      status: 'success',
+                      title: 'Created successfully! ',
+                      id: 'Created-Successfully-ID',
+                    })
+                  }
+                  setSubscribeLoading(false)
+                  setFlag(false)
+                  onCloseApprove()
+                  navigate('/xlending/lending/my-pools')
+                }, 10000)
+              : () => console.log(flag, 'flag false '),
+          )
+        // 如果一直监听不到
+        timer.current = setTimeout(() => {
+          console.log('2 分钟过去了')
+          toast({
+            status: 'info',
+            title: 'The pool is being generated, please wait and refresh later',
+          })
+          navigate('/xlending/lending/my-pools')
+        }, 2 * 60 * 1000)
       } catch (error: any) {
         console.log(error?.message, error?.code, error?.data)
         const code: string = error?.code
@@ -397,7 +397,12 @@ const ApproveEthButton: FunctionComponent<
                   borderRadius={8}
                   borderColor='gray.3'
                   placeholder='Enter the approve ETH amount...'
-                  isDisabled={approveLoading || createLoading || refreshLoading}
+                  isDisabled={
+                    approveLoading ||
+                    createLoading ||
+                    refreshLoading ||
+                    subscribeLoading
+                  }
                 >
                   <NumberInputField
                     h='60px'
@@ -459,10 +464,19 @@ const ApproveEthButton: FunctionComponent<
             isDisabled={isError || !Number(amount)}
             onClick={onConfirm}
             loadingText={
-              approveLoading ? 'approving' : createLoading ? 'creating' : ''
+              approveLoading
+                ? 'approving'
+                : createLoading || subscribeLoading
+                ? 'creating'
+                : ''
             }
             fontSize='16px'
-            isLoading={approveLoading || createLoading || refreshLoading}
+            isLoading={
+              approveLoading ||
+              createLoading ||
+              refreshLoading ||
+              subscribeLoading
+            }
           >
             Approve
           </Button>
