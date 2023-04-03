@@ -32,7 +32,6 @@ import {
   ConnectWalletModal,
   EmptyComponent,
   LoadingComponent,
-  // SearchInput,
   MarketNftListCard,
   SearchInput,
   Select,
@@ -281,7 +280,7 @@ const Market = () => {
   return (
     <>
       <Box
-        mb={{ md: '40px', sm: '32px', xs: '32px' }}
+        mb={{ md: '20px', sm: '12px', xs: '12px' }}
         mt={{
           md: '60px',
           sm: '16px',
@@ -302,7 +301,8 @@ const Market = () => {
           borderColor='gray.2'
           borderWidth={{ md: 1, sm: 0, xs: 0 }}
           borderRadius={{ md: '12px', sm: 0, xs: 0 }}
-          p={{ md: '24px', sm: 0, xs: 0 }}
+          pt={{ md: '24px', sm: '20px', xs: '20px' }}
+          px={{ md: '24px', sm: 0, xs: 0 }}
           w={{
             xl: '360px',
             lg: '260px',
@@ -316,6 +316,14 @@ const Market = () => {
           }}
           overflowY='auto'
           overflowX={'visible'}
+          position='sticky'
+          top={{
+            md: '80px',
+            sm: '56px',
+            xs: '56px',
+          }}
+          bg='white'
+          zIndex={2}
         >
           <Heading size={'md'} mb='16px'>
             Collections
@@ -406,11 +414,6 @@ const Market = () => {
                   </Heading>
                   <SearchInput
                     placeholder='Collections...'
-                    isDisabled={
-                      collectionLoading ||
-                      poolsLoading ||
-                      isEmpty(filteredCollectionList)
-                    }
                     value={collectionSearchValue}
                     onChange={(e) => {
                       setCollectionSearchValue(e.target.value)
@@ -470,9 +473,19 @@ const Market = () => {
           ) : (
             <Flex
               justify={'space-between'}
-              mb='24px'
+              mb='16px'
+              pb='8px'
               alignItems='center'
               gap={{ md: 0, sm: '10px', xs: '10px' }}
+              position='sticky'
+              top={{
+                md: '76px',
+                sm: '170px',
+                xs: '170px',
+              }}
+              zIndex={2}
+              bg='white'
+              pt={'20px'}
             >
               <Box
                 w={{
@@ -485,12 +498,6 @@ const Market = () => {
               >
                 <SearchInput
                   placeholder={'Search...'}
-                  isDisabled={
-                    assetLoading ||
-                    poolsLoading ||
-                    assetLoadingMore ||
-                    isEmpty(assetsData?.list)
-                  }
                   value={assetSearchValue}
                   onChange={(e) => {
                     setAssetSearchValue(e.target.value)
@@ -517,7 +524,6 @@ const Market = () => {
                     if (!target) return
                     setOrderOption(target)
                   }}
-                  isDisabled={isEmpty(assetsData?.list)}
                   borderColor={'var(--chakra-colors-gray-2)'}
                 />
                 <Flex borderColor={'gray.2'} borderWidth={1} borderRadius={8}>
@@ -652,7 +658,7 @@ const Market = () => {
                 })
               )}
               <GridItem colSpan={responsiveSpan}>
-                <Flex justifyContent='center' mb={5}>
+                <Flex justifyContent='center' mb={'20px'} p='20px'>
                   {!noMore &&
                     (assetLoadingMore ? (
                       <Text>Loading more...</Text>
@@ -716,7 +722,7 @@ const Market = () => {
                 />
               )}
               <GridItem colSpan={responsiveSpan} hidden={!!debounceSearchValue}>
-                <Flex justifyContent='center' mb={'20px'}>
+                <Flex justifyContent='center' mb={'20px'} p='20px'>
                   {!noMore &&
                     (assetLoadingMore ? (
                       <Text>Loading more...</Text>

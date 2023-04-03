@@ -87,7 +87,7 @@ export const STEPS_DESCRIPTIONS = [
   },
   {
     title: 'Generate the interest rate table for outstanding loans',
-    text: 'According to the limit value of the loan conditions set in steps 1 and 2, the system refers to the historical order data to generate a suggested loan interest rate for you, and the funds approved by you under this interest rate are expected to generate income soon.If the current loan conditions and suggested interest rates do not meet your expectations, you can adjust the loan interest rate through the big slider below, and all interest rate values in the table will increase or decrease\nYou can also use the small sliders on the right and bottom of the table to adjust the impact of changes in the two factors of collateral ratio and loan duration on the interest rate.',
+    text: 'According to the limit value of the loan conditions set in steps 1 and 2, the system refers to the historical order data to generate a suggested loan interest rate for you, and the funds approved by you under this interest rate are expected to generate income soon.\nIf the current loan conditions and suggested interest rates do not meet your expectations, you can adjust the loan interest rate through the big slider below, and all interest rate values in the table will increase or decrease\nYou can also use the small sliders on the right and bottom of the table to adjust the impact of changes in the two factors of collateral ratio and loan duration on the interest rate.',
   },
 ]
 

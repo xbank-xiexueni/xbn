@@ -250,7 +250,14 @@ const Create = () => {
               {params.action === 'create' ? 'Create New Pool' : 'Manage Pool'}
             </Heading>
             {params.action === 'create' && (
-              <Text color='gray.3'>
+              <Text
+                color='gray.3'
+                w={{
+                  md: '75%',
+                  sm: '95%',
+                  xs: '95%',
+                }}
+              >
                 Setting up a new pool to lend against borrowers with preferred
                 length of duration and collateral factor ratio.
               </Text>
@@ -330,6 +337,7 @@ const Create = () => {
                 step: 4,
                 ...STEPS_DESCRIPTIONS[3],
               }}
+              isFull
             />
             <BaseRateTable
               defaultValue={

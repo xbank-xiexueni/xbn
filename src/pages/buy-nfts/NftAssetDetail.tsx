@@ -864,7 +864,7 @@ const NftAssetDetail = () => {
                 gap={'4px'}
                 alignItems='center'
                 justify={'center'}
-                px={'4px'}
+                w='80px'
               >
                 <SvgComponent svgId='icon-eth' svgSize='20px' />
                 <Text
@@ -889,6 +889,13 @@ const NftAssetDetail = () => {
               }}
               isDisabled={balanceFetchLoading || clickLoading}
               value={percentage}
+              w={{
+                xl: '436px',
+                lg: '300px',
+                md: '436px',
+                sm: '230px',
+                xs: '230px',
+              }}
             >
               {COLLATERALS.map((item) => (
                 <SliderMark value={item} fontSize='14px' key={item} zIndex={1}>
@@ -950,12 +957,12 @@ const NftAssetDetail = () => {
                     xs: '100%',
                   }}
                   minW={{
-                    md: '136px',
+                    md: '112px',
                     sm: '100%',
                     xs: '100%',
                   }}
                   maxW={{
-                    md: '136px',
+                    md: '112px',
                     sm: '100%',
                     xs: '100%',
                   }}

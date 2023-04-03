@@ -36,15 +36,17 @@ const MarketNftListCard: FunctionComponent<
     <Card
       {...rest}
       _hover={{
-        boxShadow: `var(--chakra-colors-gray-1) 0px 0px 10px`,
+        boxShadow: `var(--chakra-colors-gray-2) 0px 0px 3px`,
       }}
       cursor='pointer'
       onMouseOver={() => setShow(true)}
       onMouseLeave={() => setShow(false)}
       borderRadius={8}
-      border='none'
       w='100%'
       h={'100%'}
+      boxShadow='none'
+      borderColor={'gray.2'}
+      borderWidth='1px'
     >
       <CardBody p={0}>
         <Box

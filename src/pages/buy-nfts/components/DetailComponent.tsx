@@ -67,6 +67,7 @@ const DetailComponent: FunctionComponent<
               onClick={onRefreshPrice}
               animation={refreshLoading ? 'loading 1s linear infinite' : ''}
               cursor={'pointer'}
+              svgSize='20px'
             />
             {!!usdPrice && (
               <Text fontSize='12px' lineHeight='14px'>

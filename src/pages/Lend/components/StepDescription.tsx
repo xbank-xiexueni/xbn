@@ -9,8 +9,9 @@ const StepDescription: FunctionComponent<
       title: string
       text: string
     }
+    isFull?: boolean
   } & BoxProps
-> = ({ data: { step, title, text }, ...rest }) => {
+> = ({ data: { step, title, text }, isFull = false, ...rest }) => {
   return (
     <Box {...rest}>
       <Flex mb={'20px'} alignItems='center'>
@@ -37,6 +38,7 @@ const StepDescription: FunctionComponent<
         fontWeight={'500'}
         whiteSpace='pre-wrap'
         fontSize={'14px'}
+        maxW={!isFull ? '364px' : '100%'}
       >
         {text}
       </Text>

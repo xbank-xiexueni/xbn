@@ -300,6 +300,16 @@ const Loans = () => {
                 tableTitle: () => (
                   <Heading fontSize={'20px'}>Current Loans as Borrower</Heading>
                 ),
+                styleConfig: {
+                  thTextProps: {
+                    fontSize: '12px',
+                    fontWeight: '500',
+                  },
+                  tdTextProps: {
+                    fontSize: '14px',
+                    fontWeight: '500',
+                  },
+                },
                 columns: [
                   ...loansForBuyerColumns,
                   // {
@@ -374,6 +384,16 @@ const Loans = () => {
                 key: '1',
               },
               {
+                styleConfig: {
+                  thTextProps: {
+                    fontSize: '12px',
+                    fontWeight: '500',
+                  },
+                  tdTextProps: {
+                    fontSize: '14px',
+                    fontWeight: '500',
+                  },
+                },
                 tableTitle: () => (
                   <Heading fontSize={'20px'} mt={'40px'}>
                     <Highlight
@@ -395,6 +415,16 @@ const Loans = () => {
                 key: '2',
               },
               {
+                styleConfig: {
+                  thTextProps: {
+                    fontSize: '12px',
+                    fontWeight: '500',
+                  },
+                  tdTextProps: {
+                    fontSize: '14px',
+                    fontWeight: '500',
+                  },
+                },
                 tableTitle: () => (
                   <Heading fontSize={'20px'} mt={'40px'}>
                     <Highlight

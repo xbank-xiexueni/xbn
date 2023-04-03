@@ -1,3 +1,5 @@
+import { Flex } from '@chakra-ui/layout'
+import { useState } from 'react'
 import Select, { components, type GroupBase, type Props } from 'react-select'
 
 import { DropdownIndicator, Option } from './AsyncSelectCollection'
@@ -18,9 +20,15 @@ function CustomSelect<
   isDisabled?: boolean
   borderColor?: string
 }) {
+  const [isOpen, setIsOpen] = useState(false)
   return (
     <Select
       {...restProps}
+      onMenuOpen={() => {
+        console.log('open')
+        setIsOpen(true)
+      }}
+      onMenuClose={() => setIsOpen(false)}
       isDisabled={isDisabled}
       theme={(theme) => ({
         ...theme,
@@ -107,19 +115,37 @@ function CustomSelect<
               : undefined,
           },
         }),
+        input(base) {
+          return {
+            ...base,
+            paddingLeft: 28,
+          }
+        },
       }}
       components={{
-        Control: ({ children, ...rest }) => (
-          <components.Control {...rest}>
-            {img}
-            {children}
-          </components.Control>
-        ),
+        // Control: ({ children, ...rest }) => {
+        //   return (
+        //     <components.Control {...rest}>
+        //       {img}
+        //       {children}
+        //     </components.Control>
+        //   )
+        // },
         IndicatorSeparator: () => null,
-        DropdownIndicator: !isDisabled
-          ? components.DropdownIndicator
-          : DropdownIndicator,
+        DropdownIndicator: (p) => {
+          return <DropdownIndicator {...p} isOpen={isOpen} />
+        },
         Option: (p) => <Option {...p} selectedIcon='icon-checked' />,
+        SingleValue: ({ children, ...p }: any) => {
+          return (
+            <components.SingleValue {...p}>
+              <Flex ml={'-10px'} gap='8px'>
+                <Flex>{img}</Flex>
+                {children}
+              </Flex>
+            </components.SingleValue>
+          )
+        },
       }}
     />
   )

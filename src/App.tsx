@@ -3,6 +3,7 @@ import { Route, Routes, Navigate } from 'react-router-dom'
 
 import { Fallback } from '@/components'
 
+import { useScrollToTop } from './hooks'
 import lazyWithRetries from './utils/lazyWithRetries'
 
 // import NotFound from './pages/404'
@@ -32,6 +33,7 @@ const H5Demo = lazyWithRetries(() => import('./pages/h5-demo/H5Demo'))
 const NotFound = lazyWithRetries(() => import('./pages/404'))
 
 function App() {
+  useScrollToTop()
   return (
     <>
       <Routes>

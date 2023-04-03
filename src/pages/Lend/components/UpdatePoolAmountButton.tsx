@@ -332,7 +332,7 @@ const UpdatePoolAmountButton: FunctionComponent<
 
                 {isError && (
                   <InputRightElement top='10px'>
-                    <SvgComponent svgId='icon-error' />
+                    <SvgComponent svgId='icon-error' svgSize='24px' />
                   </InputRightElement>
                 )}
               </InputGroup>

@@ -68,7 +68,7 @@ const CollectionDescription: FunctionComponent<{
   } = data
 
   return (
-    <Box mb={'48px'}>
+    <Box mb={'40px'}>
       <Flex gap={'20px'} mb={'32px'}>
         <ImageWithFallback
           src={imagePreviewUrl}
@@ -100,7 +100,7 @@ const CollectionDescription: FunctionComponent<{
 
           <Text
             color='gray.3'
-            mt={'4px'}
+            mt={'16px'}
             fontWeight='medium'
             noOfLines={!show ? 2 : undefined}
             lineHeight='20px'
