@@ -24,10 +24,7 @@ function CustomSelect<
   return (
     <Select
       {...restProps}
-      onMenuOpen={() => {
-        console.log('open')
-        setIsOpen(true)
-      }}
+      onMenuOpen={() => setIsOpen(true)}
       onMenuClose={() => setIsOpen(false)}
       isDisabled={isDisabled}
       theme={(theme) => ({
@@ -118,7 +115,7 @@ function CustomSelect<
         input(base) {
           return {
             ...base,
-            paddingLeft: 28,
+            paddingLeft: !!img ? 28 : 0,
           }
         },
       }}
@@ -139,8 +136,13 @@ function CustomSelect<
         SingleValue: ({ children, ...p }: any) => {
           return (
             <components.SingleValue {...p}>
-              <Flex ml={'-10px'} gap='8px'>
-                <Flex>{img}</Flex>
+              <Flex
+                ml={!!img ? '-10px' : 0}
+                gap='8px'
+                lineHeight={2}
+                alignItems='center'
+              >
+                {img}
                 {children}
               </Flex>
             </components.SingleValue>

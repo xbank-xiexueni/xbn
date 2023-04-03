@@ -40,6 +40,7 @@ import {
 } from '@/components'
 import type { NftAsset, NftCollection } from '@/hooks'
 import {
+  useIsMobile,
   NftAssetStatus,
   useNftCollectionSearchAssetLazyQuery,
   NftAssetOrderByField,
@@ -47,6 +48,7 @@ import {
   useNftCollectionAssetsLazyQuery,
   useWallet,
   useNftCollectionsByContractAddressesQuery,
+  useScrollMore,
 } from '@/hooks'
 
 import CollectionDescription from './components/CollectionDescription'
@@ -277,6 +279,14 @@ const Market = () => {
     [grid],
   )
 
+  const isH5 = useIsMobile()
+  const { isMoreThan } = useScrollMore({
+    screenCount: 2,
+    options: {
+      isReady: isH5,
+    },
+  })
+
   return (
     <>
       <Box
@@ -316,12 +326,12 @@ const Market = () => {
           }}
           overflowY='auto'
           overflowX={'visible'}
-          position='sticky'
-          top={{
-            md: '80px',
-            sm: '56px',
-            xs: '56px',
+          position={{
+            md: 'sticky',
+            sm: 'static',
+            xs: 'static',
           }}
+          top={'90px'}
           bg='white'
           zIndex={2}
         >
@@ -335,6 +345,7 @@ const Market = () => {
               sm: 'none',
               xs: 'none',
             }}
+            pb='40px'
           >
             <SearchInput
               placeholder='Collections...'
@@ -480,12 +491,13 @@ const Market = () => {
               position='sticky'
               top={{
                 md: '76px',
-                sm: '170px',
-                xs: '170px',
+                sm: isMoreThan ? '2px' : '56px',
+                xs: isMoreThan ? '2px' : '56px',
               }}
-              zIndex={2}
+              zIndex={22}
               bg='white'
-              pt={'20px'}
+              pt={'10px'}
+              transition='all 0.15s'
             >
               <Box
                 w={{
@@ -658,7 +670,7 @@ const Market = () => {
                 })
               )}
               <GridItem colSpan={responsiveSpan}>
-                <Flex justifyContent='center' mb={'20px'} p='20px'>
+                <Flex justifyContent='center' mb={'40px'} p='20px'>
                   {!noMore &&
                     (assetLoadingMore ? (
                       <Text>Loading more...</Text>
@@ -722,7 +734,7 @@ const Market = () => {
                 />
               )}
               <GridItem colSpan={responsiveSpan} hidden={!!debounceSearchValue}>
-                <Flex justifyContent='center' mb={'20px'} p='20px'>
+                <Flex justifyContent='center' mb={'40px'} p='20px'>
                   {!noMore &&
                     (assetLoadingMore ? (
                       <Text>Loading more...</Text>

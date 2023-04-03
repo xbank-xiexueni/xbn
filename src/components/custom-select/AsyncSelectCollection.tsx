@@ -216,7 +216,7 @@ function AsyncSelectCollection({
           }
           return (
             <components.SingleValue data={data} {...p}>
-              <Flex alignItems={'center'} gap={'8px'} pl={'4px'}>
+              <Flex alignItems={'center'} gap={'8px'} pl={'4px'} lineHeight={2}>
                 <ImageWithFallback
                   src={imagePreviewUrl}
                   w={'20px'}

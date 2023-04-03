@@ -73,7 +73,7 @@ const MyPoolActionRender: FunctionComponent<
                 <SvgComponent
                   svgId='icon-arrow-down'
                   transform={`rotate(${visible ? '180' : '0'}deg)`}
-                  transition='all 0.1s'
+                  transition='all 0.15s'
                   fill={'blue.1'}
                   mt='2px'
                 />
