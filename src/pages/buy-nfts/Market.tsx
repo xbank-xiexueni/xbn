@@ -290,7 +290,7 @@ const Market = () => {
   return (
     <>
       <Box
-        mb={{ md: '20px', sm: '12px', xs: '12px' }}
+        mb={{ md: '40px', sm: '12px', xs: '12px' }}
         mt={{
           md: '60px',
           sm: '16px',

@@ -7,7 +7,9 @@ import {
   PopoverBody,
   Portal,
   type FlexProps,
+  Button,
 } from '@chakra-ui/react'
+import omit from 'lodash-es/omit'
 import { type FunctionComponent, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -67,7 +69,7 @@ const MyPoolActionRender: FunctionComponent<
                 borderColor={visible ? 'blue.1' : 'white'}
                 borderWidth={1}
               >
-                <Text fontWeight='700' color='blue.1' lineHeight={'20px'}>
+                <Text fontWeight='700' color='blue.1' lineHeight={'16px'}>
                   Manage
                 </Text>
                 <SvgComponent
@@ -92,7 +94,7 @@ const MyPoolActionRender: FunctionComponent<
                     gap={'10px'}
                     py='10px'
                   >
-                    {/* <Button
+                    <Button
                       {...BUTTON_PROPS}
                       onClick={() => {
                         navigate('/xlending/lending/edit', {
@@ -105,9 +107,10 @@ const MyPoolActionRender: FunctionComponent<
                           },
                         })
                       }}
+                      hidden
                     >
                       Modify loan terms
-                    </Button> */}
+                    </Button>
                     <UpdatePoolAmountButton
                       data={{
                         poolID: data.pool_id,
