@@ -1171,6 +1171,7 @@ const NftAssetDetail = () => {
             sm: '32px',
             xs: '32px',
           }}
+          mb='40px'
         >
           <Button
             variant={'primary'}
