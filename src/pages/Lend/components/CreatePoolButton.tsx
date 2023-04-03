@@ -372,9 +372,9 @@ const CreatePoolButton: FunctionComponent<
                   pointerEvents='none'
                   color='gray.300'
                   fontSize='1.2em'
-                  top='10px'
+                  top='14px'
                 >
-                  <SvgComponent svgId='icon-eth' />
+                  <SvgComponent svgId='icon-eth' fill={'black.1'} />
                 </InputLeftElement>
                 <NumberInput
                   w='100%'
@@ -394,6 +394,7 @@ const CreatePoolButton: FunctionComponent<
                     refreshLoading ||
                     subscribeLoading
                   }
+                  top={'2px'}
                 >
                   <NumberInputField
                     h='60px'
@@ -411,7 +412,7 @@ const CreatePoolButton: FunctionComponent<
                 </NumberInput>
 
                 {isError && (
-                  <InputRightElement top='10px'>
+                  <InputRightElement top='14px' mr='8px'>
                     <SvgComponent svgId='icon-error' svgSize='24px' />
                   </InputRightElement>
                 )}
@@ -442,7 +443,11 @@ const CreatePoolButton: FunctionComponent<
             mr={'12px'}
             mt={'8px'}
             mb={'40px'}
-            mx={'40px'}
+            mx={{
+              md: '40px',
+              sm: '23px',
+              xs: '23px',
+            }}
             h='52px'
             isDisabled={isError || !Number(amount)}
             onClick={onConfirm}

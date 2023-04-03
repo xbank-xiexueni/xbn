@@ -138,12 +138,12 @@ const MarketNftListCard: FunctionComponent<
                 Down Payment
               </Text>
               <Flex
-                alignItems={'center'}
+                alignItems={'baseline'}
                 gap={'4px'}
                 maxWidth={{ md: '40%', sm: '100%', xs: '100%' }}
                 justify={'space-between'}
               >
-                <SvgComponent svgId='icon-eth' w={'4px'} />
+                <SvgComponent svgId='icon-eth' w={'4px'} svgSize='14px' />
                 <Text
                   fontSize={'16px'}
                   display='inline-block'
@@ -218,7 +218,7 @@ const MarketNftListCard: FunctionComponent<
           </Text>
         </Flex>
         <Flex alignItems={'center'} gap={'4px'}>
-          <SvgComponent svgId='icon-eth' w={'4px'} />
+          <SvgComponent svgId='icon-eth' w={'4px'} svgSize='14px' />
           <Text fontSize={'14px'} color={`gray.3`}>
             &nbsp; {orderPrice}
             {/* &nbsp; {wei2Eth(orderPrice)} */}

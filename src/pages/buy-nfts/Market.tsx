@@ -331,7 +331,7 @@ const Market = () => {
             sm: 'static',
             xs: 'static',
           }}
-          top={'90px'}
+          top={'100px'}
           bg='white'
           zIndex={2}
         >
@@ -496,7 +496,7 @@ const Market = () => {
               }}
               zIndex={22}
               bg='white'
-              pt={'10px'}
+              pt={'25px'}
               transition='all 0.15s'
             >
               <Box
@@ -670,7 +670,7 @@ const Market = () => {
                 })
               )}
               <GridItem colSpan={responsiveSpan}>
-                <Flex justifyContent='center' mb={'40px'} p='20px'>
+                <Flex justifyContent='center' mb={'40px'} p='20px' h='35px'>
                   {!noMore &&
                     (assetLoadingMore ? (
                       <Text>Loading more...</Text>
@@ -734,7 +734,7 @@ const Market = () => {
                 />
               )}
               <GridItem colSpan={responsiveSpan} hidden={!!debounceSearchValue}>
-                <Flex justifyContent='center' mb={'40px'} p='20px'>
+                <Flex justifyContent='center' mb={'40px'} p='20px' h='35px'>
                   {!noMore &&
                     (assetLoadingMore ? (
                       <Text>Loading more...</Text>

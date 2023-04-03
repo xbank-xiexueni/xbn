@@ -32,7 +32,7 @@ const AmountItem: FunctionComponent<
         <Text noOfLines={1}>{label}</Text>
       </Flex>
       <Flex justify={'center'} alignItems='center' h='35px'>
-        <SvgComponent svgId='icon-eth' svgSize={'18px'} />
+        <SvgComponent svgId='icon-eth' svgSize={'20px'} />
 
         {loading ? (
           <SvgComponent
@@ -49,6 +49,7 @@ const AmountItem: FunctionComponent<
             }}
             fontWeight='700'
             noOfLines={1}
+            lineHeight={'22px'}
           >
             {data}
           </Text>

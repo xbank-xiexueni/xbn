@@ -298,9 +298,9 @@ const UpdatePoolAmountButton: FunctionComponent<
                   pointerEvents='none'
                   color='gray.300'
                   fontSize='1.2em'
-                  top='10px'
+                  top='14px'
                 >
-                  <SvgComponent svgId='icon-eth' />
+                  <SvgComponent svgId='icon-eth' fill={'black.1'} />
                 </InputLeftElement>
                 <NumberInput
                   w='100%'
@@ -310,10 +310,10 @@ const UpdatePoolAmountButton: FunctionComponent<
                   }}
                   errorBorderColor='red.1'
                   isInvalid={isError}
-                  // lineHeight='60px'
                   borderRadius={8}
                   borderColor='gray.3'
                   isDisabled={updateLoading}
+                  top={'2px'}
                 >
                   <NumberInputField
                     h='60px'
@@ -331,7 +331,7 @@ const UpdatePoolAmountButton: FunctionComponent<
                 </NumberInput>
 
                 {isError && (
-                  <InputRightElement top='10px'>
+                  <InputRightElement top='14px' mr='8px'>
                     <SvgComponent svgId='icon-error' svgSize='24px' />
                   </InputRightElement>
                 )}
@@ -361,7 +361,11 @@ const UpdatePoolAmountButton: FunctionComponent<
             mr={'12px'}
             mt={'8px'}
             mb={'40px'}
-            mx={'40px'}
+            mx={{
+              md: '40px',
+              sm: '23px',
+              xs: '23px',
+            }}
             h='52px'
             isDisabled={isError || !Number(amount)}
             onClick={onConfirm}
