@@ -44,6 +44,8 @@ const NftMedia: FunctionComponent<NftMediaProps> = ({
           ...BLUR_BEFORE_STYLE,
         }}
         overflow='hidden'
+        borderWidth={1}
+        borderColor='gray.2'
         {...rest}
       >
         <ImageWithFallback src={imagePreviewUrl} zIndex={1} {...rest} />
@@ -54,7 +56,13 @@ const NftMedia: FunctionComponent<NftMediaProps> = ({
   switch (MEDIA_TYPE) {
     case NFT_MEDIA_TYPE.HTML_MEDIA:
       return (
-        <Flex bg={'gray.2'} alignItems={alignItems || 'center'} {...rest}>
+        <Flex
+          bg={'gray.2'}
+          alignItems={alignItems || 'center'}
+          borderWidth={1}
+          borderColor='gray.2'
+          {...rest}
+        >
           <chakra.iframe
             src={animationUrl}
             referrerPolicy='no-referrer'
@@ -74,6 +82,8 @@ const NftMedia: FunctionComponent<NftMediaProps> = ({
             background: `url(${imagePreviewUrl})`,
             ...BLUR_BEFORE_STYLE,
           }}
+          borderWidth={1}
+          borderColor='gray.2'
           overflow='hidden'
           {...rest}
         >
@@ -94,6 +104,8 @@ const NftMedia: FunctionComponent<NftMediaProps> = ({
             background: `url(${imagePreviewUrl})`,
             ...BLUR_BEFORE_STYLE,
           }}
+          borderWidth={1}
+          borderColor='gray.2'
           overflow='hidden'
           {...rest}
         >

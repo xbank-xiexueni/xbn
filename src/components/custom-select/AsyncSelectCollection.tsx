@@ -1,5 +1,5 @@
 import { Flex, Text } from '@chakra-ui/react'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useState } from 'react'
 import { components } from 'react-select'
 import AsyncSelect from 'react-select/async'
 
@@ -7,10 +7,21 @@ import { TransactionContext } from '@/context/TransactionContext'
 
 import { EmptyComponent, ImageWithFallback, SvgComponent } from '..'
 
-export const DropdownIndicator = ({ isDisabled, ...props }: any) => {
+export const DropdownIndicator = ({ isDisabled, isOpen, ...props }: any) => {
   return (
     <components.DropdownIndicator isDisabled={isDisabled} {...props}>
-      <SvgComponent svgId='icon-locked' fill={'var(--chakra-colors-black-1)'} />
+      {isDisabled ? (
+        <SvgComponent
+          svgId='icon-locked'
+          fill={'var(--chakra-colors-black-1)'}
+        />
+      ) : (
+        <SvgComponent
+          svgId={'icon-arrow-down'}
+          fill={'var(--chakra-colors-black-1)'}
+          transform={`rotate(${isOpen ? 180 : 0}deg)`}
+        />
+      )}
     </components.DropdownIndicator>
   )
 }
@@ -24,9 +35,13 @@ export const Option = ({
 }: any) => {
   return (
     <components.Option isSelected={isSelected} {...props}>
-      <Flex justify={'space-between'} alignItems='center'>
+      <Flex justify={'space-between'} alignItems='center' py='8px'>
         {children}
-        <SvgComponent svgId={isSelected ? selectedIcon : unSelectedIcon} />
+        <SvgComponent
+          svgId={isSelected ? selectedIcon : unSelectedIcon}
+          svgSize='20px'
+          ml='20px'
+        />
       </Flex>
     </components.Option>
   )
@@ -81,8 +96,11 @@ function AsyncSelectCollection({
     [collectionList, collectionLoading],
   )
 
+  const [open, setOpen] = useState(false)
   return (
     <AsyncSelect
+      onMenuOpen={() => setOpen(true)}
+      onMenuClose={() => setOpen(false)}
       isDisabled={isDisabled}
       isLoading={collectionLoading}
       defaultOptions={collectionList || []}
@@ -186,9 +204,41 @@ function AsyncSelectCollection({
             unSelectedIcon='icon-radio-inactive'
           />
         ),
-        DropdownIndicator: !isDisabled
-          ? components.DropdownIndicator
-          : DropdownIndicator,
+        DropdownIndicator: (p) => <DropdownIndicator {...p} isOpen={open} />,
+        SingleValue: ({ data, ...p }: any) => {
+          let imagePreviewUrl = '',
+            name = '',
+            safelistRequestStatus = ''
+          if (data?.nftCollection) {
+            imagePreviewUrl = data?.nftCollection.imagePreviewUrl
+            name = data?.nftCollection.name
+            safelistRequestStatus = data?.nftCollection.safelistRequestStatus
+          }
+          return (
+            <components.SingleValue data={data} {...p}>
+              <Flex alignItems={'center'} gap={'8px'} pl={'4px'} lineHeight={2}>
+                <ImageWithFallback
+                  src={imagePreviewUrl}
+                  w={'20px'}
+                  h={'20px'}
+                  borderRadius={4}
+                />
+                <Text
+                  display='inline-block'
+                  overflow='hidden'
+                  whiteSpace='nowrap'
+                  textOverflow='ellipsis'
+                  w='80%'
+                >
+                  {name}
+                </Text>
+                {safelistRequestStatus === 'verified' && (
+                  <SvgComponent svgId='icon-verified-fill' />
+                )}
+              </Flex>
+            </components.SingleValue>
+          )
+        },
       }}
       // @ts-ignore
       formatOptionLabel={({ nftCollection, contractAddress }) => {

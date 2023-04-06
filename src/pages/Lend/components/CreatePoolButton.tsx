@@ -7,8 +7,6 @@ import {
   ModalHeader,
   FormControl,
   FormLabel,
-  // Flex,
-  // Box,
   Text,
   type ButtonProps,
   InputGroup,
@@ -44,26 +42,11 @@ import {
 import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
 
-// const DataItem: FunctionComponent<{ label: string; data: number }> = ({
-//   label,
-//   data,
-// }) => {
-//   return (
-//     <Box textAlign={'center'}>
-//       <Text fontWeight={'medium'} color={`var(--chakra-colors-gray-3)`}>
-//         {label}
-//       </Text>
-//       <Flex alignItems={'center'} mt={'4px'} justify='center'>
-//         <Image src={IconEth} w={'4px'} />
-//         <Text fontSize={'lg'} fontWeight='bold'>
-//           &nbsp;{data}
-//         </Text>
-//       </Flex>
-//     </Box>
-//   )
-// }
-
-const ApproveEthButton: FunctionComponent<
+/**
+ * create pool
+ * use createPool
+ */
+const CreatePoolButton: FunctionComponent<
   ButtonProps & {
     data: {
       poolMaximumPercentage: number
@@ -126,6 +109,12 @@ const ApproveEthButton: FunctionComponent<
       ready: !!currentAccount,
     },
   )
+
+  /**
+   * Your balance = LP 设定的数值
+   * Has been lent = 这个 pool 当前进行中的贷款，尚未归还的本金金额
+   * Can ben lent = Your balance - Has been lent （如果相减结果为负数，则显示0）
+   */
 
   const isError = useMemo(() => {
     //  amount < balance + Has been lent
@@ -332,9 +321,10 @@ const ApproveEthButton: FunctionComponent<
       >
         <ModalOverlay bg='black.2' />
         <ModalContent
+          borderRadius={16}
           maxW={{
-            xl: '526px',
-            lg: '526px',
+            xl: '576px',
+            lg: '576px',
             md: '400px',
             sm: '326px',
             xs: '326px',
@@ -364,26 +354,27 @@ const ApproveEthButton: FunctionComponent<
           <ModalBody pb={'24px'} px={0}>
             {/* 数值们 */}
             {/* <Flex
-              py={8}
-              px={9}
+              py={{ md: '32px', sm: '20px', xs: '20px' }}
+              px={{ md: '36px', sm: '12px', xs: '12px' }}
               bg={`var(--chakra-colors-gray-5)`}
               borderRadius={16}
               justify='space-between'
+              mb='32px'
             >
-              <DataItem label='Your balance' data={0} />
-              <DataItem label='Has been lent' data={0} />
-              <DataItem label='Can be lent' data={0} />
+              {AmountDataItems.map((item) => (
+                <AmountItem key={item.label} {...item} />
+              ))}
             </Flex> */}
             <FormControl>
-              <FormLabel>Amount</FormLabel>
+              <FormLabel fontWeight={'700'}>Amount</FormLabel>
               <InputGroup>
                 <InputLeftElement
                   pointerEvents='none'
                   color='gray.300'
                   fontSize='1.2em'
-                  top='10px'
+                  top='14px'
                 >
-                  <SvgComponent svgId='icon-eth' />
+                  <SvgComponent svgId='icon-eth' fill={'black.1'} />
                 </InputLeftElement>
                 <NumberInput
                   w='100%'
@@ -403,6 +394,7 @@ const ApproveEthButton: FunctionComponent<
                     refreshLoading ||
                     subscribeLoading
                   }
+                  top={'2px'}
                 >
                   <NumberInputField
                     h='60px'
@@ -415,12 +407,13 @@ const ApproveEthButton: FunctionComponent<
                         isError ? 'red-1' : 'blue-1'
                       })`,
                     }}
+                    placeholder='Enter the approve ETH amount...'
                   />
                 </NumberInput>
 
                 {isError && (
-                  <InputRightElement top='10px'>
-                    <SvgComponent svgId='icon-error' />
+                  <InputRightElement top='14px' mr='8px'>
+                    <SvgComponent svgId='icon-error' svgSize='24px' />
                   </InputRightElement>
                 )}
               </InputGroup>
@@ -429,15 +422,6 @@ const ApproveEthButton: FunctionComponent<
                 {isError
                   ? errorMsg
                   : `Minimum input: ${formatFloat(floorPrice * 0.1)}`}
-                {/* <SvgComponent
-                    svgId='icon-refresh'
-                    onClick={fetchLatestWethBalance}
-                    animation={
-                      refreshLoading ? 'loading 1s linear infinite' : ''
-                    }
-                    cursor={'pointer'}
-                    display='inline-block'
-                  /> */}
               </Text>
             </FormControl>
             <Text
@@ -459,7 +443,11 @@ const ApproveEthButton: FunctionComponent<
             mr={'12px'}
             mt={'8px'}
             mb={'40px'}
-            mx={'40px'}
+            mx={{
+              md: '40px',
+              sm: '23px',
+              xs: '23px',
+            }}
             h='52px'
             isDisabled={isError || !Number(amount)}
             onClick={onConfirm}
@@ -488,4 +476,4 @@ const ApproveEthButton: FunctionComponent<
   )
 }
 
-export default ApproveEthButton
+export default CreatePoolButton

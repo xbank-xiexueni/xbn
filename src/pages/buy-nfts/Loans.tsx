@@ -82,30 +82,6 @@ const Loans = () => {
   }, [data])
   const { data: bactNftListInfo } = useBatchAsset(batchAssetParams)
 
-  // const collectionList = useMemo(() => {
-  //   const arr = data?.data || []
-  //   if (isEmpty(arr)) {
-  //     return []
-  //   }
-  //   const res: { id: number; name: string; img: string }[] = []
-  //   arr.forEach((element: any) => {
-  //     if (isEmpty(res.find((i) => i.id === element.collectionId))) {
-  //       res.push({
-  //         id: element.collectionId,
-  //         name: element.collectionName,
-  //         img: element.collectionImg,
-  //       })
-  //     }
-  //   })
-  //   return res
-  // }, [data])
-
-  // const getCollectionLength = useCallback(
-  //   (targetId: string) => {
-  //     return data?.data?.filter((i: any) => i.collectionId === targetId).length
-  //   },
-  //   [data],
-  // )
   const handleClickRepay = useCallback(
     (loan_id: string) => {
       interceptFn(async () => {
@@ -317,72 +293,23 @@ const Loans = () => {
       </Heading>
 
       <Flex justify={'space-between'} mt='16px'>
-        {/* <Box
-          border={`1px solid var(--chakra-colors-gray-2)`}
-          borderRadius={12}
-          p='24px'
-          w={{
-            lg: '25%',
-            md: '30%',
-          }}
-        >
-          <Heading size={'md'} mb='16px'>
-            Collections
-          </Heading>
-
-          <List spacing='16px' mt='16px' position='relative'>
-            <LoadingComponent loading={false} />
-            {isEmpty(collectionList) && <EmptyComponent />}
-            {!isEmpty(collectionList) && (
-              <Flex
-                justify={'space-between'}
-                py='12px'
-                px='16px'
-                alignItems='center'
-                borderRadius={8}
-                border={`1px solid var(--chakra-colors-gray-2)`}
-                cursor='pointer'
-                onClick={() => {
-                  setSelectCollection(undefined)
-                }}
-                bg={!selectCollection ? 'blue.2' : 'white'}
-              >
-                <Text fontSize='14px'  fontWeight='700'>
-                  All my Collections
-                </Text>
-                {!selectCollection ? (
-                  <SvgComponent svgId='icon-checked' />
-                ) : (
-                  <Text fontSize='14px' >{10}</Text>
-                )}
-              </Flex>
-            )}
-
-            {!isEmpty(collectionList) &&
-              collectionList.map((item: any) => (
-                <CollectionListItem
-                  data={{ ...item }}
-                  key={item.id}
-                  onClick={() => setSelectCollection(item.id)}
-                  isActive={selectCollection === item.id}
-                  count={getCollectionLength(item.id)}
-                />
-              ))}
-          </List>
-        </Box> */}
-        <Box
-          // w={{
-          //   lg: '72%',
-          //   md: '65%',
-          // }}
-          w='100%'
-        >
+        <Box w='100%'>
           <TableList
             tables={[
               {
                 tableTitle: () => (
                   <Heading fontSize={'20px'}>Current Loans as Borrower</Heading>
                 ),
+                styleConfig: {
+                  thTextProps: {
+                    fontSize: '12px',
+                    fontWeight: '500',
+                  },
+                  tdTextProps: {
+                    fontSize: '14px',
+                    fontWeight: '500',
+                  },
+                },
                 columns: [
                   ...loansForBuyerColumns,
                   // {
@@ -457,6 +384,16 @@ const Loans = () => {
                 key: '1',
               },
               {
+                styleConfig: {
+                  thTextProps: {
+                    fontSize: '12px',
+                    fontWeight: '500',
+                  },
+                  tdTextProps: {
+                    fontSize: '14px',
+                    fontWeight: '500',
+                  },
+                },
                 tableTitle: () => (
                   <Heading fontSize={'20px'} mt={'40px'}>
                     <Highlight
@@ -478,6 +415,16 @@ const Loans = () => {
                 key: '2',
               },
               {
+                styleConfig: {
+                  thTextProps: {
+                    fontSize: '12px',
+                    fontWeight: '500',
+                  },
+                  tdTextProps: {
+                    fontSize: '14px',
+                    fontWeight: '500',
+                  },
+                },
                 tableTitle: () => (
                   <Heading fontSize={'20px'} mt={'40px'}>
                     <Highlight

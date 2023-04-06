@@ -31,7 +31,12 @@ import {
 
 import ImgNft from '@/assets/IMAGE.png'
 import uiSuccessJson from '@/assets/ui-sucess.json'
-import { EmptyComponent, ImageWithFallback, SvgComponent } from '@/components'
+import {
+  EmptyComponent,
+  H5SecondaryHeader,
+  ImageWithFallback,
+  SvgComponent,
+} from '@/components'
 import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { formatFloat } from '@/utils/format'
@@ -229,20 +234,7 @@ const H5Demo = () => {
   if (step === 2) {
     return (
       <Flex flexDir={'column'} h='50vh' gap='34px'>
-        <Flex
-          onClick={() => setStep(1)}
-          bg='white'
-          h='56px'
-          justify={'space-between'}
-          alignItems={'center'}
-        >
-          <SvgComponent
-            svgId='icon-arrow-down'
-            transform={'rotate(90deg)'}
-            svgSize='18px'
-            fill={'black.1'}
-          />
-        </Flex>
+        <H5SecondaryHeader onBack={() => setStep(1)} />
 
         <SlideFade in={step === 2} offsetY='200px'>
           <Flex flexDir={'column'} alignItems='center'>
@@ -276,22 +268,12 @@ const H5Demo = () => {
   return (
     <Flex flexDirection={'column'} pb='100px'>
       {/* header*/}
-      <Flex justify={'space-between'} h='56px' alignItems={'center'} mb='20px'>
-        <SvgComponent
-          svgId='icon-arrow-down'
-          transform={'rotate(90deg)'}
-          cursor='pointer'
-          onClick={() => {
-            window.history.back()
-          }}
-          svgSize='18px'
-          fill={'black.1'}
-        />
-        <Text fontSize={'14px'} fontWeight='700'>
-          Buy NFTs
-        </Text>
-        <Flex w='18px' />
-      </Flex>
+      <H5SecondaryHeader
+        title='Buy NFTs'
+        onBack={() => window.history.back()}
+        mb='20px'
+      />
+
       {/* nft info */}
       <Flex flexDir={'column'}>
         <Flex gap={'12px'} alignItems='center'>

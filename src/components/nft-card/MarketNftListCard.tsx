@@ -36,15 +36,17 @@ const MarketNftListCard: FunctionComponent<
     <Card
       {...rest}
       _hover={{
-        boxShadow: `var(--chakra-colors-gray-1) 0px 0px 10px`,
+        boxShadow: `var(--chakra-colors-gray-2) 0px 0px 3px`,
       }}
       cursor='pointer'
       onMouseOver={() => setShow(true)}
       onMouseLeave={() => setShow(false)}
       borderRadius={8}
-      border='none'
       w='100%'
       h={'100%'}
+      boxShadow='none'
+      borderColor={'gray.2'}
+      borderWidth='1px'
     >
       <CardBody p={0}>
         <Box
@@ -136,12 +138,12 @@ const MarketNftListCard: FunctionComponent<
                 Down Payment
               </Text>
               <Flex
-                alignItems={'center'}
+                alignItems={'baseline'}
                 gap={'4px'}
                 maxWidth={{ md: '40%', sm: '100%', xs: '100%' }}
                 justify={'space-between'}
               >
-                <SvgComponent svgId='icon-eth' w={'4px'} />
+                <SvgComponent svgId='icon-eth' w={'4px'} svgSize='14px' />
                 <Text
                   fontSize={'16px'}
                   display='inline-block'
@@ -216,7 +218,7 @@ const MarketNftListCard: FunctionComponent<
           </Text>
         </Flex>
         <Flex alignItems={'center'} gap={'4px'}>
-          <SvgComponent svgId='icon-eth' w={'4px'} />
+          <SvgComponent svgId='icon-eth' w={'4px'} svgSize='14px' />
           <Text fontSize={'14px'} color={`gray.3`}>
             &nbsp; {orderPrice}
             {/* &nbsp; {wei2Eth(orderPrice)} */}

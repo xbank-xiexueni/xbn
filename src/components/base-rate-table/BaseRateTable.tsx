@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import slice from 'lodash-es/slice'
-import { type FunctionComponent, useMemo, useState } from 'react'
+import { type FunctionComponent, useMemo, useState, useEffect } from 'react'
 
 import { COLLATERALS, LP_BASE_RATE, TENORS } from '@/constants'
 
@@ -26,12 +26,17 @@ const BOTTOM_SLIDER_STEPS = [0, 50, 100, 150, 200]
 const BaseRateTable: FunctionComponent<{
   selectTenor: number
   selectCollateral: number
+  defaultValue?: {
+    loan_ratio_preferential_flexibility: number
+    loan_time_concession_flexibility: number
+    pool_maximum_interest_rate: number
+  }
   onChange?: (
     poolMaximumInterestRate: number,
     loanRatioPreferentialFlexibility: number,
     loanTimeConcessionFlexibility: number,
   ) => void
-}> = ({ selectCollateral, selectTenor, onChange }) => {
+}> = ({ selectCollateral, selectTenor, onChange, defaultValue }) => {
   const baseRate = useMemo((): number => {
     return LP_BASE_RATE[`${selectTenor}-${selectCollateral}`]
   }, [selectTenor, selectCollateral])
@@ -39,6 +44,27 @@ const BaseRateTable: FunctionComponent<{
   const [sliderTopValue, setSliderTopValue] = useState(1)
   const [sliderRightValue, setSliderRightValue] = useState(100)
   const [sliderBottomValue, setSliderBottomValue] = useState(100)
+
+  const initialSliderTopValue = useMemo(
+    () =>
+      defaultValue ? defaultValue.pool_maximum_interest_rate / baseRate : 1,
+    [defaultValue, baseRate],
+  )
+
+  const initialSliderRightValue = useMemo(
+    () => defaultValue?.loan_ratio_preferential_flexibility || 100,
+    [defaultValue],
+  )
+  const initialSliderBottomValue = useMemo(
+    () => defaultValue?.loan_time_concession_flexibility || 100,
+    [defaultValue],
+  )
+
+  useEffect(() => {
+    setSliderBottomValue(initialSliderBottomValue)
+    setSliderRightValue(initialSliderRightValue)
+    setSliderTopValue(initialSliderTopValue)
+  }, [initialSliderBottomValue, initialSliderRightValue, initialSliderTopValue])
 
   const colCount = useMemo(() => TENORS.indexOf(selectTenor) + 1, [selectTenor])
   const rowCount = useMemo(
@@ -85,7 +111,7 @@ const BaseRateTable: FunctionComponent<{
     <>
       <Flex>
         <Slider
-          defaultValue={1}
+          defaultValue={initialSliderTopValue}
           min={TOP_SLIDER_STEPS[0]}
           max={TOP_SLIDER_STEPS[TOP_SLIDER_STEPS.length - 1]}
           step={0.2}
@@ -313,7 +339,7 @@ const BaseRateTable: FunctionComponent<{
           <Slider
             orientation='vertical'
             direction='ltr'
-            defaultValue={100}
+            defaultValue={initialSliderRightValue}
             min={RIGHT_SLIDER_STEPS[0]}
             max={RIGHT_SLIDER_STEPS[RIGHT_SLIDER_STEPS.length - 1]}
             h='132px'
@@ -356,7 +382,7 @@ const BaseRateTable: FunctionComponent<{
             max={BOTTOM_SLIDER_STEPS[BOTTOM_SLIDER_STEPS.length - 1]}
             w='140px'
             step={50}
-            defaultValue={100}
+            defaultValue={initialSliderBottomValue}
             mt={'4px'}
             onChange={(target) => {
               setSliderBottomValue(target)
