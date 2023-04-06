@@ -24,6 +24,14 @@ export const apiPostLoanOrder: (
   return await request.post(`/lending/api/v1/loan-order`, data)
 }
 
+export const apiGetMyAssets: (query: {
+  wallet_address?: string
+}) => Promise<AxiosResponse<MyAssetListItemType[]>> = async (params) => {
+  return await request.get(`/lending/api/v1/assets/nfts`, {
+    params,
+  })
+}
+
 export const apiGetXCurrency: () => Promise<
   AxiosResponse<{
     resources: {

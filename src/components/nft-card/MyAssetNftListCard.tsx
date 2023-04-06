@@ -6,130 +6,311 @@ import {
   type CardProps,
   Flex,
   Text,
+  Button,
+  type ImageProps,
+  type TextProps,
 } from '@chakra-ui/react'
-import get from 'lodash-es/get'
-import { useState } from 'react'
+import { useMemo, useState, type FunctionComponent } from 'react'
+
+import { useIsMobile, type AssetWithoutIdQuery } from '@/hooks'
 
 import { ImageWithFallback } from '..'
 
-import type { FunctionComponent } from 'react'
-
-const MortgagedTag = () => (
-  <Box
+const MortgagedTag: FunctionComponent<TextProps> = ({ ...rest }) => (
+  <Text
     borderColor='red.1'
     boxShadow={`inset 0 0 0px 1px var(--chakra-colors-red-1)`}
     p={{
       lg: '8px',
       md: '4px',
+      sm: '4px',
+      xs: '4px',
     }}
-    borderRadius={8}
+    borderRadius={{
+      md: 8,
+      sm: 2,
+      xs: 2,
+    }}
+    noOfLines={1}
+    fontSize={'12px'}
+    fontWeight='700'
+    color='red.1'
+    lineHeight={{
+      md: '16px',
+      sm: '12px',
+      xs: '12px',
+    }}
+    transform={{
+      md: 'none',
+      sm: `scale(0.6666)`,
+      xs: `scale(0.6666)`,
+    }}
+    transformOrigin='center'
+    {...rest}
   >
+    Mortgaged
+  </Text>
+)
+
+const ListingTag = () => {
+  return (
     <Text
-      noOfLines={1}
-      fontSize={'12px'}
+      pos='absolute'
+      zIndex={10}
+      left={{
+        md: '16px',
+        sm: '0',
+        xs: '0',
+      }}
+      right={{
+        md: '16px',
+        sm: '0',
+        xs: '0',
+      }}
+      bottom={{
+        md: '12px',
+        sm: '8px',
+        xs: '4px',
+      }}
+      py='12px'
+      bg='rgba(86, 110, 140, 0.33)'
+      backdropFilter={'blur(6px)'}
+      borderRadius={8}
       fontWeight='700'
-      color='red.1'
+      color='white'
+      textAlign={'center'}
+      lineHeight={{
+        md: '16px',
+        sm: '12px',
+        xs: '12px',
+      }}
       transform={{
         md: 'none',
-        sm: `scale(0.6666)`,
-        xs: `scale(0.6666)`,
+        sm: `scale(0.8333)`,
+        xs: `scale(0.8333)`,
       }}
       transformOrigin='center'
+      fontSize={{
+        md: '14px',
+        sm: '12px',
+        xs: '12px',
+      }}
     >
-      Mortgaged
+      Listing
     </Text>
-  </Box>
-)
+  )
+}
 const MyAssetNftListCard: FunctionComponent<
   {
-    data: any
+    contractInfo: MyAssetListItemType
+    assetInfo?: AssetWithoutIdQuery['asset']
+    imageSize: ImageProps['boxSize']
   } & CardProps
-> = ({ data, ...rest }) => {
-  const item = get(data, 'node')
-  const [show, setShow] = useState(false)
+> = ({ contractInfo, assetInfo, imageSize, ...rest }) => {
+  const ish5 = useIsMobile()
+  const [show, setShow] = useState(ish5)
+
+  /**
+   * 1339 : 没有挂单 & 没有质押
+   * 0 : 没有挂单 & 质押中
+   * 10 : 挂单 & 没有质押
+   * 3690 : 挂单 & 质押中
+   */
+  const isMortgaged = useMemo(
+    () => contractInfo?.loan_status === 0,
+    [contractInfo],
+  )
+  // const isMortgaged = useMemo(
+  //   () =>
+  //     contractInfo?.token_id === '0' ||
+  //     contractInfo.token_id === '3690' ||
+  //     contractInfo.token_id.length > 20,
+  //   [contractInfo],
+  // )
+  const isListing = useMemo(
+    () => contractInfo?.token_id === '10',
+    [contractInfo],
+  )
+
+  const title = useMemo(() => {
+    const unFormatName = assetInfo?.name || `#${contractInfo.token_id}`
+    if (ish5) {
+      const isLonger = unFormatName?.length > 20
+      return isLonger ? `${unFormatName.substring(0, 20)}...` : unFormatName
+    }
+    return unFormatName
+  }, [contractInfo, assetInfo, ish5])
 
   return (
     <Card
-      {...rest}
       _hover={{
-        boxShadow: `var(--chakra-colors-gray-1) 0px 0px 10px`,
+        boxShadow: `var(--chakra-colors-gray-2) 0px 0px 3px`,
       }}
       cursor='pointer'
       onMouseOver={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
+      onMouseLeave={() => setShow(ish5 ? true : false)}
       borderRadius={16}
-      border='none'
       w='100%'
       h={'100%'}
+      boxShadow='none'
+      borderColor={'gray.2'}
+      borderWidth='1px'
+      {...rest}
     >
       <CardBody p={0} border='none'>
-        <Box bg={'white'} borderTopRadius={16} overflow='hidden'>
+        <Box
+          bg={'white'}
+          borderTopRadius={16}
+          overflow='hidden'
+          pos={'relative'}
+          w='100%'
+        >
           <ImageWithFallback
-            src={item.imagePreviewUrl}
-            alt={item.name}
-            borderTopRadius={16}
-            // h='330px'
-            h={{
-              xl: '332px',
-              lg: '230px',
-              md: '172px',
-              sm: '174px',
-              xs: '174px',
-            }}
-            w='100%'
+            src={assetInfo?.imagePreviewUrl}
+            borderRadius={0}
+            alt={assetInfo?.name}
+            boxSize={imageSize}
             fit='contain'
             transform={`scale(${show ? 1.2 : 1})`}
             transition='all 0.6s'
           />
+          {isListing && <ListingTag />}
         </Box>
 
         <Flex
-          mt={'12px'}
+          h={'68px'}
           justify='space-between'
           px='16px'
-          mb={'4px'}
-          alignItems='center'
+          alignItems={'center'}
           flexWrap={{
             md: 'nowrap',
             sm: 'wrap',
             xs: 'wrap',
           }}
+          pos={'relative'}
         >
           <Text
-            fontSize='18px'
+            fontSize={{
+              lg: '18px',
+              md: '16px',
+              sm: '16px',
+              xs: '16px',
+            }}
             fontWeight={'bold'}
-            display='inline-block'
-            overflow='hidden'
-            whiteSpace='nowrap'
-            w={'60%'}
-            textOverflow='ellipsis'
+            w={
+              !isMortgaged
+                ? '100%'
+                : { xl: '70%', lg: '55%', md: '40%', sm: '100%', xs: '100%' }
+            }
+            noOfLines={2}
+            lineHeight={'22px'}
           >
-            {item.name || `#${item.tokenID || ''}`}
+            {title}
           </Text>
-          {item.name.length % 2 === 1 && <MortgagedTag />}
+
+          {isMortgaged && (
+            <MortgagedTag
+              pos={{
+                md: 'static',
+                sm: 'absolute',
+                xs: 'absolute',
+              }}
+              right={0}
+              bottom={'6px'}
+            />
+          )}
         </Flex>
       </CardBody>
+
+      {isListing ? (
+        <Flex
+          position='absolute'
+          bottom={0}
+          right={0}
+          left={0}
+          transition='all 0.15s'
+          h={
+            show
+              ? {
+                  lg: '56px',
+                  md: '48px',
+                  sm: '36px',
+                  xs: '36px',
+                }
+              : 0
+          }
+        >
+          {['Change', 'Cancel List'].map((item, index) => (
+            <Button
+              hidden={!show}
+              borderRadius={0}
+              borderBottomLeftRadius={index === 0 ? 16 : 0}
+              borderBottomRightRadius={index === 1 ? 16 : 0}
+              key={item}
+              fontSize={{
+                md: '16px',
+                sm: '12px',
+                xs: '12px',
+              }}
+              variant={'unstyled'}
+              w='50%'
+              color={{
+                md: 'blue.3',
+                sm: index === 0 ? 'white' : 'blue.1',
+                xs: index === 0 ? 'white' : 'blue.1',
+              }}
+              bg={{
+                md: 'white',
+                sm: index === 0 ? 'blue.3' : 'blue.2',
+                xs: index === 0 ? 'blue.3' : 'blue.2',
+              }}
+              _hover={{
+                color: 'white',
+                bg: 'blue.3',
+              }}
+              h='100%'
+            >
+              {item}
+            </Button>
+          ))}
+        </Flex>
+      ) : (
+        <Button
+          borderRadius={16}
+          borderTopLeftRadius={0}
+          borderTopRightRadius={0}
+          variant='other'
+          h={
+            show
+              ? {
+                  lg: '56px',
+                  md: '48px',
+                  sm: '36px',
+                  xs: '36px',
+                }
+              : '0'
+          }
+          position='absolute'
+          bottom={0}
+          right={0}
+          left={0}
+          transition='all 0.15s'
+        >
+          {show && 'List for sale'}
+        </Button>
+      )}
+
       <CardFooter
-        p={{
-          lg: '16px',
-          md: '10px',
-          sm: '8px',
-          xs: '8px',
+        h={{
+          lg: '56px',
+          md: '48px',
+          sm: '36px',
+          xs: '36px',
         }}
         justify={'center'}
         alignItems='center'
-        bg={item.name.length % 2 === 0 ? 'blue.3' : 'white'}
         borderBottomRadius={16}
-        mt={{
-          md: '20px',
-          sm: '15px',
-          xs: '15px',
-        }}
-      >
-        <Text color={'white'} textAlign='center'>
-          List For Sale
-        </Text>
-      </CardFooter>
+      />
     </Card>
   )
 }

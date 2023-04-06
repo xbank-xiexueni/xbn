@@ -7,46 +7,85 @@ import {
   Tab,
   TabPanels,
   Tag,
-  // Flex,
   SimpleGrid,
   GridItem,
   Flex,
 } from '@chakra-ui/react'
+import { useRequest } from 'ahooks'
 import isEmpty from 'lodash-es/isEmpty'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { apiGetMyAssets } from '@/api'
 import {
   EmptyComponent,
   LoadingComponent,
   MyAssetNftListCard,
   SvgComponent,
-  // SearchInput, Select
 } from '@/components'
-import {
-  NftAssetOrderByField,
-  OrderDirection,
-  useAssetsQuery,
-  useWallet,
-} from '@/hooks'
+import { useBatchAsset, useWallet } from '@/hooks'
+
+// const SORT_OPTIONS = [
+//   {
+//     label: 'Price: low to high',
+//     value: {
+//       direction: OrderDirection.Asc,
+//       field: NftAssetOrderByField.Price,
+//     },
+//   },
+//   {
+//     label: 'Price: high to low',
+//     value: {
+//       direction: OrderDirection.Desc,
+//       field: NftAssetOrderByField.Price,
+//     },
+//   },
+//   {
+//     label: 'Recent Created',
+//     value: {
+//       direction: OrderDirection.Desc,
+//       field: NftAssetOrderByField.CreatedAt,
+//     },
+//   },
+// ]
 
 const MyAssets = () => {
   const navigate = useNavigate()
-  const { interceptFn } = useWallet()
+  const { interceptFn, currentAccount } = useWallet()
+  // const [orderOption, setOrderOption] = useState(SORT_OPTIONS[0])
+  // const [assetSearchValue, setAssetSearchValue] = useState('')
+  // const debounceSearchValue = useDebounce(assetSearchValue, { wait: 500 })
+  // console.log(
+  //   '🚀 ~ file: MyAssets.tsx:63 ~ MyAssets ~ debounceSearchValue:',
+  //   debounceSearchValue,
+  // )
+  const { data, loading } = useRequest(apiGetMyAssets, {
+    debounceWait: 500,
+    defaultParams: [
+      {
+        wallet_address:
+          '0xa57dc20Ce8bba57177bF05EeD9E344c552469360' || currentAccount,
+      },
+    ],
+  })
+
+  const batchAssetParams = useMemo(() => {
+    if (!data) return []
+    return data?.data?.map((i) => ({
+      assetContractAddress: i.asset_contract_address,
+      assetTokenId: i.token_id,
+    }))
+  }, [data])
+  const { data: bactNftListInfo } = useBatchAsset(batchAssetParams)
+
   useEffect(() => {
     interceptFn()
   }, [interceptFn])
-  const { data, loading } = useAssetsQuery({
-    variables: {
-      tag: 'ART',
-      orderBy: {
-        direction: OrderDirection.Asc,
-        field: NftAssetOrderByField.CreatedAt,
-      },
-    },
-  })
 
-  const [grid] = useState(4)
+  const [
+    grid,
+    // setGrid
+  ] = useState(4)
 
   const responsiveSpan = useMemo(
     () => ({
@@ -58,8 +97,9 @@ const MyAssets = () => {
     }),
     [grid],
   )
+
   return (
-    <Box>
+    <Box mb='100px'>
       <Flex
         py='20px'
         onClick={() => navigate(-1)}
@@ -81,6 +121,11 @@ const MyAssets = () => {
           md: '56px',
           sm: '32px',
           xs: '32px',
+        }}
+        fontSize={{
+          md: '48px',
+          sm: '24px',
+          xs: '24px',
         }}
       >
         My Assets
@@ -104,7 +149,7 @@ const MyAssets = () => {
             fontWeight='bold'
           >
             Collected &nbsp;
-            {!isEmpty(data) && (
+            {!isEmpty(data?.data) && (
               <Tag
                 bg='blue.1'
                 color='white'
@@ -112,7 +157,7 @@ const MyAssets = () => {
                 fontSize={'12px'}
                 h={'20px'}
               >
-                {data?.assets.edges?.length}
+                {data?.data?.length}
               </Tag>
             )}
           </Tab>
@@ -120,23 +165,26 @@ const MyAssets = () => {
 
         <TabPanels>
           <TabPanel p={0}>
-            {/* <Flex justify={'space-between'} mb='24px' mt={'40px'}>
-              <Box w='70%'>
-                <SearchInput />
-              </Box>
-              <Select
-                options={[
-                  {
-                    label: 'Price: low to high',
-                    value: 1,
-                  },
-                ]}
-                defaultValue={{
-                  label: 'Price: low to high',
-                  value: 1,
-                }}
-              />
-            </Flex> */}
+            {/* <Toolbar
+              loading={loading}
+              searchConfig={{
+                searchValue: assetSearchValue,
+                setSearchValue: (t) => setAssetSearchValue(t),
+              }}
+              sortConfig={{
+                sortOptions: SORT_OPTIONS,
+                sortValue: orderOption,
+                setSortValue: (t) => setOrderOption(t),
+              }}
+              gridConfig={{
+                gridValue: grid,
+                setGridValue: (t) => setGrid(t),
+              }}
+              loadingProps={{
+                mt: '25px',
+              }}
+            /> */}
+
             <SimpleGrid
               spacingX={'16px'}
               spacingY={'20px'}
@@ -144,17 +192,29 @@ const MyAssets = () => {
               position={'relative'}
               mt='20px'
             >
-              <LoadingComponent loading={loading} />
-              {(!data || isEmpty(data)) && (
+              <LoadingComponent loading={loading} top={0} />
+              {(!data?.data || isEmpty(data?.data)) && (
                 <GridItem colSpan={responsiveSpan}>
                   <EmptyComponent />
                 </GridItem>
               )}
-              {data?.assets?.edges?.map((item) => (
+              {data?.data?.map((item) => (
                 <MyAssetNftListCard
-                  data={item}
-                  key={`${item?.node?.tokenID} + ${item?.node?.name} + $after{item?.node?.nftAssetContract.address}`}
+                  key={`${item?.asset_contract_address}-${item.token_id}`}
                   onClick={() => {}}
+                  imageSize={{
+                    xl: grid === 4 ? '332px' : '445px',
+                    lg: grid === 4 ? '220px' : '298px',
+                    md: grid === 4 ? '170px' : '234px',
+                    sm: '174px',
+                    xs: '174px',
+                  }}
+                  assetInfo={bactNftListInfo?.find(
+                    (i) =>
+                      item.asset_contract_address === i.assetContractAddress &&
+                      item.token_id === i.tokenID,
+                  )}
+                  contractInfo={item}
                 />
               ))}
             </SimpleGrid>

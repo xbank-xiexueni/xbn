@@ -97,3 +97,10 @@ interface LoanListItemType {
   loan_erc20_denomination: string
   activity: boolean
 }
+
+interface MyAssetListItemType {
+  asset_contract_address: string
+  token_id: string
+  qty: string | number
+  loan_status: 1 | 0
+}

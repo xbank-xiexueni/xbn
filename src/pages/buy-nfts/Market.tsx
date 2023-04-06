@@ -10,11 +10,7 @@ import {
   GridItem,
   Heading,
   List,
-  Menu,
-  MenuButton,
-  MenuList,
   SimpleGrid,
-  Skeleton,
   Text,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -34,13 +30,8 @@ import {
   LoadingComponent,
   MarketNftListCard,
   SearchInput,
-  Select,
-  SvgComponent,
-  // Select
 } from '@/components'
-import type { NftAsset, NftCollection } from '@/hooks'
 import {
-  useIsMobile,
   NftAssetStatus,
   useNftCollectionSearchAssetLazyQuery,
   NftAssetOrderByField,
@@ -48,11 +39,13 @@ import {
   useNftCollectionAssetsLazyQuery,
   useWallet,
   useNftCollectionsByContractAddressesQuery,
-  useScrollMore,
+  type NftAsset,
+  type NftCollection,
 } from '@/hooks'
 
 import CollectionDescription from './components/CollectionDescription'
 import CollectionListItem from './components/CollectionListItem'
+import Toolbar from './components/Toolbar'
 
 const SORT_OPTIONS = [
   {
@@ -279,14 +272,6 @@ const Market = () => {
     [grid],
   )
 
-  const isH5 = useIsMobile()
-  const { isMoreThan } = useScrollMore({
-    screenCount: 2,
-    options: {
-      isReady: isH5,
-    },
-  })
-
   return (
     <>
       <Box
@@ -479,138 +464,22 @@ const Market = () => {
             data={selectCollection?.nftCollection}
             highestRate={highestRate}
           />
-          {collectionLoading || poolsLoading ? (
-            <Skeleton height={16} borderRadius={16} mb='24px' />
-          ) : (
-            <Flex
-              justify={'space-between'}
-              mb='16px'
-              pb='8px'
-              alignItems='center'
-              gap={{ md: 0, sm: '10px', xs: '10px' }}
-              position='sticky'
-              top={{
-                md: '76px',
-                sm: isMoreThan ? '2px' : '56px',
-                xs: isMoreThan ? '2px' : '56px',
-              }}
-              zIndex={22}
-              bg='white'
-              pt={'25px'}
-              transition='all 0.15s'
-            >
-              <Box
-                w={{
-                  xl: '55%',
-                  lg: '44%',
-                  md: '50%',
-                  sm: '90%',
-                  xs: '90%',
-                }}
-              >
-                <SearchInput
-                  placeholder={'Search...'}
-                  value={assetSearchValue}
-                  onChange={(e) => {
-                    setAssetSearchValue(e.target.value)
-                  }}
-                />
-              </Box>
-              {/* pc 端 排序 & grid */}
-              <Flex
-                alignItems={'center'}
-                gap={'20px'}
-                display={{
-                  xl: 'flex',
-                  lg: 'flex',
-                  md: 'flex',
-                  sm: 'none',
-                  xs: 'none',
-                }}
-              >
-                <Select
-                  options={SORT_OPTIONS}
-                  value={orderOption}
-                  defaultValue={SORT_OPTIONS[0]}
-                  onChange={(target) => {
-                    if (!target) return
-                    setOrderOption(target)
-                  }}
-                  borderColor={'var(--chakra-colors-gray-2)'}
-                />
-                <Flex borderColor={'gray.2'} borderWidth={1} borderRadius={8}>
-                  {[4, 3].map((item, i) => (
-                    <Flex
-                      p='14px'
-                      bg={grid === item ? 'gray.5' : 'white'}
-                      onClick={() => setGrid(item)}
-                      cursor='pointer'
-                      key={item}
-                      borderLeftRadius={i === 0 ? 8 : 0}
-                      borderRightRadius={i === 1 ? 8 : 0}
-                    >
-                      <SvgComponent
-                        svgId={`icon-grid-${item === 4 ? 'large' : 'middle'}`}
-                        fill={`var(--chakra-colors-${
-                          grid === item ? 'blue' : 'gray'
-                        }-1)`}
-                      />
-                    </Flex>
-                  ))}
-                </Flex>
-              </Flex>
-              {/* mobile 排序 */}
-              <Menu closeOnBlur={false} placement='bottom-end'>
-                {({ isOpen: visible }) => (
-                  <>
-                    <MenuButton
-                      display={{
-                        md: 'none',
-                        sm: 'block',
-                        xs: 'block',
-                      }}
-                    >
-                      <Flex
-                        alignItems={'center'}
-                        justifyContent='center'
-                        borderColor={visible ? 'blue.1' : 'gray.1'}
-                        borderWidth='1px'
-                        w='42px'
-                        h='42px'
-                        borderRadius={'50%'}
-                      >
-                        <SvgComponent
-                          svgId='icon-sort-label'
-                          color={visible ? 'blue.1' : 'black.1'}
-                        />
-                      </Flex>
-                    </MenuButton>
-                    <MenuList>
-                      <Flex flexDir={'column'} fontWeight={'500'} gap='8px'>
-                        {SORT_OPTIONS.map(({ label, value }) => (
-                          <Flex
-                            key={label}
-                            px='9px'
-                            py='8px'
-                            borderRadius={4}
-                            bg={
-                              orderOption.label === label ? 'gray.5' : 'white'
-                            }
-                            onClick={() => {
-                              if (orderOption.label === label) return
-                              setOrderOption({ label, value })
-                            }}
-                          >
-                            {label}
-                          </Flex>
-                        ))}
-                      </Flex>
-                    </MenuList>
-                  </>
-                )}
-              </Menu>
-            </Flex>
-          )}
+          <Toolbar
+            loading={collectionLoading || poolsLoading}
+            searchConfig={{
+              searchValue: assetSearchValue,
+              setSearchValue: (t) => setAssetSearchValue(t),
+            }}
+            sortConfig={{
+              sortOptions: SORT_OPTIONS,
+              sortValue: orderOption,
+              setSortValue: (t) => setOrderOption(t),
+            }}
+            gridConfig={{
+              gridValue: grid,
+              setGridValue: (t) => setGrid(t),
+            }}
+          />
 
           {!debounceSearchValue && (
             <SimpleGrid
