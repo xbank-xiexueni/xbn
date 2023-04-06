@@ -23,6 +23,7 @@ import {
   AccordionButton,
   AccordionPanel,
 } from '@chakra-ui/react'
+import useRequest from 'ahooks/lib/useRequest'
 import kebabCase from 'lodash-es/kebabCase'
 import { useCallback, useMemo, useRef, type FunctionComponent } from 'react'
 import Jazzicon from 'react-jazzicon'
@@ -124,6 +125,78 @@ const PopoverWrapper: FunctionComponent<{
   )
 }
 
+const ConnectedIconWallet: FunctionComponent = () => {
+  const { currentAccount, handleDisconnect, handleOpenEtherscan } = useWallet()
+  const fetchDataFromContract = useCallback(async () => {
+    // const wethContract = createWethContract()
+    const xBankContract = createXBankContract()
+    const listPool = await xBankContract.methods.listPool().call()
+    const listLoan = await xBankContract.methods.listLoan().call()
+    // const _allowance = await wethContract.methods
+    //   .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
+    //   .call()
+
+    // const balanceOf = await wethContract.methods
+    //   .balanceOf(currentAccount)
+    //   .call()
+    // console.log('🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:', balanceOf)
+
+    // const allowanceEth = wei2Eth(_allowance)
+    // console.log(
+    //   '🚀 ~ file: Header.tsx:59 ~ testClick ~ allowanceEth:',
+    //   allowanceEth,
+    // )
+    console.log('listLoan:', listLoan)
+    console.log('listPool:', listPool)
+  }, [])
+  const { run, loading } = useRequest(fetchDataFromContract, {
+    manual: true,
+  })
+  return (
+    <Popover isLazy trigger='click' placement='bottom-end'>
+      <PopoverTrigger>
+        <IconButton
+          justifyContent={'center'}
+          aria-label=''
+          bg='white'
+          icon={<SvgComponent svgId='icon-wallet-outline' svgSize='30px' />}
+          hidden={!currentAccount}
+        />
+      </PopoverTrigger>
+      <PopoverContent w='160px' top='8px'>
+        <PopoverBody p={'10px'}>
+          <Button
+            variant={'link'}
+            color='black.1'
+            p={'10px'}
+            onClick={handleOpenEtherscan}
+          >
+            {formatAddress(currentAccount)}
+          </Button>
+          <Button
+            variant={'link'}
+            color='black.1'
+            p={'10px'}
+            _hover={{
+              textDecoration: 'none',
+            }}
+            onClick={handleDisconnect}
+          >
+            Disconnect
+          </Button>
+
+          {(import.meta.env.DEV ||
+            window.location.hostname.startsWith('feat-')) && (
+            <Button isLoading={loading} onClick={run} variant='primary'>
+              TEST
+            </Button>
+          )}
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 const MobileDrawBtn = () => {
   const {
     isOpen: drawVisible,
@@ -141,6 +214,7 @@ const MobileDrawBtn = () => {
         aria-label=''
         onClick={openDraw}
         bg='white'
+        isDisabled={window.location.pathname === '/xlending/demo'}
       />
       <Drawer
         isOpen={drawVisible}
@@ -159,7 +233,6 @@ const MobileDrawBtn = () => {
 
           <DrawerBody mt='40px'>
             <Accordion
-              allowMultiple
               defaultIndex={
                 activePath === 'lending' ? 0 : activePath === 'buy-nfts' ? 1 : 0
               }
@@ -181,11 +254,7 @@ const MobileDrawBtn = () => {
                 </Text>
                 <AccordionPanel px={8} py={'28px'}>
                   <Flex flexDir={'column'} gap={8} onClick={closeDraw}>
-                    {[
-                      // 'Pools',
-                      'My Pools',
-                      'Loans',
-                    ].map((item) => (
+                    {['Collections', 'My Pools', 'Loans'].map((item) => (
                       <Link
                         to={`/xlending/lending/${kebabCase(item)}`}
                         key={item}
@@ -239,91 +308,12 @@ const Header = () => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
-  const { isOpen, onClose, currentAccount, interceptFn, handleDisconnect } =
+  const { isOpen, onClose, currentAccount, interceptFn, handleOpenEtherscan } =
     useWallet()
 
-  const handleOpenEtherscan = useCallback(() => {
-    interceptFn(() => {
-      window.open(
-        `${
-          import.meta.env.VITE_TARGET_CHAIN_BASE_URL
-        }/address/${currentAccount}`,
-      )
-    })
-  }, [interceptFn, currentAccount])
-
   const handleClickWallet = useCallback(async () => {
-    interceptFn(async () => {
-      // const wethContract = createWethContract()
-      const xBankContract = createXBankContract()
-      console.log(
-        '🚀 ~ file: Header.tsx:62 ~ handleClickWal ~ xBankContract:',
-        xBankContract,
-      )
-      const listPool = await xBankContract.methods.listPool().call()
-      const listLoan = await xBankContract.methods.listLoan().call()
-      // const _allowance = await wethContract.methods
-      //   .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
-      //   .call()
-
-      // const balanceOf = await wethContract.methods
-      //   .balanceOf(currentAccount)
-      //   .call()
-      // console.log('🚀 ~ file: Header.tsx:61 ~ testClick ~ balanceOf:', balanceOf)
-
-      // const allowanceEth = wei2Eth(_allowance)
-      // console.log(
-      //   '🚀 ~ file: Header.tsx:59 ~ testClick ~ allowanceEth:',
-      //   allowanceEth,
-      // )
-      console.log('transactionsContract', xBankContract.methods)
-      console.log('listLoan', listLoan)
-      console.log(
-        '🚀 ~ file: Header.tsx:67 ~ handleClickWal ~ listPool:',
-        listPool,
-      )
-    })
+    interceptFn(() => {})
   }, [interceptFn])
-
-  const ConnectedIconWallet = useMemo(
-    () => (
-      <Popover isLazy trigger='click' placement='bottom-end'>
-        <PopoverTrigger>
-          <IconButton
-            justifyContent={'center'}
-            aria-label=''
-            bg='white'
-            icon={<SvgComponent svgId='icon-wallet-outline' svgSize='30px' />}
-            hidden={!currentAccount}
-          />
-        </PopoverTrigger>
-        <PopoverContent w='160px' top='8px'>
-          <PopoverBody p={'10px'}>
-            <Button
-              variant={'link'}
-              color='black.1'
-              p={'10px'}
-              onClick={handleOpenEtherscan}
-            >
-              {formatAddress(currentAccount)}
-            </Button>
-            <Button
-              variant={'link'}
-              color='black.1'
-              p={'10px'}
-              _hover={{
-                textDecoration: 'none',
-              }}
-              onClick={handleDisconnect}
-            >
-              Disconnect
-            </Button>
-          </PopoverBody>
-        </PopoverContent>
-      </Popover>
-    ),
-    [handleOpenEtherscan, handleDisconnect, currentAccount],
-  )
 
   return (
     <Box
@@ -332,20 +322,13 @@ const Header = () => {
       zIndex={21}
       borderBottomColor='rgba(0, 0, 0, 0.05)'
       borderBottomWidth={1}
-      onClick={
-        import.meta.env.MODE === 'development' ? handleClickWallet : undefined
-      }
     >
       <Box
         bg='linear-gradient(270deg, #E404E6 0%, #5843F4 53.65%, #1EF6F0
       100%)'
         h={{ md: 1, sm: '1px', xs: '1px' }}
       />
-      <Container
-        bg='white'
-        maxW={RESPONSIVE_MAX_W}
-        boxShadow='0px 1px 0px rgba(0, 0, 0, 0.08)'
-      >
+      <Container bg='white' maxW={RESPONSIVE_MAX_W}>
         <Flex
           justify={'space-between'}
           h={{
@@ -359,7 +342,7 @@ const Header = () => {
             alignItems={'center'}
             onClick={() => {
               if (pathname === '/xlending/demo') return
-              navigate('/xlending/lending/my-pools')
+              navigate('/xlending/lending/collections')
             }}
             cursor='pointer'
           >
@@ -388,11 +371,7 @@ const Header = () => {
             hidden={pathname === '/xlending/demo'}
           >
             <PopoverWrapper
-              routes={[
-                // 'Pools',
-                'My Pools',
-                'Loans',
-              ]}
+              routes={['Collections', 'My Pools', 'Loans']}
               route='lending'
               pageName='Lend'
             />
@@ -439,7 +418,7 @@ const Header = () => {
                 }
               />
             )}
-            {ConnectedIconWallet}
+            <ConnectedIconWallet />
           </Flex>
 
           {/*  移动端 */}
@@ -465,7 +444,7 @@ const Header = () => {
               }
               hidden={!currentAccount}
             />
-            {ConnectedIconWallet}
+            <ConnectedIconWallet />
             <MobileDrawBtn />
           </Flex>
         </Flex>

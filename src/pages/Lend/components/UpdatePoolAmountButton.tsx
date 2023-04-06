@@ -7,8 +7,6 @@ import {
   ModalHeader,
   FormControl,
   FormLabel,
-  // Flex,
-  // Box,
   Text,
   type ButtonProps,
   InputGroup,
@@ -18,8 +16,9 @@ import {
   NumberInput,
   useToast,
   useDisclosure,
+  Flex,
 } from '@chakra-ui/react'
-import { useRequest } from 'ahooks'
+import useRequest from 'ahooks/lib/useRequest'
 import {
   type ReactNode,
   useCallback,
@@ -28,64 +27,41 @@ import {
   useState,
   type FunctionComponent,
 } from 'react'
-import { useNavigate } from 'react-router-dom'
-import Web3 from 'web3/dist/web3.min.js'
 
 import { ConnectWalletModal, SvgComponent } from '@/components'
-import { WETH_CONTRACT_ADDRESS, XBANK_CONTRACT_ADDRESS } from '@/constants'
 import { useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
 import { formatFloat } from '@/utils/format'
-import { wei2Eth } from '@/utils/unit-conversion'
+import { eth2Wei, wei2Eth } from '@/utils/unit-conversion'
 
-// const DataItem: FunctionComponent<{ label: string; data: number }> = ({
-//   label,
-//   data,
-// }) => {
-//   return (
-//     <Box textAlign={'center'}>
-//       <Text fontWeight={'medium'} color={`var(--chakra-colors-gray-3)`}>
-//         {label}
-//       </Text>
-//       <Flex alignItems={'center'} mt={'4px'} justify='center'>
-//         <Image src={IconEth} w={'4px'} />
-//         <Text fontSize={'lg'} fontWeight='bold'>
-//           &nbsp;{data}
-//         </Text>
-//       </Flex>
-//     </Box>
-//   )
-// }
+import AmountItem from './AmountItem'
 
-const ApproveEthButton: FunctionComponent<
+/**
+ * update pool amount
+ * use updatePool
+ */
+const UpdatePoolAmountButton: FunctionComponent<
   ButtonProps & {
     data: {
-      poolMaximumPercentage: number
-      poolMaximumDays: number
-      poolMaximumInterestRate: number
-      loanTimeConcessionFlexibility: number
-      loanRatioPreferentialFlexibility: number
-      allowCollateralContract: string
+      poolID: number
+      poolUsedAmount: number
       floorPrice: number
+      poolAmount: number
     }
+    onSuccess: () => void
   }
-> = ({ children, data, ...rest }) => {
-  const {
-    poolMaximumPercentage,
-    poolMaximumDays,
-    poolMaximumInterestRate,
-    loanTimeConcessionFlexibility,
-    loanRatioPreferentialFlexibility,
-    allowCollateralContract,
-    floorPrice,
-  } = data
+> = ({ children, data, onSuccess, ...rest }) => {
+  const { poolUsedAmount, poolID, floorPrice, poolAmount } = data
+  const toast = useToast()
   const { currentAccount, interceptFn, isOpen, onClose } = useWallet()
-  const navigate = useNavigate()
   const {
-    isOpen: isOpenApprove,
-    onOpen: onOpenApprove,
-    onClose: onCloseApprove,
+    isOpen: isOpenUpdate,
+    onOpen: onOpenUpdate,
+    onClose: onCloseUpdate,
   } = useDisclosure()
+
+  const [updateLoading, setUpdateLoading] = useState(false)
+
   const [amount, setAmount] = useState('')
 
   const initialRef = useRef(null)
@@ -105,16 +81,44 @@ const ApproveEthButton: FunctionComponent<
     },
   )
 
+  /**
+   * Your balance = LP设定的数值
+   * Has been lent = 这个pool当前进行中的贷款，尚未归还的本金金额
+   * Can ben lent=Your balance - Has been lent （如果相减结果为负数，则显示0）
+   */
+  const AmountDataItems = useMemo(
+    () => [
+      {
+        data: wei2Eth(poolAmount) || '--',
+        label: 'Approved Amount',
+        loading: false,
+      },
+      {
+        data: poolUsedAmount ? wei2Eth(poolUsedAmount) : 0,
+        label: 'Has Been Lent',
+        loading: false,
+      },
+      {
+        data: wei2Eth(poolAmount - poolUsedAmount),
+        label: 'Can Be Lent',
+        loading: false,
+      },
+    ],
+    [poolUsedAmount, poolAmount],
+  )
+
   const isError = useMemo(() => {
-    //  amount < balance + Has been lent
     if (!amount) return false
+    /**
+     * 校验逻辑：Has been lent + Available in wallet 需要大于等于 Your balance
+     * 如果两者相加小于 Your balance，则点击Approve/Comfirm按钮用toast报错：Insufficient funds，Maximum input：xxx
+     * xxx = Has been lent + Available in wallet
+     *     = poolUsedAmount + latest weth
+     */
     const NumberAmount = Number(amount)
-    if (NumberAmount > Number(wei2Eth(wethData))) {
-      setErrorMsg(
-        ` Insufficient wallet balance: ${formatFloat(
-          Number(wei2Eth(wethData)),
-        )} WETH`,
-      )
+    const maxAmount = wei2Eth(Number(poolUsedAmount) + Number(wethData))
+    if (NumberAmount > maxAmount) {
+      setErrorMsg(` Insufficient funds: ${formatFloat(maxAmount)} WETH`)
       return true
     }
     if (NumberAmount < floorPrice * 0.1) {
@@ -124,11 +128,7 @@ const ApproveEthButton: FunctionComponent<
       return true
     }
     return false
-  }, [amount, wethData, floorPrice])
-
-  const [approveLoading, setApproveLoading] = useState(false)
-  const [createLoading, setCreateLoading] = useState(false)
-  const toast = useToast()
+  }, [amount, floorPrice, poolUsedAmount, wethData])
 
   const onConfirm = useCallback(() => {
     interceptFn(async () => {
@@ -136,66 +136,37 @@ const ApproveEthButton: FunctionComponent<
        * 平均总耗时：
        * 1676961248463 - 1676961180777 =  67686 ms ≈ 1min
        */
-      console.log(new Date().getTime(), '----------------start')
-      // 预计算
-      const UNIT256MAX =
-        '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+      if (amount === wei2Eth(poolAmount)) {
+        toast({
+          status: 'info',
+          title: `The TVL is already ${wei2Eth(poolAmount)}`,
+        })
+        return
+      }
       try {
-        const parsedWeiAmount = Web3.utils.toWei(amount, 'ether')
-        const wethContract = createWethContract()
-        setApproveLoading(true)
-        const _allowance = await wethContract.methods
-          .allowance(currentAccount, XBANK_CONTRACT_ADDRESS)
-          .call()
+        const parsedWeiAmount = eth2Wei(amount)
 
-        const allowanceHex = Web3.utils.toHex(_allowance)
-        if (allowanceHex !== UNIT256MAX) {
-          console.log('approve 阶段')
-
-          await wethContract.methods
-            .approve(XBANK_CONTRACT_ADDRESS, UNIT256MAX)
-            .send({
-              from: currentAccount,
-            })
-        }
-        setApproveLoading(false)
-        setCreateLoading(true)
-
-        // const supportERC20Denomination = approveHash?.to
-        const supportERC20Denomination = WETH_CONTRACT_ADDRESS
+        setUpdateLoading(true)
 
         const xBankContract = createXBankContract()
-        await xBankContract.methods
-          .createPool(
-            // supportERC20Denomination
-            supportERC20Denomination,
-            // allowCollateralContract
-            allowCollateralContract,
-            // '0x8ADC4f1EFD5f71E538525191C5575387aaf41391',
-            // poolAmount
-            parsedWeiAmount,
-            // poolMaximumPercentage,
-            poolMaximumPercentage,
-            // uint32 poolMaximumDays,
-            poolMaximumDays,
-            // uint32 poolMaximumInterestRate,
-            poolMaximumInterestRate,
-            // uint32 loanTimeConcessionFlexibility,
-            loanTimeConcessionFlexibility,
-            // uint32 loanRatioPreferentialFlexibility
-            loanRatioPreferentialFlexibility,
-          )
+        const updateBlock = await xBankContract.methods
+          .updatePool(poolID, parsedWeiAmount)
           .send({
             from: currentAccount,
           })
-        setCreateLoading(false)
-        console.log(new Date().getTime(), '----------------end')
-        onCloseApprove()
-        toast({
-          status: 'success',
-          title: 'Created successfully! ',
-        })
-        navigate('/xlending/lending/my-pools')
+        console.log(updateBlock, 'createBlock')
+        setUpdateLoading(false)
+        onCloseUpdate()
+        if (toast.isActive('Updated-Successfully-ID')) {
+          // toast.closeAll()
+        } else {
+          toast({
+            status: 'success',
+            title: 'Updated successfully! ',
+            id: 'Updated-Successfully-ID',
+          })
+        }
+        onSuccess()
       } catch (error: any) {
         console.log(error?.message, error?.code, error?.data)
         const code: string = error?.code
@@ -241,53 +212,49 @@ const ApproveEthButton: FunctionComponent<
           description,
           duration: 5000,
         })
-        setCreateLoading(false)
-        setApproveLoading(false)
+        setUpdateLoading(false)
       }
     })
   }, [
+    onSuccess,
+    poolAmount,
     amount,
     toast,
-    poolMaximumPercentage,
-    poolMaximumDays,
-    poolMaximumInterestRate,
-    loanRatioPreferentialFlexibility,
-    loanTimeConcessionFlexibility,
-    allowCollateralContract,
-    onCloseApprove,
-    navigate,
     currentAccount,
     interceptFn,
+    onCloseUpdate,
+    poolID,
   ])
 
   const handleClose = useCallback(() => {
-    if (approveLoading || createLoading) return
-    onCloseApprove()
-  }, [onCloseApprove, approveLoading, createLoading])
+    if (updateLoading) return
+    onCloseUpdate()
+  }, [onCloseUpdate, updateLoading])
 
   return (
     <>
-      <Button onClick={() => interceptFn(() => onOpenApprove())} {...rest}>
+      <Button onClick={() => interceptFn(() => onOpenUpdate())} {...rest}>
         {children}
       </Button>
 
       <Modal
         initialFocusRef={initialRef}
         finalFocusRef={finalRef}
-        isOpen={isOpenApprove}
+        isOpen={isOpenUpdate}
         onClose={handleClose}
         isCentered
       >
         <ModalOverlay bg='black.2' />
         <ModalContent
           maxW={{
-            xl: '526px',
-            lg: '526px',
+            xl: '576px',
+            lg: '576px',
             md: '400px',
             sm: '326px',
             xs: '326px',
           }}
           px={{ md: '40px', sm: '20px', xs: '20px' }}
+          borderRadius={16}
         >
           <ModalHeader
             pt={'40px'}
@@ -299,8 +266,9 @@ const ApproveEthButton: FunctionComponent<
             <Text
               fontSize={{ md: '28px', sm: '24px', xs: '24px' }}
               fontWeight='700'
+              noOfLines={1}
             >
-              Approve WETH
+              Modify the ETH amount
             </Text>
             <SvgComponent
               svgId='icon-close'
@@ -311,27 +279,28 @@ const ApproveEthButton: FunctionComponent<
           </ModalHeader>
           <ModalBody pb={'24px'} px={0}>
             {/* 数值们 */}
-            {/* <Flex
-              py={8}
-              px={9}
-              bg={`var(--chakra-colors-gray-5)`}
+            <Flex
+              py={{ md: '32px', sm: '20px', xs: '20px' }}
+              px={{ md: '36px', sm: '10px', xs: '10px' }}
+              bg={'gray.5'}
               borderRadius={16}
               justify='space-between'
+              mb='32px'
             >
-              <DataItem label='Your balance' data={0} />
-              <DataItem label='Has been lent' data={0} />
-              <DataItem label='Can be lent' data={0} />
-            </Flex> */}
+              {AmountDataItems.map((item) => (
+                <AmountItem key={item.label} {...item} />
+              ))}
+            </Flex>
             <FormControl>
-              <FormLabel>Amount</FormLabel>
+              <FormLabel fontWeight={'700'}>Amount</FormLabel>
               <InputGroup>
                 <InputLeftElement
                   pointerEvents='none'
                   color='gray.300'
                   fontSize='1.2em'
-                  top='10px'
+                  top='14px'
                 >
-                  <SvgComponent svgId='icon-eth' />
+                  <SvgComponent svgId='icon-eth' fill={'black.1'} />
                 </InputLeftElement>
                 <NumberInput
                   w='100%'
@@ -341,11 +310,10 @@ const ApproveEthButton: FunctionComponent<
                   }}
                   errorBorderColor='red.1'
                   isInvalid={isError}
-                  // lineHeight='60px'
                   borderRadius={8}
                   borderColor='gray.3'
-                  placeholder='Enter the approve ETH amount...'
-                  isDisabled={approveLoading || createLoading || refreshLoading}
+                  isDisabled={updateLoading}
+                  top={'2px'}
                 >
                   <NumberInputField
                     h='60px'
@@ -358,12 +326,13 @@ const ApproveEthButton: FunctionComponent<
                         isError ? 'red-1' : 'blue-1'
                       })`,
                     }}
+                    placeholder='Enter amount...'
                   />
                 </NumberInput>
 
                 {isError && (
-                  <InputRightElement top='10px'>
-                    <SvgComponent svgId='icon-error' />
+                  <InputRightElement top='14px' mr='8px'>
+                    <SvgComponent svgId='icon-error' svgSize='24px' />
                   </InputRightElement>
                 )}
               </InputGroup>
@@ -371,16 +340,7 @@ const ApproveEthButton: FunctionComponent<
               <Text mt={'8px'} color={isError ? 'red.1' : 'gray.3'}>
                 {isError
                   ? errorMsg
-                  : `Minimum input: ${formatFloat(floorPrice * 0.1)}`}
-                {/* <SvgComponent
-                    svgId='icon-refresh'
-                    onClick={fetchLatestWethBalance}
-                    animation={
-                      refreshLoading ? 'loading 1s linear infinite' : ''
-                    }
-                    cursor={'pointer'}
-                    display='inline-block'
-                  /> */}
+                  : `Minimum input: ${formatFloat(floorPrice * 0.1)} `}
               </Text>
             </FormControl>
             <Text
@@ -396,23 +356,24 @@ const ApproveEthButton: FunctionComponent<
             </Text>
           </ModalBody>
 
-          {/* <ModalFooter justifyContent={'center'}> */}
           <Button
             variant='primary'
             mr={'12px'}
             mt={'8px'}
             mb={'40px'}
-            mx={'40px'}
+            mx={{
+              md: '40px',
+              sm: '23px',
+              xs: '23px',
+            }}
             h='52px'
             isDisabled={isError || !Number(amount)}
             onClick={onConfirm}
-            loadingText={
-              approveLoading ? 'approving' : createLoading ? 'creating' : ''
-            }
+            loadingText={'updating'}
             fontSize='16px'
-            isLoading={approveLoading || createLoading || refreshLoading}
+            isLoading={updateLoading || refreshLoading}
           >
-            Approve
+            Confirm
           </Button>
           {/* </ModalFooter> */}
         </ModalContent>
@@ -422,4 +383,4 @@ const ApproveEthButton: FunctionComponent<
   )
 }
 
-export default ApproveEthButton
+export default UpdatePoolAmountButton

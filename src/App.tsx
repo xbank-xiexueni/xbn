@@ -3,6 +3,7 @@ import { Route, Routes, Navigate } from 'react-router-dom'
 
 import { Fallback } from '@/components'
 
+import { useScrollToTop } from './hooks'
 import lazyWithRetries from './utils/lazyWithRetries'
 
 // import NotFound from './pages/404'
@@ -15,8 +16,7 @@ import lazyWithRetries from './utils/lazyWithRetries'
 
 // Lend
 const Lend = lazyWithRetries(() => import('./pages/Lend/Lend'))
-const PoolCreate = lazyWithRetries(() => import('./pages/Lend/Create'))
-// const PoolEdit = lazy(() => import('./pages/Lend/Edit'))
+const PoolCreateAndEdit = lazyWithRetries(() => import('./pages/Lend/Create'))
 
 // buy nfts
 const Market = lazyWithRetries(() => import('./pages/buy-nfts/Market'))
@@ -33,17 +33,27 @@ const H5Demo = lazyWithRetries(() => import('./pages/h5-demo/H5Demo'))
 const NotFound = lazyWithRetries(() => import('./pages/404'))
 
 function App() {
+  useScrollToTop()
   return (
     <>
       <Routes>
         <Route
           path='/xlending'
-          element={<Navigate replace to='/xlending/lending/my-pools' />}
+          element={<Navigate replace to='/xlending/lending/collections' />}
         />
         <Route
           path='/xlending/lending'
-          element={<Navigate replace to='/xlending/lending/my-pools' />}
+          element={<Navigate replace to='/xlending/lending/collections' />}
         />
+        <Route
+          path='/xlending/lending/my-pools'
+          element={
+            <Suspense fallback={<Fallback />}>
+              <Lend />
+            </Suspense>
+          }
+        />
+
         {/* <Route
           path='lending/pools'
           element={
@@ -53,23 +63,15 @@ function App() {
           }
         /> */}
         <Route
-          path='/xlending/lending/my-pools/create'
+          path='/xlending/lending/:action'
           element={
             <Suspense fallback={<Fallback />}>
-              <PoolCreate />
+              <PoolCreateAndEdit />
             </Suspense>
           }
         />
-        {/* <Route
-          path='lending/pools/edit/:collectionId?'
-          element={
-            <Suspense fallback={<Fallback />}>
-              <PoolEdit />
-            </Suspense>
-          }
-        /> */}
         <Route
-          path='/xlending/lending/my-pools'
+          path='/xlending/lending/collections'
           element={
             <Suspense fallback={<Fallback />}>
               <Lend />

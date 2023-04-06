@@ -1,5 +1,5 @@
-import { Flex } from '@chakra-ui/react'
-import { useCallback, useContext } from 'react'
+import { Flex, Text } from '@chakra-ui/react'
+import { useCallback, useContext, useState } from 'react'
 import { components } from 'react-select'
 import AsyncSelect from 'react-select/async'
 
@@ -7,20 +7,52 @@ import { TransactionContext } from '@/context/TransactionContext'
 
 import { EmptyComponent, ImageWithFallback, SvgComponent } from '..'
 
-const Option = ({ children, isSelected, ...props }: any) => {
+export const DropdownIndicator = ({ isDisabled, isOpen, ...props }: any) => {
+  return (
+    <components.DropdownIndicator isDisabled={isDisabled} {...props}>
+      {isDisabled ? (
+        <SvgComponent
+          svgId='icon-locked'
+          fill={'var(--chakra-colors-black-1)'}
+        />
+      ) : (
+        <SvgComponent
+          svgId={'icon-arrow-down'}
+          fill={'var(--chakra-colors-black-1)'}
+          transform={`rotate(${isOpen ? 180 : 0}deg)`}
+        />
+      )}
+    </components.DropdownIndicator>
+  )
+}
+
+export const Option = ({
+  children,
+  isSelected,
+  selectedIcon = '',
+  unSelectedIcon = '',
+  ...props
+}: any) => {
   return (
     <components.Option isSelected={isSelected} {...props}>
-      <Flex justify={'space-between'} alignItems='center'>
+      <Flex justify={'space-between'} alignItems='center' py='8px'>
         {children}
         <SvgComponent
-          svgId={isSelected ? 'icon-radio-active' : 'icon-radio-inactive'}
+          svgId={isSelected ? selectedIcon : unSelectedIcon}
+          svgSize='20px'
+          ml='20px'
         />
       </Flex>
     </components.Option>
   )
 }
 
-function AsyncSelectCollection({ w, ...rest }: any) {
+function AsyncSelectCollection({
+  w,
+  isDisabled,
+  borderColor = 'var(--chakra-colors-blue-4)',
+  ...rest
+}: any) {
   const { collectionList, collectionLoading } = useContext(TransactionContext)
   // const [collectionAddressArr, setCollectionAddressArr] = useState<string[]>([])
   // const { loading } = useRequest(apiGetActiveCollection, {
@@ -64,8 +96,12 @@ function AsyncSelectCollection({ w, ...rest }: any) {
     [collectionList, collectionLoading],
   )
 
+  const [open, setOpen] = useState(false)
   return (
     <AsyncSelect
+      onMenuOpen={() => setOpen(true)}
+      onMenuClose={() => setOpen(false)}
+      isDisabled={isDisabled}
       isLoading={collectionLoading}
       defaultOptions={collectionList || []}
       cacheOptions
@@ -109,15 +145,21 @@ function AsyncSelectCollection({ w, ...rest }: any) {
             boxShadow: 'none',
           }
         },
-        control: (baseStyles, { isFocused }) => ({
+        singleValue: (baseStyles) => ({
+          ...baseStyles,
+          color: 'var(--chakra-colors-black-1)',
+        }),
+        control: (baseStyles, { isFocused, isDisabled: _isDisabled }) => ({
           ...baseStyles,
           width: w,
           fontWeight: 700,
           borderRadius: 8,
           border: `1px solid ${
-            isFocused
+            _isDisabled
+              ? 'var(--chakra-colors-black-1)'
+              : isFocused
               ? 'var(--chakra-colors-blue-1)'
-              : 'var(--chakra-colors-blue-4)'
+              : borderColor
           }`,
           boxShadow: 'none',
           // boxShadow: isFocused
@@ -130,7 +172,10 @@ function AsyncSelectCollection({ w, ...rest }: any) {
             borderColor: 'var(--chakra-colors-blue-1)',
           },
         }),
-        option: (baseStyles, { isDisabled, isSelected, isFocused }) => ({
+        option: (
+          baseStyles,
+          { isDisabled: _isDisabled, isSelected, isFocused },
+        ) => ({
           ...baseStyles,
           backgroundColor: isSelected
             ? `var(--chakra-colors-blue-2)`
@@ -143,7 +188,7 @@ function AsyncSelectCollection({ w, ...rest }: any) {
 
           ':active': {
             ...baseStyles[':active'],
-            backgroundColor: !isDisabled
+            backgroundColor: !_isDisabled
               ? 'var(--chakra-colors-blue-2)'
               : undefined,
           },
@@ -152,7 +197,48 @@ function AsyncSelectCollection({ w, ...rest }: any) {
       components={{
         IndicatorSeparator: () => null,
         NoOptionsMessage: () => <EmptyComponent my={0} mt='16px' />,
-        Option,
+        Option: (p) => (
+          <Option
+            {...p}
+            selectedIcon='icon-radio-active'
+            unSelectedIcon='icon-radio-inactive'
+          />
+        ),
+        DropdownIndicator: (p) => <DropdownIndicator {...p} isOpen={open} />,
+        SingleValue: ({ data, ...p }: any) => {
+          let imagePreviewUrl = '',
+            name = '',
+            safelistRequestStatus = ''
+          if (data?.nftCollection) {
+            imagePreviewUrl = data?.nftCollection.imagePreviewUrl
+            name = data?.nftCollection.name
+            safelistRequestStatus = data?.nftCollection.safelistRequestStatus
+          }
+          return (
+            <components.SingleValue data={data} {...p}>
+              <Flex alignItems={'center'} gap={'8px'} pl={'4px'} lineHeight={2}>
+                <ImageWithFallback
+                  src={imagePreviewUrl}
+                  w={'20px'}
+                  h={'20px'}
+                  borderRadius={4}
+                />
+                <Text
+                  display='inline-block'
+                  overflow='hidden'
+                  whiteSpace='nowrap'
+                  textOverflow='ellipsis'
+                  w='80%'
+                >
+                  {name}
+                </Text>
+                {safelistRequestStatus === 'verified' && (
+                  <SvgComponent svgId='icon-verified-fill' />
+                )}
+              </Flex>
+            </components.SingleValue>
+          )
+        },
       }}
       // @ts-ignore
       formatOptionLabel={({ nftCollection, contractAddress }) => {
@@ -177,7 +263,7 @@ function AsyncSelectCollection({ w, ...rest }: any) {
               h={'20px'}
               borderRadius={4}
             />
-            {name?.length > 10 ? `${name?.substring(0, 10)}...` : name}
+            <Text noOfLines={1}>{name}</Text>
             {safelistRequestStatus === 'verified' && (
               <SvgComponent svgId='icon-verified-fill' />
             )}

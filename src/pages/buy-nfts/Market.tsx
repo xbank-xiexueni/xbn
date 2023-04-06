@@ -32,7 +32,6 @@ import {
   ConnectWalletModal,
   EmptyComponent,
   LoadingComponent,
-  // SearchInput,
   MarketNftListCard,
   SearchInput,
   Select,
@@ -41,6 +40,7 @@ import {
 } from '@/components'
 import type { NftAsset, NftCollection } from '@/hooks'
 import {
+  useIsMobile,
   NftAssetStatus,
   useNftCollectionSearchAssetLazyQuery,
   NftAssetOrderByField,
@@ -48,6 +48,7 @@ import {
   useNftCollectionAssetsLazyQuery,
   useWallet,
   useNftCollectionsByContractAddressesQuery,
+  useScrollMore,
 } from '@/hooks'
 
 import CollectionDescription from './components/CollectionDescription'
@@ -278,10 +279,18 @@ const Market = () => {
     [grid],
   )
 
+  const isH5 = useIsMobile()
+  const { isMoreThan } = useScrollMore({
+    screenCount: 2,
+    options: {
+      isReady: isH5,
+    },
+  })
+
   return (
     <>
       <Box
-        mb={{ md: '40px', sm: '32px', xs: '32px' }}
+        mb={{ md: '40px', sm: '12px', xs: '12px' }}
         mt={{
           md: '60px',
           sm: '16px',
@@ -302,7 +311,8 @@ const Market = () => {
           borderColor='gray.2'
           borderWidth={{ md: 1, sm: 0, xs: 0 }}
           borderRadius={{ md: '12px', sm: 0, xs: 0 }}
-          p={{ md: '24px', sm: 0, xs: 0 }}
+          pt={{ md: '24px', sm: '20px', xs: '20px' }}
+          px={{ md: '24px', sm: 0, xs: 0 }}
           w={{
             xl: '360px',
             lg: '260px',
@@ -316,6 +326,14 @@ const Market = () => {
           }}
           overflowY='auto'
           overflowX={'visible'}
+          position={{
+            md: 'sticky',
+            sm: 'static',
+            xs: 'static',
+          }}
+          top={'100px'}
+          bg='white'
+          zIndex={2}
         >
           <Heading size={'md'} mb='16px'>
             Collections
@@ -327,6 +345,7 @@ const Market = () => {
               sm: 'none',
               xs: 'none',
             }}
+            pb='40px'
           >
             <SearchInput
               placeholder='Collections...'
@@ -348,7 +367,10 @@ const Market = () => {
                 xs: 'none',
               }}
             >
-              <LoadingComponent loading={collectionLoading || poolsLoading} />
+              <LoadingComponent
+                loading={collectionLoading || poolsLoading}
+                top={0}
+              />
               {filteredCollectionList &&
                 isEmpty(filteredCollectionList) &&
                 !collectionLoading && <EmptyComponent />}
@@ -403,11 +425,6 @@ const Market = () => {
                   </Heading>
                   <SearchInput
                     placeholder='Collections...'
-                    isDisabled={
-                      collectionLoading ||
-                      poolsLoading ||
-                      isEmpty(filteredCollectionList)
-                    }
                     value={collectionSearchValue}
                     onChange={(e) => {
                       setCollectionSearchValue(e.target.value)
@@ -416,6 +433,7 @@ const Market = () => {
                   <List spacing='16px' mt='16px' position='relative'>
                     <LoadingComponent
                       loading={collectionLoading || poolsLoading}
+                      top={0}
                     />
                     {filteredCollectionList &&
                       isEmpty(filteredCollectionList) &&
@@ -466,9 +484,20 @@ const Market = () => {
           ) : (
             <Flex
               justify={'space-between'}
-              mb='24px'
+              mb='16px'
+              pb='8px'
               alignItems='center'
               gap={{ md: 0, sm: '10px', xs: '10px' }}
+              position='sticky'
+              top={{
+                md: '76px',
+                sm: isMoreThan ? '2px' : '56px',
+                xs: isMoreThan ? '2px' : '56px',
+              }}
+              zIndex={22}
+              bg='white'
+              pt={'25px'}
+              transition='all 0.15s'
             >
               <Box
                 w={{
@@ -481,12 +510,6 @@ const Market = () => {
               >
                 <SearchInput
                   placeholder={'Search...'}
-                  isDisabled={
-                    assetLoading ||
-                    poolsLoading ||
-                    assetLoadingMore ||
-                    isEmpty(assetsData?.list)
-                  }
                   value={assetSearchValue}
                   onChange={(e) => {
                     setAssetSearchValue(e.target.value)
@@ -513,7 +536,6 @@ const Market = () => {
                     if (!target) return
                     setOrderOption(target)
                   }}
-                  isDisabled={isEmpty(assetsData?.list)}
                   borderColor={'var(--chakra-colors-gray-2)'}
                 />
                 <Flex borderColor={'gray.2'} borderWidth={1} borderRadius={8}>
@@ -599,6 +621,7 @@ const Market = () => {
             >
               <LoadingComponent
                 loading={assetLoading || poolsLoading || collectionLoading}
+                top={0}
               />
               {isEmpty(assetsData?.list) ? (
                 <GridItem colSpan={responsiveSpan}>
@@ -647,7 +670,7 @@ const Market = () => {
                 })
               )}
               <GridItem colSpan={responsiveSpan}>
-                <Flex justifyContent='center' mb={5}>
+                <Flex justifyContent='center' mb={'40px'} p='20px' h='35px'>
                   {!noMore &&
                     (assetLoadingMore ? (
                       <Text>Loading more...</Text>
@@ -674,6 +697,7 @@ const Market = () => {
             >
               <LoadingComponent
                 loading={fetchAssetBySearchLoading || poolsLoading}
+                top={0}
               />
               {!searchedAsset ? (
                 <GridItem colSpan={responsiveSpan}>
@@ -710,7 +734,7 @@ const Market = () => {
                 />
               )}
               <GridItem colSpan={responsiveSpan} hidden={!!debounceSearchValue}>
-                <Flex justifyContent='center' mb={'20px'}>
+                <Flex justifyContent='center' mb={'40px'} p='20px' h='35px'>
                   {!noMore &&
                     (assetLoadingMore ? (
                       <Text>Loading more...</Text>

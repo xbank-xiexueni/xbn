@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Divider,
   Flex,
   SlideFade,
@@ -19,6 +20,7 @@ import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
 import minBy from 'lodash-es/minBy'
 import range from 'lodash-es/range'
+import Lottie from 'lottie-react'
 import {
   useCallback,
   useEffect,
@@ -27,9 +29,15 @@ import {
   type FunctionComponent,
 } from 'react'
 
-import ImgNft from '@/assets/nft.png'
-import { EmptyComponent, ImageWithFallback, SvgComponent } from '@/components'
-import { COLLATERALS, TENORS, UNIT } from '@/constants'
+import ImgNft from '@/assets/IMAGE.png'
+import uiSuccessJson from '@/assets/ui-sucess.json'
+import {
+  EmptyComponent,
+  H5SecondaryHeader,
+  ImageWithFallback,
+  SvgComponent,
+} from '@/components'
+import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
@@ -55,7 +63,7 @@ const originPoolList = [
     owner_address: '0x90FD70584270333a17f6E1f0022161AE495EA5F8',
     allow_collateral_contract: '0x10B8b56D53bFA5e374f38e6C0830BAd4ebeE33E6',
     support_erc20_denomination: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
-    pool_amount: 50000000000000000,
+    pool_amount: 30000000000000000000,
     pool_used_amount: 0,
     loan_count: 0,
     pool_maximum_percentage: 5000,
@@ -222,37 +230,71 @@ const H5Demo = () => {
     [selectPool, loanWeiAmount],
   )
 
-  return (
-    <Flex flexDirection={'column'} pb='200px'>
-      {/* header*/}
-      <Flex py='20px' justify={'space-between'}>
-        <SvgComponent
-          svgId='icon-arrow-down'
-          transform={'rotate(90deg)'}
-          cursor='pointer'
-          onClick={() => {
-            window.history.back()
-          }}
-        />
-        <Text fontSize={'14px'} fontWeight='700'>
-          Buy NFTs
-        </Text>
-        <Flex w='18px' />
+  const [step, setStep] = useState<1 | 2>(1)
+  if (step === 2) {
+    return (
+      <Flex flexDir={'column'} h='50vh' gap='34px'>
+        <H5SecondaryHeader onBack={() => setStep(1)} />
+
+        <SlideFade in={step === 2} offsetY='200px'>
+          <Flex flexDir={'column'} alignItems='center'>
+            {/* 图片 */}
+            <Flex pos={'relative'}>
+              <ImageWithFallback src={ImgNft} boxSize='160px' />
+              <Flex
+                pos='absolute'
+                bottom={'-10px'}
+                right={'-10px'}
+                bg='white'
+                borderRadius={'100%'}
+                h='40px'
+                w='40px'
+              >
+                <Lottie animationData={uiSuccessJson} loop={false} />
+              </Flex>
+            </Flex>
+            <Text mt='28px' fontWeight={'700'} fontSize='24px'>
+              Purchase completed
+            </Text>
+            <Text color={'gray.3'} fontSize='14px' mt='8px' fontWeight={'500'}>
+              Loan has been initialized.
+            </Text>
+          </Flex>
+        </SlideFade>
       </Flex>
+    )
+  }
+
+  return (
+    <Flex flexDirection={'column'} pb='100px'>
+      {/* header*/}
+      <H5SecondaryHeader
+        title='Buy NFTs'
+        onBack={() => window.history.back()}
+        mb='20px'
+      />
+
       {/* nft info */}
       <Flex flexDir={'column'}>
         <Flex gap={'12px'} alignItems='center'>
-          <ImageWithFallback src={ImgNft} w='16' h='16' />
+          <ImageWithFallback src={ImgNft} w='64px' h='64px' borderRadius={8} />
           <Flex flexDir={'column'}>
             <Text fontSize={'16px'} fontWeight='700'>
               MimicShhans #4088
             </Text>
             <Text fontSize={'12px'} fontWeight='500'>
-              0.028 ETH
+              {wei2Eth(commodityWeiPrice)} ETH
             </Text>
           </Flex>
         </Flex>
-        <Flex borderRadius={8} bg='green.2' p={'4px'} mt={'28px'} gap='8px'>
+        <Flex
+          borderRadius={8}
+          bg='green.2'
+          px={'4px'}
+          mt={'28px'}
+          gap='8px'
+          py='8px'
+        >
           <SvgComponent
             svgId='icon-arrow'
             transform={'rotate(135deg)'}
@@ -278,12 +320,12 @@ const H5Demo = () => {
               py='12px'
               bg='gray.5'
               borderRadius={8}
-              gap={'4px'}
+              gap={'2px'}
               alignItems='center'
               justify={'center'}
-              px={'4px'}
+              w='80px'
             >
-              <SvgComponent svgId='icon-eth' svgSize='20px' />
+              <SvgComponent svgId='icon-eth' svgSize='14px' />
               <Text fontSize={'12px'} fontWeight='700'>
                 {wei2Eth(downPaymentWei)}
               </Text>
@@ -299,16 +341,17 @@ const H5Demo = () => {
               setPercentage(target)
             }}
             value={percentage}
+            w='220px'
           >
             {COLLATERALS.map((item) => (
               <SliderMark value={item} key={item} zIndex={1}>
                 <Box
-                  w={'6px'}
-                  h={'6px'}
+                  w={'8px'}
+                  h={'8px'}
                   borderRadius={5}
                   borderWidth={'1px'}
                   borderColor='white'
-                  mt={-0.5}
+                  mt={-1}
                   bg={percentage > item ? 'blue.1' : 'gray.1'}
                 />
               </SliderMark>
@@ -334,10 +377,12 @@ const H5Demo = () => {
           <Text fontSize='12px' fontWeight='500'>
             Loan amount
           </Text>
-          <SvgComponent svgId='icon-eth' svgSize='12px' />
-          <Text fontSize='12px' fontWeight='500'>
-            {wei2Eth(loanWeiAmount)}
-          </Text>
+          <Flex alignItems={'base-line'}>
+            <SvgComponent svgId='icon-eth' svgSize='14px' mt='3px' />
+            <Text fontSize='14px' fontWeight='500'>
+              {wei2Eth(loanWeiAmount)}
+            </Text>
+          </Flex>
         </Flex>
       </InfoCard>
 
@@ -362,7 +407,7 @@ const H5Demo = () => {
                 {item.pool_days} Days
               </Text>
               <Text fontSize={'12px'} fontWeight='400'>
-                {item.pool_apr / 100} %{' '}
+                {item.pool_apr / 100}% APR
               </Text>
             </Flex>
           ))}
@@ -448,6 +493,138 @@ const H5Demo = () => {
           </VStack>
         </InfoCard>
       )}
+
+      {/* detail */}
+      {!commodityWeiPrice.eq(0) && !loanWeiAmount.eq(0) && (
+        <InfoCard
+          title='Deal Details'
+          isNull={!selectPool}
+          borderBottomWidth={0}
+        >
+          <Flex
+            py={'16px'}
+            px={'16px'}
+            borderRadius={16}
+            gap={'8px'}
+            borderColor={'gray.1'}
+            borderWidth={1}
+            flexDir='column'
+          >
+            <Flex
+              justify={'space-between'}
+              w='100%'
+              color='gray.3'
+              fontSize={'14px'}
+              fontWeight='400'
+            >
+              <Text>NFT price</Text>
+              <Text fontWeight='500'>
+                {wei2Eth(commodityWeiPrice)} {UNIT}
+              </Text>
+            </Flex>
+            <Flex
+              justify={'space-between'}
+              w='100%'
+              color='gray.3'
+              fontSize={'14px'}
+              fontWeight='400'
+            >
+              <Text>Down payment</Text>
+              <Text fontWeight='500'>
+                {wei2Eth(downPaymentWei)} {UNIT}
+              </Text>
+            </Flex>
+            <Flex
+              justify={'space-between'}
+              w='100%'
+              color='gray.3'
+              fontSize={'14px'}
+              fontWeight='400'
+            >
+              <Text>Loan amount</Text>
+              <Text fontWeight='500'>
+                {wei2Eth(loanWeiAmount)} {UNIT}
+              </Text>
+            </Flex>
+            <Flex
+              justify={'space-between'}
+              w='100%'
+              color='gray.3'
+              fontSize={'14px'}
+              fontWeight='400'
+            >
+              <Text>Interest fee</Text>
+              <Text fontWeight='500'>
+                {getPlanPer(installmentValue)
+                  .multipliedBy(installmentValue)
+                  .minus(Number(wei2Eth(loanWeiAmount)))
+                  .toFormat(FORMAT_NUMBER)}
+                &nbsp;
+                {UNIT}
+              </Text>
+            </Flex>
+            <Divider my='20px' />
+            <Flex
+              justify={'space-between'}
+              w='100%'
+              fontSize={'16px'}
+              fontWeight='700'
+            >
+              <Text>Total repayment</Text>
+              <Text>
+                {getPlanPer(installmentValue)
+                  .multipliedBy(installmentValue)
+                  .minus(Number(wei2Eth(loanWeiAmount)))
+                  .plus(Number(wei2Eth(commodityWeiPrice)))
+                  .toFormat(FORMAT_NUMBER)}
+                &nbsp;{UNIT}
+              </Text>
+            </Flex>
+            <Flex
+              justify={'space-between'}
+              w='100%'
+              fontSize={'16px'}
+              fontWeight='700'
+            >
+              <Text>Floor breakeven</Text>
+              <Text>
+                {getPlanPer(installmentValue)
+                  .multipliedBy(installmentValue)
+                  .minus(Number(wei2Eth(loanWeiAmount)))
+                  .plus(Number(wei2Eth(commodityWeiPrice)))
+                  .multipliedBy(1.025)
+                  .toFormat(FORMAT_NUMBER)}
+                &nbsp;{UNIT}
+              </Text>
+            </Flex>
+          </Flex>
+        </InfoCard>
+      )}
+      <Flex
+        pos={'fixed'}
+        left={0}
+        right={0}
+        bottom={0}
+        alignItems='center'
+        justify={'center'}
+        py='20px'
+        px='48px'
+        bg='white'
+      >
+        <Button
+          w='100%'
+          variant={'primary'}
+          h='58px'
+          fontWeight={'400'}
+          isDisabled={isEmpty(selectPool)}
+          onClick={() => setStep(2)}
+        >
+          Pay now with
+          <Text fontWeight={'700'}>
+            &nbsp;{wei2Eth(downPaymentWei)}&nbsp;{UNIT}
+          </Text>
+        </Button>
+      </Flex>
     </Flex>
   )
 }

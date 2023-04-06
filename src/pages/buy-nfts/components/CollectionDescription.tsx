@@ -1,6 +1,7 @@
 import { Flex, Box, Text, Heading, Skeleton, Highlight } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import isEmpty from 'lodash-es/isEmpty'
+import range from 'lodash-es/range'
 import { useRef, useState, type FunctionComponent } from 'react'
 
 import { EmptyComponent, ImageWithFallback, SvgComponent } from '@/components'
@@ -18,9 +19,9 @@ const CollectionDescription: FunctionComponent<{
 
   if (loading) {
     return (
-      <Flex flexDirection={'column'} mb={'48px'}>
-        <Flex mb={'16px'} gap={'12px'}>
-          <Skeleton h='108px' w='108px' borderRadius={8} />
+      <Flex flexDirection={'column'} mb={'24px'}>
+        <Flex mb={'40px'} gap={'12px'}>
+          <Skeleton h='108px' w='108px' borderRadius={16} />
           <Skeleton
             h='108px'
             w={{
@@ -33,7 +34,19 @@ const CollectionDescription: FunctionComponent<{
             borderRadius={16}
           />
         </Flex>
-        {/* <Skeleton h='100px' borderRadius={16} /> */}
+
+        <Flex
+          rowGap={'16px'}
+          wrap='wrap'
+          justify='flex-start'
+          columnGap={{ md: '80px', sm: '40px', xs: '40px' }}
+        >
+          {[
+            range(5).map((i) => (
+              <Skeleton h='60px' key={i} w='88px' borderRadius={16} />
+            )),
+          ]}
+        </Flex>
       </Flex>
     )
   }
@@ -55,7 +68,7 @@ const CollectionDescription: FunctionComponent<{
   } = data
 
   return (
-    <Box mb={'48px'}>
+    <Box mb={'40px'}>
       <Flex gap={'20px'} mb={'32px'}>
         <ImageWithFallback
           src={imagePreviewUrl}
@@ -87,7 +100,7 @@ const CollectionDescription: FunctionComponent<{
 
           <Text
             color='gray.3'
-            mt={'4px'}
+            mt={'16px'}
             fontWeight='medium'
             noOfLines={!show ? 2 : undefined}
             lineHeight='20px'

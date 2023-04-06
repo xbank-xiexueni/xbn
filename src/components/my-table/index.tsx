@@ -5,9 +5,10 @@ import {
   Th,
   Thead,
   Tr,
-  type TableProps,
   Flex,
   Box,
+  type TableProps,
+  type TextProps,
 } from '@chakra-ui/react'
 import isEmpty from 'lodash-es/isEmpty'
 import { useState, type ReactElement } from 'react'
@@ -41,6 +42,10 @@ export type MyTableProps = TableProps & {
   emptyRender?: () => ReactElement
   maxW?: string
   tableTitle?: () => ReactElement
+  styleConfig?: {
+    thTextProps?: TextProps
+    tdTextProps?: TextProps
+  }
 }
 
 const MyTable = ({
@@ -52,6 +57,16 @@ const MyTable = ({
   tableTitle,
   emptyRender,
   maxW,
+  styleConfig = {
+    thTextProps: {
+      fontSize: '16px',
+      fontWeight: '500',
+    },
+    tdTextProps: {
+      fontSize: '16px',
+      fontWeight: '700',
+    },
+  },
 }: MyTableProps) => {
   const [sortParams, setSortParam] = useState({
     direction: '',
@@ -60,7 +75,7 @@ const MyTable = ({
   return (
     <Box position={'relative'}>
       {!!tableTitle && tableTitle()}
-      {<LoadingComponent loading={loading} h='250px' />}
+      {<LoadingComponent loading={loading} minHeight='250px' />}
       {isEmpty(data) && (
         <Box h='250px'>
           <Box left={0} right={0} top={'40px'} bottom={0} pos='absolute'>
@@ -103,8 +118,6 @@ const MyTable = ({
                       zIndex={fixedRight ? 1 : 'inherit'}
                       bg='white'
                       right={0}
-                      fontSize={'16px'}
-                      fontWeight='medium'
                       cursor={sortable ? 'pointer' : 'default'}
                       w={width || `${100 / columns.length}%`}
                       py={0}
@@ -171,6 +184,7 @@ const MyTable = ({
                         }
                         py={'16px'}
                         px={i !== 0 ? '24px' : 0}
+                        {...styleConfig?.thTextProps}
                       >
                         {title}
                         {sortable && sortParams.field !== dataIndex && (
@@ -257,6 +271,7 @@ const MyTable = ({
                           borderBottomRightRadius={
                             colIndex === columns?.length - 1 ? 10 : 0
                           }
+                          {...styleConfig?.tdTextProps}
                         >
                           {!!render ? (
                             <Flex justifyContent={align}>

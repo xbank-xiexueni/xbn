@@ -18,13 +18,19 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
+  type TabProps,
+  ScaleFade,
 } from '@chakra-ui/react'
+import useDebounce from 'ahooks/lib/useDebounce'
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import { unix } from 'dayjs'
 import groupBy from 'lodash-es/groupBy'
 import isEmpty from 'lodash-es/isEmpty'
-import { useEffect, useMemo, useState } from 'react'
+import maxBy from 'lodash-es/maxBy'
+import reduce from 'lodash-es/reduce'
+import sortBy from 'lodash-es/sortBy'
+import { useEffect, useMemo, useState, type FunctionComponent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { apiGetLoans, apiGetPools } from '@/api'
@@ -38,8 +44,9 @@ import {
   SvgComponent,
   EthText,
   ImageWithFallback,
+  type ColumnProps,
+  SearchInput,
 } from '@/components'
-import type { ColumnProps } from '@/components/my-table'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
 import { useWallet, useBatchAsset } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
@@ -49,11 +56,53 @@ import { wei2Eth } from '@/utils/unit-conversion'
 import CollectionListItem from '../buy-nfts/components/CollectionListItem'
 
 import AllPoolsDescription from './components/AllPoolsDescription'
+import MyPoolActionRender from './components/MyPoolActionRender'
 
 type Dictionary<T> = Record<string, T>
 
+const TabWrapper: FunctionComponent<TabProps> = ({ children, ...rest }) => {
+  return (
+    <Tab
+      pt='14px'
+      px='6px'
+      pb='20px'
+      _selected={{
+        color: 'blue.1',
+        borderBottomWidth: 2,
+        borderColor: 'blue.1',
+        w: {
+          md: 'auto',
+          sm: '200px',
+          xs: '200px',
+        },
+      }}
+      display={'inline-block'}
+      {...rest}
+    >
+      <Text fontWeight='bold' noOfLines={1} fontSize='16px'>
+        {children}
+      </Text>
+    </Tab>
+  )
+}
+
+/**
+ * 1. Collections
+ *    1.1 /lending/api/v1/nft/pools = all pools
+ *    1.2 forEach CollectionList => filter collectionWithPool => calculate summary items
+ *    1.3 [{...collection, ...pools}]
+ * 2. MyPools
+ *    2.1 1.1 => filter currentAccount pools => myPoolsData
+ *    2.2 myPoolsData => [{...collection, ...pools}]
+ * 3. Loans
+ *    3.1 /lending/api/v1/loans?lender_address=xxx = current loans
+ *    2.1 forEach useAssetQuery = nft info
+ * @returns Collections  MyPools Loans
+ */
 const Lend = () => {
-  const [tabKey, setTabKey] = useState<0 | 1 | 2>()
+  const [tabKey, setTabKey] = useState<0 | 1 | 2>(0)
+
+  const { isOpen: showSearch, onToggle: toggleShowSearch } = useDisclosure()
 
   const {
     isOpen,
@@ -64,91 +113,193 @@ const Lend = () => {
     collectionLoading,
   } = useWallet()
 
-  // const [showSearch, setShowSearch] = useState(false)
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
 
-  // active collections
-  // const [activeCollectionData, setActiveCollectionData] = useState({
-  //   list: [],
-  //   meta: {
-  //     current: 1,
-  //     total: 0,
-  //   },
-  // })
-  // const { loading: loading1, run: handleFetchActiveCollections } = useRequest(
-  //   apiGetActiveCollection,
-  //   {
-  //     onSuccess: (data: {
-  //       data: { list: any; meta: { pageNo: any; totalRecord: any } }
-  //     }) => {
-  //       setActiveCollectionData({
-  //         list: data?.data?.list,
-  //         meta: {
-  //           current: data?.data?.meta?.pageNo,
-  //           total: data?.data?.meta?.totalRecord,
-  //         },
-  //       })
-  //     },
-  //     ready: tabKey === 0,
-  //   },
-  // )
-  // const [activeCollectionSearch, setSearchForActiveCollection] = useState('')
-  // const handleSearchActiveCollections = useMemo(() => {
-  //   const searchFn = async (value: string) => {
-  //     if (value) {
-  //       handleFetchActiveCollections()
-  //     }
-  //   }
-  //   return debounce(searchFn, 1000)
-  // }, [handleFetchActiveCollections])
+  useEffect(() => {
+    setTabKey(() => {
+      switch (pathname) {
+        case '/xlending/lending/collections':
+          return 0
+        case '/xlending/lending/my-pools':
+          interceptFn()
+          return 1
+        case '/xlending/lending/loans':
+          interceptFn()
+          return 2
+        default:
+          return 0
+      }
+    })
+  }, [pathname, interceptFn])
 
-  // my pools
+  /**
+   * 进入页面 fetch all pools => for 'Collections Tab'
+   * filter owner_address === currentAccount => for 'My Pools Tab'
+   *  */
   const [myPoolsData, setMyPoolsData] = useState<PoolsListItemType[]>([])
-
-  const { loading: myPoolsLoading } = useRequest(apiGetPools, {
-    onSuccess: ({ data }) => {
-      if (isEmpty(data)) return
-      setMyPoolsData(data)
-    },
-    ready: !!currentAccount,
-    debounceWait: 10,
-    defaultParams: [
-      {
-        owner_address: currentAccount,
+  const [allPoolsData, setAllPoolsData] = useState<PoolsListItemType[]>([])
+  const { loading: poolsLoading, refreshAsync: refreshMyPools } = useRequest(
+    apiGetPools,
+    {
+      onSuccess: ({ data }) => {
+        if (isEmpty(data)) return
+        setAllPoolsData(data)
+        if (!currentAccount) return
+        setMyPoolsData(
+          data.filter(
+            (i) =>
+              i.owner_address.toLowerCase() === currentAccount.toLowerCase(),
+          ),
+        )
       },
-    ],
-    onError: (error) => {
-      console.log('🚀 ~ file: Lend.tsx:123 ~ Lend ~ error:', error)
+      ready: !!currentAccount,
+      debounceWait: 10,
+      onError: (error) => {
+        console.log('🚀 ~ file: Lend.tsx:123 ~ Lend ~ error:', error)
+      },
     },
-  })
-  // const [myPoolsSearch, setSearchForMyPools] = useState('')
-  // const handleSearchMyPools = useMemo(() => {
-  //   const searchFn = async (value: string) => {
-  //     if (value) {
-  //       handleFetchMyPools()
-  //     }
-  //   }
-  //   return debounce(searchFn, 1000)
-  // }, [handleFetchMyPools])
+  )
 
-  // open loans
-  // 左侧 collections
-  // const [allMyPoolsList, setAllMyPoolsList] = useState([])
-  // const { loading: loading3 } = useRequest(apiGetPools, {
-  //   onSuccess: (data: { data: { list: any } }) => {
-  //     setAllMyPoolsList(data?.data?.list)
-  //   },
-  //   ready: !!currentAccount && tabKey === 1,
-  // })
-  // 三个表格的请求
+  /**
+   * Collection Tab
+   * 1. map All Pool => Collection Address with pools Address
+   * 2. filter collectionList => Collection info with pools
+   * 3. map Collection info with pools => fiter pools => [{...collection, ...pools}]
+   */
+  const activeCollectionList = useMemo(() => {
+    const collectionsAddressWithPools = [
+      ...new Set(
+        allPoolsData?.map((i) => i.allow_collateral_contract.toLowerCase()),
+      ),
+    ]
+    const collectionsWithPools = collectionList.filter((i) =>
+      collectionsAddressWithPools.includes(i.contractAddress.toLowerCase()),
+    )
+    return sortBy(
+      collectionsWithPools.map(({ contractAddress, ...rest }) => {
+        const currentCollectionPools = allPoolsData.filter(
+          (item) =>
+            item.allow_collateral_contract.toLowerCase() ===
+            contractAddress.toLowerCase(),
+        )
+        const pool_maximum_percentage = maxBy(
+          currentCollectionPools,
+          (i) => i.pool_maximum_percentage,
+        )?.pool_maximum_percentage
+
+        const pool_maximum_interest_rate = maxBy(
+          currentCollectionPools,
+          (i) => i.pool_maximum_interest_rate,
+        )?.pool_maximum_interest_rate
+
+        const pool_amount = wei2Eth(
+          reduce(
+            currentCollectionPools,
+            (sum, i) => BigNumber(sum).plus(Number(i.pool_amount)),
+            BigNumber(0),
+          ),
+        )
+
+        return {
+          pool_maximum_percentage,
+          pool_maximum_interest_rate,
+          pool_amount,
+          contractAddress,
+          ...rest,
+        }
+      }),
+      'pool_amount',
+      (i) => Number(i.pool_amount),
+    )
+  }, [collectionList, allPoolsData])
+
+  const [activeCollectionSearchValue, setActiveCollectionSearchValue] =
+    useState('')
+  const debounceActiveCollectionSearchValue = useDebounce(
+    activeCollectionSearchValue,
+    {
+      wait: 500,
+    },
+  )
+  const filteredActiveCollectionList = useMemo(() => {
+    if (!debounceActiveCollectionSearchValue) return activeCollectionList || []
+    return activeCollectionList.filter((item) =>
+      item.nftCollection?.name
+        .toLocaleLowerCase()
+        .includes(debounceActiveCollectionSearchValue.toLocaleLowerCase()),
+    )
+  }, [debounceActiveCollectionSearchValue, activeCollectionList])
+
+  /**
+   * My Pools Tab
+   * 1. myPoolsData append collection info
+   */
+  const poolList = useMemo(() => {
+    if (!myPoolsData) return []
+    return myPoolsData?.map((item) => {
+      const nftCollection = collectionList.find(
+        (i) =>
+          i.contractAddress.toLowerCase() ===
+          item.allow_collateral_contract.toLowerCase(),
+      )?.nftCollection
+      return {
+        ...item,
+        nftCollection,
+      }
+    })
+  }, [myPoolsData, collectionList])
+
+  const [myPoolsSearchValue, setMyPoolsSearchValue] = useState('')
+  const debounceMyPoolsSearchValue = useDebounce(myPoolsSearchValue, {
+    wait: 500,
+  })
+
+  const filteredPoolList = useMemo(() => {
+    if (!debounceMyPoolsSearchValue) return poolList || []
+    return poolList.filter((item) =>
+      item.nftCollection?.name
+        .toLocaleLowerCase()
+        .includes(debounceMyPoolsSearchValue.toLocaleLowerCase()),
+    )
+  }, [debounceMyPoolsSearchValue, poolList])
+
+  /**
+   * Loan Tab 左侧
+   */
+  // loan 左侧选择某一个 pool
+  const [selectKeyForOpenLoans, setSelectKeyForOpenLoans] = useState<number>()
+  // loan 左侧 loan totalCount
+  const [totalLoanCount, setTotalLoanCount] = useState(0)
+  // debounce search value
+  const [loanCollectionSearchValue, setLoanCollectionSearchValue] = useState('')
+  const debounceLoanCollectionSearchValue = useDebounce(
+    loanCollectionSearchValue,
+    {
+      wait: 500,
+    },
+  )
+  // filtered by debounceSearchValue pool list
+  const filteredPoolCollectionList = useMemo(() => {
+    if (!poolList) return []
+    if (!debounceLoanCollectionSearchValue) return poolList || []
+
+    return poolList.filter((item) =>
+      item.nftCollection?.name
+        .toLocaleLowerCase()
+        .includes(debounceLoanCollectionSearchValue.toLocaleLowerCase()),
+    )
+  }, [poolList, debounceLoanCollectionSearchValue])
+
+  /**
+   * Loan 右侧
+   */
+  // groupBy loan status
   const [loansData, setLoansData] = useState<Dictionary<LoanListItemType[]>>({
     0: [],
     1: [],
     2: [],
   })
-
-  // -1 代表全选
-  const [selectKeyForOpenLoans, setSelectKeyForOpenLoans] = useState<number>()
-
   const { loading: loansLoading, data: loanDataForNft } = useRequest(
     () =>
       apiGetLoans({
@@ -158,13 +309,16 @@ const Lend = () => {
     {
       onSuccess: async ({ data }) => {
         setLoansData(groupBy(data, 'loan_status'))
+        if (selectKeyForOpenLoans === undefined) {
+          setTotalLoanCount(data?.length)
+        }
       },
-      ready: tabKey === 1 && !!currentAccount,
+      ready: !!currentAccount,
       refreshDeps: [selectKeyForOpenLoans, currentAccount],
       debounceWait: 100,
     },
   )
-
+  // batch fetch asset detail params
   const batchAssetParams = useMemo(() => {
     if (!loanDataForNft) return []
     return loanDataForNft?.data?.map((i) => ({
@@ -172,55 +326,21 @@ const Lend = () => {
       assetTokenId: i.nft_collateral_id,
     }))
   }, [loanDataForNft])
-  const { data: bactNftListInfo } = useBatchAsset(batchAssetParams)
+  const { data: batchNftListInfo } = useBatchAsset(batchAssetParams)
 
-  const { pathname } = useLocation()
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    setTabKey(() => {
-      switch (pathname) {
-        // case '/lending/pools':
-        //   return 0
-        case '/xlending/lending/my-pools':
-          interceptFn()
-          return 0
-        case '/xlending/lending/loans':
-          interceptFn()
-          return 1
-        default:
-          return 0
-      }
-    })
-  }, [pathname, interceptFn])
-
-  const myPoolsColumns: ColumnProps[] = useMemo(() => {
+  const activeCollectionColumns: ColumnProps[] = useMemo(() => {
     return [
       {
         title: 'Collection',
-        dataIndex: 'allow_collateral_contract',
-        key: 'allow_collateral_contract',
+        dataIndex: 'nftCollection',
+        key: 'contractAddress',
         align: 'left',
         width: 320,
         render: (value: any) => {
-          // 后期需要优化
-          let img = '',
-            name = '',
-            safelistRequestStatus = ''
-          const currentInfo = collectionList.find(
-            (i) => i.contractAddress.toLowerCase() === value.toLowerCase(),
-          )
-          if (currentInfo?.nftCollection) {
-            img = currentInfo?.nftCollection?.imagePreviewUrl
-            name = currentInfo?.nftCollection?.name
-            safelistRequestStatus =
-              currentInfo?.nftCollection?.safelistRequestStatus
-          }
-
           return (
             <Flex alignItems={'center'} gap={'8px'} w='100%'>
               <ImageWithFallback
-                src={img}
+                src={value?.imagePreviewUrl}
                 boxSize={{
                   md: '42px',
                   sm: '32px',
@@ -234,9 +354,114 @@ const Lend = () => {
                 whiteSpace='nowrap'
                 textOverflow='ellipsis'
               >
-                {name || '--'}
+                {value?.name || '--'}
               </Text>
-              {safelistRequestStatus === 'verified' && (
+              {value?.safelistRequestStatus === 'verified' && (
+                <SvgComponent svgId='icon-verified-fill' />
+              )}
+            </Flex>
+          )
+        },
+      },
+      {
+        title: 'Est. Floor*',
+        dataIndex: 'nftCollection',
+        key: 'id',
+        align: 'right',
+        thAlign: 'right',
+        render: (info: any) => {
+          // 后期需要优化
+          return (
+            <Flex alignItems={'center'}>
+              <SvgComponent svgId='icon-eth' />
+              <Text>{info?.nftCollectionStat?.floorPrice || '--'}</Text>
+            </Flex>
+          )
+        },
+      },
+      {
+        title: 'TVL',
+        dataIndex: 'pool_amount',
+        key: 'pool_amount',
+        align: 'right',
+        thAlign: 'right',
+      },
+      {
+        title: 'Collateral Factor',
+        dataIndex: 'pool_maximum_percentage',
+        key: 'pool_maximum_percentage',
+        align: 'center',
+        thAlign: 'center',
+        render: (value: any) => <Text>{Number(value) / 100} %</Text>,
+      },
+      {
+        title: 'Interest',
+        dataIndex: 'pool_maximum_interest_rate',
+        key: 'pool_maximum_interest_rate',
+        thAlign: 'right',
+        align: 'right',
+        render: (value: any) => <Text>{Number(value) / 100}% APR</Text>,
+      },
+      {
+        title: 'Trade',
+        dataIndex: 'nftCollection',
+        key: 'nftCollection',
+        align: 'right',
+        fixedRight: true,
+        thAlign: 'right',
+        render: (value: any, info: any) => {
+          return (
+            <Flex alignItems='center' gap={'8px'}>
+              <Text
+                color='blue.1'
+                onClick={() => {
+                  navigate(`/xlending/lending/create`, {
+                    state: {
+                      contractAddress: info.contractAddress,
+                      nftCollection: value,
+                    },
+                  })
+                }}
+                cursor='pointer'
+              >
+                Supply
+              </Text>
+            </Flex>
+          )
+        },
+      },
+    ]
+  }, [navigate])
+
+  const myPoolsColumns: ColumnProps[] = useMemo(() => {
+    return [
+      {
+        title: 'Collection',
+        dataIndex: 'nftCollection',
+        key: 'nftCollection',
+        align: 'left',
+        width: 240,
+        render: (value: any) => {
+          return (
+            <Flex alignItems={'center'} gap={'8px'} w='100%'>
+              <ImageWithFallback
+                src={value?.imagePreviewUrl}
+                boxSize={{
+                  md: '42px',
+                  sm: '32px',
+                  xs: '32px',
+                }}
+                borderRadius={8}
+              />
+              <Text
+                display='inline-block'
+                overflow='hidden'
+                whiteSpace='nowrap'
+                textOverflow='ellipsis'
+              >
+                {value?.name || '--'}
+              </Text>
+              {value?.safelistRequestStatus === 'verified' && (
                 <SvgComponent svgId='icon-verified-fill' />
               )}
             </Flex>
@@ -250,19 +475,11 @@ const Lend = () => {
         align: 'right',
         thAlign: 'right',
         render: (_: any, info: any) => {
-          // 后期需要优化
-          const currentInfo = collectionList.find(
-            (i) =>
-              i.contractAddress.toLowerCase() ===
-              info.allow_collateral_contract.toLowerCase(),
-          )
-
           return (
             <Flex alignItems={'center'}>
               <SvgComponent svgId='icon-eth' />
               <Text>
-                {currentInfo?.nftCollection?.nftCollectionStat?.floorPrice ||
-                  '--'}
+                {info?.nftCollection?.nftCollectionStat?.floorPrice || '--'}
               </Text>
             </Flex>
           )
@@ -314,36 +531,18 @@ const Lend = () => {
         align: 'right',
         fixedRight: true,
         thAlign: 'right',
-        render: (value: any) => {
+        render: (value: any, info: any) => {
           return (
-            <Flex alignItems='center' gap={'8px'}>
-              <Text
-                color='gray.3'
-                onClick={() => {
-                  navigate('/xlending/lending/loans')
-                  setSelectKeyForOpenLoans(value as number)
-                }}
-                cursor='pointer'
-              >
-                Details
-              </Text>
-              {/* <Link to={`/lending/pools/edit/${id}`}>
-              <Text
-                color={'blue.1'}
-                py='12px'
-                px='16px'
-                borderRadius={8}
-                bg='white'
-              >
-                Manage
-              </Text>
-            </Link> */}
-            </Flex>
+            <MyPoolActionRender
+              data={info}
+              onClickDetail={() => setSelectKeyForOpenLoans(value as number)}
+              onRefresh={refreshMyPools}
+            />
           )
         },
       },
     ]
-  }, [collectionList, navigate])
+  }, [refreshMyPools])
 
   const loansForLendColumns: ColumnProps[] = useMemo(() => {
     return [
@@ -355,7 +554,7 @@ const Lend = () => {
         width: 180,
         thAlign: 'left',
         render: (_: any, info: any) => {
-          const currentInfo = bactNftListInfo?.find(
+          const currentInfo = batchNftListInfo?.find(
             (i) =>
               i?.tokenID === info.nft_collateral_id &&
               i?.assetContractAddress.toLowerCase() ===
@@ -451,8 +650,9 @@ const Lend = () => {
         ),
       },
     ]
-  }, [bactNftListInfo])
+  }, [batchNftListInfo])
 
+  // 移动端 loan 左侧 collection pools draw
   const {
     isOpen: drawVisible,
     onOpen: openDraw,
@@ -484,13 +684,13 @@ const Lend = () => {
         position='relative'
         onChange={(key) => {
           switch (key) {
-            // case 0:
-            //   navigate('/lending/pools')
-            //   break
             case 0:
-              navigate('/xlending/lending/my-pools')
+              navigate('/xlending/lending/collections')
               break
             case 1:
+              navigate('/xlending/lending/my-pools')
+              break
+            case 2:
               navigate('/xlending/lending/loans')
               break
 
@@ -499,7 +699,7 @@ const Lend = () => {
           }
         }}
       >
-        {tabKey === 0 && (
+        {[0, 1].includes(tabKey) && (
           <Flex
             position={'absolute'}
             right={0}
@@ -507,48 +707,49 @@ const Lend = () => {
             gap={'16px'}
             zIndex={3}
             display={{
-              md: 'block',
+              md: 'flex',
               sm: 'none',
             }}
           >
-            {/* {showSearch || isEmpty(activeCollectionData?.list) ? (
+            <ScaleFade in={showSearch} initialScale={0.9}>
               <SearchInput
-                value={tabKey === 0 ? activeCollectionSearch : myPoolsSearch}
+                value={
+                  tabKey === 0
+                    ? activeCollectionSearchValue
+                    : myPoolsSearchValue
+                }
                 onChange={(e) => {
                   if (tabKey === 0) {
-                    setSearchForActiveCollection(e.target.value)
-                    handleSearchActiveCollections(e.target.value)
+                    setActiveCollectionSearchValue(e.target.value)
                   }
                   if (tabKey === 1) {
-                    setSearchForMyPools(e.target.value)
-                    handleSearchMyPools(e.target.value)
+                    setMyPoolsSearchValue(e.target.value)
                   }
                 }}
               />
-            ) : (
-              <Flex
-                h='44px'
-                w='44px'
-                borderRadius={44}
-                justify='center'
-                alignItems={'center'}
-                cursor='pointer'
-                onClick={() => setShowSearch(true)}
-                _hover={{
-                  bg: `var(--chakra-colors-gray-5)`,
-                }}
-              >
-                <ImageWithFallback src={IconSearch} />
-              </Flex>
-            )} */}
-            {!isEmpty(myPoolsData) && (
+            </ScaleFade>
+
+            <Flex
+              h='44px'
+              w='44px'
+              borderRadius={44}
+              justify='center'
+              alignItems={'center'}
+              cursor='pointer'
+              onClick={toggleShowSearch}
+              _hover={{
+                bg: `var(--chakra-colors-gray-5)`,
+              }}
+              hidden={showSearch}
+            >
+              <SvgComponent svgId='icon-search' fill={'gray.3'} />
+            </Flex>
+            {!isEmpty(poolList) && (
               <Button
                 variant={'secondary'}
                 minW='200px'
                 onClick={() =>
-                  interceptFn(() =>
-                    navigate('/xlending/lending/my-pools/create'),
-                  )
+                  interceptFn(() => navigate('/xlending/lending/create'))
                 }
               >
                 + Create New Pool
@@ -567,113 +768,63 @@ const Lend = () => {
           bg='white'
           zIndex={2}
         >
-          {/* <Tab
-            pt='16px'
-            px={'4px'}
-            pb={'20px'}
-            _selected={{
-              color: 'blue.1',
-              borderBottomWidth: 2,
-              borderColor: 'blue.1',
-            }}
-            fontWeight='bold'
-          >
-            Active Collections
-          </Tab> */}
-          <Tab
-            pt={'16px'}
-            px={'8px'}
-            pb={'20px'}
-            _selected={{
-              color: 'blue.1',
-              borderBottomWidth: 2,
-              borderColor: 'blue.1',
-            }}
-            fontWeight='bold'
-            fontSize={'16px'}
-          >
-            My Pools&nbsp;
+          <TabWrapper>Collections</TabWrapper>
+          <TabWrapper>
+            My Pools
             {!isEmpty(myPoolsData) && (
               <Tag
                 bg={'blue.1'}
                 color='white'
                 borderRadius={15}
                 fontSize='12px'
-                h={'20px'}
-                alignItems='center'
+                w='27px'
+                h='20px'
+                textAlign={'center'}
+                justifyContent='center'
                 lineHeight={2}
+                fontWeight='700'
+                ml='4px'
               >
-                {myPoolsData?.length}
+                {poolList?.length}
               </Tag>
             )}
-          </Tab>
-          <Tab
-            pt={'16px'}
-            px={'8px'}
-            pb={'20px'}
-            _selected={{
-              color: 'blue.1',
-              borderBottomWidth: 2,
-              borderColor: 'blue.1',
-            }}
-            fontWeight='bold'
-            fontSize={'16px'}
-          >
-            Outstanding Loans
-          </Tab>
+          </TabWrapper>
+          <TabWrapper>Outstanding Loans</TabWrapper>
         </TabList>
 
-        <TabPanels>
-          {/* <TabPanel p={0}>
-            <MyTable
-              loading={loading1}
-              columns={activeCollectionColumns}
-              data={activeCollectionData?.list || []}
-              caption={() =>
-                isEmpty(activeCollectionData?.list) ? (
-                  <></>
-                ) : (
-                  <Pagination
-                    total={activeCollectionData?.meta?.total}
-                    current={activeCollectionData.meta.current}
-                    onChange={(page) => {
-                      console.log('aaaaaaaaaaaa')
-                      console.log('🚀 ~ file: Lend.tsx:557 ~ Lend ~ page', page)
-                      handleFetchActiveCollections()
-                    }}
-                  />
-                )
+        <Box
+          display={{
+            md: 'none',
+            sm: 'block',
+            xs: 'block',
+          }}
+          mt='20px'
+          hidden={
+            tabKey === 2 ||
+            (tabKey === 0 && isEmpty(activeCollectionList)) ||
+            (tabKey === 1 && isEmpty(poolList))
+          }
+        >
+          <SearchInput
+            value={
+              tabKey === 0 ? activeCollectionSearchValue : myPoolsSearchValue
+            }
+            onChange={(e) => {
+              if (tabKey === 0) {
+                setActiveCollectionSearchValue(e.target.value)
               }
-              onSort={(args) => {
-                console.log(args)
-                handleFetchActiveCollections()
-              }}
-              emptyRender={() => {
-                return (
-                  <EmptyComponent
-                    action={() => {
-                      return (
-                        <Button
-                          variant={'secondary'}
-                          minW='200px'
-                          onClick={() =>
-                            interceptFn(() => navigate('/lending/my-pools/create'))
-                          }
-                        >
-                          + Create new pool
-                        </Button>
-                      )
-                    }}
-                  />
-                )
-              }}
-            />
-          </TabPanel> */}
+              if (tabKey === 1) {
+                setMyPoolsSearchValue(e.target.value)
+              }
+            }}
+          />
+        </Box>
+        <TabPanels>
           <TabPanel p={0}>
             <MyTable
-              loading={myPoolsLoading || collectionLoading}
-              columns={myPoolsColumns}
-              data={myPoolsData || []}
+              loading={poolsLoading || collectionLoading}
+              columns={activeCollectionColumns}
+              data={filteredActiveCollectionList || []}
               // onSort={(args: any) => {
               //   console.log(args)
               //   handleFetchMyPools({ address: currentAccount })
@@ -688,7 +839,39 @@ const Lend = () => {
                           minW='200px'
                           onClick={() =>
                             interceptFn(() =>
-                              navigate('/xlending/lending/my-pools/create'),
+                              navigate('/xlending/lending/create'),
+                            )
+                          }
+                        >
+                          + Create New Pool
+                        </Button>
+                      )
+                    }}
+                  />
+                )
+              }}
+            />
+          </TabPanel>
+          <TabPanel p={0}>
+            <MyTable
+              loading={poolsLoading || collectionLoading}
+              columns={myPoolsColumns}
+              data={filteredPoolList || []}
+              // onSort={(args: any) => {
+              //   console.log(args)
+              //   handleFetchMyPools({ address: currentAccount })
+              // }}
+              emptyRender={() => {
+                return (
+                  <EmptyComponent
+                    action={() => {
+                      return (
+                        <Button
+                          variant={'secondary'}
+                          minW='200px'
+                          onClick={() =>
+                            interceptFn(() =>
+                              navigate('/xlending/lending/create'),
                             )
                           }
                         >
@@ -720,16 +903,21 @@ const Lend = () => {
                 <Heading mb='16px' fontSize={'16px'}>
                   My Collection Pools
                 </Heading>
-                {/* <SearchInput placeholder='Collections...' /> */}
+                <SearchInput
+                  placeholder='Collections...'
+                  value={loanCollectionSearchValue}
+                  onChange={(e) => setLoanCollectionSearchValue(e.target.value)}
+                />
 
                 <List spacing='16px' mt='16px' position='relative'>
                   <LoadingComponent
-                    loading={myPoolsLoading || collectionLoading}
+                    loading={poolsLoading || collectionLoading}
+                    top={0}
                   />
-                  {isEmpty(myPoolsData) &&
-                    !myPoolsLoading &&
+                  {isEmpty(filteredPoolCollectionList) &&
+                    !poolsLoading &&
                     !collectionLoading && <EmptyComponent />}
-                  {!isEmpty(myPoolsData) && (
+                  {!isEmpty(filteredPoolCollectionList) && (
                     <Flex
                       justify={'space-between'}
                       py='12px'
@@ -744,31 +932,30 @@ const Lend = () => {
                       }
                     >
                       <Text fontSize='14px' fontWeight='700'>
-                        All my Collections
+                        All My Collections
                       </Text>
                       {selectKeyForOpenLoans === undefined ? (
                         <SvgComponent svgId='icon-checked' />
                       ) : (
-                        <Text fontSize='14px'>{myPoolsData?.length}</Text>
+                        <Text fontSize='14px'>{totalLoanCount || ''}</Text>
                       )}
                     </Flex>
                   )}
 
-                  {!isEmpty(myPoolsData) &&
-                    myPoolsData.map(
+                  {!isEmpty(filteredPoolCollectionList) &&
+                    filteredPoolCollectionList.map(
                       ({
                         pool_id,
                         allow_collateral_contract,
                         loan_count,
-                      }: PoolsListItemType) => {
-                        const collection_info = collectionList?.find(
-                          (i) =>
-                            i.contractAddress.toLowerCase() ===
-                            allow_collateral_contract.toLowerCase(),
-                        )
+                        nftCollection,
+                      }) => {
                         return (
                           <CollectionListItem
-                            data={collection_info}
+                            data={{
+                              nftCollection,
+                              contractAddress: allow_collateral_contract,
+                            }}
                             key={`${pool_id}${allow_collateral_contract}`}
                             onClick={() => setSelectKeyForOpenLoans(pool_id)}
                             isActive={selectKeyForOpenLoans === pool_id}
@@ -869,7 +1056,7 @@ const Lend = () => {
         </TabPanels>
       </Tabs>
 
-      {tabKey === 0 && !isEmpty(myPoolsData) && (
+      {[0, 1].includes(tabKey) && !isEmpty(myPoolsData) && (
         <Flex
           bg='white'
           position={'fixed'}
@@ -888,7 +1075,7 @@ const Lend = () => {
             w='100%'
             h='42px'
             onClick={() =>
-              interceptFn(() => navigate('/xlending/lending/my-pools/create'))
+              interceptFn(() => navigate('/xlending/lending/create'))
             }
           >
             + Create New Pool
@@ -896,7 +1083,7 @@ const Lend = () => {
         </Flex>
       )}
 
-      {tabKey === 1 && (
+      {tabKey === 2 && (
         <Flex
           bg='white'
           position={'fixed'}
@@ -927,14 +1114,23 @@ const Lend = () => {
           <DrawerBody>
             <DrawerCloseButton mt='40px' />
             <Heading fontSize={'24px'} pt='40px' pb='32px'>
-              Collections
+              My Collection Pools
             </Heading>
-            <List spacing={'16px'} position='relative'>
-              <LoadingComponent loading={myPoolsLoading || collectionLoading} />
-              {isEmpty(myPoolsData) &&
-                !myPoolsLoading &&
+            <SearchInput
+              placeholder='Collections...'
+              value={loanCollectionSearchValue}
+              onChange={(e) => setLoanCollectionSearchValue(e.target.value)}
+            />
+            <List spacing={'16px'} position='relative' mt='16px'>
+              <LoadingComponent
+                loading={poolsLoading || collectionLoading}
+                top={0}
+                borderRadius={8}
+              />
+              {isEmpty(filteredPoolCollectionList) &&
+                !poolsLoading &&
                 !collectionLoading && <EmptyComponent />}
-              {!isEmpty(myPoolsData) && (
+              {!isEmpty(filteredPoolCollectionList) && (
                 <Flex
                   justify={'space-between'}
                   py='12px'
@@ -947,18 +1143,19 @@ const Lend = () => {
                   bg={selectKeyForOpenLoans === undefined ? 'blue.2' : 'white'}
                 >
                   <Text fontSize='14px' fontWeight='700'>
-                    All my Collections
+                    All My Collections
                   </Text>
+
                   {selectKeyForOpenLoans === undefined ? (
                     <SvgComponent svgId='icon-checked' />
                   ) : (
-                    <Text fontSize='14px'>{myPoolsData?.length}</Text>
+                    <Text fontSize='14px'>{totalLoanCount || ''}</Text>
                   )}
                 </Flex>
               )}
 
-              {!isEmpty(myPoolsData) &&
-                myPoolsData.map(
+              {!isEmpty(filteredPoolCollectionList) &&
+                filteredPoolCollectionList.map(
                   ({
                     pool_id,
                     allow_collateral_contract,
@@ -969,6 +1166,7 @@ const Lend = () => {
                         i.contractAddress.toLowerCase() ===
                         allow_collateral_contract.toLowerCase(),
                     )
+
                     return (
                       <CollectionListItem
                         data={collection_info}
