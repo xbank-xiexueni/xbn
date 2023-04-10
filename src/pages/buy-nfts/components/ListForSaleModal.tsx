@@ -322,16 +322,17 @@ const ListForSaleModal: FunctionComponent<{
                 )}
                 <InputRightElement
                   bg='gray.5'
-                  h='58px'
+                  h='57px'
                   borderRightRadius={8}
                   borderColor={isAmountError ? 'red.1' : 'gray.4'}
                   borderWidth={0}
                   pr='70px'
                   pl='32px'
-                  top={'1px'}
+                  top={'1.5px'}
                   right={'1px'}
+                  fontWeight={'700'}
                 >
-                  <Text fontWeight={'700'}>{UNIT}</Text>
+                  {UNIT}
                 </InputRightElement>
               </InputGroup>
 
