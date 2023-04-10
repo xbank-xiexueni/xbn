@@ -4,11 +4,11 @@ import isEmpty from 'lodash-es/isEmpty'
 import pLimit from 'p-limit'
 import { useCallback } from 'react'
 
-import { useAssetWithoutIdLazyQuery } from '.'
+import { apiGetNftDetail } from '@/api'
 
 import type { NftAsset } from '.'
 
-const limit = pLimit(1)
+const limit = pLimit(10)
 
 /**
  * 批量请求 nft asset 详情
@@ -18,15 +18,12 @@ const limit = pLimit(1)
 const useBatchAsset = (
   assetParams?: { assetContractAddress: string; assetTokenId: string }[],
 ) => {
-  const [runAsync] = useAssetWithoutIdLazyQuery({
-    fetchPolicy: 'network-only',
-  })
   const batchNftListInfo = useCallback(async () => {
     let res: NftAsset[] = []
     const input = assetParams?.map((item) => {
       return limit(() =>
-        runAsync({
-          variables: item,
+        apiGetNftDetail({
+          ...item,
         }),
       )
     })
@@ -34,9 +31,9 @@ const useBatchAsset = (
     if (!input) return res
     const result = await Promise.allSettled(input)
     // @ts-ignore
-    res = compact(result.map((i) => i?.value?.data?.asset))
+    res = compact(result.map((i) => i?.value?.data?.data?.asset))
     return res
-  }, [runAsync, assetParams])
+  }, [assetParams])
   return useRequest(batchNftListInfo, {
     ready: !!assetParams && !isEmpty(assetParams),
   })
