@@ -149,7 +149,7 @@ const MyAssetNftListCard: FunctionComponent<
       const isLonger = unFormatName?.length > 20
       return isLonger ? `${unFormatName.substring(0, 20)}...` : unFormatName
     }
-    return unFormatName
+    return `${unFormatName}`
   }, [contractInfo, assetInfo, ish5])
 
   return (

@@ -20,7 +20,7 @@ import { isEmpty } from 'lodash-es'
 import { useEffect, useMemo, useState } from 'react'
 
 import { ImageWithFallback, SvgComponent, Select } from '@/components'
-import { FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
+import { FORMAT_NUMBER, LIST_DURATION, UNIT } from '@/constants'
 import type { NftAsset } from '@/hooks'
 
 import type { FlexProps } from '@chakra-ui/react'
@@ -72,6 +72,7 @@ const NftInfoBox: FunctionComponent<
 const percentage = 2.5
 const AMOUNT_MAX = 100000
 const AMOUNT_MIN = 0
+const DEFAULT_EARN = '2.5'
 
 const Item: FunctionComponent<
   FlexProps & {
@@ -110,12 +111,12 @@ const ListForSaleModal: FunctionComponent<{
   loanAmount: number
 }> = ({ onClose, isOpen, data, loanAmount, ...rest }) => {
   const [price, setPrice] = useState<string>()
-  const [earn, setEarn] = useState<string>('5')
+  const [earn, setEarn] = useState<string>(DEFAULT_EARN)
   const [durationValue, setDurationValue] = useState<number>(30)
 
   useEffect(() => {
     setPrice(undefined)
-    setEarn('5')
+    setEarn(DEFAULT_EARN)
     setDurationValue(30)
   }, [isOpen])
 
@@ -129,7 +130,7 @@ const ListForSaleModal: FunctionComponent<{
       h: '60px',
       img: <SvgComponent svgId='icon-calendar' ml='12px' svgSize={'20px'} />,
       onChange: (e: any) => setDurationValue(e?.value as number),
-      options: TENORS?.map((item) => ({
+      options: LIST_DURATION?.map((item) => ({
         label: `${item} Days`,
         value: item,
       })),
@@ -159,13 +160,20 @@ const ListForSaleModal: FunctionComponent<{
       .dividedBy(
         BigNumber(1)
           .minus(percentage / 100)
-          .minus(Number(earn) / 100),
+          .minus(Number(earn || 0) / 100),
       )
       .multipliedBy(gas)
-    console.log(
-      '可输入的最小金额：这个抵押品对应 loan 的“未偿贷款本金+利息”/(1-2.5%-用户输入的版税）+ 预估清算所需的 gas 费',
-      res.toNumber(),
-    )
+
+    if (isNaN(res.toNumber())) {
+      console.log(loanAmount)
+      return BigNumber(100000)
+    } else {
+      console.log(
+        '可输入的最小金额：这个抵押品对应 loan 的“未偿贷款本金+利息”/(1-2.5%-用户输入的版税）+ 预估清算所需的 gas 费',
+        res.toNumber(),
+      )
+    }
+
     return res
   }, [loanAmount, earn, gas])
 
@@ -373,7 +381,6 @@ const ListForSaleModal: FunctionComponent<{
 
               <InputGroup w='100px' alignItems={'center'}>
                 <NumberInput
-                  defaultValue={5.0}
                   min={earnMinAndMax.min}
                   step={0.01}
                   max={earnMinAndMax.max}

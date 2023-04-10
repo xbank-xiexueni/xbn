@@ -43,6 +43,13 @@ export const apiGetNftDetail: (variables: {
       'query AssetWithoutId($assetContractAddress: String, $assetTokenId: String) {\n  asset(assetContractAddress: $assetContractAddress, assetTokenID: $assetTokenId) {\n    id\n    createdAt\n    updatedAt\n    assetContractAddress\n    tokenID\n    imageUrl\n    imagePreviewUrl\n    imageThumbnailUrl\n    imageOriginalUrl\n    animationUrl\n    animationOriginalUrl\n    backgroundColor\n    name\n    description\n    externalLink\n    creator\n    owner\n    transferFee\n    transferFeePaymentToken\n    orderChain\n    orderCoin\n    orderPrice\n    rarity\n    rarityRank\n    rarityLevel\n    chain\n    nftAssetContract {\n      id\n      createdAt\n      updatedAt\n      address\n      assetContractType\n      createdDate\n      name\n      nftVersion\n      openseaVersion\n      schemaName\n      symbol\n      totalSupply\n      description\n      externalLink\n      imageUrl\n      openseaBuyerFeeBasisPoints\n      openseaSellerFeeBasisPoints\n      buyerFeeBasisPoints\n      sellerFeeBasisPoints\n      payoutAddress\n      __typename\n    }\n    nftAssetMetaData {\n      like\n      likeCount\n      __typename\n    }\n    __typename\n  }\n}',
   })
 }
+export const apiTest: (id: string) => Promise<AxiosResponse<any>> = async (
+  variables,
+) => {
+  return await request.post(
+    `https://www.fastmock.site/mock/9b1763038152f49675038983b826d34e/api/asset/${variables}`,
+  )
+}
 
 export const apiGetXCurrency: () => Promise<
   AxiosResponse<{
