@@ -11,11 +11,13 @@ function CustomSelect<
 >({
   img,
   w,
+  h,
   isDisabled,
   borderColor = 'var(--chakra-colors-blue-4)',
   ...restProps
 }: Props<Option, IsMulti, Group> & {
   w?: string
+  h?: string
   img?: React.ReactElement
   isDisabled?: boolean
   borderColor?: string
@@ -84,7 +86,7 @@ function CustomSelect<
           // boxShadow: isFocused
           //   ? '-2px 1px 4px -3px var(--chakra-colors-blue-1), 2px -2px 4px -3px var(--chakra-colors-blue-1)'
           //   : 'none',
-          height: 44,
+          height: h || 44,
           backgroundColor: 'white',
           ':hover': {
             ...baseStyles[':hover'],

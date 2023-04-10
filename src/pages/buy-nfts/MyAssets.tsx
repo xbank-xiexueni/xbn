@@ -10,6 +10,7 @@ import {
   SimpleGrid,
   GridItem,
   Flex,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { useRequest } from 'ahooks'
 import isEmpty from 'lodash-es/isEmpty'
@@ -23,7 +24,10 @@ import {
   MyAssetNftListCard,
   SvgComponent,
 } from '@/components'
+import type { NftAsset } from '@/hooks'
 import { useBatchAsset, useWallet } from '@/hooks'
+
+import ListForSaleModal from './components/ListForSaleModal'
 
 // const SORT_OPTIONS = [
 //   {
@@ -76,7 +80,7 @@ const MyAssets = () => {
       assetTokenId: i.token_id,
     }))
   }, [data])
-  const { data: bactNftListInfo } = useBatchAsset(batchAssetParams)
+  const { data: batchNftListInfo } = useBatchAsset(batchAssetParams)
 
   useEffect(() => {
     interceptFn()
@@ -97,6 +101,13 @@ const MyAssets = () => {
     }),
     [grid],
   )
+
+  const {
+    isOpen: listForSaleVisible,
+    onClose: closeListForSale,
+    onOpen: openListForSale,
+  } = useDisclosure()
+  const [currentSelectAsset, setCurrentSelectAsset] = useState<NftAsset>()
 
   return (
     <Box mb='100px'>
@@ -198,29 +209,59 @@ const MyAssets = () => {
                   <EmptyComponent />
                 </GridItem>
               )}
-              {data?.data?.map((item) => (
-                <MyAssetNftListCard
-                  key={`${item?.asset_contract_address}-${item.token_id}`}
-                  onClick={() => {}}
-                  imageSize={{
-                    xl: grid === 4 ? '332px' : '445px',
-                    lg: grid === 4 ? '220px' : '298px',
-                    md: grid === 4 ? '170px' : '234px',
-                    sm: '174px',
-                    xs: '174px',
-                  }}
-                  assetInfo={bactNftListInfo?.find(
-                    (i) =>
-                      item.asset_contract_address === i.assetContractAddress &&
-                      item.token_id === i.tokenID,
-                  )}
-                  contractInfo={item}
-                />
-              ))}
+              {data?.data?.map((item) => {
+                // const assetInfo = batchNftListInfo?.get(JSON.stringify({
+                //   address: item.asset_contract_address.toLowerCase(),
+                //   tokenId: item.token_id,
+                // }))
+
+                const assetInfo = batchNftListInfo?.find(
+                  (i) =>
+                    i.assetContractAddress.toLowerCase() ===
+                      item.asset_contract_address.toLowerCase() &&
+                    i.tokenID === item.token_id,
+                )
+                return (
+                  <MyAssetNftListCard
+                    key={`${item?.asset_contract_address}-${item.token_id}`}
+                    imageSize={{
+                      xl: grid === 4 ? '332px' : '445px',
+                      lg: grid === 4 ? '220px' : '298px',
+                      md: grid === 4 ? '170px' : '234px',
+                      sm: '174px',
+                      xs: '174px',
+                    }}
+                    assetInfo={assetInfo}
+                    contractInfo={item}
+                    onListForSale={() => {
+                      console.log('click list for sale')
+                      // @ts-ignore
+                      setCurrentSelectAsset({
+                        ...assetInfo,
+                        tokenID: assetInfo?.tokenID || item.token_id,
+                      })
+                      openListForSale()
+                    }}
+                    onChangeList={() => {
+                      console.log('click change list')
+                    }}
+                    onCancelList={() => {
+                      console.log('click cancel list')
+                    }}
+                  />
+                )
+              })}
             </SimpleGrid>
           </TabPanel>
         </TabPanels>
       </Tabs>
+
+      <ListForSaleModal
+        data={currentSelectAsset}
+        isOpen={listForSaleVisible}
+        onClose={closeListForSale}
+        loanAmount={10}
+      />
     </Box>
   )
 }

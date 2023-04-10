@@ -105,8 +105,19 @@ const MyAssetNftListCard: FunctionComponent<
     contractInfo: MyAssetListItemType
     assetInfo?: AssetWithoutIdQuery['asset']
     imageSize: ImageProps['boxSize']
+    onListForSale?: () => void
+    onChangeList?: () => void
+    onCancelList?: () => void
   } & CardProps
-> = ({ contractInfo, assetInfo, imageSize, ...rest }) => {
+> = ({
+  contractInfo,
+  assetInfo,
+  imageSize,
+  onListForSale,
+  onCancelList,
+  onChangeList,
+  ...rest
+}) => {
   const ish5 = useIsMobile()
   const [show, setShow] = useState(ish5)
 
@@ -171,8 +182,10 @@ const MyAssetNftListCard: FunctionComponent<
             alt={assetInfo?.name}
             boxSize={imageSize}
             fit='contain'
-            transform={`scale(${show ? 1.2 : 1})`}
             transition='all 0.6s'
+            _hover={{
+              transform: `scale(1.2)`,
+            }}
           />
           {isListing && <ListingTag />}
         </Box>
@@ -240,7 +253,7 @@ const MyAssetNftListCard: FunctionComponent<
               : 0
           }
         >
-          {['Change', 'Cancel List'].map((item, index) => (
+          {['Change', 'Cancel'].map((item, index) => (
             <Button
               hidden={!show}
               borderRadius={0}
@@ -254,21 +267,23 @@ const MyAssetNftListCard: FunctionComponent<
               }}
               variant={'unstyled'}
               w='50%'
-              color={{
-                md: 'blue.3',
-                sm: index === 0 ? 'white' : 'blue.1',
-                xs: index === 0 ? 'white' : 'blue.1',
-              }}
-              bg={{
-                md: 'white',
-                sm: index === 0 ? 'blue.3' : 'blue.2',
-                xs: index === 0 ? 'blue.3' : 'blue.2',
-              }}
+              color={'blue.1'}
+              bg={'gray.5'}
               _hover={{
                 color: 'white',
-                bg: 'blue.3',
+                bg: 'blue.1',
               }}
               h='100%'
+              onClick={() => {
+                if (item === 'Change' && onChangeList) {
+                  onChangeList()
+                  return
+                }
+                if (item === 'Cancel' && onCancelList) {
+                  onCancelList()
+                  return
+                }
+              }}
             >
               {item}
             </Button>
@@ -279,7 +294,13 @@ const MyAssetNftListCard: FunctionComponent<
           borderRadius={16}
           borderTopLeftRadius={0}
           borderTopRightRadius={0}
-          variant='other'
+          bg='blue.1'
+          color='white'
+          _hover={{
+            opacity: 1,
+            bg: 'blue.1',
+            color: 'white',
+          }}
           h={
             show
               ? {
@@ -295,6 +316,7 @@ const MyAssetNftListCard: FunctionComponent<
           right={0}
           left={0}
           transition='all 0.15s'
+          onClick={onListForSale}
         >
           {show && 'List for sale'}
         </Button>
