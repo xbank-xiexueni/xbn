@@ -150,6 +150,19 @@ function CustomSelect<
             </components.SingleValue>
           )
         },
+        Placeholder: ({ children, ...rest }) => (
+          <components.Placeholder {...rest}>
+            <Flex
+              ml={!!img ? '-10px' : 0}
+              gap='8px'
+              lineHeight={2}
+              alignItems='center'
+            >
+              {img}
+              {children}
+            </Flex>
+          </components.Placeholder>
+        ),
       }}
     />
   )

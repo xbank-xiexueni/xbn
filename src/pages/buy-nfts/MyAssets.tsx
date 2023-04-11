@@ -10,7 +10,6 @@ import {
   SimpleGrid,
   GridItem,
   Flex,
-  useDisclosure,
 } from '@chakra-ui/react'
 import { useRequest } from 'ahooks'
 import isEmpty from 'lodash-es/isEmpty'
@@ -18,16 +17,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { apiGetMyAssets } from '@/api'
-import {
-  EmptyComponent,
-  LoadingComponent,
-  MyAssetNftListCard,
-  SvgComponent,
-} from '@/components'
-import type { NftAsset } from '@/hooks'
+import { EmptyComponent, LoadingComponent, SvgComponent } from '@/components'
 import { useBatchAsset, useWallet } from '@/hooks'
 
-import ListForSaleModal from './components/ListForSaleModal'
+import MyAssetNftListCard from './components/MyAssetNftListCard'
 
 // const SORT_OPTIONS = [
 //   {
@@ -102,13 +95,6 @@ const MyAssets = () => {
     [grid],
   )
 
-  const {
-    isOpen: listForSaleVisible,
-    onClose: closeListForSale,
-    onOpen: openListForSale,
-  } = useDisclosure()
-  const [currentSelectAsset, setCurrentSelectAsset] = useState<NftAsset>()
-
   return (
     <Box mb='100px'>
       <Flex
@@ -166,7 +152,7 @@ const MyAssets = () => {
                 color='white'
                 borderRadius={15}
                 fontSize={'12px'}
-                h={'20px'}
+                lineHeight={'20px'}
               >
                 {data?.data?.length}
               </Tag>
@@ -223,7 +209,7 @@ const MyAssets = () => {
                 )
                 return (
                   <MyAssetNftListCard
-                    key={`${item?.asset_contract_address}-${item.token_id}`}
+                    key={`${item?.asset_contract_address}-${item?.token_id}`}
                     imageSize={{
                       xl: grid === 4 ? '332px' : '445px',
                       lg: grid === 4 ? '220px' : '298px',
@@ -231,23 +217,59 @@ const MyAssets = () => {
                       sm: '174px',
                       xs: '174px',
                     }}
-                    assetInfo={assetInfo}
-                    contractInfo={item}
-                    onListForSale={() => {
-                      console.log('click list for sale')
-                      // @ts-ignore
-                      setCurrentSelectAsset({
-                        ...assetInfo,
+                    data={{
+                      assetData: {
                         tokenID: assetInfo?.tokenID || item.token_id,
-                      })
-                      openListForSale()
+                        name: assetInfo?.name,
+                        imagePreviewUrl: assetInfo?.imagePreviewUrl,
+                      },
+                      contractData: { ...item },
+                      loanData: {
+                        outstandingLoan: 270000000000000,
+                        loanEndedTime: 1685692716,
+                      },
+                      collectionData: {
+                        name: 'collection name',
+                        safelistRequestStatus: 'verified',
+                        minFloorPrice: 0.1888,
+                        maxFloorPrice: 0.3518,
+                      },
+                      listingData:
+                        // 假设 #10 正在 list
+                        item.token_id === '10'
+                          ? {
+                              listAmount: 500000000000000000,
+                              creatorEarn: 1000,
+                              duration: 30,
+                            }
+                          : undefined,
                     }}
-                    onChangeList={() => {
-                      console.log('click change list')
-                    }}
-                    onCancelList={() => {
-                      console.log('click cancel list')
-                    }}
+                    // onChangeList={() => {
+                    //   console.log('click change list')
+                    //   setCurrentListData({
+                    //     asset: {
+                    //       tokenID: assetInfo?.tokenID || item.token_id,
+                    //       name: assetInfo?.name,
+                    //       imagePreviewUrl: assetInfo?.imagePreviewUrl,
+                    //     },
+                    //     loan: {
+                    //       outstandingLoan: 270000000000000,
+                    //       loanEndedTime: 1685692716,
+                    //     },
+                    //     collection: {
+                    //       name: 'collection name',
+                    //       safelistRequestStatus: 'verified',
+                    //       minFloorPrice: 0.1888,
+                    //       maxFloorPrice: 0.3518,
+                    //     },
+                    //     listingData: {
+                    //       listAmount: 500000000000000000,
+                    //       creatorEarn: 1000,
+                    //       duration: 30,
+                    //     },
+                    //   })
+                    //   setListModalAction('change')
+                    // }}
                   />
                 )
               })}
@@ -255,13 +277,6 @@ const MyAssets = () => {
           </TabPanel>
         </TabPanels>
       </Tabs>
-
-      <ListForSaleModal
-        data={currentSelectAsset}
-        isOpen={listForSaleVisible}
-        onClose={closeListForSale}
-        loanAmount={10}
-      />
     </Box>
   )
 }

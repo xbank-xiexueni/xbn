@@ -28,7 +28,6 @@ import {
   ConnectWalletModal,
   EmptyComponent,
   LoadingComponent,
-  MarketNftListCard,
   SearchInput,
 } from '@/components'
 import {
@@ -45,6 +44,7 @@ import {
 
 import CollectionDescription from './components/CollectionDescription'
 import CollectionListItem from './components/CollectionListItem'
+import MarketNftListCard from './components/MarketNftListCard'
 import Toolbar from './components/Toolbar'
 
 const SORT_OPTIONS = [
