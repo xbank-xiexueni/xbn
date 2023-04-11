@@ -102,7 +102,7 @@ const Market = () => {
   const [poolsMap, setPoolsMap] = useState<Map<string, PoolsListItemType[]>>()
 
   const { loading: poolsLoading } = useRequest(() => apiGetPools({}), {
-    onSuccess: ({ data }) => {
+    onSuccess: (data) => {
       if (isEmpty(data)) {
         return
       }

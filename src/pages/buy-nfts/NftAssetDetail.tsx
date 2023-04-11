@@ -540,7 +540,7 @@ const NftAssetDetail = () => {
 
   // 获取 eth => USD 汇率
   useRequest(apiGetXCurrency, {
-    onSuccess: ({ data }) => {
+    onSuccess: (data) => {
       if (!data || isEmpty(data)) return
       const { resources } = data
 

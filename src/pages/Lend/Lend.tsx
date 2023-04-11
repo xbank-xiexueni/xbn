@@ -142,7 +142,7 @@ const Lend = () => {
   const { loading: poolsLoading, refreshAsync: refreshMyPools } = useRequest(
     apiGetPools,
     {
-      onSuccess: ({ data }) => {
+      onSuccess: (data) => {
         if (isEmpty(data)) return
         setAllPoolsData(data)
         if (!currentAccount) return
@@ -307,7 +307,7 @@ const Lend = () => {
         pool_id: selectKeyForOpenLoans,
       }),
     {
-      onSuccess: async ({ data }) => {
+      onSuccess: async (data) => {
         setLoansData(groupBy(data, 'loan_status'))
         if (selectKeyForOpenLoans === undefined) {
           setTotalLoanCount(data?.length)
@@ -321,7 +321,7 @@ const Lend = () => {
   // batch fetch asset detail params
   const batchAssetParams = useMemo(() => {
     if (!loanDataForNft) return []
-    return loanDataForNft?.data?.map((i) => ({
+    return loanDataForNft?.map((i) => ({
       assetContractAddress: i.nft_collateral_contract,
       assetTokenId: i.nft_collateral_id,
     }))

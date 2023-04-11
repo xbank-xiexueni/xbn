@@ -104,7 +104,7 @@ export const TransactionsProvider = ({
   const { loading } = useRequest(apiGetActiveCollection, {
     debounceWait: 100,
     retryCount: 5,
-    onSuccess: ({ data }) => {
+    onSuccess: (data) => {
       setCollectionAddressArr(data.map((i) => i.contract_addr))
     },
   })

@@ -89,7 +89,7 @@ const MyTable = ({
             variant='unstyled'
             style={{
               borderCollapse: 'collapse',
-              borderSpacing: '0 10px',
+              borderSpacing: '0px',
             }}
             className='my-table'
           >
