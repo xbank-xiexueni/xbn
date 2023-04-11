@@ -67,7 +67,7 @@ const Loans = () => {
     () =>
       groupBy(
         // currentCollectionLoans,
-        data?.data,
+        data,
         'loan_status',
       ),
     [data],
@@ -75,7 +75,7 @@ const Loans = () => {
 
   const batchAssetParams = useMemo(() => {
     if (!data) return []
-    return data?.data?.map((i) => ({
+    return data?.map((i) => ({
       assetContractAddress: i.nft_collateral_contract,
       assetTokenId: i.nft_collateral_id,
     }))

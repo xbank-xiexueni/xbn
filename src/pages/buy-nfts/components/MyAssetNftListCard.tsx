@@ -14,7 +14,6 @@ import {
   ModalHeader,
   type ImageProps,
   Modal,
-  ModalCloseButton,
   type FlexProps,
   Highlight,
   InputGroup,
@@ -41,7 +40,7 @@ import {
   Select,
   SvgComponent,
 } from '@/components'
-import { LIST_DURATION, UNIT } from '@/constants'
+import { FORMAT_NUMBER, LIST_DURATION, UNIT } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { eth2Wei, wei2Eth } from '@/utils/unit-conversion'
 
@@ -499,8 +498,18 @@ const MyAssetNftListCard: FunctionComponent<
               xs: '20px',
             }}
           >
-            <ModalHeader p={0}>Confirming!</ModalHeader>
-            <ModalCloseButton />
+            <ModalHeader
+              p={0}
+              display={'flex'}
+              justifyContent={'space-between'}
+            >
+              Confirming!
+              <SvgComponent
+                svgId='icon-close'
+                onClick={closeModal}
+                cursor={'pointer'}
+              />
+            </ModalHeader>
             <ModalBody p={0} mt='20px'>
               Are you sure you want to cancel the listing?
             </ModalBody>
@@ -517,42 +526,55 @@ const MyAssetNftListCard: FunctionComponent<
         </Modal>
       </Card>
       <Modal onClose={closeModal} isOpen={listModalVisible} isCentered>
-        <ModalOverlay bg='black.2' />
+        <ModalOverlay bg='black.2' h='100vh' />
         <ModalContent
+          containerProps={{
+            style: {
+              overflow: 'initial',
+            },
+          }}
           maxW={{
             lg: '576px',
             md: '468px',
             sm: '326px',
             xs: '326px',
           }}
-          p={{
+          px={{
             md: '40px',
             sm: '20px',
             xs: '20px',
           }}
           maxH={{
-            md: '95vh',
+            md: '96vh',
             sm: '70vh',
             xs: '70vh',
           }}
           overflowY={'auto'}
         >
-          <ModalHeader p={0} fontSize={'28px'} fontWeight={'700'}>
-            {type === 'change' && 'Change'} List item
-          </ModalHeader>
-          <ModalCloseButton
-            fontSize={'16px'}
-            top={{
+          <ModalHeader
+            pt={{
               md: '40px',
-              xs: '25px',
-              sm: '25px',
+              sm: '20px',
+              xs: '20px',
             }}
-            right={{
-              md: '30px',
-              sm: '16px',
-              xs: '16px',
-            }}
-          />
+            px={0}
+            fontSize={'28px'}
+            fontWeight={'700'}
+            position={'sticky'}
+            top={0}
+            bg='white'
+            zIndex={2}
+            display={'flex'}
+            justifyContent={'space-between'}
+          >
+            {type === 'change' && 'Change'} List item
+            <SvgComponent
+              svgId='icon-close'
+              onClick={closeModal}
+              cursor={'pointer'}
+            />
+          </ModalHeader>
+
           <ModalBody m={0} p={0}>
             {/* nft info */}
             <NftInfoBox data={assetData} price={price} />
@@ -683,7 +705,8 @@ const MyAssetNftListCard: FunctionComponent<
                     fontSize={'14px'}
                     fontWeight={'500'}
                   >
-                    Minimum input:{wei2Eth(minInput)}
+                    Minimum input:&nbsp;
+                    {BigNumber(wei2Eth(minInput)).toFormat(FORMAT_NUMBER)}
                     <br />
                     Price cannot be less than the outstanding loan amount
                   </Text>
@@ -699,8 +722,12 @@ const MyAssetNftListCard: FunctionComponent<
                       alignItems={'center'}
                       lineHeight={'24px'}
                     >
-                      <SvgComponent svgId='icon-info' fill={'orange.1'} />
-                      Price is below collection floor price of{' '}
+                      <SvgComponent
+                        svgId='icon-info'
+                        fill={'orange.1'}
+                        svgSize='16px'
+                      />
+                      Price is below collection floor price of&nbsp;
                       {collectionData?.minFloorPrice}
                       {UNIT}
                     </Flex>
@@ -805,12 +832,20 @@ const MyAssetNftListCard: FunctionComponent<
 
             {/* button */}
             <Flex
-              mt='12px'
+              pt='12px'
               px={{
                 md: '40px',
                 sm: '20px',
                 xs: '20px',
               }}
+              pb={{
+                md: '40px',
+                sm: '20px',
+                xs: '20px',
+              }}
+              position={'sticky'}
+              bottom={'0px'}
+              bg='white'
             >
               <Button
                 variant={'primary'}

@@ -41,7 +41,7 @@ request.interceptors.request.use(async ({ url, baseURL, ...config }) => {
 
 request.interceptors.response.use(
   (resp) => {
-    return resp
+    return resp?.data
   },
   (error) => {
     const {

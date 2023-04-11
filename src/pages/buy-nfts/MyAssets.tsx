@@ -68,7 +68,7 @@ const MyAssets = () => {
 
   const batchAssetParams = useMemo(() => {
     if (!data) return []
-    return data?.data?.map((i) => ({
+    return data?.map((i) => ({
       assetContractAddress: i.asset_contract_address,
       assetTokenId: i.token_id,
     }))
@@ -146,7 +146,7 @@ const MyAssets = () => {
             fontWeight='bold'
           >
             Collected &nbsp;
-            {!isEmpty(data?.data) && (
+            {!isEmpty(data) && (
               <Tag
                 bg='blue.1'
                 color='white'
@@ -154,7 +154,7 @@ const MyAssets = () => {
                 fontSize={'12px'}
                 lineHeight={'20px'}
               >
-                {data?.data?.length}
+                {data?.length}
               </Tag>
             )}
           </Tab>
@@ -190,12 +190,12 @@ const MyAssets = () => {
               mt='20px'
             >
               <LoadingComponent loading={loading} top={0} />
-              {(!data?.data || isEmpty(data?.data)) && (
+              {(!data || isEmpty(data)) && (
                 <GridItem colSpan={responsiveSpan}>
                   <EmptyComponent />
                 </GridItem>
               )}
-              {data?.data?.map((item) => {
+              {data?.map((item) => {
                 // const assetInfo = batchNftListInfo?.get(JSON.stringify({
                 //   address: item.asset_contract_address.toLowerCase(),
                 //   tokenId: item.token_id,

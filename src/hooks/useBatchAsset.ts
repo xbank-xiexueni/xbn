@@ -31,7 +31,7 @@ const useBatchAsset = (
     if (!input) return res
     const result = await Promise.allSettled(input)
     // @ts-ignore
-    res = compact(result.map((i) => i?.value?.data?.data?.asset))
+    res = compact(result.map((i) => i?.value?.data?.asset))
     return res
   }, [assetParams])
   return useRequest(batchNftListInfo, {
