@@ -21,6 +21,7 @@ import {
   NumberInputField,
   InputRightElement,
 } from '@chakra-ui/react'
+import useHover from 'ahooks/lib/useHover'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
 import round from 'lodash-es/round'
@@ -31,6 +32,7 @@ import {
   useEffect,
   type ReactNode,
   useCallback,
+  useRef,
 } from 'react'
 
 import {
@@ -192,20 +194,13 @@ const MyAssetNftListCard: FunctionComponent<
   const { assetData, contractData, loanData, listingData, collectionData } =
     data
   const ish5 = useIsMobile()
-  const [show, setShow] = useState(ish5)
 
   const isMortgaged = useMemo(
     () =>
       contractData?.token_id && ['10', '3690'].includes(contractData?.token_id),
     [contractData],
   )
-  // const isMortgaged = useMemo(
-  //   () =>
-  //     contractInfo?.token_id === '0' ||
-  //     contractInfo.token_id === '3690' ||
-  //     contractInfo.token_id.length > 20,
-  //   [contractInfo],
-  // )
+
   const isListing = useMemo(
     () => contractData?.token_id === '10',
     [contractData],
@@ -266,7 +261,6 @@ const MyAssetNftListCard: FunctionComponent<
    * 可输入的最小金额： 这个抵押品对应 loan 的“未偿贷款本金+利息”/(1-服务费-用户输入的版税）+ 预估清算所需的 gas 费
    * 输入的金额低于地板价，但是不低于可输入的最小金额，给与橙色提醒
    * 输入的金额低于可输入的最小金额，按钮置灰，不可提交挂单
-   * creator earnings：用市场售价，扣除版税，再扣除 market 手续费之后剩余的资金
    * 用户挂单需要支付gas费，挂单之后修改条件或撤销挂单，需要再次支付gas费
    */
   const minInput = useMemo(() => {
@@ -313,6 +307,10 @@ const MyAssetNftListCard: FunctionComponent<
     return wei2Eth(wei)
   }, [priceWei, earn, loanData, listModalVisible])
 
+  const ref = useRef(null)
+  const isHovering = useHover(ref)
+
+  const show = useMemo(() => isHovering || ish5, [ish5, isHovering])
   return (
     <>
       <Card
@@ -320,14 +318,13 @@ const MyAssetNftListCard: FunctionComponent<
           boxShadow: `var(--chakra-colors-gray-2) 0px 0px 3px`,
         }}
         cursor='pointer'
-        onMouseOver={() => setShow(true)}
-        onMouseLeave={() => setShow(ish5 ? true : false)}
         borderRadius={16}
         w='100%'
         h={'100%'}
         boxShadow='none'
         borderColor={'gray.2'}
         borderWidth='1px'
+        ref={ref}
         {...rest}
       >
         <CardBody p={0} border='none'>

@@ -244,32 +244,6 @@ const MyAssets = () => {
                             }
                           : undefined,
                     }}
-                    // onChangeList={() => {
-                    //   console.log('click change list')
-                    //   setCurrentListData({
-                    //     asset: {
-                    //       tokenID: assetInfo?.tokenID || item.token_id,
-                    //       name: assetInfo?.name,
-                    //       imagePreviewUrl: assetInfo?.imagePreviewUrl,
-                    //     },
-                    //     loan: {
-                    //       outstandingLoan: 270000000000000,
-                    //       loanEndedTime: 1685692716,
-                    //     },
-                    //     collection: {
-                    //       name: 'collection name',
-                    //       safelistRequestStatus: 'verified',
-                    //       minFloorPrice: 0.1888,
-                    //       maxFloorPrice: 0.3518,
-                    //     },
-                    //     listingData: {
-                    //       listAmount: 500000000000000000,
-                    //       creatorEarn: 1000,
-                    //       duration: 30,
-                    //     },
-                    //   })
-                    //   setListModalAction('change')
-                    // }}
                   />
                 )
               })}
