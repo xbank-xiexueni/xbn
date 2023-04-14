@@ -1,0 +1,64 @@
+query Asset(
+  $assetId: ID
+  $assetContractAddress: String
+  $assetTokenId: String
+) {
+  asset(
+    id: $assetId
+    assetContractAddress: $assetContractAddress
+    assetTokenID: $assetTokenId
+  ) {
+    id
+    createdAt
+    updatedAt
+    assetContractAddress
+    tokenID
+    imageUrl
+    imagePreviewUrl
+    imageThumbnailUrl
+    imageOriginalUrl
+    animationUrl
+    animationOriginalUrl
+    backgroundColor
+    name
+    description
+    externalLink
+    creator
+    owner
+    transferFee
+    transferFeePaymentToken
+    orderChain
+    orderCoin
+    orderPrice
+    rarity
+    rarityRank
+    rarityLevel
+    chain
+    nftAssetContract {
+      id
+      createdAt
+      updatedAt
+      address
+      assetContractType
+      createdDate
+      name
+      nftVersion
+      openseaVersion
+      schemaName
+      symbol
+      totalSupply
+      description
+      externalLink
+      imageUrl
+      openseaBuyerFeeBasisPoints
+      openseaSellerFeeBasisPoints
+      buyerFeeBasisPoints
+      sellerFeeBasisPoints
+      payoutAddress
+    }
+    nftAssetMetaData {
+      like
+      likeCount
+    }
+  }
+}

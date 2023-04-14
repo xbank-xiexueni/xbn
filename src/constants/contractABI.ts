@@ -1,4 +1,4 @@
-import wethContractAbi from './wethAbi.json'
-import xBankContractAbi from './xbankAbi.json'
+import WETH_CONTRACT_ABI from './wethAbi.json'
+import XBANK_CONTRACT_ABI from './xbankAbi.json'
 
-export { xBankContractAbi, wethContractAbi }
+export { XBANK_CONTRACT_ABI, WETH_CONTRACT_ABI }

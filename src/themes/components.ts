@@ -32,12 +32,17 @@ const components = {
         color: 'white',
         _disabled: {
           bg: 'gray.1',
+          opacity: 1,
         },
         _hover: {
           bg: 'linear-gradient(225deg, #0000FF 0%, #9500E0 100%)',
           _disabled: {
             bg: 'gray.1',
+            opacity: 1,
           },
+        },
+        _loading: {
+          color: 'gray.3',
         },
       },
       other: {
@@ -45,10 +50,12 @@ const components = {
         color: 'white',
         _disabled: {
           bg: 'gray.1',
+          opacity: 1,
         },
         _hover: {
           _disabled: {
             bg: 'gray.1',
+            opacity: 1,
           },
         },
       },

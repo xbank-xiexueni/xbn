@@ -7,7 +7,7 @@ const Fallback = () => {
         position={'absolute'}
         left={0}
         right={0}
-        top={20}
+        top={{ md: '80px', xs: '56px', sm: '56px' }}
         bottom={0}
         bg='rgba(27, 34, 44, 0.1)'
         borderRadius={4}
@@ -20,7 +20,7 @@ const Fallback = () => {
           emptyColor='gray.1'
           color='blue.1'
           size='xl'
-          mt={20}
+          mt={{ md: '80px', xs: '56px', sm: '56px' }}
         />
       </Flex>
     </Flex>

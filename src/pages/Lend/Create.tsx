@@ -1,45 +1,232 @@
-import { Box, Button, Container, Flex, Heading, Text } from '@chakra-ui/react'
-import isEmpty from 'lodash-es/isEmpty'
-import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-
-import { LpBaseRateTable, Select, SvgComponent } from '@/components'
-import AsyncSelectCollection from '@/components/async-select/AsyncSelectCollection'
 import {
-  SUB_RESPONSIVE_MAX_W,
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  Text,
+  type CardProps,
+} from '@chakra-ui/react'
+import isEmpty from 'lodash-es/isEmpty'
+import { useEffect, useMemo, useState, type FunctionComponent } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+
+import {
+  BaseRateTable,
+  Select,
+  SvgComponent,
+  AsyncSelectCollection,
+  NotFound,
+  H5SecondaryHeader,
+} from '@/components'
+import {
   TENORS,
   COLLATERALS,
   INITIAL_COLLATERAL,
   INITIAL_TENOR,
   STEPS_DESCRIPTIONS,
+  LP_BASE_RATE,
+  RESPONSIVE_MAX_W,
 } from '@/constants'
+import type { NftCollection } from '@/hooks'
 
-import ApproveEthButton from './components/ApproveEthButton'
 import CardWithBg from './components/CardWithBg'
+import CreatePoolButton from './components/CreatePoolButton'
 import StepDescription from './components/StepDescription'
+import UpdatePoolItemsButton from './components/UpdatePoolItemsButton'
+
+const Wrapper: FunctionComponent<
+  {
+    stepIndex: number
+  } & CardProps
+> = ({ stepIndex, children }) => {
+  return (
+    <CardWithBg mb={'32px'}>
+      <Flex
+        justify={'space-between'}
+        alignItems='start'
+        flexWrap={{
+          md: 'nowrap',
+          sm: 'wrap',
+          xs: 'wrap',
+        }}
+        rowGap={'24px'}
+        columnGap={'16px'}
+        display={{
+          md: 'flex',
+          xs: 'block',
+          sm: 'block',
+        }}
+      >
+        <StepDescription
+          data={{
+            step: stepIndex,
+            ...STEPS_DESCRIPTIONS[stepIndex - 1],
+          }}
+        />
+        {children}
+        {/* {isEmpty(params) ? <InputSearch /> : params.collectionId} */}
+      </Flex>
+    </CardWithBg>
+  )
+}
 
 const Create = () => {
   const navigate = useNavigate()
-  // const params = useParams()
-  const { state } = useLocation()
-  const [selectCollateral, setSelectCollateral] = useState(INITIAL_COLLATERAL)
-  const [selectTenor, setSelectTenor] = useState(INITIAL_TENOR)
-  const [selectCollection, setSelectCollection] = useState({ ...state })
+  const params = useParams() as {
+    action: 'create' | 'edit'
+  }
+  const { state } = useLocation() as {
+    state: {
+      contractAddress: string
+      nftCollection: NftCollection
+      poolData: PoolsListItemType
+    }
+  }
+  const initialItems = useMemo(
+    () => ({
+      tenor: state?.poolData?.pool_maximum_days || INITIAL_TENOR,
+      collateral:
+        state?.poolData?.pool_maximum_percentage || INITIAL_COLLATERAL,
+      loanRatioPreferentialFlexibility:
+        state?.poolData?.loan_ratio_preferential_flexibility || 100,
+      loanTimeConcessionFlexibility:
+        state?.poolData?.loan_time_concession_flexibility || 100,
+    }),
+    [state],
+  )
 
+  const [selectCollateral, setSelectCollateral] = useState(
+    initialItems?.collateral,
+  )
+  const [selectTenor, setSelectTenor] = useState(initialItems?.tenor)
+  const [selectCollection, setSelectCollection] = useState<{
+    contractAddress: string
+    nftCollection: NftCollection
+  }>({
+    contractAddress: state?.contractAddress,
+    nftCollection: state?.nftCollection,
+  })
+
+  const initialPoolMaximumInterestRate = useMemo(() => {
+    return (
+      state?.poolData?.pool_maximum_interest_rate ||
+      LP_BASE_RATE[`${selectTenor}-${selectCollateral}`]
+    )
+  }, [state, selectCollateral, selectTenor])
+
+  const [rateData, setRateData] = useState<{
+    poolMaximumInterestRate: number
+    loanRatioPreferentialFlexibility: number
+    loanTimeConcessionFlexibility: number
+  }>({
+    poolMaximumInterestRate:
+      LP_BASE_RATE[`${initialItems.tenor}-${initialItems.collateral}`],
+    loanRatioPreferentialFlexibility: 100,
+    loanTimeConcessionFlexibility: 100,
+  })
+
+  useEffect(() => {
+    setRateData({
+      poolMaximumInterestRate: initialPoolMaximumInterestRate,
+      loanRatioPreferentialFlexibility:
+        initialItems.loanRatioPreferentialFlexibility,
+      loanTimeConcessionFlexibility: initialItems.loanTimeConcessionFlexibility,
+    })
+  }, [initialPoolMaximumInterestRate, initialItems])
+
+  const collectionSelectorProps = useMemo(
+    () => ({
+      placeholder: 'Please select',
+      onChange: (e: {
+        contractAddress: string
+        nftCollection: NftCollection
+      }) => {
+        setSelectCollection(e)
+      },
+      defaultValue: state
+        ? {
+            contractAddress: state?.contractAddress,
+            nftCollection: state?.nftCollection,
+          }
+        : undefined,
+      isDisabled: params.action === 'edit',
+    }),
+    [state, params],
+  )
+
+  const tenorSelectorProps = useMemo(
+    () => ({
+      placeholder: 'Please select',
+      defaultValue: {
+        label: `${initialItems.tenor} Days`,
+        value: initialItems.tenor,
+      },
+      img: <SvgComponent svgId='icon-calendar' ml='12px' svgSize={'20px'} />,
+      onChange: (e: any) => setSelectTenor(e?.value as number),
+      options: TENORS?.map((item) => ({
+        label: `${item} Days`,
+        value: item,
+      })),
+    }),
+    [initialItems],
+  )
+
+  const collateralSelectorProps = useMemo(
+    () => ({
+      placeholder: 'Please select',
+      // w={'240px'}
+      img: <SvgComponent svgId='icon-intersect' ml={'12px'} svgSize={'20px'} />,
+      defaultValue: {
+        label: `${initialItems.collateral / 100} %`,
+        value: initialItems.collateral,
+      },
+      onChange: (e: any) => setSelectCollateral(e?.value as number),
+      options: COLLATERALS?.map((item) => ({
+        label: `${item / 100} %`,
+        value: item,
+      })),
+    }),
+    [initialItems],
+  )
+
+  if (!params || !['edit', 'create'].includes(params?.action)) {
+    return <NotFound />
+  }
+  if (params.action === 'edit' && (!state || isEmpty(state))) {
+    return <NotFound title='pool not found' />
+  }
   return (
-    <Container maxW={SUB_RESPONSIVE_MAX_W}>
+    <Container
+      maxW={{
+        ...RESPONSIVE_MAX_W,
+        lg: 1024,
+        xl: 1024,
+      }}
+      px={'2px'}
+    >
       <Flex
         justify={{
           lg: 'space-between',
           md: 'flex-start',
         }}
         wrap='wrap'
-        mt={10}
+        mt={{
+          md: 10,
+          sm: 0,
+          xs: 0,
+        }}
       >
+        <H5SecondaryHeader />
         <Button
           leftIcon={<SvgComponent svgId='icon-arrow-left' />}
           onClick={() => {
             navigate(-1)
+          }}
+          display={{
+            md: 'flex',
+            sm: 'none',
+            xs: 'none',
           }}
         >
           Back
@@ -52,118 +239,167 @@ const Create = () => {
           }}
         >
           <Box mb={8}>
-            <Heading size={'lg'} mb={2}>
-              Create New Pool
-            </Heading>
-            <Text color='gray.3'>
-              Determine the Tenor length for which potential borrowers can open
-              a loan against. We commonly see a 14-days Tenor.
-            </Text>
-          </Box>
-
-          <CardWithBg mb={8}>
-            <Flex justify={'space-between'} alignItems='start'>
-              <StepDescription
-                data={{
-                  step: 1,
-                  ...STEPS_DESCRIPTIONS[0],
-                }}
-              />
-              <AsyncSelectCollection
-                placeholder='Please select'
-                onChange={(e) => setSelectCollection(e)}
-                defaultValue={state}
-              />
-              {/* {isEmpty(params) ? <InputSearch /> : params.collectionId} */}
-            </Flex>
-          </CardWithBg>
-
-          <CardWithBg mb={8}>
-            <Flex justify={'space-between'} alignItems='start'>
-              <StepDescription
-                w={{
-                  lg: '50%',
-                  md: '100%',
-                }}
-                data={{
-                  step: 2,
-                  ...STEPS_DESCRIPTIONS[1],
-                }}
-              />
-
-              <Select
-                placeholder='Please select'
-                defaultValue={{
-                  label: `${INITIAL_TENOR} Days`,
-                  value: INITIAL_TENOR,
-                }}
-                img={<SvgComponent svgId='icon-calendar' ml={3} />}
-                onChange={(e) => setSelectTenor(e?.value as number)}
-                options={TENORS?.map((item) => ({
-                  label: `${item} Days`,
-                  value: item,
-                }))}
-                // options={[]}
-              />
-            </Flex>
-          </CardWithBg>
-          <CardWithBg mb={8}>
-            <Flex justify={'space-between'} alignItems='start'>
-              <StepDescription
-                w={{
-                  lg: '50%',
-                  md: '100%',
-                }}
-                data={{
-                  step: 3,
-                  ...STEPS_DESCRIPTIONS[2],
-                }}
-              />
-              <Select
-                placeholder='Please select'
-                // w={'240px'}
-                img={<SvgComponent svgId='icon-intersect' ml={3} />}
-                defaultValue={{
-                  label: `${INITIAL_COLLATERAL} %`,
-                  value: INITIAL_COLLATERAL,
-                }}
-                onChange={(e) => setSelectCollateral(e?.value as number)}
-                options={COLLATERALS?.map((item) => ({
-                  label: `${item} %`,
-                  value: item,
-                }))}
-                // options={[]}
-              />
-            </Flex>
-          </CardWithBg>
-          <Box mb={4}>
-            <LpBaseRateTable
-              selectCollateral={selectCollateral}
-              selectTenor={selectTenor}
-              description={{
-                title: 'Set the interest rate for each loan condition',
-                text: `According to the limit value of the loan conditions set in steps 1 and 2, the system refers to the historical order data to generate a suggested loan interest rate for you, and the funds approved by you under this interest rate are expected to generate income soon.
-If the current loan conditions and suggested interest rates do not meet your expectations, you can adjust the loan interest rate through the big slider below, and all interest rate values in the table will increase or decrease
-You can also use the small sliders on the right and bottom of the table to adjust the impact of changes in the two factors of COLLATERALS fat and loan duration on the interest rate.`,
+            <Heading
+              fontSize={{
+                md: '40px',
+                sm: '24px',
+                xs: '24px',
               }}
-            />
+              mb={'8px'}
+            >
+              {params.action === 'create' ? 'Create New Pool' : 'Manage Pool'}
+            </Heading>
+            {params.action === 'create' && (
+              <Text
+                color='gray.3'
+                w={{
+                  md: '75%',
+                  sm: '95%',
+                  xs: '95%',
+                }}
+              >
+                Setting up a new pool to lend against borrowers with preferred
+                length of duration and collateral factor ratio.
+              </Text>
+            )}
           </Box>
-          <Flex justify={'center'} mb={10}>
-            <ApproveEthButton
-              variant={'primary'}
-              w='240px'
-              h='52px'
-              isDisabled={isEmpty(selectCollection)}
-              data={{
-                poolMaximumPercentage: 450,
-                poolMaximumDays: 1,
-                poolMaximumInterestRate: 1,
-                loanTimeConcessionFlexibility: 1,
-                loanRatioPreferentialFlexibility: 1,
+          <Wrapper stepIndex={1}>
+            <Box
+              display={{
+                md: 'block',
+                sm: 'none',
+                xs: 'none',
               }}
             >
-              Confirm
-            </ApproveEthButton>
+              <AsyncSelectCollection {...collectionSelectorProps} w='240px' />
+            </Box>
+
+            <Box
+              display={{
+                md: 'none',
+                sm: 'block',
+                xs: 'block',
+              }}
+              mt='24px'
+            >
+              <AsyncSelectCollection {...collectionSelectorProps} />
+            </Box>
+          </Wrapper>
+
+          <Wrapper stepIndex={2}>
+            <Box
+              display={{
+                md: 'block',
+                sm: 'none',
+                xs: 'none',
+              }}
+            >
+              <Select {...tenorSelectorProps} w='240px' />
+            </Box>
+            <Box
+              display={{
+                md: 'none',
+                sm: 'block',
+                xs: 'block',
+              }}
+              mt='24px'
+            >
+              <Select {...tenorSelectorProps} />
+            </Box>
+          </Wrapper>
+
+          <Wrapper stepIndex={3}>
+            <Box
+              display={{
+                md: 'block',
+                sm: 'none',
+                xs: 'none',
+              }}
+            >
+              <Select {...collateralSelectorProps} w='240px' />
+            </Box>
+
+            <Box
+              display={{
+                md: 'none',
+                sm: 'block',
+                xs: 'block',
+              }}
+              mt='24px'
+            >
+              <Select {...collateralSelectorProps} />
+            </Box>
+          </Wrapper>
+
+          <CardWithBg mb={8} bg='gray.5'>
+            <StepDescription
+              data={{
+                step: 4,
+                ...STEPS_DESCRIPTIONS[3],
+              }}
+              isFull
+            />
+            <BaseRateTable
+              defaultValue={
+                state?.poolData
+                  ? {
+                      pool_maximum_interest_rate:
+                        state.poolData.pool_maximum_interest_rate,
+                      loan_ratio_preferential_flexibility:
+                        state.poolData.loan_ratio_preferential_flexibility,
+                      loan_time_concession_flexibility:
+                        state.poolData.loan_time_concession_flexibility,
+                    }
+                  : undefined
+              }
+              selectCollateral={selectCollateral}
+              selectTenor={selectTenor}
+              onChange={(
+                poolMaximumInterestRate,
+                loanRatioPreferentialFlexibility,
+                loanTimeConcessionFlexibility,
+              ) => {
+                setRateData((prev) => ({
+                  ...prev,
+                  poolMaximumInterestRate,
+                  loanRatioPreferentialFlexibility,
+                  loanTimeConcessionFlexibility,
+                }))
+              }}
+            />
+          </CardWithBg>
+
+          <Flex justify={'center'} mb={'40px'}>
+            {params.action === 'create' && (
+              <CreatePoolButton
+                variant={'primary'}
+                w='240px'
+                h='52px'
+                isDisabled={isEmpty(selectCollection)}
+                data={{
+                  poolMaximumPercentage: selectCollateral,
+                  poolMaximumDays: selectTenor,
+                  allowCollateralContract: selectCollection?.contractAddress,
+                  floorPrice:
+                    selectCollection?.nftCollection?.nftCollectionStat
+                      ?.floorPrice,
+                  ...rateData,
+                }}
+              >
+                Confirm
+              </CreatePoolButton>
+            )}
+            {params.action === 'edit' && (
+              <UpdatePoolItemsButton
+                data={{
+                  ...rateData,
+                  selectCollateral,
+                  selectTenor,
+                }}
+              >
+                Confirm
+              </UpdatePoolItemsButton>
+            )}
           </Flex>
         </Box>
       </Flex>

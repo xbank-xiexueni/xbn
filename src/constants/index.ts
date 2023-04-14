@@ -1,94 +1,100 @@
-export { xBankContractAbi, wethContractAbi } from './contractABI'
+import type { UseToastOptions } from '@chakra-ui/react'
 
-console.log(import.meta.env)
-export const xBankContractAddress = '0x3ed06e155eb4135ecc1591142cce51c90b0d1047'
-export const wethContractAddress = '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6'
+export { XBANK_CONTRACT_ABI, WETH_CONTRACT_ABI } from './contractABI'
+
+export const XBANK_CONTRACT_ADDRESS = import.meta.env
+  .VITE_XBANK_CONTRACT_ADDRESS
+export const WETH_CONTRACT_ADDRESS = import.meta.env.VITE_WETH_CONTRACT_ADDRESS
 
 export const RESPONSIVE_MAX_W = {
   xl: 1408,
   lg: 968,
   md: 768,
-  sm: '85%',
-}
-
-export const SUB_RESPONSIVE_MAX_W = {
-  lg: 1024,
-  md: 768,
-  sm: '85%',
+  sm: 390,
+  xs: 320,
 }
 
 export const UNIT = 'ETH'
+export const FORMAT_NUMBER = 8
 
 export const LP_BASE_RATE: Record<string, number> = {
-  '7-10': 11,
-  '7-20': 12,
-  '7-30': 18,
-  '7-40': 20,
-  '7-50': 30,
-  '7-60': 40,
-  '7-70': 50,
-  '7-80': 60,
-  '7-90': 70,
-  '14-10': 12,
-  '14-20': 14,
-  '14-30': 21,
-  '14-40': 25,
-  '14-50': 35,
-  '14-60': 45,
-  '14-70': 55,
-  '14-80': 65,
-  '14-90': 75,
-  '30-10': 13,
-  '30-20': 16,
-  '30-30': 24,
-  '30-40': 30,
-  '30-50': 40,
-  '30-60': 50,
-  '30-70': 60,
-  '30-80': 70,
-  '30-90': 80,
-  '60-10': 14,
-  '60-20': 18,
-  '60-30': 27,
-  '60-40': 35,
-  '60-50': 45,
-  '60-60': 55,
-  '60-70': 65,
-  '60-80': 75,
-  '60-90': 85,
-  '90-10': 15,
-  '90-20': 20,
-  '90-30': 30,
-  '90-40': 40,
-  '90-50': 50,
-  '90-60': 60,
-  '90-70': 70,
-  '90-80': 80,
-  '90-90': 90,
+  '7-1000': 1100,
+  '7-2000': 1200,
+  '7-3000': 1800,
+  '7-4000': 2000,
+  '7-5000': 3000,
+  '7-6000': 4000,
+  '7-7000': 5000,
+  '7-8000': 6000,
+  '7-9000': 7000,
+  '14-1000': 1200,
+  '14-2000': 1400,
+  '14-3000': 2100,
+  '14-4000': 2500,
+  '14-5000': 3500,
+  '14-6000': 4500,
+  '14-7000': 5500,
+  '14-8000': 6500,
+  '14-9000': 7500,
+  '30-1000': 1300,
+  '30-2000': 1600,
+  '30-3000': 2400,
+  '30-4000': 3000,
+  '30-5000': 4000,
+  '30-6000': 5000,
+  '30-7000': 6000,
+  '30-8000': 7000,
+  '30-9000': 8000,
+  '60-1000': 1400,
+  '60-2000': 1800,
+  '60-3000': 2700,
+  '60-4000': 3500,
+  '60-5000': 4500,
+  '60-6000': 5500,
+  '60-7000': 6500,
+  '60-8000': 7500,
+  '60-9000': 8500,
+  '90-1000': 1500,
+  '90-2000': 2000,
+  '90-3000': 3000,
+  '90-4000': 4000,
+  '90-5000': 5000,
+  '90-6000': 6000,
+  '90-7000': 7000,
+  '90-8000': 8000,
+  '90-9000': 9000,
 }
 
 export const TENORS = [7, 14, 30, 60, 90]
-export const COLLATERALS = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+export const COLLATERALS = [
+  1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000,
+]
 export const INITIAL_TENOR = TENORS[3]
 export const INITIAL_COLLATERAL = COLLATERALS[4]
 
 export const STEPS_DESCRIPTIONS = [
   {
     title: 'Select Collection',
-    text: 'In order to open a new pool we will first Have to determine which FT Collection you will want this pool to represent. You can start searching for any collection currently listed on OpenSea, X2Y2 and LooksRare.',
+    text: 'Please choose a preferred collection that you will accept to lend against. All the collections listed on OpenSea, X2Y2 and LookRare are available',
   },
   {
     title: 'Select Tenor',
-    text: 'Determine the Tenor length for which potential borrowers can open a loan against. We commonly see a 60-days Tenor.',
+    text: 'Please choose the max length of duration acceptable for potential borrowers. A 60-day length of duration will be more commonly used.',
   },
   {
     title: 'Select Collateral Factor',
-    text: 'Indicate the Colleteral Factor % which will help determine how much liquidity (Ethereum) borrowers can receive against the desired NFT collection. The higher the %, the more liquidity they can pull out of the pool. We typically recommend a 50% Collateral Factor.',
+    text: 'Indicate the ratio which will determine how much money borrowers can receive to borrow against expected NFT collection. The higher the ratio, the more money they can borrow from the pool. A 50% of collateral factor will be more commonly used.',
   },
   {
-    title: 'Set the interest rate for each loan condition',
-    text: `According to the limit value of the loan conditions set in steps 1 and 2, the system refers to the historical order data to generate a suggested loan interest rate for you, and the funds approved by you under this interest rate are expected to generate income soon.
-If the current loan conditions and suggested interest rates do not meet your expectations, you can adjust the loan interest rate through the big slider below, and all interest rate values in the table will increase or decrease
-You can also use the small sliders on the right and bottom of the table to adjust the impact of changes in the two factors of COLLATERALS fat and loan duration on the interest rate.`,
+    title: 'Generate the interest rate table for outstanding loans',
+    text: 'According to the limit value of the loan conditions set in steps 1 and 2, the system refers to the historical order data to generate a suggested loan interest rate for you, and the funds approved by you under this interest rate are expected to generate income soon.\nIf the current loan conditions and suggested interest rates do not meet your expectations, you can adjust the loan interest rate through the big slider below, and all interest rate values in the table will increase or decrease\nYou can also use the small sliders on the right and bottom of the table to adjust the impact of changes in the two factors of collateral ratio and loan duration on the interest rate.',
   },
 ]
+
+export const TOAST_OPTION_CONFIG: UseToastOptions = {
+  position: 'top',
+  id: 'toast',
+  containerStyle: {
+    mt: 20,
+  },
+}

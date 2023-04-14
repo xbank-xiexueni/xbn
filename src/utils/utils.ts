@@ -1,58 +1,73 @@
-import random from 'lodash-es/random'
-import range from 'lodash-es/range'
-import sampleSize from 'lodash-es/sampleSize'
+// a list for saving subscribed event instances
+// const subscribedEvents = {}
 
-function generateList(l: number): Promise<Record<string, string>[]> {
-  const res = range(l || 10).map((item) => ({
-    ID: item.toString(),
-    col1: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      random(2, 10),
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-    col2: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      2,
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-    col3: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      5,
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-    col4: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      8,
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-    col5: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      16,
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-    col6: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      2,
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-    col7: sampleSize(
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-      16,
-    )
-      ?.toString()
-      .replace(/,/g, ''),
-  }))
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(res)
-    }, 1000)
+import { XBANK_CONTRACT_ABI } from '@/constants'
+
+import { createWeb3Provider } from './createContract'
+
+const getEventData = (eventName: string) => {
+  const web3 = createWeb3Provider()
+  const eventAbi = XBANK_CONTRACT_ABI.find((i) => i.name === eventName)
+  if (!eventAbi) {
+    return {
+      topic: '',
+      eventAbi,
+    }
+  }
+  const topicItem = web3.eth.abi.encodeEventSignature({
+    ...eventAbi,
   })
+  return {
+    topic: topicItem,
+    eventAbi,
+  }
 }
 
-export { generateList }
+export default getEventData
+
+// Subscriber method
+// const subscribeLogEvent = (
+//   eventName: string,
+//   onSuccess?: () => void,
+//   onError?: () => void,
+// ) => {
+//   const web3 = createWeb3Provider()
+//   const eventAbi = XBANK_CONTRACT_ABI.find((i) => i.name === eventName)
+//   if (!eventAbi) {
+//     if (onError) onError()
+//     return
+//   }
+//   const topicItem = web3.eth.abi.encodeEventSignature({
+//     ...eventAbi,
+//   })
+//   console.log(topicItem, eventAbi, onSuccess)
+
+//   web3.eth.subscribe(
+//     'logs',
+//     {
+//       address: import.meta.env.VITE_XBANK_CONTRACT_ADDRESS,
+//       topics: [topicItem],
+//     },
+//     (error: any, result: any) => {
+//       console.log('🚀 ~ file: utils.ts:50 ~ error:', error, result)
+//       if (!error) {
+//         const eventObj = web3.eth.abi.decodeLog(
+//           eventAbi.inputs,
+//           result.data,
+//           result.topics.slice(1),
+//         )
+//         console.log(eventObj)
+//         if (eventObj && !isEmpty(eventObj) && onSuccess) {
+//           onSuccess()
+//           // const isCleared = web3.eth.clearSubscriptions()
+//           console.log('new:', eventObj, 'finish clearSubscriptions')
+//         }
+//       } else {
+//         console.log(error)
+//         if (onError) onError()
+//         // web3.eth.clearSubscriptions()
+//       }
+//     },
+//   )
+//   // subscribedEvents[eventName] = subscription
+// }

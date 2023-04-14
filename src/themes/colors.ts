@@ -3,6 +3,7 @@ const colors = {
   black: {
     1: '#00000F',
     2: 'rgba(27, 34, 44, 0.4)',
+    3: '#353945',
   },
   white: '#fff',
   gray: {
@@ -21,6 +22,11 @@ const colors = {
   },
   red: {
     1: '#FF0066',
+  },
+  green: {
+    1: 'green',
+    2: '#EBF8F2',
+    3: '#00A760',
   },
   // ...
 }

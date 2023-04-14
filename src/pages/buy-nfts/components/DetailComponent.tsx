@@ -7,7 +7,7 @@ import {
   type BoxProps,
 } from '@chakra-ui/react'
 
-import { NftOrigin, SvgComponent } from '@/components'
+import { SvgComponent } from '@/components'
 
 import type { FunctionComponent } from 'react'
 
@@ -15,42 +15,68 @@ const DetailComponent: FunctionComponent<
   BoxProps & {
     data: {
       name1: string
-      name2: string
+      name2?: string
       price: string
       verified: boolean
+      usdPrice?: string
     }
     loading?: boolean
+    onRefreshPrice?: () => void
+    refreshLoading?: boolean
   }
-> = ({ data: { name1, name2, price, verified }, loading }) => {
+> = ({
+  data: { name1, name2, price, verified, usdPrice },
+  loading,
+  onRefreshPrice,
+  refreshLoading,
+  ...rest
+}) => {
   if (loading) {
     return <Skeleton h={200} borderRadius={16} />
   }
   return (
-    <Box mt={8}>
+    <Box mt={8} {...rest}>
       {/* 名称*/}
       <Flex alignItems={'baseline'}>
-        <Text fontWeight={'500'}>{name1}</Text>
+        <Text fontWeight={'500'} noOfLines={1}>
+          {name1}
+        </Text>
         {verified && <SvgComponent svgId='icon-verified-fill' />}
       </Flex>
-      <Heading fontSize={'40px'}>{name2}</Heading>
+      <Heading fontSize={'40px'} noOfLines={1}>
+        {name2}
+      </Heading>
       {/* 价格 */}
       <Flex
         bg='gray.5'
         alignItems='end'
         borderRadius={16}
-        p={5}
+        p={'20px'}
         justify='space-between'
-        mt={6}
+        mt='24px'
       >
         <Box>
           <Text>Price</Text>
-          <Flex alignItems={'baseline'} mt={1} gap={1}>
-            <SvgComponent svgId='icon-eth' svgSize='30px' />
-            <Heading size={'xl'}>{price}</Heading>
-            <Text fontSize={'xs'}>$123123</Text>
+          <Flex alignItems={'end'} mt={1} gap={'4px'}>
+            <SvgComponent svgId='icon-eth' svgSize='32px' />
+            <Heading fontSize={'32px'} lineHeight='30px'>
+              {price}
+            </Heading>
+            <SvgComponent
+              svgId='icon-refresh'
+              onClick={onRefreshPrice}
+              animation={refreshLoading ? 'loading 1s linear infinite' : ''}
+              cursor={'pointer'}
+              svgSize='20px'
+            />
+            {!!usdPrice && (
+              <Text fontSize='12px' lineHeight='14px'>
+                &nbsp;$ {usdPrice}
+              </Text>
+            )}
           </Flex>
         </Box>
-        <NftOrigin type={1} />
+        {/* <NftOrigin type={1} /> */}
       </Flex>
     </Box>
   )

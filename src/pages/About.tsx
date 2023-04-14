@@ -4,7 +4,7 @@ const About = () => {
   return (
     <>
       About
-      <Link to='/'>to Lend</Link>
+      <Link to='/xlending/'>to Lend</Link>
     </>
   )
 }

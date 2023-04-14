@@ -1,0 +1,53 @@
+query AssetsChannel(
+  $assetType: AssetType!
+  $orderBy: NFTAssetOrderBy!
+  $after: Cursor
+  $first: Int
+  $tags: [String!]
+  $where: NFTAssetWhere
+) {
+  assetsChannel(
+    assetType: $assetType
+    orderBy: $orderBy
+    after: $after
+    first: $first
+    tags: $tags
+    where: $where
+  ) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      cursor
+      node {
+        id
+        createdAt
+        updatedAt
+        assetContractAddress
+        tokenID
+        imageUrl
+        imagePreviewUrl
+        imageThumbnailUrl
+        imageOriginalUrl
+        animationUrl
+        animationOriginalUrl
+        backgroundColor
+        name
+        description
+        externalLink
+        creator
+        owner
+        transferFee
+        transferFeePaymentToken
+        orderChain
+        orderCoin
+        orderPrice
+        nftAssetMetaData {
+          likeCount
+          like
+        }
+      }
+    }
+  }
+}

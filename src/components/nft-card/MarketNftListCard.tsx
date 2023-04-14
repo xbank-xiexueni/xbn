@@ -2,93 +2,229 @@ import {
   Box,
   Card,
   CardBody,
-  CardFooter,
   type CardProps,
   Divider,
   Flex,
-  Image,
   Stack,
   Text,
   Button,
+  CardFooter,
+  type ImageProps,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useMemo, useState, type FunctionComponent } from 'react'
 
-import { NftOrigin, SvgComponent } from '@/components'
-
-import type { FunctionComponent } from 'react'
+import { ImageWithFallback, SvgComponent } from '@/components'
 
 const MarketNftListCard: FunctionComponent<
   {
-    // temp
-    data: any
+    data: Record<string, any>
+    imageSize?: ImageProps['w']
   } & CardProps
-> = ({ data: { name }, ...rest }) => {
+> = ({ data: { node, highestRate }, imageSize, ...rest }) => {
+  const { imageThumbnailUrl, orderPrice, name, backgroundColor, tokenID } =
+    node || {}
   const [show, setShow] = useState(false)
-  // console.log(data, 'MarketNftListCard')
+  const formattedDownPayment = useMemo(() => {
+    if (!orderPrice || !highestRate) {
+      return '--'
+    }
+
+    // const eth = wei2Eth(orderPrice)
+    return (Number(orderPrice) * (10000 - Number(highestRate))) / 10000
+  }, [orderPrice, highestRate])
   return (
     <Card
       {...rest}
       _hover={{
-        boxShadow: `var(--chakra-colors-gray-1) 0px 0px 10px`,
+        boxShadow: `var(--chakra-colors-gray-2) 0px 0px 3px`,
       }}
       cursor='pointer'
       onMouseOver={() => setShow(true)}
       onMouseLeave={() => setShow(false)}
       borderRadius={8}
+      w='100%'
+      h={'100%'}
+      boxShadow='none'
+      borderColor={'gray.2'}
+      borderWidth='1px'
     >
       <CardBody p={0}>
-        <Box bg='gray.100'>
-          <Image
-            src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80'
+        <Box
+          bg={backgroundColor || 'white'}
+          borderTopRadius={'lg'}
+          overflow='hidden'
+        >
+          <ImageWithFallback
+            src={imageThumbnailUrl}
             alt='Green double couch with wooden legs'
             borderTopRadius={'lg'}
-            h='233px'
+            h={
+              imageSize || {
+                xl: '233px',
+                lg: '100%',
+                md: '100%',
+                sm: '50%',
+                xs: '50%',
+              }
+            }
+            w='100%'
             fit='contain'
+            transform={`scale(${show ? 1.2 : 1})`}
+            transition='all 0.6s'
           />
         </Box>
 
-        <Stack mt={3} spacing={2} px={4} mb={2}>
-          <Text color={`gray.3`} fontSize='sm'>
-            {name}
+        <Stack
+          mt={'12px'}
+          spacing={'8px'}
+          px={{
+            md: '16px',
+            sm: '12px',
+            xs: '12px',
+          }}
+          mb={{
+            xl: '8px',
+            lg: '4px',
+            md: '4px',
+          }}
+        >
+          <Text color={`gray.3`} fontSize='14px' noOfLines={1}>
+            {name || `#${tokenID}`}
           </Text>
-          <Flex justify={'space-between'} alignItems='center'>
-            <Text fontSize={'sm'}>aaaa</Text>
-            <Flex alignItems={'center'} gap={1}>
-              <SvgComponent svgId='icon-eth' w={2} />
-              <Text fontSize={'md'}>11.22</Text>
+          <Flex alignItems={'center'} justify='space-between'>
+            <Flex
+              w={{
+                md: '100%',
+                sm: '70%',
+                xs: '70%',
+              }}
+              justify={{
+                md: 'space-between',
+                sm: 'flex-start',
+                xs: 'flex-start',
+              }}
+              alignItems={{
+                md: 'center',
+                sm: 'flex-start',
+                xs: 'flex-start',
+              }}
+              flexDir={{ md: 'row', sm: 'column', xs: 'column' }}
+              pb={{
+                md: '8px',
+                sm: '6px',
+                xs: '6px',
+              }}
+            >
+              <Text
+                fontSize={{
+                  md: '14px',
+                  xs: '12px',
+                  sm: '12px',
+                }}
+                transform={{
+                  md: 'none',
+                  sm: 'scale(0.83333)',
+                  xs: 'scale(0.83333)',
+                }}
+                transformOrigin='center'
+                fontWeight='700'
+                color={'black'}
+                ml={{
+                  md: 0,
+                  sm: '-4px',
+                  xs: '-4px',
+                }}
+              >
+                Down Payment
+              </Text>
+              <Flex
+                alignItems={'baseline'}
+                gap={'4px'}
+                maxWidth={{ md: '40%', sm: '100%', xs: '100%' }}
+                justify={'space-between'}
+              >
+                <SvgComponent svgId='icon-eth' w={'4px'} svgSize='14px' />
+                <Text
+                  fontSize={'16px'}
+                  display='inline-block'
+                  overflow='hidden'
+                  whiteSpace='nowrap'
+                  textOverflow='ellipsis'
+                >
+                  &nbsp;{formattedDownPayment}
+                </Text>
+              </Flex>
             </Flex>
+            <Text
+              display={{
+                md: 'none',
+                xs: 'block',
+                sm: 'block',
+              }}
+              color='blue.3'
+              fontWeight={'700'}
+            >
+              BUY
+            </Text>
           </Flex>
         </Stack>
       </CardBody>
       <Divider color={`gray.2`} />
-      {show ? (
-        <Button
-          borderRadius={8}
-          borderTopLeftRadius={0}
-          borderTopRightRadius={0}
-          variant='other'
-          h='56px'
-        >
-          Buy
-        </Button>
-      ) : (
-        <CardFooter
-          p={4}
-          justify={'space-between'}
-          alignItems='center'
-          h='56px'
-        >
-          <Flex alignItems={'center'} gap={1}>
-            <NftOrigin type={1} />
-          </Flex>
-          <Flex alignItems={'center'} gap={1}>
-            <SvgComponent svgId='icon-eth' w={2} />
-            <Text fontSize={'sm'} color={`gray.3`}>
-              11.22
-            </Text>
-          </Flex>
-        </CardFooter>
-      )}
+
+      <Button
+        borderRadius={8}
+        borderTopLeftRadius={0}
+        borderTopRightRadius={0}
+        variant='other'
+        h={
+          show
+            ? {
+                xl: '48px',
+                lg: '40px',
+                md: '40px',
+                sm: '40px',
+                xs: '40px',
+              }
+            : 0
+        }
+        position='absolute'
+        bottom={0}
+        right={0}
+        left={0}
+        transition='all 0.15s'
+      >
+        {show && 'Buy'}
+      </Button>
+      <CardFooter
+        px={{ md: '16px', sm: '12px', xs: '12px' }}
+        justify={'space-between'}
+        alignItems='center'
+        h={{
+          xl: '48px',
+          lg: '40px',
+          md: '40px',
+          sm: '40px',
+          xs: '40px',
+        }}
+        flexDir={{
+          md: 'row',
+          sm: 'row-reverse',
+          xs: 'row-reverse',
+        }}
+      >
+        <Flex alignItems={'center'} gap={'4px'}>
+          <Text color={`gray.3`} fontSize='14px'>
+            Price
+          </Text>
+        </Flex>
+        <Flex alignItems={'center'} gap={'4px'}>
+          <SvgComponent svgId='icon-eth' w={'4px'} svgSize='14px' />
+          <Text fontSize={'14px'} color={`gray.3`}>
+            &nbsp; {orderPrice}
+            {/* &nbsp; {wei2Eth(orderPrice)} */}
+          </Text>
+        </Flex>
+      </CardFooter>
     </Card>
   )
 }

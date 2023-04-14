@@ -27,7 +27,7 @@ const NftOrigin: FunctionComponent<{ type: 1 | 2 | 3 }> = ({ type }) => {
         }
       case 3:
         return {
-          img: <Image src={IconX2y2} />,
+          img: <Image src={IconX2y2} alt='x2y2' />,
           name: 'X2Y2',
         }
 
@@ -39,7 +39,7 @@ const NftOrigin: FunctionComponent<{ type: 1 | 2 | 3 }> = ({ type }) => {
     }
   }, [type])
   return (
-    <Flex gap={1}>
+    <Flex gap={'4px'}>
       {img}
       <Text fontSize={'14px'} fontWeight={500} color='gray.3'>
         {name}

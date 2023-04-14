@@ -31,23 +31,30 @@ const Index: FunctionComponent<IndexProps> = ({ visible, handleClose }) => {
   return (
     <Modal onClose={handleClose} isOpen={visible} isCentered>
       <ModalOverlay bg='black.2' />
-      <ModalContent>
+      <ModalContent
+        maxW={{
+          xl: 'md',
+          lg: 'md',
+          md: 'md',
+          sm: '326px',
+          xs: '326px',
+        }}
+        p={'40px'}
+      >
         {!connectLoading && !currentAccount && (
-          <ModalHeader>Connect Wallet</ModalHeader>
+          <ModalHeader p={0}>Connect Wallet</ModalHeader>
         )}
         <ModalCloseButton />
-        <ModalBody>
+        <ModalBody m={0} p={0}>
           {!connectLoading && !currentAccount ? (
             <Flex
               justify={'space-between'}
               alignItems='center'
-              py={6}
-              mt={2}
-              mb={4}
               cursor='pointer'
               onClick={connectWallet}
+              pt={'52px'}
             >
-              <Flex alignItems={'center'} gap={4}>
+              <Flex alignItems={'center'} gap='16px'>
                 <SvgComponent svgId='icon-metamask' svgSize='32px' />
                 <Text fontWeight={'700'}>MetaMask</Text>
               </Flex>
@@ -60,7 +67,7 @@ const Index: FunctionComponent<IndexProps> = ({ visible, handleClose }) => {
             <Flex
               mt={16}
               justify='center'
-              gap={4}
+              gap='16px'
               flexWrap='wrap'
               textAlign={'center'}
             >
@@ -76,8 +83,8 @@ const Index: FunctionComponent<IndexProps> = ({ visible, handleClose }) => {
                 <SvgComponent
                   svgId='icon-metamask'
                   position='absolute'
-                  top={2.5}
-                  left={2.5}
+                  top={'9px'}
+                  left={'9px'}
                   svgSize='34px'
                 />
               </Box>
@@ -85,7 +92,7 @@ const Index: FunctionComponent<IndexProps> = ({ visible, handleClose }) => {
               <Heading size={'xl'} w='100%'>
                 Confirm Wallet
               </Heading>
-              <Text mb={10} mx={16}>
+              <Text mx={'40px'}>
                 Please sign into MetaMask to connect to xBank
               </Text>
             </Flex>
