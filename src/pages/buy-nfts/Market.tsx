@@ -494,7 +494,7 @@ const Market = () => {
                 sm: isMoreThan ? '2px' : '56px',
                 xs: isMoreThan ? '2px' : '56px',
               }}
-              zIndex={22}
+              zIndex={20}
               bg='white'
               pt={'25px'}
               transition='all 0.15s'
