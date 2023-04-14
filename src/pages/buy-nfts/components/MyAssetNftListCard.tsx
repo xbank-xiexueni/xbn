@@ -24,6 +24,7 @@ import {
 import useHover from 'ahooks/lib/useHover'
 import BigNumber from 'bignumber.js'
 import dayjs from 'dayjs'
+import isEqual from 'lodash-es/isEqual'
 import round from 'lodash-es/round'
 import {
   useMemo,
@@ -227,21 +228,6 @@ const MyAssetNftListCard: FunctionComponent<
   const [earn, setEarn] = useState<string>(DEFAULT_EARN)
   const [durationValue, setDurationValue] = useState<number>()
 
-  useEffect(() => {
-    if (!listModalVisible) return
-    if (!!listingData && type === 'change') {
-      const { listAmount, duration, creatorEarn } = listingData
-      const wei = wei2Eth(listAmount)
-      setPrice(wei)
-      setEarn((creatorEarn / 100).toString())
-      setDurationValue(duration)
-    } else {
-      setPrice(undefined)
-      setEarn(DEFAULT_EARN)
-      setDurationValue(undefined)
-    }
-  }, [listModalVisible, listingData, type])
-
   const durationOptions = useMemo(() => {
     if (!listModalVisible) return LIST_DURATION
     if (!loanData?.loanEndedTime) return LIST_DURATION
@@ -254,6 +240,39 @@ const MyAssetNftListCard: FunctionComponent<
     })
     return LIST_DURATION.slice(0, index)
   }, [loanData, listModalVisible])
+
+  const durationDefaultValue = useMemo(() => {
+    if (
+      type === 'change' &&
+      !!listingData?.duration &&
+      durationOptions?.includes(listingData?.duration)
+    ) {
+      return listingData?.duration
+    }
+    return
+  }, [durationOptions, listingData, type])
+
+  const earnDefaultValue = useMemo(() => {
+    if (type === 'change' && !!listingData) {
+      const { creatorEarn } = listingData
+      return (creatorEarn / 100).toString()
+    }
+    return DEFAULT_EARN
+  }, [listingData, type])
+
+  const priceDefaultValue = useMemo(() => {
+    if (type === 'change' && !!listingData) {
+      const { listAmount } = listingData
+      return wei2Eth(listAmount)
+    }
+    return
+  }, [listingData, type])
+
+  useEffect(() => {
+    setPrice(priceDefaultValue)
+    setEarn(earnDefaultValue)
+    setDurationValue(durationDefaultValue)
+  }, [earnDefaultValue, priceDefaultValue, durationDefaultValue])
 
   /**
    *
@@ -311,6 +330,34 @@ const MyAssetNftListCard: FunctionComponent<
   const isHovering = useHover(ref)
 
   const show = useMemo(() => isHovering || ish5, [ish5, isHovering])
+
+  const isChanged = useMemo(() => {
+    if (type === 'create') {
+      const prevData = {
+        earn: DEFAULT_EARN,
+      }
+      return !isEqual(prevData, {
+        priceWei,
+        earn,
+        durationValue,
+      })
+    }
+    if (type === 'change' && !!listingData) {
+      const { listAmount } = listingData
+      return !isEqual(
+        {
+          ...listingData,
+          listAmount: listAmount.toString(),
+        },
+        {
+          duration: durationValue,
+          listAmount: priceWei,
+          creatorEarn: Number(earn) * 100,
+        },
+      )
+    }
+    return false
+  }, [type, priceWei, listingData, durationValue, earn])
   return (
     <>
       <Card
@@ -522,7 +569,12 @@ const MyAssetNftListCard: FunctionComponent<
           </ModalContent>
         </Modal>
       </Card>
-      <Modal onClose={closeModal} isOpen={listModalVisible} isCentered>
+      <Modal
+        onClose={closeModal}
+        isOpen={listModalVisible}
+        isCentered
+        scrollBehavior='inside'
+      >
         <ModalOverlay bg='black.2' h='100vh' />
         <ModalContent
           containerProps={{
@@ -536,17 +588,6 @@ const MyAssetNftListCard: FunctionComponent<
             sm: '326px',
             xs: '326px',
           }}
-          px={{
-            md: '40px',
-            sm: '20px',
-            xs: '20px',
-          }}
-          maxH={{
-            md: '96vh',
-            sm: '70vh',
-            xs: '70vh',
-          }}
-          overflowY={'auto'}
         >
           <ModalHeader
             pt={{
@@ -554,7 +595,6 @@ const MyAssetNftListCard: FunctionComponent<
               sm: '20px',
               xs: '20px',
             }}
-            px={0}
             fontSize={'28px'}
             fontWeight={'700'}
             position={'sticky'}
@@ -563,6 +603,11 @@ const MyAssetNftListCard: FunctionComponent<
             zIndex={2}
             display={'flex'}
             justifyContent={'space-between'}
+            px={{
+              md: '40px',
+              sm: '20px',
+              xs: '20px',
+            }}
           >
             {type === 'change' && 'Change'} List item
             <SvgComponent
@@ -572,7 +617,15 @@ const MyAssetNftListCard: FunctionComponent<
             />
           </ModalHeader>
 
-          <ModalBody m={0} p={0}>
+          <ModalBody
+            m={0}
+            p={0}
+            px={{
+              md: '40px',
+              sm: '20px',
+              xs: '20px',
+            }}
+          >
             {/* nft info */}
             <NftInfoBox data={assetData} price={price} />
             {/* inputs */}
@@ -781,10 +834,10 @@ const MyAssetNftListCard: FunctionComponent<
                     value: item,
                   }))}
                   defaultValue={
-                    type === 'change' && !!listingData
+                    durationDefaultValue
                       ? {
-                          value: listingData?.duration,
-                          label: `${listingData?.duration} Days`,
+                          label: `${durationDefaultValue} Days`,
+                          value: durationDefaultValue,
                         }
                       : undefined
                   }
@@ -848,7 +901,7 @@ const MyAssetNftListCard: FunctionComponent<
                 variant={'primary'}
                 w='100%'
                 h='52px'
-                isDisabled={!price || !earn || !durationValue}
+                isDisabled={!price || !earn || !durationValue || !isChanged}
               >
                 {type === 'change' ? 'Change List' : 'Complete listing'}
               </Button>

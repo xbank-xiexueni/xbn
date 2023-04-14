@@ -226,7 +226,7 @@ const MyAssets = () => {
                       contractData: { ...item },
                       loanData: {
                         outstandingLoan: 270000000000000,
-                        loanEndedTime: 1685692716,
+                        loanEndedTime: 1691315200,
                       },
                       collectionData: {
                         name: 'collection name',
