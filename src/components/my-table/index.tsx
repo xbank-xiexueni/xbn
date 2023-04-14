@@ -89,7 +89,7 @@ const MyTable = ({
             variant='unstyled'
             style={{
               borderCollapse: 'collapse',
-              borderSpacing: '0px',
+              borderSpacing: '0px 8px',
             }}
             className='my-table'
           >
@@ -207,12 +207,7 @@ const MyTable = ({
             </Thead>
             <Tbody>
               {data?.map((item) => (
-                <Tr
-                  key={JSON.stringify(item)}
-                  bg='gray.5'
-                  mb={'16px'}
-                  pos='relative'
-                >
+                <Tr key={JSON.stringify(item)} pos='relative'>
                   {columns.map(
                     (
                       {
