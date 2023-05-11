@@ -126,7 +126,7 @@ const PopoverWrapper: FunctionComponent<{
 }
 
 const ConnectedIconWallet: FunctionComponent = () => {
-  const { currentAccount, handleDisconnect, handleOpenEtherscan } = useWallet()
+  const { currentAccount, handleOpenEtherscan } = useWallet()
   const fetchDataFromContract = useCallback(async () => {
     // const wethContract = createWethContract()
     const xBankContract = createXBankContract()
@@ -173,7 +173,7 @@ const ConnectedIconWallet: FunctionComponent = () => {
           >
             {formatAddress(currentAccount)}
           </Button>
-          <Button
+          {/* <Button
             variant={'link'}
             color='black.1'
             p={'10px'}
@@ -183,7 +183,7 @@ const ConnectedIconWallet: FunctionComponent = () => {
             onClick={handleDisconnect}
           >
             Disconnect
-          </Button>
+          </Button> */}
 
           {(import.meta.env.DEV ||
             window.location.hostname.startsWith('feat-')) && (

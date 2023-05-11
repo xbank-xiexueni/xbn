@@ -1,5 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { useLocalStorageState, useRequest } from 'ahooks'
+import debounce from 'lodash-es/debounce'
 import isEmpty from 'lodash-es/isEmpty'
 import {
   useEffect,
@@ -171,7 +172,6 @@ export const TransactionsProvider = ({
         //   // handle "add" error
         // }
       } else {
-        console.log(switchError)
         toast({
           status: 'info',
           title: 'please switch Ethereum Chain first',
@@ -215,10 +215,12 @@ export const TransactionsProvider = ({
   useEffect(() => {
     if (!ethereum) return
 
-    ethereum.on('accountsChanged', function () // accounts: string[]
-    {
+    ethereum.on('accountsChanged', () => {
       // 一旦切换账号这里就会执行
       window.location.reload()
+      debounce(() => {
+        window.location.reload()
+      }, 100)()
       // if (isEmpty(accounts)) {
       //   // setCurrentAccount('')
       //   window.location.reload()
@@ -226,12 +228,15 @@ export const TransactionsProvider = ({
       // }
     })
     ethereum.on('chainChanged', () => {
-      window.location.reload()
-      setCurrentAccount('')
+      // alert('reload chainChanged')
+      // window.location.reload()
+      // setCurrentAccount('')
     })
     ethereum.on('disconnect', () => {
-      window.location.reload()
-      setCurrentAccount('')
+      debounce(() => {
+        window.location.reload()
+        setCurrentAccount('')
+      }, 100)()
     })
   }, [setCurrentAccount])
 
@@ -253,9 +258,8 @@ export const TransactionsProvider = ({
 
       const accounts = await ethereum.request({ method: 'eth_accounts' })
 
-      if (accounts.length && currentAccount) {
+      if (accounts.length) {
         setCurrentAccount(accounts[0])
-
         // getAllTransactions();
       } else {
         setCurrentAccount('')
@@ -263,9 +267,8 @@ export const TransactionsProvider = ({
       }
     } catch (error) {
       setCurrentAccount('')
-      console.log(error)
     }
-  }, [toast, currentAccount, setCurrentAccount])
+  }, [toast, setCurrentAccount])
 
   const connectWallet = useCallback(async () => {
     try {
