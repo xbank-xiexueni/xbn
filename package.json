@@ -16,7 +16,8 @@
     "lint:js": "eslint --cache --ext .js,.jsx,.ts,.tsx --format=pretty ./src",
     "prepare": "husky install",
     "prettier": "prettier --check --write \"src/**/*\"",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "vite --host"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": "npm run lint-staged:js",

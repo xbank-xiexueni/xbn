@@ -864,7 +864,8 @@ const NftAssetDetail = () => {
                 gap={'4px'}
                 alignItems='center'
                 justify={'center'}
-                w='80px'
+                minW='96px'
+                px={'8px'}
               >
                 <SvgComponent svgId='icon-eth' svgSize='20px' />
                 <Text
