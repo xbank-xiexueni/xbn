@@ -101,6 +101,35 @@ interface LoanListItemType {
 interface MyAssetListItemType {
   asset_contract_address: string
   token_id: string
-  qty: string | number
+  qty: string
   loan_status: 1 | 0
+}
+
+interface ListingDataType {
+  platform: string
+  contract_address: string
+  token_id: string
+  network: string
+  currency: string
+  qty: number
+  price: string
+  expiration_time: number
+  borrower_address: string
+}
+
+interface AssetPriceType {
+  data: {
+    marketplace: string
+    blur_price?: {
+      amount: number
+      unit: string
+    }
+    opensea_price?: {
+      amount: number
+      unit: string
+      hash: string
+      chain: string
+      protocol_address: string
+    }
+  }[]
 }

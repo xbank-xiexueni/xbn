@@ -289,15 +289,22 @@ const Market = () => {
 
       <Flex
         mt={'10px'}
-        flexWrap={{ lg: 'nowrap', md: 'wrap', sm: 'wrap', xs: 'wrap' }}
         gap={9}
+        flexWrap={{ lg: 'nowrap', md: 'wrap', sm: 'wrap', xs: 'wrap' }}
       >
         <Box
-          borderColor='gray.2'
-          borderWidth={{ md: 1, sm: 0, xs: 0 }}
-          borderRadius={{ md: '12px', sm: 0, xs: 0 }}
-          pt={{ md: '24px', sm: '20px', xs: '20px' }}
-          px={{ md: '24px', sm: 0, xs: 0 }}
+          position={{
+            md: 'sticky',
+            sm: 'static',
+            xs: 'static',
+          }}
+          pt='20px'
+          top={'79px'}
+          bg='white'
+          height={{
+            xl: '70vh',
+            lg: '70vh',
+          }}
           w={{
             xl: '360px',
             lg: '260px',
@@ -305,148 +312,145 @@ const Market = () => {
             sm: '100%',
             xs: '100%',
           }}
-          height={{
-            xl: '70vh',
-            lg: '70vh',
-          }}
-          overflowY='auto'
-          overflowX={'visible'}
-          position={{
-            md: 'sticky',
-            sm: 'static',
-            xs: 'static',
-          }}
-          top={'100px'}
-          bg='white'
-          zIndex={2}
+          zIndex={21}
         >
-          <Heading size={'md'} mb='16px'>
-            Collections
-          </Heading>
-          {/* pc collection list */}
           <Box
-            display={{
-              md: 'block',
-              sm: 'none',
-              xs: 'none',
-            }}
-            pb='40px'
+            borderColor='gray.2'
+            borderWidth={{ md: 1, sm: 0, xs: 0 }}
+            borderRadius={{ md: '12px', sm: 0, xs: 0 }}
+            pt={{ md: '24px', sm: '20px', xs: '20px' }}
+            px={{ md: '24px', sm: 0, xs: 0 }}
+            overflowY='auto'
+            overflowX={'visible'}
           >
-            <SearchInput
-              placeholder='Collections...'
-              isDisabled={collectionLoading || poolsLoading}
-              value={collectionSearchValue}
-              onChange={(e) => {
-                setCollectionSearchValue(e.target.value)
-              }}
-            />
-
-            {/* pc 端 */}
-            <List
-              spacing='16px'
-              mt='16px'
-              position='relative'
+            <Heading size={'md'} mb='16px'>
+              Collections
+            </Heading>
+            {/* pc collection list */}
+            <Box
               display={{
                 md: 'block',
                 sm: 'none',
                 xs: 'none',
               }}
+              pb='40px'
             >
-              <LoadingComponent
-                loading={collectionLoading || poolsLoading}
-                top={0}
+              <SearchInput
+                placeholder='Collections...'
+                isDisabled={collectionLoading || poolsLoading}
+                value={collectionSearchValue}
+                onChange={(e) => {
+                  setCollectionSearchValue(e.target.value)
+                }}
               />
-              {filteredCollectionList &&
-                isEmpty(filteredCollectionList) &&
-                !collectionLoading && <EmptyComponent />}
 
-              {filteredCollectionList?.map((item) => (
-                <CollectionListItem
-                  data={item}
-                  key={`${item?.nftCollection?.id}${item?.contractAddress}`}
-                  onClick={() => {
-                    setSelectCollection(item)
-                    setOrderOption(SORT_OPTIONS[0])
-                    setAssetSearchValue('')
-                    setCollectionSearchValue('')
-                  }}
-                  count={item.nftCollection.assetsCount}
-                  isActive={
-                    selectCollection?.nftCollection?.id ===
-                    item?.nftCollection?.id
-                  }
-                  iconSize='26px'
+              {/* pc 端 */}
+              <List
+                spacing='16px'
+                mt='16px'
+                position='relative'
+                display={{
+                  md: 'block',
+                  sm: 'none',
+                  xs: 'none',
+                }}
+              >
+                <LoadingComponent
+                  loading={collectionLoading || poolsLoading}
+                  top={0}
                 />
-              ))}
-            </List>
-          </Box>
-          {/* 移动端  collection list*/}
-          <Box
-            display={{
-              md: 'none',
-              sm: 'block',
-              xs: 'block',
-            }}
-            mt={'16px'}
-            position='relative'
-          >
-            <CollectionListItem
-              isActive
-              data={selectCollection}
-              rightIconId='icon-arrow-down'
-              onClick={openDraw}
-            />
-            <Divider mt='16px' />
-            <Drawer
-              placement={'bottom'}
-              onClose={closeDraw}
-              isOpen={drawVisible}
-            >
-              <DrawerOverlay />
-              <DrawerContent borderTopRadius={16} pb='40px'>
-                <DrawerBody>
-                  <Heading fontSize={'24px'} pt='40px' pb='32px'>
-                    Collections
-                  </Heading>
-                  <SearchInput
-                    placeholder='Collections...'
-                    value={collectionSearchValue}
-                    onChange={(e) => {
-                      setCollectionSearchValue(e.target.value)
-                    }}
-                  />
-                  <List spacing='16px' mt='16px' position='relative'>
-                    <LoadingComponent
-                      loading={collectionLoading || poolsLoading}
-                      top={0}
-                    />
-                    {filteredCollectionList &&
-                      isEmpty(filteredCollectionList) &&
-                      !collectionLoading && <EmptyComponent />}
+                {filteredCollectionList &&
+                  isEmpty(filteredCollectionList) &&
+                  !collectionLoading && <EmptyComponent />}
 
-                    {filteredCollectionList?.map((item) => (
-                      <CollectionListItem
-                        data={item}
-                        key={`${item?.nftCollection?.id}${item?.contractAddress}`}
-                        onClick={() => {
-                          setSelectCollection(item)
-                          setOrderOption(SORT_OPTIONS[0])
-                          setAssetSearchValue('')
-                          setCollectionSearchValue('')
-                          closeDraw()
-                        }}
-                        count={item.nftCollection.assetsCount}
-                        isActive={
-                          selectCollection?.nftCollection?.id ===
-                          item?.nftCollection?.id
-                        }
-                        iconSize='26px'
+                {filteredCollectionList?.map((item) => (
+                  <CollectionListItem
+                    data={item}
+                    key={`${item?.nftCollection?.id}${item?.contractAddress}`}
+                    onClick={() => {
+                      setSelectCollection(item)
+                      setOrderOption(SORT_OPTIONS[0])
+                      setAssetSearchValue('')
+                      setCollectionSearchValue('')
+                    }}
+                    count={item.nftCollection.assetsCount}
+                    isActive={
+                      selectCollection?.nftCollection?.id ===
+                      item?.nftCollection?.id
+                    }
+                    iconSize='26px'
+                  />
+                ))}
+              </List>
+            </Box>
+            {/* 移动端  collection list*/}
+            <Box
+              display={{
+                md: 'none',
+                sm: 'block',
+                xs: 'block',
+              }}
+              mt={'16px'}
+              position='relative'
+            >
+              <CollectionListItem
+                isActive
+                data={selectCollection}
+                rightIconId='icon-arrow-down'
+                onClick={openDraw}
+              />
+              <Divider mt='16px' />
+              <Drawer
+                placement={'bottom'}
+                onClose={closeDraw}
+                isOpen={drawVisible}
+              >
+                <DrawerOverlay />
+                <DrawerContent borderTopRadius={16} pb='40px'>
+                  <DrawerBody>
+                    <Heading fontSize={'24px'} pt='40px' pb='32px'>
+                      Collections
+                    </Heading>
+                    <SearchInput
+                      placeholder='Collections...'
+                      value={collectionSearchValue}
+                      onChange={(e) => {
+                        setCollectionSearchValue(e.target.value)
+                      }}
+                    />
+                    <List spacing='16px' mt='16px' position='relative'>
+                      <LoadingComponent
+                        loading={collectionLoading || poolsLoading}
+                        top={0}
                       />
-                    ))}
-                  </List>
-                </DrawerBody>
-              </DrawerContent>
-            </Drawer>
+                      {filteredCollectionList &&
+                        isEmpty(filteredCollectionList) &&
+                        !collectionLoading && <EmptyComponent />}
+
+                      {filteredCollectionList?.map((item) => (
+                        <CollectionListItem
+                          data={item}
+                          key={`${item?.nftCollection?.id}${item?.contractAddress}`}
+                          onClick={() => {
+                            setSelectCollection(item)
+                            setOrderOption(SORT_OPTIONS[0])
+                            setAssetSearchValue('')
+                            setCollectionSearchValue('')
+                            closeDraw()
+                          }}
+                          count={item.nftCollection.assetsCount}
+                          isActive={
+                            selectCollection?.nftCollection?.id ===
+                            item?.nftCollection?.id
+                          }
+                          iconSize='26px'
+                        />
+                      ))}
+                    </List>
+                  </DrawerBody>
+                </DrawerContent>
+              </Drawer>
+            </Box>
           </Box>
         </Box>
 

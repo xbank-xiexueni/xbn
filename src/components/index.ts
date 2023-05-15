@@ -21,5 +21,6 @@ export { default as ScrollNumber } from './scroll-number/ScrollNumber'
 export { default as H5SecondaryHeader } from './h5-secondary-header/H5SecondaryHeader'
 export { default as MortgagedTag } from './tag/MortgagedTag'
 export { default as ListingTag } from './tag/ListingTag'
+export { default as MiddleStatus } from './middle-status/MiddleStatus'
 
 export { type ColumnProps } from './my-table/index'

@@ -57,7 +57,9 @@ request.interceptors.response.use(
       throw error
     }
     if (status < 500 && status >= 400) {
-      const { code, message } = data
+      const {
+        error: { code, message },
+      } = data
       console.log('🚀 ~ file: request.ts:57 ~ code:', code)
       toast({
         title: message || 'Oops, network error...',

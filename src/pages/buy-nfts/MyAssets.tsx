@@ -60,10 +60,11 @@ const MyAssets = () => {
     debounceWait: 500,
     defaultParams: [
       {
-        wallet_address:
-          '0xa57dc20Ce8bba57177bF05EeD9E344c552469360' || currentAccount,
+        wallet_address: currentAccount,
       },
     ],
+    refreshDeps: [currentAccount],
+    ready: !!currentAccount,
   })
 
   const batchAssetParams = useMemo(() => {
@@ -224,16 +225,6 @@ const MyAssets = () => {
                         imagePreviewUrl: assetInfo?.imagePreviewUrl,
                       },
                       contractData: { ...item },
-                      loanData: {
-                        outstandingLoan: 270000000000000,
-                        loanEndedTime: 1691315200,
-                      },
-                      collectionData: {
-                        name: 'collection name',
-                        safelistRequestStatus: 'verified',
-                        minFloorPrice: 0.1888,
-                        maxFloorPrice: 0.3518,
-                      },
                       listingData:
                         // 假设 #10 正在 list
                         item.token_id === '10'
