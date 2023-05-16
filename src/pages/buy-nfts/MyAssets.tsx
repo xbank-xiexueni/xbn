@@ -17,7 +17,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { apiGetMyAssets } from '@/api'
-import { EmptyComponent, LoadingComponent, SvgComponent } from '@/components'
+import {
+  ConnectWalletModal,
+  EmptyComponent,
+  LoadingComponent,
+  SvgComponent,
+} from '@/components'
 import { useBatchAsset, useWallet } from '@/hooks'
 
 import MyAssetNftListCard from './components/MyAssetNftListCard'
@@ -48,7 +53,7 @@ import MyAssetNftListCard from './components/MyAssetNftListCard'
 
 const MyAssets = () => {
   const navigate = useNavigate()
-  const { interceptFn, currentAccount } = useWallet()
+  const { interceptFn, currentAccount, isOpen, onClose } = useWallet()
   // const [orderOption, setOrderOption] = useState(SORT_OPTIONS[0])
   // const [assetSearchValue, setAssetSearchValue] = useState('')
   // const debounceSearchValue = useDebounce(assetSearchValue, { wait: 500 })
@@ -225,15 +230,6 @@ const MyAssets = () => {
                         imagePreviewUrl: assetInfo?.imagePreviewUrl,
                       },
                       contractData: { ...item },
-                      listingData:
-                        // 假设 #10 正在 list
-                        item.token_id === '10'
-                          ? {
-                              listAmount: 500000000000000000,
-                              creatorEarn: 1000,
-                              duration: 30,
-                            }
-                          : undefined,
                     }}
                   />
                 )
@@ -242,6 +238,7 @@ const MyAssets = () => {
           </TabPanel>
         </TabPanels>
       </Tabs>
+      <ConnectWalletModal visible={isOpen} handleClose={onClose} />
     </Box>
   )
 }

@@ -197,13 +197,18 @@ const AMOUNT_MIN = 0
 // 目前还不知道怎么获取
 const gas = 0
 
+const LISTING_DATA = {
+  price: '1.234',
+  expiration_time: 1684476955,
+}
+
 const MyAssetNftListCard: FunctionComponent<
   {
     data: ListDataType
     imageSize: ImageProps['boxSize']
   } & CardProps
 > = ({ data, imageSize, ...rest }) => {
-  const { assetData, contractData, listingData } = data
+  const { assetData, contractData } = data
   const { currentAccount } = useWallet()
   const navigate = useNavigate()
 
@@ -228,6 +233,7 @@ const MyAssetNftListCard: FunctionComponent<
 
   const [type, setType] = useState<ListModalType>()
   const closeModal = useCallback(() => setType(undefined), [])
+  // 创建 || 修改挂单的弹窗可见性
   const listModalVisible = useMemo(
     () => !!type && ['create', 'change'].includes(type),
     [type],
@@ -239,13 +245,17 @@ const MyAssetNftListCard: FunctionComponent<
   const [collectionData, setCollectionData] = useState<CollectionDataType>()
   const [loanData, setLoanData] = useState<LoanDataType>()
 
-  const { loading: collectionLoading } = useRequest(apiGetCollectionDetail, {
+  const {
+    loading: collectionLoading,
+    error: collectionError,
+    refresh: refreshCollection,
+  } = useRequest(apiGetCollectionDetail, {
     defaultParams: [
       {
         assetContractAddresses: [contractData?.asset_contract_address || ''],
       },
     ],
-    ready: !!assetData && !!type,
+    ready: !!assetData && listModalVisible,
     onSuccess({ data: cData }) {
       const { nftCollectionsByContractAddresses } = cData
 
@@ -272,8 +282,12 @@ const MyAssetNftListCard: FunctionComponent<
     },
   })
 
-  const { loading: loanLoading } = useRequest(apiGetLoans, {
-    ready: !!assetData && !!type,
+  const {
+    loading: loanLoading,
+    error: loanError,
+    refresh: refreshLoan,
+  } = useRequest(apiGetLoans, {
+    ready: !!assetData && listModalVisible,
     defaultParams: [
       {
         borrower_address: currentAccount,
@@ -312,8 +326,9 @@ const MyAssetNftListCard: FunctionComponent<
     if (!listModalVisible) return LIST_DURATION
     if (!loanData?.loanEndedTime) return LIST_DURATION
     const { loanEndedTime } = loanData
+    // 计算贷款结束时间距离当前的天数差，可选 duration 只能小于等于这个天数差
     const diff = round(
-      (-dayjs(new Date()).unix() + loanEndedTime) / 60 / 60 / 24,
+      (loanEndedTime - dayjs(new Date()).unix()) / 60 / 60 / 24,
     )
     if (diff < 0) return []
     const index = LIST_DURATION.findIndex((i) => {
@@ -322,29 +337,16 @@ const MyAssetNftListCard: FunctionComponent<
     return LIST_DURATION.slice(0, index)
   }, [loanData, listModalVisible])
 
-  const durationDefaultValue = useMemo(() => {
-    if (
-      type === 'change' &&
-      !!listingData?.duration &&
-      durationOptions?.includes(listingData?.duration)
-    ) {
-      return listingData?.duration
-    }
-    return
-  }, [durationOptions, listingData, type])
-
   const priceDefaultValue = useMemo(() => {
-    if (type === 'change' && !!listingData) {
-      const { listAmount } = listingData
-      return wei2Eth(listAmount)
+    if (type === 'change' && !!LISTING_DATA) {
+      return LISTING_DATA?.price
     }
     return
-  }, [listingData, type])
+  }, [type])
 
   useEffect(() => {
     setPrice(priceDefaultValue)
-    setDurationValue(durationDefaultValue)
-  }, [priceDefaultValue, durationDefaultValue])
+  }, [priceDefaultValue])
 
   /**
    *
@@ -399,29 +401,29 @@ const MyAssetNftListCard: FunctionComponent<
 
   const isChanged = useMemo(() => {
     if (type === 'create') {
-      const prevData = {}
-      return !isEqual(prevData, {
-        priceWei,
-        durationValue,
-      })
+      return !isEqual(
+        {},
+        {
+          price,
+          durationValue,
+        },
+      )
     }
-    if (type === 'change' && !!listingData) {
+    if (type === 'change' && !!LISTING_DATA) {
       // 待定
-      const { listAmount } = listingData
       return !isEqual(
         {
-          ...listingData,
-          listAmount: listAmount.toString(),
+          ...LISTING_DATA,
+          price: LISTING_DATA?.price,
         },
         {
           duration: durationValue,
-          listAmount: priceWei,
-          creatorEarn: Number(collectionData?.creatorEarn) * 10000,
+          price,
         },
       )
     }
     return false
-  }, [type, priceWei, listingData, durationValue, collectionData])
+  }, [type, price, durationValue])
 
   const { runAsync: handleCreateListing, loading: createListingLoading } =
     useRequest(apiPostListing, {
@@ -430,9 +432,8 @@ const MyAssetNftListCard: FunctionComponent<
 
   const handleListing = useCallback(async () => {
     try {
-      if (!contractData || !durationValue || !price) return
-      const expiration_time = dayjs().unix() + durationValue * 24 * 60
-
+      if (!contractData || !durationValue || !price || !currentAccount) return
+      const expiration_time = dayjs().add(durationValue, 'days').unix()
       // create list
       if (type === 'create') {
         const POST_PARAMS = {
@@ -446,12 +447,7 @@ const MyAssetNftListCard: FunctionComponent<
           expiration_time,
           borrower_address: currentAccount,
         }
-        console.log(POST_PARAMS)
-        const res = await handleCreateListing(POST_PARAMS)
-        console.log(
-          '🚀 ~ file: MyAssetNftListCard.tsx:1021 ~ onClick={ ~ res:',
-          res,
-        )
+        await handleCreateListing(POST_PARAMS)
         navigate('/xlending/buy-nfts/complete', {
           state: {
             imageUrl: assetData?.imagePreviewUrl,
@@ -479,6 +475,10 @@ const MyAssetNftListCard: FunctionComponent<
     assetData,
     navigate,
   ])
+
+  const handleCancelList = useCallback(() => {
+    alert('development')
+  }, [])
   return (
     <>
       <Card
@@ -671,7 +671,7 @@ const MyAssetNftListCard: FunctionComponent<
           />
 
           <ModalHeader p={0} display={'flex'} justifyContent={'space-between'}>
-            Confirming!
+            Cancel List!
             <SvgComponent
               svgId='icon-close'
               onClick={closeModal}
@@ -679,14 +679,19 @@ const MyAssetNftListCard: FunctionComponent<
             />
           </ModalHeader>
           <ModalBody p={0} mt='20px'>
-            Are you sure you want to cancel the listing?
+            Are you sure to cancel the listing?
           </ModalBody>
 
           <ModalFooter p={0} mt='20px'>
             <Button mr={3} onClick={closeModal} borderRadius={8} px='30px'>
               no
             </Button>
-            <Button variant='primary' borderRadius={8} px='30px'>
+            <Button
+              variant='primary'
+              borderRadius={8}
+              px='30px'
+              onClick={handleCancelList}
+            >
               yes
             </Button>
           </ModalFooter>
@@ -733,6 +738,7 @@ const MyAssetNftListCard: FunctionComponent<
               sm: '20px',
               xs: '20px',
             }}
+            borderRadius={8}
           >
             {type === 'change' && 'Change'} List item
             <SvgComponent
@@ -741,8 +747,8 @@ const MyAssetNftListCard: FunctionComponent<
               cursor={'pointer'}
             />
           </ModalHeader>
-          {/* loanData 如果获取失败，阻止进行下一步 */}
-          {!fetchInfoLoading && !loanData && (
+          {/* 获取失败，阻止进行下一步 */}
+          {!!loanError || !!collectionError ? (
             <Flex px='40px' pb='40px'>
               <Alert
                 px={'40px'}
@@ -758,256 +764,222 @@ const MyAssetNftListCard: FunctionComponent<
                 <AlertTitle mt={4} mb={1} fontSize='lg'>
                   Error, the current loan does not exist
                 </AlertTitle>
-                <AlertDescription maxWidth='sm'>
-                  Please refresh and try again.
-                </AlertDescription>
+                <Flex>
+                  <AlertDescription maxWidth='sm'>
+                    Please refresh and try again.
+                  </AlertDescription>
+                  <SvgComponent
+                    svgId='icon-refresh'
+                    onClick={() => {
+                      if (fetchInfoLoading) return
+                      refreshCollection()
+                      refreshLoan()
+                    }}
+                    animation={
+                      fetchInfoLoading ? 'loading 1s linear infinite' : ''
+                    }
+                    cursor={'pointer'}
+                    svgSize='20px'
+                  />
+                </Flex>
               </Alert>
             </Flex>
-          )}
-          <ModalBody
-            m={0}
-            p={0}
-            px={{
-              md: '40px',
-              sm: '20px',
-              xs: '20px',
-            }}
-            hidden={!fetchInfoLoading && !loanData}
-          >
-            {/* nft info */}
-            <NftInfoBox
-              data={assetData}
-              price={price}
-              collectionData={collectionData}
-            />
-            {/* inputs */}
-            <Flex
-              flexDir={'column'}
-              py='24px'
-              borderBottomColor={'gray.2'}
-              borderBottomWidth={1}
+          ) : (
+            <ModalBody
+              m={0}
+              p={0}
+              px={{
+                md: '40px',
+                sm: '20px',
+                xs: '20px',
+              }}
+              hidden={!fetchInfoLoading && !loanData}
             >
-              {/* Set a price */}
-              <Box>
-                <Text fontWeight={'700'} mb='16px'>
-                  Set a price
-                </Text>
-                {/* 快速填充 */}
-                {!!collectionData && (
-                  <Flex
-                    gap={'8px'}
-                    mb='16px'
-                    flexWrap={{
-                      md: 'nowrap',
-                      sm: 'wrap',
-                      xs: 'wrap',
-                    }}
-                  >
-                    {[
-                      collectionData?.floorPrice,
-                      // collectionData?.maxFloorPrice,
-                    ].map((item, index) => (
-                      <Flex
-                        justify={'center'}
-                        key={item}
-                        bg={price === item.toString() ? 'gray.5' : 'white'}
-                        borderColor={'rgba(0, 0, 0, 0.2)'}
-                        borderWidth={1}
-                        borderRadius={8}
-                        py='20px'
-                        w='100%'
-                        lineHeight={'18px'}
-                        cursor={'pointer'}
-                        _hover={{
-                          bg: 'gray.5',
-                        }}
-                        onClick={() => setPrice(item.toString())}
-                      >
-                        <Highlight
-                          query={['Floor', 'Top attribute']}
-                          styles={{
-                            color: 'blue.1',
-                            fontWeight: '700',
-                            marginRight: '8px',
-                          }}
-                        >
-                          {`${
-                            index === 0 ? 'Floor' : 'Top attribute'
-                          } ${item} ${UNIT}`}
-                        </Highlight>
-                      </Flex>
-                    ))}
-                  </Flex>
-                )}
-
-                {/* input */}
-                <InputGroup mb='20px'>
-                  <NumberInput
-                    w='100%'
-                    errorBorderColor='red.1'
-                    isInvalid={isAmountError}
-                    borderColor='gray.4'
-                    value={price}
-                    onChange={(v) => {
-                      const numberV = Number(v)
-                      if (numberV > AMOUNT_MAX || numberV < AMOUNT_MIN) return
-                      setPrice(v)
-                    }}
-                    max={AMOUNT_MAX}
-                    min={AMOUNT_MIN}
-                  >
-                    <NumberInputField
-                      h='60px'
-                      _focus={{
-                        borderColor: isAmountError ? 'red.1' : 'blue.1',
-                      }}
-                      _focusVisible={{
-                        boxShadow: `0 0 0 1px var(--chakra-colors-${
-                          isAmountError ? 'red-1' : 'blue-1'
-                        })`,
-                      }}
-                      placeholder='Amount...'
-                      borderRadius={8}
-                    />
-                  </NumberInput>
-                  {isAmountError && (
-                    <InputRightElement mr='110px' h='60px'>
-                      <SvgComponent
-                        svgId='icon-info'
-                        svgSize='24px'
-                        fill={'red.1'}
-                      />
-                    </InputRightElement>
-                  )}
-                  <InputRightElement
-                    bg='gray.5'
-                    h='57px'
-                    borderRightRadius={8}
-                    borderColor={isAmountError ? 'red.1' : 'gray.4'}
-                    borderWidth={0}
-                    pr='70px'
-                    pl='32px'
-                    top={'1.5px'}
-                    right={'1px'}
-                    fontWeight={'700'}
-                  >
-                    {UNIT}
-                  </InputRightElement>
-                </InputGroup>
-
-                {isAmountError && !!minInput && (
-                  <Text
-                    my='16px'
-                    flexDir={'column'}
-                    color='red.1'
-                    fontSize={'14px'}
-                    fontWeight={'500'}
-                  >
-                    Minimum input:&nbsp;
-                    {BigNumber(wei2Eth(minInput)).toFormat(FORMAT_NUMBER)}
-                    <br />
-                    Price cannot be less than the outstanding loan amount
+              {/* nft info */}
+              <NftInfoBox
+                data={assetData}
+                price={price}
+                collectionData={collectionData}
+              />
+              {/* inputs */}
+              <Flex
+                flexDir={'column'}
+                py='24px'
+                borderBottomColor={'gray.2'}
+                borderBottomWidth={1}
+              >
+                {/* Set a price */}
+                <Box>
+                  <Text fontWeight={'700'} mb='16px'>
+                    Set a price
                   </Text>
-                )}
-                {!!collectionData &&
-                  Number(price) < collectionData?.floorPrice &&
-                  !isAmountError && (
+                  {/* 快速填充 */}
+                  {!!collectionData && (
                     <Flex
-                      mt='16px'
-                      color='orange.1'
-                      fontSize={'14px'}
-                      fontWeight={'500'}
-                      alignItems={'center'}
-                      lineHeight={'24px'}
+                      gap={'8px'}
+                      mb='16px'
+                      flexWrap={{
+                        md: 'nowrap',
+                        sm: 'wrap',
+                        xs: 'wrap',
+                      }}
                     >
-                      <SvgComponent
-                        svgId='icon-info'
-                        fill={'orange.1'}
-                        svgSize='16px'
-                      />
-                      Price is below collection floor price of&nbsp;
-                      {collectionData?.floorPrice}
-                      {UNIT}
+                      {[
+                        collectionData?.floorPrice,
+                        // collectionData?.maxFloorPrice,
+                      ].map((item, index) => (
+                        <Flex
+                          justify={'center'}
+                          key={item}
+                          bg={price === item.toString() ? 'gray.5' : 'white'}
+                          borderColor={'rgba(0, 0, 0, 0.2)'}
+                          borderWidth={1}
+                          borderRadius={8}
+                          py='20px'
+                          w='100%'
+                          lineHeight={'18px'}
+                          cursor={'pointer'}
+                          _hover={{
+                            bg: 'gray.5',
+                          }}
+                          onClick={() => setPrice(item.toString())}
+                        >
+                          <Highlight
+                            query={['Floor', 'Top attribute']}
+                            styles={{
+                              color: 'blue.1',
+                              fontWeight: '700',
+                              marginRight: '8px',
+                            }}
+                          >
+                            {`${
+                              index === 0 ? 'Floor' : 'Top attribute'
+                            } ${item} ${UNIT}`}
+                          </Highlight>
+                        </Flex>
+                      ))}
                     </Flex>
                   )}
-              </Box>
-              {/* Creator earnings */}
-              {/* earn 输入范围 2.5 ~ 97.5 */}
-              {/* <Flex
-                justify={'space-between'}
-                alignItems={'center'}
-                mb='20px'
-                hidden
-              >
-                <Text fontWeight={'700'}>Creator earnings</Text>
 
-                <InputGroup w='100px' alignItems={'center'}>
-                  <NumberInput
-                    min={EARN_MIN}
-                    step={0.01}
-                    max={EARN_MAX}
-                    precision={2}
-                    onChange={(v) => {
-                      const numberV = Number(v)
-                      if (numberV > EARN_MAX || numberV < EARN_MIN) return
-                      setEarn(v)
-                    }}
-                    value={earn}
-                    h='52px'
-                  >
-                    <NumberInputField
-                      h='52px'
-                      borderRadius={8}
-                      _focusVisible={{
-                        borderColor:
-                          Number(earn) > EARN_MAX || Number(earn) < EARN_MIN
-                            ? 'red.1'
-                            : 'blue.1',
+                  {/* input */}
+                  <InputGroup mb='20px'>
+                    <NumberInput
+                      w='100%'
+                      errorBorderColor='red.1'
+                      isInvalid={isAmountError}
+                      borderColor='gray.4'
+                      value={price}
+                      onChange={(v) => {
+                        const numberV = Number(v)
+                        if (numberV > AMOUNT_MAX || numberV < AMOUNT_MIN) return
+                        setPrice(v)
                       }}
-                      type='number'
-                      fontWeight='500'
-                      color='black.1'
-                    />
-                  </NumberInput>
-                  <InputRightElement h='52px' lineHeight={'52px'}>
-                    %
-                  </InputRightElement>
-                </InputGroup>
-              </Flex> */}
-              {/* Duration */}
-              <Box>
-                <Text fontWeight={'700'} mb='16px'>
-                  Duration
-                </Text>
-                <Select
-                  {...DURATION_PROPS}
-                  noOptionsMessage={() => (
-                    <Box>
-                      <Heading fontSize={'16px'}>No options available</Heading>
-                      <Text fontSize={'12px'} mt='10px'>
-                        Loan ends &nbsp;
-                        {unix(loanData?.loanEndedTime || 0).format(
-                          'YYYY/MM/DD',
-                        )}
-                      </Text>
-                    </Box>
+                      max={AMOUNT_MAX}
+                      min={AMOUNT_MIN}
+                    >
+                      <NumberInputField
+                        h='60px'
+                        _focus={{
+                          borderColor: isAmountError ? 'red.1' : 'blue.1',
+                        }}
+                        _focusVisible={{
+                          boxShadow: `0 0 0 1px var(--chakra-colors-${
+                            isAmountError ? 'red-1' : 'blue-1'
+                          })`,
+                        }}
+                        placeholder='Amount...'
+                        borderRadius={8}
+                      />
+                    </NumberInput>
+                    {isAmountError && (
+                      <InputRightElement mr='110px' h='60px'>
+                        <SvgComponent
+                          svgId='icon-info'
+                          svgSize='24px'
+                          fill={'red.1'}
+                        />
+                      </InputRightElement>
+                    )}
+                    <InputRightElement
+                      bg='gray.5'
+                      h='57px'
+                      borderRightRadius={8}
+                      borderColor={isAmountError ? 'red.1' : 'gray.4'}
+                      borderWidth={0}
+                      pr='70px'
+                      pl='32px'
+                      top={'1.5px'}
+                      right={'1px'}
+                      fontWeight={'700'}
+                    >
+                      {UNIT}
+                    </InputRightElement>
+                  </InputGroup>
+
+                  {isAmountError && !!minInput && (
+                    <Text
+                      my='16px'
+                      flexDir={'column'}
+                      color='red.1'
+                      fontSize={'14px'}
+                      fontWeight={'500'}
+                    >
+                      Minimum input:&nbsp;
+                      {BigNumber(wei2Eth(minInput)).toFormat(FORMAT_NUMBER)}
+                      <br />
+                      Price cannot be less than the outstanding loan amount
+                    </Text>
                   )}
-                  onChange={(e: any) => setDurationValue(e?.value as number)}
-                  options={durationOptions?.map((item) => ({
-                    label: `${item} Days`,
-                    value: item,
-                  }))}
-                  defaultValue={
-                    durationDefaultValue
-                      ? {
-                          label: `${durationDefaultValue} Days`,
-                          value: durationDefaultValue,
-                        }
-                      : undefined
-                  }
-                />
-                {/* 换算美元 */}
-                {/* <Text
+                  {!!collectionData &&
+                    Number(price) < collectionData?.floorPrice &&
+                    !isAmountError && (
+                      <Flex
+                        mt='16px'
+                        color='orange.1'
+                        fontSize={'14px'}
+                        fontWeight={'500'}
+                        alignItems={'center'}
+                        lineHeight={'24px'}
+                      >
+                        <SvgComponent
+                          svgId='icon-info'
+                          fill={'orange.1'}
+                          svgSize='16px'
+                        />
+                        Price is below collection floor price of&nbsp;
+                        {collectionData?.floorPrice}
+                        {UNIT}
+                      </Flex>
+                    )}
+                </Box>
+                {/* Duration */}
+                <Box>
+                  <Text fontWeight={'700'} mb='16px'>
+                    Duration
+                  </Text>
+                  <Select
+                    {...DURATION_PROPS}
+                    noOptionsMessage={() => (
+                      <Box>
+                        <Heading fontSize={'16px'}>
+                          No options available
+                        </Heading>
+                        <Text fontSize={'12px'} mt='10px'>
+                          Loan ends &nbsp;
+                          {unix(loanData?.loanEndedTime || 0).format(
+                            'YYYY/MM/DD',
+                          )}
+                        </Text>
+                      </Box>
+                    )}
+                    onChange={(e: any) => setDurationValue(e?.value as number)}
+                    options={durationOptions?.map((item) => ({
+                      label: `${item} Days`,
+                      value: item,
+                    }))}
+                  />
+                  {/* 换算美元 */}
+                  {/* <Text
                 fontSize={'14px'}
                 fontWeight={'500'}
                 mt='12px'
@@ -1015,81 +987,85 @@ const MyAssetNftListCard: FunctionComponent<
               >
                 $10000 Total
               </Text> */}
-              </Box>
-            </Flex>
+                </Box>
+              </Flex>
 
-            {/* price summary */}
-            <Flex flexDir={'column'} gap={'12px'} py='24px'>
-              <Item label='Listing price' value={`${price || '---'} ${UNIT}`} />
-              <Item
-                label='Creator earnings'
-                value={`${
-                  collectionData ? collectionData?.creatorEarn * 100 : '---'
-                }%`}
-              />
-              <Item
-                label='Market Place Fee'
-                value={
-                  Number(collectionData?.marketPlaceFee) === 0 ? (
-                    <Text color={'green.1'} fontWeight={'700'}>
-                      <Highlight
-                        query={`${
+              {/* price summary */}
+              <Flex flexDir={'column'} gap={'12px'} py='24px'>
+                <Item
+                  label='Listing price'
+                  value={`${price || '---'} ${UNIT}`}
+                />
+                <Item
+                  label='Creator earnings'
+                  value={`${
+                    collectionData ? collectionData?.creatorEarn * 100 : '---'
+                  }%`}
+                />
+                <Item
+                  label='Market Place Fee'
+                  value={
+                    Number(collectionData?.marketPlaceFee) === 0 ? (
+                      <Text color={'green.1'} fontWeight={'700'}>
+                        <Highlight
+                          query={`${
+                            Number(collectionData?.marketPlaceFee) * 100
+                          }%`}
+                          styles={{
+                            color: 'black.1',
+                            textDecoration: 'line-through',
+                          }}
+                        >{`${
                           Number(collectionData?.marketPlaceFee) * 100
-                        }%`}
-                        styles={{
-                          color: 'black.1',
-                          textDecoration: 'line-through',
-                        }}
-                      >{`${
-                        Number(collectionData?.marketPlaceFee) * 100
-                      }% 0%`}</Highlight>
-                    </Text>
-                  ) : (
-                    <Text color={'black.1'} fontWeight={'700'}>
-                      {Number(collectionData?.marketPlaceFee || 0) * 100}%
-                    </Text>
-                  )
-                }
-              />
-              <Item
-                label='Total potential earnings'
-                value={`${
-                  !potentialEarns || isAmountError ? '---' : potentialEarns
-                } ${UNIT}`}
-                color={'black.1'}
-                fontWeight={'700'}
-              />
-            </Flex>
+                        }% 0%`}</Highlight>
+                      </Text>
+                    ) : (
+                      <Text color={'black.1'} fontWeight={'700'}>
+                        {Number(collectionData?.marketPlaceFee || 0) * 100}%
+                      </Text>
+                    )
+                  }
+                />
+                <Item
+                  label='Total potential earnings'
+                  value={`${
+                    !potentialEarns || isAmountError ? '---' : potentialEarns
+                  } ${UNIT}`}
+                  color={'black.1'}
+                  fontWeight={'700'}
+                />
+              </Flex>
 
-            {/* button */}
-            <Flex
-              pt='12px'
-              px={{
-                md: '40px',
-                sm: '20px',
-                xs: '20px',
-              }}
-              pb={{
-                md: '40px',
-                sm: '20px',
-                xs: '20px',
-              }}
-              position={'sticky'}
-              bottom={'0px'}
-              bg='white'
-            >
-              <Button
-                onClick={handleListing}
-                variant={'primary'}
-                w='100%'
-                h='52px'
-                isDisabled={!price || !durationValue || !isChanged}
-                isLoading={createListingLoading}
+              {/* button */}
+              <Flex
+                pt='12px'
+                px={{
+                  md: '40px',
+                  sm: '20px',
+                  xs: '20px',
+                }}
+                pb={{
+                  md: '40px',
+                  sm: '20px',
+                  xs: '20px',
+                }}
+                position={'sticky'}
+                bottom={'0px'}
+                bg='white'
               >
-                {type === 'change' ? 'Change List' : 'Complete listing'}
-              </Button>
-            </Flex>
-          </ModalBody>
+                <Button
+                  onClick={handleListing}
+                  variant={'primary'}
+                  w='100%'
+                  h='52px'
+                  isDisabled={!price || !durationValue || !isChanged}
+                  isLoading={createListingLoading}
+                >
+                  {type === 'change' ? 'Change List' : 'Complete listing'}
+                </Button>
+              </Flex>
+            </ModalBody>
+          )}
         </ModalContent>
       </Modal>
     </>
