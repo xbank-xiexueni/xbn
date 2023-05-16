@@ -519,7 +519,7 @@ const NftAssetDetail = () => {
           title: 'The loan is being generated, please wait and refresh later',
         })
         navigate('/xlending/buy-nfts/loans')
-      }, 5 * 60 * 1000)
+      }, 2 * 60 * 1000)
     })
   }, [
     currentAccount,

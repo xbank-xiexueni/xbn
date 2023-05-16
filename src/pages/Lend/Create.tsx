@@ -7,10 +7,12 @@ import {
   Text,
   type CardProps,
 } from '@chakra-ui/react'
+import useRequest from 'ahooks/lib/useRequest'
 import isEmpty from 'lodash-es/isEmpty'
 import { useEffect, useMemo, useState, type FunctionComponent } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
+import { apiGetPools } from '@/api'
 import {
   BaseRateTable,
   Select,
@@ -29,6 +31,7 @@ import {
   RESPONSIVE_MAX_W,
 } from '@/constants'
 import type { NftCollection } from '@/hooks'
+import { useWallet } from '@/hooks'
 
 import CardWithBg from './components/CardWithBg'
 import CreatePoolButton from './components/CreatePoolButton'
@@ -76,6 +79,30 @@ const Create = () => {
   const params = useParams() as {
     action: 'create' | 'edit'
   }
+
+  const { currentAccount } = useWallet()
+
+  const [collectionAddressWithPool, setCollectionAddressWithPool] = useState<
+    string[]
+  >([])
+  const { loading: poolsLoading } = useRequest(apiGetPools, {
+    ready: params?.action === 'create',
+    debounceWait: 10,
+    onError: (error) => {
+      console.log('🚀 ~ file: Lend.tsx:123 ~ Lend ~ error:', error)
+    },
+    onSuccess(data) {
+      if (!data) return
+      setCollectionAddressWithPool([
+        ...new Set(data?.map((i) => i.allow_collateral_contract.toLowerCase())),
+      ])
+    },
+    defaultParams: [
+      {
+        owner_address: currentAccount,
+      },
+    ],
+  })
   const { state } = useLocation() as {
     state: {
       contractAddress: string
@@ -103,10 +130,38 @@ const Create = () => {
   const [selectCollection, setSelectCollection] = useState<{
     contractAddress: string
     nftCollection: NftCollection
-  }>({
-    contractAddress: state?.contractAddress,
-    nftCollection: state?.nftCollection,
-  })
+  }>()
+
+  const defaultCollection = useMemo(() => {
+    // modify items
+    if (!state) return
+    if (params?.action === 'edit') {
+      return {
+        contractAddress: state?.contractAddress,
+        nftCollection: state?.nftCollection,
+      }
+    }
+    // supply 或者 create pool 进入
+    if (params?.action === 'create') {
+      if (poolsLoading) return
+      if (
+        collectionAddressWithPool.includes(
+          state?.contractAddress?.toLowerCase(),
+        )
+      ) {
+        return
+      }
+      return {
+        contractAddress: state?.contractAddress,
+        nftCollection: state?.nftCollection,
+      }
+    }
+    return
+  }, [params, state, collectionAddressWithPool, poolsLoading])
+
+  useEffect(() => {
+    setSelectCollection(defaultCollection)
+  }, [defaultCollection])
 
   const initialPoolMaximumInterestRate = useMemo(() => {
     return (
@@ -144,15 +199,10 @@ const Create = () => {
       }) => {
         setSelectCollection(e)
       },
-      defaultValue: state
-        ? {
-            contractAddress: state?.contractAddress,
-            nftCollection: state?.nftCollection,
-          }
-        : undefined,
+      defaultValue: defaultCollection,
       isDisabled: params.action === 'edit',
     }),
-    [state, params],
+    [defaultCollection, params],
   )
 
   const tenorSelectorProps = useMemo(
@@ -271,7 +321,11 @@ const Create = () => {
                 xs: 'none',
               }}
             >
-              <AsyncSelectCollection {...collectionSelectorProps} w='240px' />
+              <AsyncSelectCollection
+                {...collectionSelectorProps}
+                w='240px'
+                disabledArr={collectionAddressWithPool}
+              />
             </Box>
 
             <Box
@@ -375,14 +429,19 @@ const Create = () => {
                 variant={'primary'}
                 w='240px'
                 h='52px'
-                isDisabled={isEmpty(selectCollection)}
+                isDisabled={
+                  isEmpty(selectCollection) ||
+                  collectionAddressWithPool?.includes(
+                    selectCollection?.contractAddress?.toLowerCase(),
+                  )
+                }
                 data={{
                   poolMaximumPercentage: selectCollateral,
                   poolMaximumDays: selectTenor,
-                  allowCollateralContract: selectCollection?.contractAddress,
-                  floorPrice:
-                    selectCollection?.nftCollection?.nftCollectionStat
-                      ?.floorPrice,
+                  allowCollateralContract:
+                    selectCollection?.contractAddress as string,
+                  floorPrice: selectCollection?.nftCollection?.nftCollectionStat
+                    ?.floorPrice as number,
                   ...rateData,
                 }}
               >
