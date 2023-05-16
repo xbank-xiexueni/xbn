@@ -31,12 +31,10 @@ import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import dayjs, { unix } from 'dayjs'
 import isEqual from 'lodash-es/isEqual'
-import round from 'lodash-es/round'
 import {
   useMemo,
   useState,
   type FunctionComponent,
-  useEffect,
   type ReactNode,
   useCallback,
   useRef,
@@ -197,11 +195,6 @@ const AMOUNT_MIN = 0
 // 目前还不知道怎么获取
 const gas = 0
 
-const LISTING_DATA = {
-  price: '1.234',
-  expiration_time: 1684476955,
-}
-
 const MyAssetNftListCard: FunctionComponent<
   {
     data: ListDataType
@@ -220,7 +213,7 @@ const MyAssetNftListCard: FunctionComponent<
     [contractData],
   )
 
-  const isListing = useMemo(() => false, [])
+  const isListing = useMemo(() => true, [])
 
   const title = useMemo(() => {
     const unFormatName = assetData?.name || `#${contractData?.token_id || ''}`
@@ -327,26 +320,17 @@ const MyAssetNftListCard: FunctionComponent<
     if (!loanData?.loanEndedTime) return LIST_DURATION
     const { loanEndedTime } = loanData
     // 计算贷款结束时间距离当前的天数差，可选 duration 只能小于等于这个天数差
-    const diff = round(
-      (loanEndedTime - dayjs(new Date()).unix()) / 60 / 60 / 24,
-    )
+    // const diff = round(
+    //   (loanEndedTime - dayjs(new Date()).unix()) / 60 / 60 / 24,
+    // )
+    const loanEnded = unix(loanEndedTime)
+    const diff = loanEnded.diff(dayjs(), 'days', true)
     if (diff < 0) return []
     const index = LIST_DURATION.findIndex((i) => {
       return i > diff
     })
     return LIST_DURATION.slice(0, index)
   }, [loanData, listModalVisible])
-
-  const priceDefaultValue = useMemo(() => {
-    if (type === 'change' && !!LISTING_DATA) {
-      return LISTING_DATA?.price
-    }
-    return
-  }, [type])
-
-  useEffect(() => {
-    setPrice(priceDefaultValue)
-  }, [priceDefaultValue])
 
   /**
    *
@@ -400,30 +384,14 @@ const MyAssetNftListCard: FunctionComponent<
   const show = useMemo(() => isHovering || ish5, [ish5, isHovering])
 
   const isChanged = useMemo(() => {
-    if (type === 'create') {
-      return !isEqual(
-        {},
-        {
-          price,
-          durationValue,
-        },
-      )
-    }
-    if (type === 'change' && !!LISTING_DATA) {
-      // 待定
-      return !isEqual(
-        {
-          ...LISTING_DATA,
-          price: LISTING_DATA?.price,
-        },
-        {
-          duration: durationValue,
-          price,
-        },
-      )
-    }
-    return false
-  }, [type, price, durationValue])
+    return !isEqual(
+      {},
+      {
+        price,
+        durationValue,
+      },
+    )
+  }, [price, durationValue])
 
   const { runAsync: handleCreateListing, loading: createListingLoading } =
     useRequest(apiPostListing, {
@@ -435,30 +403,23 @@ const MyAssetNftListCard: FunctionComponent<
       if (!contractData || !durationValue || !price || !currentAccount) return
       const expiration_time = dayjs().add(durationValue, 'days').unix()
       // create list
-      if (type === 'create') {
-        const POST_PARAMS = {
-          platform: 'opensea',
-          contract_address: contractData?.asset_contract_address,
-          token_id: contractData?.token_id,
-          network: 'eth',
-          currency: 'eth',
-          qty: Number(contractData?.qty),
-          price,
-          expiration_time,
-          borrower_address: currentAccount,
-        }
-        await handleCreateListing(POST_PARAMS)
-        navigate('/xlending/buy-nfts/complete', {
-          state: {
-            imageUrl: assetData?.imagePreviewUrl,
-          },
-        })
+      const POST_PARAMS = {
+        platform: 'opensea',
+        contract_address: contractData?.asset_contract_address,
+        token_id: contractData?.token_id,
+        network: 'eth',
+        currency: 'eth',
+        qty: Number(contractData?.qty),
+        price,
+        expiration_time,
+        borrower_address: currentAccount,
       }
-      // change list
-      if (type === 'change') {
-        alert('development')
-        return
-      }
+      await handleCreateListing(POST_PARAMS)
+      navigate('/xlending/buy-nfts/complete', {
+        state: {
+          imageUrl: assetData?.imagePreviewUrl,
+        },
+      })
     } catch (error) {
       console.log(
         '🚀 ~ file: MyAssetNftListCard.tsx:464 ~ handleListing ~ error:',
@@ -467,7 +428,6 @@ const MyAssetNftListCard: FunctionComponent<
     }
   }, [
     contractData,
-    type,
     handleCreateListing,
     durationValue,
     price,
@@ -1058,7 +1018,7 @@ const MyAssetNftListCard: FunctionComponent<
                   variant={'primary'}
                   w='100%'
                   h='52px'
-                  isDisabled={!price || !durationValue || !isChanged}
+                  isDisabled={!durationValue || !isChanged || !priceWei}
                   isLoading={createListingLoading}
                 >
                   {type === 'change' ? 'Change List' : 'Complete listing'}
