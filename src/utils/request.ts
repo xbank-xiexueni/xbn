@@ -45,27 +45,18 @@ request.interceptors.response.use(
   },
   (error) => {
     const {
-      response: { status, data },
+      response: { data },
     } = error
-    if (status >= 500) {
-      toast({
-        title: 'Oops, network error...',
-        status: 'error',
-        isClosable: true,
-        id: 'request-error-toast',
-      })
-      throw error
-    }
-    if (status < 500 && status >= 400) {
-      const { code, message } = data
-      console.log('🚀 ~ file: request.ts:57 ~ code:', code)
-      toast({
-        title: message || 'Oops, network error...',
-        status: 'error',
-        isClosable: true,
-        id: 'request-error-toast',
-      })
-    }
+    const {
+      error: { code, message },
+    } = data
+    toast({
+      title: code || 'Oops, network error...',
+      description: message,
+      status: 'error',
+      isClosable: true,
+      id: 'request-error-toast',
+    })
     throw error
   },
 )
