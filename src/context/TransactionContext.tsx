@@ -141,6 +141,36 @@ export const TransactionsProvider = ({
     },
   )
 
+  const checkIfWalletIsConnect = useCallback(async () => {
+    try {
+      if (window.location.pathname === '/xlending/demo') return
+      if (!ethereum) {
+        toast.closeAll()
+        toast({
+          title: `please install metamask`,
+          status: 'error',
+          isClosable: true,
+        })
+        return
+      }
+      if (ethereum.chainId !== import.meta.env.VITE_TARGET_CHAIN_ID) {
+        return
+      }
+
+      const accounts = await ethereum.request({ method: 'eth_accounts' })
+
+      if (accounts.length) {
+        setCurrentAccount(accounts[0])
+        // getAllTransactions();
+      } else {
+        setCurrentAccount('')
+        console.log('No accounts found')
+      }
+    } catch (error) {
+      setCurrentAccount('')
+    }
+  }, [toast, setCurrentAccount])
+
   const handleSwitchNetwork = useCallback(async () => {
     if (!ethereum) {
       return
@@ -150,6 +180,20 @@ export const TransactionsProvider = ({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: import.meta.env.VITE_TARGET_CHAIN_ID }],
       })
+      const accounts = await ethereum.request({ method: 'eth_accounts' })
+
+      if (accounts.length) {
+        setCurrentAccount(accounts[0])
+        // getAllTransactions();
+      } else {
+        setConnectLoading(true)
+        const requestedAccounts = await ethereum.request({
+          method: 'eth_requestAccounts',
+        })
+
+        setCurrentAccount(requestedAccounts[0])
+        setConnectLoading(false)
+      }
     } catch (switchError: any) {
       // This error code indicates that the chain has not been added to MetaMask.
       if (switchError.code === 4902) {
@@ -178,7 +222,7 @@ export const TransactionsProvider = ({
         })
       }
     }
-  }, [toast])
+  }, [toast, setCurrentAccount])
 
   // const getAllTransactions = async () => {
   //   try {
@@ -217,7 +261,6 @@ export const TransactionsProvider = ({
 
     ethereum.on('accountsChanged', () => {
       // 一旦切换账号这里就会执行
-      window.location.reload()
       debounce(() => {
         window.location.reload()
       }, 100)()
@@ -227,48 +270,18 @@ export const TransactionsProvider = ({
       //   return
       // }
     })
-    ethereum.on('chainChanged', () => {
-      // alert('reload chainChanged')
-      // window.location.reload()
-      // setCurrentAccount('')
-    })
-    ethereum.on('disconnect', () => {
-      debounce(() => {
-        window.location.reload()
-        setCurrentAccount('')
-      }, 100)()
-    })
-  }, [setCurrentAccount])
-
-  const checkIfWalletIsConnect = useCallback(async () => {
-    try {
-      if (window.location.pathname === '/xlending/demo') return
-      if (!ethereum) {
-        toast.closeAll()
-        toast({
-          title: `please install metamask`,
-          status: 'error',
-          isClosable: true,
-        })
-        return
-      }
-      if (ethereum.chainId !== import.meta.env.VITE_TARGET_CHAIN_ID) {
-        return
-      }
-
-      const accounts = await ethereum.request({ method: 'eth_accounts' })
-
-      if (accounts.length) {
-        setCurrentAccount(accounts[0])
-        // getAllTransactions();
-      } else {
-        setCurrentAccount('')
-        console.log('No accounts found')
-      }
-    } catch (error) {
-      setCurrentAccount('')
-    }
-  }, [toast, setCurrentAccount])
+    // ethereum.on('chainChanged', () => {
+    //   alert('reload chainChanged')
+    //   window.location.reload()
+    //   setCurrentAccount('')
+    // })
+    // ethereum.on('disconnect', () => {
+    //   debounce(() => {
+    //     window.location.reload()
+    //     setCurrentAccount('')
+    //   }, 100)()
+    // })
+  }, [])
 
   const connectWallet = useCallback(async () => {
     try {
