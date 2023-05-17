@@ -14,13 +14,11 @@ import {
   InputRightElement,
   NumberInputField,
   NumberInput,
-  useToast,
   useDisclosure,
 } from '@chakra-ui/react'
 import { useRequest } from 'ahooks'
 import debounce from 'lodash-es/debounce'
 import {
-  type ReactNode,
   useCallback,
   useMemo,
   useRef,
@@ -33,7 +31,7 @@ import Web3 from 'web3/dist/web3.min.js'
 
 import { ConnectWalletModal, SvgComponent } from '@/components'
 import { WETH_CONTRACT_ADDRESS, XBANK_CONTRACT_ADDRESS } from '@/constants'
-import { useWallet } from '@/hooks'
+import { useCatchContractError, useWallet } from '@/hooks'
 import {
   createWeb3Provider,
   createWethContract,
@@ -68,7 +66,7 @@ const CreatePoolButton: FunctionComponent<
     allowCollateralContract,
     floorPrice,
   } = data
-  const toast = useToast()
+  const { toast, toastError } = useCatchContractError()
   const timer = useRef<NodeJS.Timeout>()
   const [flag, setFlag] = useState(true)
   const navigate = useNavigate()
@@ -235,56 +233,14 @@ const CreatePoolButton: FunctionComponent<
           navigate('/xlending/lending/my-pools')
         }, 1 * 60 * 1000)
       } catch (error: any) {
-        console.log(error?.message, error?.code, error?.data)
-        const code: string = error?.code
-        const originMessage: string = error?.message
-        let title: string | ReactNode = code
-        let description: string | ReactNode = originMessage
-        if (!code && originMessage?.includes('{')) {
-          const firstIndex = originMessage.indexOf('{')
-          description = ''
-          try {
-            const hash = JSON.parse(
-              originMessage.substring(firstIndex, originMessage.length),
-            )?.transactionHash
-
-            title = (
-              <Text>
-                {originMessage?.substring(0, firstIndex)} &nbsp;
-                <Button
-                  variant={'link'}
-                  px={0}
-                  onClick={() => {
-                    window.open(
-                      `${
-                        import.meta.env.VITE_TARGET_CHAIN_BASE_URL
-                      }/tx/${hash}`,
-                    )
-                  }}
-                  textDecoration='underline'
-                  color='white'
-                >
-                  see more
-                </Button>
-              </Text>
-            )
-          } catch {
-            console.log('here')
-            title = originMessage?.substring(0, firstIndex)
-          }
-        }
-        toast({
-          status: 'error',
-          title,
-          description,
-          duration: 5000,
-        })
+        toastError(error)
         setCreateLoading(false)
         setApproveLoading(false)
       }
     })
   }, [
     amount,
+    toastError,
     toast,
     poolMaximumPercentage,
     poolMaximumDays,

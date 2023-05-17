@@ -1,24 +1,9 @@
-import {
-  Box,
-  Heading,
-  Flex,
-  Text,
-  Highlight,
-  useToast,
-  Spinner,
-  Button,
-} from '@chakra-ui/react'
+import { Box, Heading, Flex, Text, Highlight, Spinner } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import BigNumber from 'bignumber.js'
 import { unix } from 'dayjs'
 import groupBy from 'lodash-es/groupBy'
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { apiGetLoans } from '@/api'
 import {
@@ -28,7 +13,7 @@ import {
   type ColumnProps,
 } from '@/components'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
-import { useBatchAsset, useWallet } from '@/hooks'
+import { useBatchAsset, useWallet, useCatchContractError } from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
 import { formatAddress } from '@/utils/format'
@@ -37,8 +22,7 @@ import { wei2Eth } from '@/utils/unit-conversion'
 const Loans = () => {
   // const navigate = useNavigate()
   const { isOpen, onClose, interceptFn, currentAccount } = useWallet()
-
-  const toast = useToast()
+  const { toastError, toast } = useCatchContractError()
   const [repayLoadingMap, setRepayLoadingMap] =
     useState<Record<string, boolean>>()
 
@@ -134,59 +118,15 @@ const Loans = () => {
           })
           refresh()
         } catch (error: any) {
-          // 0x13dbffe7546510d2428edef6e609a2e2d4ed6c7cd90f5c0845d33a31688b9f6b
-          console.log('🚀 ~ file: Loans.tsx:197 ~ interceptFn ~ error:', error)
-          const code: string = error?.code
-          const originMessage: string = error?.message
-          let title: string | ReactNode = code
-          let description: string | ReactNode = originMessage
-          if (!code && originMessage?.includes('{')) {
-            const firstIndex = originMessage.indexOf('{')
-            description = ''
-            try {
-              const hash = JSON.parse(
-                originMessage.substring(firstIndex, originMessage.length),
-              )?.transactionHash
-
-              title = (
-                <Text>
-                  {originMessage?.substring(0, firstIndex)} &nbsp;
-                  <Button
-                    variant={'link'}
-                    px={0}
-                    onClick={() => {
-                      window.open(
-                        `${
-                          import.meta.env.VITE_TARGET_CHAIN_BASE_URL
-                        }/tx/${hash}`,
-                      )
-                    }}
-                    textDecoration='underline'
-                    color='white'
-                  >
-                    see more
-                  </Button>
-                </Text>
-              )
-            } catch {
-              console.log('here')
-              title = originMessage?.substring(0, firstIndex)
-            }
-          }
-
+          toastError(error)
           setRepayLoadingMap((prev) => ({
             ...prev,
             [loan_id]: false,
           }))
-          toast({
-            status: 'error',
-            title,
-            description,
-          })
         }
       })
     },
-    [interceptFn, currentAccount, refresh, toast],
+    [interceptFn, currentAccount, refresh, toastError, toast],
   )
 
   const loansForBuyerColumns: ColumnProps[] = [

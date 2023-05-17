@@ -12,7 +12,6 @@ import {
   Highlight,
   VStack,
   Divider,
-  useToast,
   Skeleton,
   type FlexProps,
 } from '@chakra-ui/react'
@@ -27,7 +26,6 @@ import maxBy from 'lodash-es/maxBy'
 import minBy from 'lodash-es/minBy'
 import range from 'lodash-es/range'
 import {
-  type ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -47,8 +45,13 @@ import {
   MiddleStatus,
 } from '@/components'
 import { COLLATERALS, FORMAT_NUMBER, TENORS, UNIT } from '@/constants'
-import { useWallet, useAssetQuery, useBatchWethBalance } from '@/hooks'
-import type { NftCollection } from '@/hooks'
+import {
+  useWallet,
+  useAssetQuery,
+  useBatchWethBalance,
+  useCatchContractError,
+  type NftCollection,
+} from '@/hooks'
 import { amortizationCalByDays } from '@/utils/calculation'
 import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
 import { formatFloat } from '@/utils/format'
@@ -111,8 +114,8 @@ const NFTDetailContainer: FunctionComponent<FlexProps> = ({
 
 const NftAssetDetail = () => {
   const navigate = useNavigate()
+  const { toastError, toast } = useCatchContractError()
   const timer = useRef<NodeJS.Timeout>()
-  const toast = useToast()
   const [loanStep, setLoanStep] = useState<'loading' | 'success' | undefined>()
   const { isOpen, onClose, currentAccount, interceptFn } = useWallet()
   const {
@@ -370,53 +373,7 @@ const NftAssetDetail = () => {
           })
         setTransferFromLoading(false)
       } catch (error: any) {
-        console.log(
-          '🚀 ~ file: NftAssetDetail.tsx:254 ~ handleClickPay ~ error:',
-          error,
-        )
-        const code: string = error?.code
-        const originMessage: string = error?.message
-        let title: string | ReactNode = code
-        let description: string | ReactNode = originMessage
-        if (!code && originMessage?.includes('{')) {
-          const firstIndex = originMessage.indexOf('{')
-          description = ''
-          try {
-            const hash = JSON.parse(
-              originMessage.substring(firstIndex, originMessage.length),
-            )?.transactionHash
-
-            title = (
-              <Text>
-                {originMessage?.substring(0, firstIndex)} &nbsp;
-                <Button
-                  variant={'link'}
-                  px={0}
-                  onClick={() => {
-                    window.open(
-                      `${
-                        import.meta.env.VITE_TARGET_CHAIN_BASE_URL
-                      }/tx/${hash}`,
-                    )
-                  }}
-                  textDecoration='underline'
-                  color='white'
-                >
-                  see more
-                </Button>
-              </Text>
-            )
-          } catch {
-            console.log('here')
-            title = originMessage?.substring(0, firstIndex)
-          }
-        }
-        toast({
-          status: 'error',
-          title,
-          description,
-          duration: 5000,
-        })
+        toastError(error)
         setTransferFromLoading(false)
         return
       }
@@ -479,11 +436,12 @@ const NftAssetDetail = () => {
     detail,
     installmentValue,
     loanWeiAmount,
-    toast,
+    toastError,
     navigate,
     commodityWeiPrice,
     interceptFn,
     flag,
+    toast,
   ])
 
   const [usdPrice, setUsdPrice] = useState<BigNumber>()
