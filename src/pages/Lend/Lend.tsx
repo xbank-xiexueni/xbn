@@ -188,6 +188,10 @@ const Lend = () => {
             item.allow_collateral_contract.toLowerCase() ===
             contractAddress.toLowerCase(),
         )
+        console.log(
+          '🚀 ~ file: Lend.tsx:186 ~ collectionsWithPools.map ~ currentCollectionPools:',
+          currentCollectionPools,
+        )
         const pool_maximum_percentage = maxBy(
           currentCollectionPools,
           (i) => i.pool_maximum_percentage,
@@ -206,18 +210,25 @@ const Lend = () => {
           ),
         )
 
+        const isContainMyPool =
+          currentCollectionPools?.findIndex(
+            (i) =>
+              i.owner_address.toLowerCase() === currentAccount.toLowerCase(),
+          ) !== -1
+
         return {
           pool_maximum_percentage,
           pool_maximum_interest_rate,
           pool_amount,
           contractAddress,
+          isContainMyPool,
           ...rest,
         }
       }),
       'pool_amount',
       (i) => Number(i.pool_amount),
     )
-  }, [collectionList, allPoolsData])
+  }, [collectionList, allPoolsData, currentAccount])
 
   const [activeCollectionSearchValue, setActiveCollectionSearchValue] =
     useState('')
@@ -418,7 +429,7 @@ const Lend = () => {
           return (
             <Flex alignItems='center' gap={'8px'}>
               <Text
-                color='blue.1'
+                color={info.isContainMyPool ? 'gray.1' : 'blue.1'}
                 onClick={() => {
                   navigate(`/xlending/lending/create`, {
                     state: {
@@ -427,7 +438,7 @@ const Lend = () => {
                     },
                   })
                 }}
-                cursor='pointer'
+                cursor={info.isContainMyPool ? 'not-allowed' : 'pointer'}
               >
                 Supply
               </Text>

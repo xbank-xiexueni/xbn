@@ -143,7 +143,6 @@ const CreatePoolButton: FunctionComponent<
        * 平均总耗时：
        * 1676961248463 - 1676961180777 =  67686 ms ≈ 1min
        */
-      console.log(new Date().getTime(), '----------------start')
       // 预计算
       const UNIT256MAX =
         '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
@@ -229,13 +228,12 @@ const CreatePoolButton: FunctionComponent<
           )
         // 如果一直监听不到
         timer.current = setTimeout(() => {
-          console.log('2 分钟过去了')
           toast({
             status: 'info',
             title: 'The pool is being generated, please wait and refresh later',
           })
           navigate('/xlending/lending/my-pools')
-        }, 2 * 60 * 1000)
+        }, 1 * 60 * 1000)
       } catch (error: any) {
         console.log(error?.message, error?.code, error?.data)
         const code: string = error?.code

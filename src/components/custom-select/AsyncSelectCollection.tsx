@@ -31,16 +31,22 @@ export const Option = ({
   isSelected,
   selectedIcon = '',
   unSelectedIcon = '',
+  isDisabled,
   ...props
 }: any) => {
   return (
-    <components.Option isSelected={isSelected} {...props}>
+    <components.Option
+      isSelected={isSelected}
+      isDisabled={isDisabled}
+      {...props}
+    >
       <Flex justify={'space-between'} alignItems='center' py='8px'>
         {children}
         <SvgComponent
           svgId={isSelected ? selectedIcon : unSelectedIcon}
           svgSize='20px'
           ml='20px'
+          hidden={isDisabled}
         />
       </Flex>
     </components.Option>
@@ -49,6 +55,7 @@ export const Option = ({
 
 function AsyncSelectCollection({
   w,
+  disabledArr,
   isDisabled,
   borderColor = 'var(--chakra-colors-blue-4)',
   ...rest
@@ -107,6 +114,9 @@ function AsyncSelectCollection({
       cacheOptions
       // @ts-ignore
       isOptionSelected={(item, select) => item.contract_addr === select}
+      isOptionDisabled={(item: any) => {
+        return disabledArr.includes(item?.contractAddress?.toLowerCase())
+      }}
       loadOptions={promiseOptions}
       theme={(theme) => ({
         ...theme,
