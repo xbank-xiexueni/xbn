@@ -182,10 +182,6 @@ const Lend = () => {
             item.allow_collateral_contract.toLowerCase() ===
             contractAddress.toLowerCase(),
         )
-        console.log(
-          '🚀 ~ file: Lend.tsx:186 ~ collectionsWithPools.map ~ currentCollectionPools:',
-          currentCollectionPools,
-        )
         const pool_maximum_percentage = maxBy(
           currentCollectionPools,
           (i) => i.pool_maximum_percentage,
