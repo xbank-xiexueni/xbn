@@ -188,6 +188,7 @@ function AsyncSelectCollection({
           color: `var(--chakra-colors-black-1)`,
           fontSize: 14,
           fontWeight: 500,
+          cursor: _isDisabled ? 'not-allowed' : 'pointer',
 
           ':active': {
             ...baseStyles[':active'],
