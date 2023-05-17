@@ -102,7 +102,8 @@ interface MyAssetListItemType {
   asset_contract_address: string
   token_id: string
   qty: string
-  loan_status: 1 | 0
+  mortgaged: boolean
+  listedWithMortgage: boolean
 }
 
 interface ListingDataType {

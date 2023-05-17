@@ -85,7 +85,6 @@ export type ListDataType = {
     name?: string
     imagePreviewUrl?: string
   }
-  listingData?: { listAmount: number; creatorEarn: number; duration: number }
   contractData?: MyAssetListItemType
 }
 
@@ -208,12 +207,12 @@ const MyAssetNftListCard: FunctionComponent<
   const ish5 = useIsMobile()
 
   // loan_status: 0 表示资产的贷款还未还清，1 表示完全拥有的（贷款已还清或者通过其它途径购买的）
-  const isMortgaged = useMemo(
-    () => contractData?.loan_status === 0,
+  const isMortgaged = useMemo(() => contractData?.mortgaged, [contractData])
+
+  const isListing = useMemo(
+    () => contractData?.listedWithMortgage,
     [contractData],
   )
-
-  const isListing = useMemo(() => true, [])
 
   const title = useMemo(() => {
     const unFormatName = assetData?.name || `#${contractData?.token_id || ''}`
@@ -700,7 +699,8 @@ const MyAssetNftListCard: FunctionComponent<
             }}
             borderRadius={8}
           >
-            {type === 'change' && 'Change'} List item
+            {type === 'change' && 'Change List'}
+            {type === 'create' && 'List item'}
             <SvgComponent
               svgId='icon-close'
               onClick={closeModal}
