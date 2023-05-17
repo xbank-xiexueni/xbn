@@ -31,6 +31,7 @@ import maxBy from 'lodash-es/maxBy'
 import reduce from 'lodash-es/reduce'
 import sortBy from 'lodash-es/sortBy'
 import { useEffect, useMemo, useState, type FunctionComponent } from 'react'
+import Joyride from 'react-joyride'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { apiGetLoans, apiGetPools } from '@/api'
@@ -100,6 +101,19 @@ const TabWrapper: FunctionComponent<TabProps> = ({ children, ...rest }) => {
  * @returns Collections  MyPools Loans
  */
 const Lend = () => {
+  // 用户引导
+  const [steps] = useState([
+    {
+      target: '.my-first-step',
+      content: 'This is my awesome feature!',
+      disableBeacon: true,
+    },
+    {
+      target: '.my-other-step',
+      content: 'This another awesome feature!',
+      disableBeacon: true,
+    },
+  ])
   const [tabKey, setTabKey] = useState<0 | 1 | 2>(0)
 
   const { isOpen: showSearch, onToggle: toggleShowSearch } = useDisclosure()
@@ -677,6 +691,7 @@ const Lend = () => {
           sm: '24px',
           xs: '24px',
         }}
+        className='my-first-step'
       >
         <AllPoolsDescription
           data={{
@@ -687,6 +702,7 @@ const Lend = () => {
           }}
         />
       </Box>
+      <Joyride steps={steps} continuous run />
 
       <Tabs
         isLazy
@@ -761,6 +777,7 @@ const Lend = () => {
                 onClick={() =>
                   interceptFn(() => navigate('/xlending/lending/create'))
                 }
+                className='my-other-step'
               >
                 + Create New Pool
               </Button>
