@@ -13,7 +13,7 @@ const wei2Eth = (wei: BigNumber | number | string) => {
 
     return Web3.utils.fromWei(weiStr, 'ether')
   } catch (error) {
-    console.log('🚀 ~ file: wei2Eth.ts:7 ~ wei2Eth ~ error:', error)
+    console.log('🚀 ~ file: unit-conversion.ts:16 ~ wei2Eth ~ error:', error)
     return '--'
   }
 }
@@ -23,7 +23,7 @@ const eth2Wei = (eth: number | string) => {
 
     return Web3.utils.toWei(ethStr, 'ether')
   } catch (error) {
-    console.log('🚀 ~ file: wei2Eth.ts:7 ~ wei2Eth ~ error:', error)
+    console.log('🚀 ~ file: unit-conversion.ts:26 ~ eth2Wei ~ error:', error)
     return '--'
   }
 }

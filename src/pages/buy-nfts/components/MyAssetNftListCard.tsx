@@ -25,6 +25,7 @@ import {
   AlertDescription,
   AlertTitle,
   Heading,
+  useToast,
 } from '@chakra-ui/react'
 import useHover from 'ahooks/lib/useHover'
 import useRequest from 'ahooks/lib/useRequest'
@@ -50,9 +51,9 @@ import {
   Select,
   SvgComponent,
 } from '@/components'
-import { FORMAT_NUMBER, LIST_DURATION, UNIT } from '@/constants'
+import { FORMAT_NUMBER, LIST_DURATION, UNIT, LISTING_TYPE } from '@/constants'
 import { useIsMobile, useWallet } from '@/hooks'
-import { eth2Wei, wei2Eth } from '@/utils/unit-conversion'
+import { wei2Eth } from '@/utils/unit-conversion'
 
 const BUTTON_PROPS = {
   borderRadius: 0,
@@ -157,7 +158,7 @@ const NftInfoBox: FunctionComponent<
           Listing price
         </Text>
         <Text fontWeight={'700'}>
-          {price || '---'}
+          {Number(price) === 0 ? '---' : price}
           {UNIT}
         </Text>
       </Flex>
@@ -178,7 +179,7 @@ const Item: FunctionComponent<
       </Text>
       <Flex gap={'8px'}>
         {typeof value === 'string' ? (
-          <Text color={color} fontWeight={fontWeight}>
+          <Text color={color} fontWeight={fontWeight} noOfLines={1}>
             {value}
           </Text>
         ) : (
@@ -198,8 +199,9 @@ const MyAssetNftListCard: FunctionComponent<
   {
     data: ListDataType
     imageSize: ImageProps['boxSize']
+    onRefreshList: () => void
   } & CardProps
-> = ({ data, imageSize, ...rest }) => {
+> = ({ data, onRefreshList, imageSize, ...rest }) => {
   const { assetData, contractData } = data
   const { currentAccount } = useWallet()
   const navigate = useNavigate()
@@ -232,7 +234,7 @@ const MyAssetNftListCard: FunctionComponent<
   )
 
   const [price, setPrice] = useState<string>()
-  const priceWei = useMemo(() => (price ? eth2Wei(price) : undefined), [price])
+
   const [durationValue, setDurationValue] = useState<number>()
   const [collectionData, setCollectionData] = useState<CollectionDataType>()
   const [loanData, setLoanData] = useState<LoanDataType>()
@@ -301,10 +303,16 @@ const MyAssetNftListCard: FunctionComponent<
         repay_times,
         loan_interest,
       } = lData[0]
+      const loanWei = BigNumber(total_repayment)
+        .plus(BigNumber(loan_interest).multipliedBy(repay_times))
+        .minus(repayed_amount)
+      const unFormatLoanEth = wei2Eth(loanWei)
+
       setLoanData({
-        outstandingLoan: BigNumber(total_repayment)
-          .plus(BigNumber(loan_interest).multipliedBy(repay_times))
-          .minus(repayed_amount),
+        outstandingLoan:
+          !!unFormatLoanEth && unFormatLoanEth !== '--'
+            ? BigNumber(unFormatLoanEth)
+            : BigNumber(0),
         loanEndedTime: loan_start_time + loan_duration,
       })
     },
@@ -344,6 +352,7 @@ const MyAssetNftListCard: FunctionComponent<
     if (!loanData?.outstandingLoan) return
     if (!collectionData) return
     const { outstandingLoan } = loanData
+
     const { creatorEarn, marketPlaceFee } = collectionData
     const res =
       outstandingLoan
@@ -355,27 +364,25 @@ const MyAssetNftListCard: FunctionComponent<
 
   // list amount 需要大于最小可输入值
   const isAmountError = useMemo(
-    () => !!priceWei && !!minInput && minInput?.gt(priceWei),
-    [minInput, priceWei],
+    () => !!price && !!minInput && minInput?.gt(price),
+    [minInput, price],
   )
 
   // total potential earning
   const potentialEarns = useMemo(() => {
     if (!listModalVisible) return
-    if (!priceWei || !collectionData || !loanData?.outstandingLoan) return
+    if (!price || !collectionData || !loanData?.outstandingLoan) return
     const { outstandingLoan } = loanData
-    const listPrice = BigNumber(priceWei)
-    const wei = listPrice
+    const listPrice = BigNumber(price)
+    return listPrice
       .multipliedBy(
         1 -
           Number(collectionData?.creatorEarn) -
           Number(collectionData?.marketPlaceFee),
       )
       .minus(outstandingLoan)
-    return wei2Eth(wei.integerValue()) === '--'
-      ? '--'
-      : BigNumber(wei2Eth(wei.integerValue())).toFormat(8)
-  }, [priceWei, collectionData, loanData, listModalVisible])
+      .toFormat(8)
+  }, [price, collectionData, loanData, listModalVisible])
 
   const ref = useRef(null)
   const isHovering = useHover(ref)
@@ -392,10 +399,9 @@ const MyAssetNftListCard: FunctionComponent<
     )
   }, [price, durationValue])
 
-  const { runAsync: handleCreateListing, loading: createListingLoading } =
-    useRequest(apiPostListing, {
-      manual: true,
-    })
+  const { runAsync, loading: listingLoading } = useRequest(apiPostListing, {
+    manual: true,
+  })
 
   const handleListing = useCallback(async () => {
     try {
@@ -403,6 +409,7 @@ const MyAssetNftListCard: FunctionComponent<
       const expiration_time = dayjs().add(durationValue, 'days').unix()
       // create list
       const POST_PARAMS = {
+        type: LISTING_TYPE.LISTING,
         platform: 'opensea',
         contract_address: contractData?.asset_contract_address,
         token_id: contractData?.token_id,
@@ -413,7 +420,7 @@ const MyAssetNftListCard: FunctionComponent<
         expiration_time,
         borrower_address: currentAccount,
       }
-      await handleCreateListing(POST_PARAMS)
+      await runAsync(POST_PARAMS)
       navigate('/xlending/buy-nfts/complete', {
         state: {
           imageUrl: assetData?.imagePreviewUrl,
@@ -427,7 +434,7 @@ const MyAssetNftListCard: FunctionComponent<
     }
   }, [
     contractData,
-    handleCreateListing,
+    runAsync,
     durationValue,
     price,
     currentAccount,
@@ -435,9 +442,35 @@ const MyAssetNftListCard: FunctionComponent<
     navigate,
   ])
 
-  const handleCancelList = useCallback(() => {
-    alert('development')
-  }, [])
+  const toast = useToast()
+  const handleCancelList = useCallback(async () => {
+    try {
+      if (!contractData || !currentAccount) return
+      // create list
+      const POST_PARAMS = {
+        type: LISTING_TYPE.CANCEL,
+        platform: 'opensea',
+        contract_address: contractData?.asset_contract_address,
+        token_id: contractData?.token_id,
+        network: 'eth',
+        currency: 'eth',
+        qty: Number(contractData?.qty),
+        borrower_address: currentAccount,
+      }
+      await runAsync(POST_PARAMS)
+      closeModal()
+      onRefreshList()
+      toast({
+        status: 'success',
+        title: 'Cancel successfully',
+      })
+    } catch (error) {
+      console.log(
+        '🚀 ~ file: MyAssetNftListCard.tsx:464 ~ handleListing ~ error:',
+        error,
+      )
+    }
+  }, [runAsync, onRefreshList, contractData, currentAccount, toast, closeModal])
   return (
     <>
       <Card
@@ -650,6 +683,7 @@ const MyAssetNftListCard: FunctionComponent<
               borderRadius={8}
               px='30px'
               onClick={handleCancelList}
+              isLoading={listingLoading}
             >
               yes
             </Button>
@@ -708,7 +742,9 @@ const MyAssetNftListCard: FunctionComponent<
             />
           </ModalHeader>
           {/* 获取失败，阻止进行下一步 */}
-          {!!loanError || !!collectionError ? (
+          {!!loanError ||
+          !!collectionError ||
+          (!loanData && !fetchInfoLoading) ? (
             <Flex px='40px' pb='40px'>
               <Alert
                 px={'40px'}
@@ -830,8 +866,16 @@ const MyAssetNftListCard: FunctionComponent<
                       borderColor='gray.4'
                       value={price}
                       onChange={(v) => {
-                        const numberV = Number(v)
-                        if (numberV > AMOUNT_MAX || numberV < AMOUNT_MIN) return
+                        const numberV = BigNumber(v)
+
+                        if (numberV.gt(AMOUNT_MAX)) {
+                          setPrice(AMOUNT_MAX.toString())
+                          return
+                        }
+                        if (numberV.gt(0) && numberV.lt(0.00000001)) {
+                          setPrice('0.00000001')
+                          return
+                        }
                         setPrice(v)
                       }}
                       max={AMOUNT_MAX}
@@ -885,7 +929,7 @@ const MyAssetNftListCard: FunctionComponent<
                       fontWeight={'500'}
                     >
                       Minimum input:&nbsp;
-                      {BigNumber(wei2Eth(minInput)).toFormat(FORMAT_NUMBER)}
+                      {minInput.toFormat(FORMAT_NUMBER)}
                       <br />
                       Price cannot be less than the outstanding loan amount
                     </Text>
@@ -954,7 +998,7 @@ const MyAssetNftListCard: FunctionComponent<
               <Flex flexDir={'column'} gap={'12px'} py='24px'>
                 <Item
                   label='Listing price'
-                  value={`${price || '---'} ${UNIT}`}
+                  value={`${Number(price) === 0 ? '---' : price} ${UNIT}`}
                 />
                 <Item
                   label='Creator earnings'
@@ -1018,8 +1062,8 @@ const MyAssetNftListCard: FunctionComponent<
                   variant={'primary'}
                   w='100%'
                   h='52px'
-                  isDisabled={!durationValue || !isChanged || !priceWei}
-                  isLoading={createListingLoading}
+                  isDisabled={!durationValue || !isChanged || !price}
+                  isLoading={listingLoading}
                 >
                   {type === 'change' ? 'Change List' : 'Complete listing'}
                 </Button>

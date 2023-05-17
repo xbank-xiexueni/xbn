@@ -104,3 +104,8 @@ export const CHAIN_BASE_URL: Record<string, string> = {
   '0x1': 'https://etherscan.io/address/',
   '0x5': 'https://goerli.etherscan.io/address/',
 }
+
+export enum LISTING_TYPE {
+  LISTING = 1,
+  CANCEL = 2,
+}

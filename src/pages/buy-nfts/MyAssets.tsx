@@ -61,7 +61,7 @@ const MyAssets = () => {
   //   '🚀 ~ file: MyAssets.tsx:63 ~ MyAssets ~ debounceSearchValue:',
   //   debounceSearchValue,
   // )
-  const { data, loading } = useRequest(apiGetMyAssets, {
+  const { data, loading, refresh } = useRequest(apiGetMyAssets, {
     debounceWait: 500,
     defaultParams: [
       {
@@ -201,39 +201,41 @@ const MyAssets = () => {
                   <EmptyComponent />
                 </GridItem>
               )}
-              {data?.map((item) => {
-                // const assetInfo = batchNftListInfo?.get(JSON.stringify({
-                //   address: item.asset_contract_address.toLowerCase(),
-                //   tokenId: item.token_id,
-                // }))
+              {data &&
+                data?.map((item) => {
+                  // const assetInfo = batchNftListInfo?.get(JSON.stringify({
+                  //   address: item.asset_contract_address.toLowerCase(),
+                  //   tokenId: item.token_id,
+                  // }))
 
-                const assetInfo = batchNftListInfo?.find(
-                  (i) =>
-                    i.assetContractAddress.toLowerCase() ===
-                      item.asset_contract_address.toLowerCase() &&
-                    i.tokenID === item.token_id,
-                )
-                return (
-                  <MyAssetNftListCard
-                    key={`${item?.asset_contract_address}-${item?.token_id}`}
-                    imageSize={{
-                      xl: grid === 4 ? '332px' : '445px',
-                      lg: grid === 4 ? '220px' : '298px',
-                      md: grid === 4 ? '170px' : '234px',
-                      sm: '174px',
-                      xs: '174px',
-                    }}
-                    data={{
-                      assetData: {
-                        tokenID: assetInfo?.tokenID || item.token_id,
-                        name: assetInfo?.name,
-                        imagePreviewUrl: assetInfo?.imagePreviewUrl,
-                      },
-                      contractData: { ...item },
-                    }}
-                  />
-                )
-              })}
+                  const assetInfo = batchNftListInfo?.find(
+                    (i) =>
+                      i.assetContractAddress.toLowerCase() ===
+                        item.asset_contract_address.toLowerCase() &&
+                      i.tokenID === item.token_id,
+                  )
+                  return (
+                    <MyAssetNftListCard
+                      key={`${item?.asset_contract_address}-${item?.token_id}`}
+                      imageSize={{
+                        xl: grid === 4 ? '332px' : '445px',
+                        lg: grid === 4 ? '220px' : '298px',
+                        md: grid === 4 ? '170px' : '234px',
+                        sm: '174px',
+                        xs: '174px',
+                      }}
+                      data={{
+                        assetData: {
+                          tokenID: assetInfo?.tokenID || item.token_id,
+                          name: assetInfo?.name,
+                          imagePreviewUrl: assetInfo?.imagePreviewUrl,
+                        },
+                        contractData: { ...item },
+                      }}
+                      onRefreshList={refresh}
+                    />
+                  )
+                })}
             </SimpleGrid>
           </TabPanel>
         </TabPanels>

@@ -22,5 +22,6 @@ export { default as H5SecondaryHeader } from './h5-secondary-header/H5SecondaryH
 export { default as MortgagedTag } from './tag/MortgagedTag'
 export { default as ListingTag } from './tag/ListingTag'
 export { default as MiddleStatus } from './middle-status/MiddleStatus'
+export { default as CustomLoader } from './custom-loader/CustomLoader'
 
 export { type ColumnProps } from './my-table/index'

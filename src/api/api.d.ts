@@ -106,15 +106,20 @@ interface MyAssetListItemType {
   listedWithMortgage: boolean
 }
 
+enum LISTING_TYPE {
+  LISTING = 1,
+  CANCEL = 2,
+}
 interface ListingDataType {
+  type: LISTING_TYPE
   platform: string
   contract_address: string
   token_id: string
   network: string
   currency: string
   qty: number
-  price: string
-  expiration_time: number
+  price?: string
+  expiration_time?: number
   borrower_address: string
 }
 

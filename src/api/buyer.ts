@@ -81,7 +81,7 @@ export const apiGetXCurrency: () => Promise<{
 export const apiPostListing: (data: ListingDataType) => Promise<any> = async (
   data,
 ) => {
-  return await request.post(`/lending/api/v1/listing`, data)
+  return await request.post(`/lending/api/v1/listings`, data)
 }
 
 export const apiGetLoan: (query: {
