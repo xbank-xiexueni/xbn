@@ -17,7 +17,8 @@ const CustomLoader: FunctionComponent<CustomLoaderProps> = ({
     <Box {...wrapperProps}>
       {COLORS.map((i, index) => (
         <Box
-          key={i}
+          /* eslint-disable */
+          key={i + index}
           {...dotProps}
           boxSize={dotProps?.boxSize || '24px'}
           borderRadius={dotProps?.borderRadius || '100%'}

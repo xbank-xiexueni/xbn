@@ -62,7 +62,7 @@ const MyAssets = () => {
   //   debounceSearchValue,
   // )
   const { data, loading, refresh } = useRequest(apiGetMyAssets, {
-    debounceWait: 500,
+    debounceWait: 100,
     defaultParams: [
       {
         wallet_address: currentAccount,
