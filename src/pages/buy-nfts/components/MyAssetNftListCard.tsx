@@ -328,13 +328,12 @@ const MyAssetNftListCard: FunctionComponent<
       const {
         loan_start_time,
         loan_duration,
-        total_repayment,
         repayed_amount,
         repay_times,
         loan_interest,
       } = lData[0]
-      const loanWei = BigNumber(total_repayment)
-        .plus(BigNumber(loan_interest).multipliedBy(repay_times))
+      const loanWei = BigNumber(loan_interest)
+        .multipliedBy(repay_times)
         .minus(repayed_amount)
       const unFormatLoanEth = wei2Eth(loanWei)
 
