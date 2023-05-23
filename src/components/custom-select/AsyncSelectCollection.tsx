@@ -198,7 +198,9 @@ function AsyncSelectCollection({
           },
           ':hover': {
             ...baseStyles[':hover'],
-            backgroundColor: 'var(--chakra-colors-gray-5)',
+            backgroundColor: _isDisabled
+              ? 'white'
+              : 'var(--chakra-colors-gray-5)',
           },
         }),
       }}

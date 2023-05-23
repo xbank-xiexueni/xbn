@@ -93,6 +93,20 @@ export const apiGetLoan: (query: {
   })
 }
 
+export const apiGetListings: (query: {
+  borrower_address: string
+  contract_address: string
+  token_id: string
+}) => Promise<ListingsItemType[]> = async (params) => {
+  return await request.get(`/lending/api/v1/listings`, {
+    params: {
+      ...params,
+      type: 2,
+      status: 4096,
+    },
+  })
+}
+
 export const apiGetAssetPrice: (query: {
   contract_address: string
   token_id: string

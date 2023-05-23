@@ -1,7 +1,7 @@
 import { type TextProps, Text } from '@chakra-ui/react'
 import { type FunctionComponent } from 'react'
 
-const ListingTag: FunctionComponent<TextProps> = ({ ...rest }) => {
+const ListingTag: FunctionComponent<TextProps> = ({ title, ...rest }) => {
   return (
     <Text
       pos='absolute'
@@ -46,7 +46,7 @@ const ListingTag: FunctionComponent<TextProps> = ({ ...rest }) => {
       }}
       {...rest}
     >
-      Listing
+      {title} Listing
     </Text>
   )
 }

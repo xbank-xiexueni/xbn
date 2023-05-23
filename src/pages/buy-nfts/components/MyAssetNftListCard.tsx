@@ -43,7 +43,12 @@ import {
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { apiGetCollectionDetail, apiGetLoans, apiPostListing } from '@/api'
+import {
+  apiGetCollectionDetail,
+  apiGetListings,
+  apiGetLoans,
+  apiPostListing,
+} from '@/api'
 import {
   ImageWithFallback,
   ListingTag,
@@ -217,7 +222,7 @@ const MyAssetNftListCard: FunctionComponent<
   const isMortgaged = useMemo(() => contractData?.mortgaged, [contractData])
 
   const isListing = useMemo(
-    () => contractData?.listedWithMortgage,
+    () => contractData?.listed_with_mortgage,
     [contractData],
   )
 
@@ -238,6 +243,31 @@ const MyAssetNftListCard: FunctionComponent<
   const [durationValue, setDurationValue] = useState<number>()
   const [collectionData, setCollectionData] = useState<CollectionDataType>()
   const [loanData, setLoanData] = useState<LoanDataType>()
+  const [lastCancelDiffTime, setLastCancelDiffTime] = useState<number>(Infinity)
+
+  const { loading: getListingLoading } = useRequest(apiGetListings, {
+    ready: type === 'cancel' && !!contractData,
+    onSuccess(lData) {
+      if (!lData || !lData?.length) {
+        setLastCancelDiffTime(Infinity)
+        return
+      }
+      const latestCancelDate = lData[0].updated_at
+      const diff = dayjs().diff(dayjs(latestCancelDate), 'minutes')
+      setLastCancelDiffTime(diff)
+    },
+    onError() {
+      setLastCancelDiffTime(Infinity)
+    },
+    defaultParams: [
+      {
+        borrower_address: currentAccount,
+        token_id: contractData?.token_id || '',
+        contract_address: contractData?.asset_contract_address || '',
+      },
+    ],
+    refreshDeps: [currentAccount, contractData],
+  })
 
   const {
     loading: collectionLoading,
@@ -318,8 +348,8 @@ const MyAssetNftListCard: FunctionComponent<
     },
   })
   const fetchInfoLoading = useMemo(
-    () => collectionLoading || loanLoading,
-    [collectionLoading, loanLoading],
+    () => collectionLoading || loanLoading || getListingLoading,
+    [collectionLoading, loanLoading, getListingLoading],
   )
 
   const durationOptions = useMemo(() => {
@@ -473,12 +503,6 @@ const MyAssetNftListCard: FunctionComponent<
     }
   }, [runAsync, onRefreshList, contractData, currentAccount, toast, closeModal])
 
-  const handleCheckListStatus = useCallback(() => {
-    const cancelEnable = true
-    if (cancelEnable) {
-      setType('cancel')
-    }
-  }, [])
   return (
     <>
       <Card
@@ -514,7 +538,17 @@ const MyAssetNftListCard: FunctionComponent<
                 transform: `scale(1.2)`,
               }}
             />
-            {isListing && <ListingTag />}
+            {isListing && (
+              <ListingTag
+                title={
+                  contractData?.list_price
+                    ? `${BigNumber(contractData?.list_price || '').toFormat(
+                        4,
+                      )} ${UNIT}`
+                    : ''
+                }
+              />
+            )}
           </Box>
 
           <Flex
@@ -591,8 +625,8 @@ const MyAssetNftListCard: FunctionComponent<
           transition='all 0.15s'
           onClick={() => {
             if (isListing) {
-              // 取消挂单
-              handleCheckListStatus()
+              // 正在 listing 中
+              setType('cancel')
               return
             }
             setType('create')
@@ -687,13 +721,15 @@ const MyAssetNftListCard: FunctionComponent<
                 <Button
                   w='100%'
                   h='52px'
-                  isDisabled={false}
+                  isDisabled={lastCancelDiffTime < 10}
                   isLoading={listingLoading}
                   variant='primary'
                   px='30px'
                   onClick={handleCancelList}
                 >
                   Cancel
+                  {lastCancelDiffTime < 10 &&
+                    `(after ${10 - lastCancelDiffTime} minutes)`}
                 </Button>
               </Flex>
             </ModalBody>
@@ -959,7 +995,9 @@ const MyAssetNftListCard: FunctionComponent<
                   <Flex flexDir={'column'} gap={'12px'} py='24px'>
                     <Item
                       label='Listing price'
-                      value={`${Number(price) === 0 ? '---' : price} ${UNIT}`}
+                      value={`${
+                        !price || Number(price) === 0 ? '---' : price
+                      } ${UNIT}`}
                     />
                     <Item
                       label='Creator earnings'

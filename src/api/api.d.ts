@@ -103,7 +103,8 @@ interface MyAssetListItemType {
   token_id: string
   qty: string
   mortgaged: boolean
-  listedWithMortgage: boolean
+  listed_with_mortgage: boolean
+  list_price: string
 }
 
 enum LISTING_TYPE {
@@ -138,4 +139,30 @@ interface AssetPriceType {
       protocol_address: string
     }
   }[]
+}
+
+interface ListingsItemType {
+  act_gas_limit: number
+  act_gas_price: string
+  borrower_address: string
+  contract_address: string
+  created_at: string
+  currency: string
+  expiration_time: number
+  gas_limit: number
+  gas_price: string
+  gas_used: number
+  id: number
+  network: string
+  platform: string
+  platform_ord_id: string
+  price: string
+  qty: number
+  status: number
+  status_history: number
+  sub_status: number
+  token_id: string
+  tx_id: string
+  type: number
+  updated_at: string
 }
