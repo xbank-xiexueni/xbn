@@ -861,6 +861,7 @@ const MyAssetNftListCard: FunctionComponent<
                           value={price}
                           onChange={(v) => {
                             const numberV = BigNumber(v)
+                            if (numberV.isNaN()) return
 
                             if (numberV.gt(AMOUNT_MAX)) {
                               setPrice(AMOUNT_MAX.toString())
@@ -1064,7 +1065,9 @@ const MyAssetNftListCard: FunctionComponent<
                       variant={'primary'}
                       w='100%'
                       h='52px'
-                      isDisabled={!durationValue || !isChanged || !price}
+                      isDisabled={
+                        !durationValue || !isChanged || !price || isAmountError
+                      }
                       isLoading={listingLoading}
                     >
                       Complete listing
