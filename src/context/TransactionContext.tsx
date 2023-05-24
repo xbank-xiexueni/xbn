@@ -1,6 +1,5 @@
 import { useToast } from '@chakra-ui/react'
 import { useLocalStorageState, useRequest } from 'ahooks'
-import debounce from 'lodash-es/debounce'
 import isEmpty from 'lodash-es/isEmpty'
 import {
   useEffect,
@@ -223,65 +222,6 @@ export const TransactionsProvider = ({
       }
     }
   }, [toast, setCurrentAccount])
-
-  // const getAllTransactions = async () => {
-  //   try {
-  //     if (ethereum) {
-  //       const transactionsContract = createXBankContract();
-
-  //       const availableTransactions =
-  //         await transactionsContract.getAllTransactions();
-
-  //       const structuredTransactions = availableTransactions.map(
-  //         (transaction) => ({
-  //           addressTo: transaction.receiver,
-  //           addressFrom: transaction.sender,
-  //           timestamp: new Date(
-  //             transaction.timestamp.toNumber() * 1000
-  //           ).toLocaleString(),
-  //           message: transaction.message,
-  //           keyword: transaction.keyword,
-  //           amount: parseInt(transaction.amount._hex) / 10 ** 18,
-  //         })
-  //       );
-
-  //       console.log(structuredTransactions);
-
-  //       setTransactions(structuredTransactions);
-  //     } else {
-  //       console.log('Ethereum is not present');
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  useEffect(() => {
-    if (!ethereum) return
-
-    ethereum.on('accountsChanged', () => {
-      // 一旦切换账号这里就会执行
-      debounce(() => {
-        window.location.reload()
-      }, 100)()
-      // if (isEmpty(accounts)) {
-      //   // setCurrentAccount('')
-      //   window.location.reload()
-      //   return
-      // }
-    })
-    // ethereum.on('chainChanged', () => {
-    //   alert('reload chainChanged')
-    //   window.location.reload()
-    //   setCurrentAccount('')
-    // })
-    // ethereum.on('disconnect', () => {
-    //   debounce(() => {
-    //     window.location.reload()
-    //     setCurrentAccount('')
-    //   }, 100)()
-    // })
-  }, [])
 
   const connectWallet = useCallback(async () => {
     try {
