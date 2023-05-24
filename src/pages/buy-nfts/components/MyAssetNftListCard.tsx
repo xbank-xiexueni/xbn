@@ -40,6 +40,7 @@ import {
   type ReactNode,
   useCallback,
   useRef,
+  useEffect,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -245,6 +246,11 @@ const MyAssetNftListCard: FunctionComponent<
   const [loanData, setLoanData] = useState<LoanDataType>()
   const [lastCancelDiffTime, setLastCancelDiffTime] = useState<number>(Infinity)
 
+  useEffect(() => {
+    if (type === 'cancel') return
+    setPrice(undefined)
+    setDurationValue(undefined)
+  }, [type])
   const { loading: getListingLoading } = useRequest(apiGetListings, {
     ready: type === 'cancel' && !!contractData,
     onSuccess(lData) {
@@ -435,22 +441,22 @@ const MyAssetNftListCard: FunctionComponent<
 
   const handleListing = useCallback(async () => {
     try {
-      if (!contractData || !durationValue || !price || !currentAccount) return
-      const expiration_time = dayjs().add(durationValue, 'days').unix()
-      // create list
-      const POST_PARAMS = {
-        type: LISTING_TYPE.LISTING,
-        platform: 'opensea',
-        contract_address: contractData?.asset_contract_address,
-        token_id: contractData?.token_id,
-        network: 'eth',
-        currency: 'eth',
-        qty: Number(contractData?.qty),
-        price,
-        expiration_time,
-        borrower_address: currentAccount,
-      }
-      await runAsync(POST_PARAMS)
+      // if (!contractData || !durationValue || !price || !currentAccount) return
+      // const expiration_time = dayjs().add(durationValue, 'days').unix()
+      // // create list
+      // const POST_PARAMS = {
+      //   type: LISTING_TYPE.LISTING,
+      //   platform: 'opensea',
+      //   contract_address: contractData?.asset_contract_address,
+      //   token_id: contractData?.token_id,
+      //   network: 'eth',
+      //   currency: 'eth',
+      //   qty: Number(contractData?.qty),
+      //   price,
+      //   expiration_time,
+      //   borrower_address: currentAccount,
+      // }
+      // await runAsync(POST_PARAMS)
       navigate('/xlending/buy-nfts/complete', {
         state: {
           imageUrl: assetData?.imagePreviewUrl,
@@ -692,7 +698,11 @@ const MyAssetNftListCard: FunctionComponent<
             >
               <NftInfoBox
                 data={assetData}
-                // price={}
+                price={
+                  contractData?.list_price
+                    ? BigNumber(contractData?.list_price).toFormat(8)
+                    : '--'
+                }
                 collectionData={collectionData}
               />
               <Divider />

@@ -12,7 +12,7 @@ const CompleteList = () => {
       step='success'
       imagePreviewUrl={imageUrl}
       onSuccessBack={() => {
-        navigate(-1)
+        navigate('/xlending/buy-nfts/my-assets')
       }}
       successDescription='You need to repay the outstanding loan unless your NFT has been sold'
       successTitle='Listing Completed'
