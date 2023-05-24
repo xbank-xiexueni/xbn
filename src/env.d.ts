@@ -12,7 +12,10 @@ interface ImportMetaEnv {
   readonly VITE_BASE_URL: string
   readonly VITE_TARGET_CHAIN_ID: string
   readonly VITE_TARGET_CHAIN_BASE_URL: string
-  // 更多环境变量...
+  readonly VITE_TWITTER_CLIENT_ID: string
+  readonly VITE_TWITTER_CLIENT_SECRET: string
+  readonly VITE_TWITTER_API_KEY: string
+  readonly VITE_TWITTER_API_KEY_SECRET: string
 }
 
 interface ImportMeta {
