@@ -30,7 +30,13 @@ import isEmpty from 'lodash-es/isEmpty'
 import maxBy from 'lodash-es/maxBy'
 import reduce from 'lodash-es/reduce'
 import sortBy from 'lodash-es/sortBy'
-import { useEffect, useMemo, useState, type FunctionComponent } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type FunctionComponent,
+  useCallback,
+} from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { apiGetLoans, apiGetPools } from '@/api'
@@ -665,8 +671,45 @@ const Lend = () => {
     onClose: closeDraw,
   } = useDisclosure()
 
+  const handleSignData = useCallback(async () => {
+    const message = JSON.stringify({
+      domain: {
+        chainId: 5,
+        name: 'hahaha Example App',
+        verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+        version: '1',
+      },
+      // should implement the top level type
+      message: {
+        prompt: 'Are Doritos tacos any good?',
+        answer: `YES THEY ARE!`,
+      },
+      // Top level type
+      primaryType: 'QA',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        // defining the top level type here. types refer to Solidity types
+        QA: [
+          { name: 'prompt', type: 'string' },
+          { name: 'answer', type: 'string' },
+        ],
+      },
+    })
+    const res = await window.ethereum.request({
+      method: 'eth_signTypedData_v4',
+      params: [currentAccount, message],
+    })
+    console.log('🚀 ~ file: Lend.tsx:707 ~ handleSignData ~ res:', res)
+  }, [currentAccount])
+
   return (
     <Box mb='100px'>
+      <Button onClick={handleSignData}>Sign Data</Button>
       <Box
         my={{
           md: '60px',
