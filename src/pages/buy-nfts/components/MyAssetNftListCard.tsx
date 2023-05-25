@@ -17,8 +17,6 @@ import {
   type FlexProps,
   Highlight,
   InputGroup,
-  NumberInput,
-  NumberInputField,
   InputRightElement,
   Alert,
   AlertIcon,
@@ -51,6 +49,7 @@ import {
   apiPostListing,
 } from '@/api'
 import {
+  CustomNumberInput,
   ImageWithFallback,
   ListingTag,
   LoadingComponent,
@@ -201,8 +200,6 @@ const Item: FunctionComponent<
   )
 }
 
-const AMOUNT_MAX = 100000
-const AMOUNT_MIN = 0
 // 目前还不知道怎么获取
 const gas = 0
 
@@ -441,22 +438,22 @@ const MyAssetNftListCard: FunctionComponent<
 
   const handleListing = useCallback(async () => {
     try {
-      // if (!contractData || !durationValue || !price || !currentAccount) return
-      // const expiration_time = dayjs().add(durationValue, 'days').unix()
-      // // create list
-      // const POST_PARAMS = {
-      //   type: LISTING_TYPE.LISTING,
-      //   platform: 'opensea',
-      //   contract_address: contractData?.asset_contract_address,
-      //   token_id: contractData?.token_id,
-      //   network: 'eth',
-      //   currency: 'eth',
-      //   qty: Number(contractData?.qty),
-      //   price,
-      //   expiration_time,
-      //   borrower_address: currentAccount,
-      // }
-      // await runAsync(POST_PARAMS)
+      if (!contractData || !durationValue || !price || !currentAccount) return
+      const expiration_time = dayjs().add(durationValue, 'days').unix()
+      // create list
+      const POST_PARAMS = {
+        type: LISTING_TYPE.LISTING,
+        platform: 'opensea',
+        contract_address: contractData?.asset_contract_address,
+        token_id: contractData?.token_id,
+        network: 'eth',
+        currency: 'eth',
+        qty: Number(contractData?.qty),
+        price,
+        expiration_time,
+        borrower_address: currentAccount,
+      }
+      await runAsync(POST_PARAMS)
       navigate('/xlending/buy-nfts/complete', {
         state: {
           imageUrl: assetData?.imagePreviewUrl,
@@ -863,43 +860,12 @@ const MyAssetNftListCard: FunctionComponent<
 
                       {/* input */}
                       <InputGroup mb='20px'>
-                        <NumberInput
-                          w='100%'
-                          errorBorderColor='red.1'
-                          isInvalid={isAmountError}
-                          borderColor='gray.4'
+                        <CustomNumberInput
+                          onSetValue={(v) => setPrice(v)}
                           value={price}
-                          onChange={(v) => {
-                            const numberV = BigNumber(v)
-                            if (numberV.isNaN()) return
+                          isInvalid={isAmountError}
+                        />
 
-                            if (numberV.gt(AMOUNT_MAX)) {
-                              setPrice(AMOUNT_MAX.toString())
-                              return
-                            }
-                            if (numberV.gt(0) && numberV.lt(0.00000001)) {
-                              setPrice('0.00000001')
-                              return
-                            }
-                            setPrice(v)
-                          }}
-                          max={AMOUNT_MAX}
-                          min={AMOUNT_MIN}
-                        >
-                          <NumberInputField
-                            h='60px'
-                            _focus={{
-                              borderColor: isAmountError ? 'red.1' : 'blue.1',
-                            }}
-                            _focusVisible={{
-                              boxShadow: `0 0 0 1px var(--chakra-colors-${
-                                isAmountError ? 'red-1' : 'blue-1'
-                              })`,
-                            }}
-                            placeholder='Amount...'
-                            borderRadius={8}
-                          />
-                        </NumberInput>
                         {isAmountError && (
                           <InputRightElement mr='110px' h='60px'>
                             <SvgComponent
