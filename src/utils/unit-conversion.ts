@@ -28,4 +28,11 @@ const eth2Wei = (eth: number | string) => {
   }
 }
 
-export { wei2Eth, eth2Wei }
+const strToHex = (str: string) => {
+  try {
+    return Web3.utils.toHex(str)
+  } catch (error) {
+    return
+  }
+}
+export { wei2Eth, eth2Wei, strToHex }

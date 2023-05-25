@@ -12,6 +12,7 @@ import {
 
 import { apiGetActiveCollection } from '@/api'
 import { useNftCollectionsByContractAddressesQuery } from '@/hooks'
+import useAuth from '@/hooks/useAuth'
 
 const COLLECTION_DEMO = {
   contractAddress: '',
@@ -223,6 +224,8 @@ export const TransactionsProvider = ({
     }
   }, [toast, setCurrentAccount])
 
+  const { runAsync } = useAuth()
+
   const connectWallet = useCallback(async () => {
     try {
       if (window.location.pathname === '/xlending/demo') return
@@ -246,6 +249,7 @@ export const TransactionsProvider = ({
         method: 'eth_requestAccounts',
       })
 
+      await runAsync(accounts[0])
       setCurrentAccount(accounts[0])
       setConnectLoading(false)
     } catch (error) {
@@ -254,7 +258,7 @@ export const TransactionsProvider = ({
 
       throw new Error('No ethereum object')
     }
-  }, [toast, handleSwitchNetwork, setCurrentAccount])
+  }, [toast, handleSwitchNetwork, setCurrentAccount, runAsync])
 
   // const sendTransaction = async () => {
   //   try {

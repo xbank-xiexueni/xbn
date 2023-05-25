@@ -24,6 +24,7 @@ import {
   SvgComponent,
 } from '@/components'
 import { useBatchAsset, useWallet } from '@/hooks'
+import useAuth from '@/hooks/useAuth'
 
 import MyAssetNftListCard from './components/MyAssetNftListCard'
 
@@ -61,6 +62,7 @@ const MyAssets = () => {
   //   '🚀 ~ file: MyAssets.tsx:63 ~ MyAssets ~ debounceSearchValue:',
   //   debounceSearchValue,
   // )
+  const { runAsync } = useAuth()
   const { data, loading, refresh } = useRequest(apiGetMyAssets, {
     debounceWait: 100,
     defaultParams: [
@@ -70,6 +72,16 @@ const MyAssets = () => {
     ],
     refreshDeps: [currentAccount],
     ready: !!currentAccount,
+    onError: async (error: any) => {
+      console.log('🚀 ~ file: MyAssets.tsx:77 ~ MyAssets ~ error:', error)
+      if (error.code === 'unauthenticated') {
+        // 未能签名
+        await runAsync(currentAccount)
+        setTimeout(() => {
+          refresh()
+        }, 1000)
+      }
+    },
   })
 
   const batchAssetParams = useMemo(() => {
