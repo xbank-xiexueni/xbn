@@ -25,6 +25,7 @@ import {
 } from '@/components'
 import { useBatchAsset, useWallet } from '@/hooks'
 import useAuth from '@/hooks/useAuth'
+import { clearUserToken } from '@/utils/auth'
 
 import MyAssetNftListCard from './components/MyAssetNftListCard'
 
@@ -76,6 +77,7 @@ const MyAssets = () => {
       console.log('🚀 ~ file: MyAssets.tsx:77 ~ MyAssets ~ error:', error)
       if (error.code === 'unauthenticated') {
         // 未能签名
+        clearUserToken()
         await runAsync(currentAccount)
         setTimeout(() => {
           refresh()

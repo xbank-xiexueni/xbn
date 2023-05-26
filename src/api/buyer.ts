@@ -1,4 +1,5 @@
 import type { NftCollectionsByContractAddressesQuery } from '@/hooks'
+import { getUserToken } from '@/utils/auth'
 import request from '@/utils/request'
 
 export const apiGetAssetsByCollection: (query: {
@@ -28,6 +29,11 @@ export const apiGetMyAssets: (query: {
 }) => Promise<MyAssetListItemType[]> = async (params) => {
   return await request.get(`/lending/api/v1/assets/nfts`, {
     params,
+    headers: {
+      Authorization: getUserToken()
+        ? `Bearer ${getUserToken()?.token}`
+        : undefined,
+    },
   })
 }
 
