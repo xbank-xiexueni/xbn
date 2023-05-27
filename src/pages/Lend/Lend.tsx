@@ -31,7 +31,7 @@ import maxBy from 'lodash-es/maxBy'
 import reduce from 'lodash-es/reduce'
 import sortBy from 'lodash-es/sortBy'
 import { useEffect, useMemo, useState, type FunctionComponent } from 'react'
-import Joyride from 'react-joyride'
+// import Joyride from 'react-joyride'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { apiGetLoans, apiGetPools } from '@/api'
@@ -102,18 +102,18 @@ const TabWrapper: FunctionComponent<TabProps> = ({ children, ...rest }) => {
  */
 const Lend = () => {
   // 用户引导
-  const [steps] = useState([
-    {
-      target: '.my-first-step',
-      content: 'This is my awesome feature!',
-      disableBeacon: true,
-    },
-    {
-      target: '.my-other-step',
-      content: 'This another awesome feature!',
-      disableBeacon: true,
-    },
-  ])
+  // const [steps] = useState([
+  //   {
+  //     target: '.my-first-step',
+  //     content: 'This is my awesome feature!',
+  //     disableBeacon: true,
+  //   },
+  //   {
+  //     target: '.my-other-step',
+  //     content: 'This another awesome feature!',
+  //     disableBeacon: true,
+  //   },
+  // ])
   const [tabKey, setTabKey] = useState<0 | 1 | 2>(0)
 
   const { isOpen: showSearch, onToggle: toggleShowSearch } = useDisclosure()
@@ -698,7 +698,7 @@ const Lend = () => {
           }}
         />
       </Box>
-      <Joyride steps={steps} continuous run />
+      {/* <Joyride steps={steps} continuous run /> */}
 
       <Tabs
         isLazy

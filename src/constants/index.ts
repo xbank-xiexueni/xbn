@@ -98,3 +98,11 @@ export const TOAST_OPTION_CONFIG: UseToastOptions = {
     mt: 20,
   },
 }
+
+export const TWITTER_URL = 'https://twitter.com/xBank_Official'
+
+export const LINKEDIN_URL = 'https://www.linkedin.com/company/xbank-global'
+
+export const DISCORD_URL = 'https://discord.gg/PGBVwcaeQE'
+
+export const MEDIUM_URL = 'https://medium.com/@xBankCrypto'

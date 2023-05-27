@@ -1,5 +1,5 @@
 export { default as Header } from './header/Header'
-export { default as Footer } from './footer/index'
+export { default as Footer } from './footer/Footer'
 export { default as MyTable } from './my-table'
 export { default as SearchInput } from './search-input/SearchInput'
 export { default as MarketNftListCard } from './nft-card/MarketNftListCard'
