@@ -56,7 +56,6 @@ import { wei2Eth } from '@/utils/unit-conversion'
 
 import CollectionListItem from '../buy-nfts/components/CollectionListItem'
 
-import AllPoolsDescription from './components/AllPoolsDescription'
 import MyPoolActionRender from './components/MyPoolActionRender'
 
 type Dictionary<T> = Record<string, T>
@@ -689,14 +688,14 @@ const Lend = () => {
         }}
         className='my-first-step'
       >
-        <AllPoolsDescription
+        {/* <AllPoolsDescription
           data={{
             img: ImgLend,
             title: 'Lend',
             description:
               'Provide funds to support NFT Buy Now Pay Later, \nreceive interests or discounts on NFTs as collateral.',
           }}
-        />
+        /> */}
       </Box>
       {/* <Joyride steps={steps} continuous run /> */}
 
