@@ -14,13 +14,11 @@ import {
   InputRightElement,
   NumberInputField,
   NumberInput,
-  useToast,
   useDisclosure,
   Flex,
 } from '@chakra-ui/react'
 import useRequest from 'ahooks/lib/useRequest'
 import {
-  type ReactNode,
   useCallback,
   useMemo,
   useRef,
@@ -29,7 +27,7 @@ import {
 } from 'react'
 
 import { ConnectWalletModal, SvgComponent } from '@/components'
-import { useWallet } from '@/hooks'
+import { useCatchContractError, useWallet } from '@/hooks'
 import { createWethContract, createXBankContract } from '@/utils/createContract'
 import { formatFloat } from '@/utils/format'
 import { eth2Wei, wei2Eth } from '@/utils/unit-conversion'
@@ -52,7 +50,7 @@ const UpdatePoolAmountButton: FunctionComponent<
   }
 > = ({ children, data, onSuccess, ...rest }) => {
   const { poolUsedAmount, poolID, floorPrice, poolAmount } = data
-  const toast = useToast()
+  const { toast, toastError } = useCatchContractError()
   const { currentAccount, interceptFn, isOpen, onClose } = useWallet()
   const {
     isOpen: isOpenUpdate,
@@ -168,50 +166,7 @@ const UpdatePoolAmountButton: FunctionComponent<
         }
         onSuccess()
       } catch (error: any) {
-        console.log(error?.message, error?.code, error?.data)
-        const code: string = error?.code
-        const originMessage: string = error?.message
-        let title: string | ReactNode = code
-        let description: string | ReactNode = originMessage
-        if (!code && originMessage?.includes('{')) {
-          const firstIndex = originMessage.indexOf('{')
-          description = ''
-          try {
-            const hash = JSON.parse(
-              originMessage.substring(firstIndex, originMessage.length),
-            )?.transactionHash
-
-            title = (
-              <Text>
-                {originMessage?.substring(0, firstIndex)} &nbsp;
-                <Button
-                  variant={'link'}
-                  px={0}
-                  onClick={() => {
-                    window.open(
-                      `${
-                        import.meta.env.VITE_TARGET_CHAIN_BASE_URL
-                      }/tx/${hash}`,
-                    )
-                  }}
-                  textDecoration='underline'
-                  color='white'
-                >
-                  see more
-                </Button>
-              </Text>
-            )
-          } catch {
-            console.log('here')
-            title = originMessage?.substring(0, firstIndex)
-          }
-        }
-        toast({
-          status: 'error',
-          title,
-          description,
-          duration: 5000,
-        })
+        toastError(error)
         setUpdateLoading(false)
       }
     })
@@ -224,6 +179,7 @@ const UpdatePoolAmountButton: FunctionComponent<
     interceptFn,
     onCloseUpdate,
     poolID,
+    toastError,
   ])
 
   const handleClose = useCallback(() => {
