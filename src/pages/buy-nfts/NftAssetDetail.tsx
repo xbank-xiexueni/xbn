@@ -152,7 +152,10 @@ const NftAssetDetail = () => {
   }, [timer])
 
   // 利差 X 0.1
-  const [interestSpread, setInterestSpread] = useState<number>(0)
+  const [
+    interestSpread,
+    // setInterestSpread
+  ] = useState<number>(0)
   const [commodityWeiPrice, setCommodityWeiPrice] = useState(BigNumber(0))
   // const [, setUpdatedAt] = useState('')
 

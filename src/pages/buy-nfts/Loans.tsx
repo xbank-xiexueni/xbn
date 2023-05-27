@@ -463,11 +463,45 @@ const Loans = () => {
                 },
                 columns: [
                   ...loansForBuyerColumns,
-                  // {
-                  //   title: 'next payment date',
-                  //   dataIndex: 'col10',
-                  //   key: 'col10',
-                  // },
+                  {
+                    title: 'Next payment date',
+                    dataIndex: 'repay_times',
+                    key: 'repay_times',
+                    render: (_: any, info: any) => {
+                      const {
+                        repayed_amount,
+                        total_repayment,
+                        repay_times,
+                        loan_start_time,
+                        loan_duration,
+                      } = info
+                      // 每期还款期限 = 还款期限 / 还款期数
+                      const perLoanDuration =
+                        BigNumber(loan_duration).dividedBy(repay_times)
+                      let nextPaymentData =
+                        BigNumber(loan_start_time).plus(perLoanDuration)
+                      if (BigNumber(repayed_amount).gt(0)) {
+                        // 如果已还金额大于 0
+                        // 每期还款本金 = 总还款本金 / 还款期数
+                        const perRepayAmount =
+                          BigNumber(total_repayment).dividedBy(repay_times)
+                        // 已还次数 = 已还本金 / 每期还款本金
+                        const payedTimes =
+                          BigNumber(repayed_amount).dividedBy(perRepayAmount)
+                        // 每期还款期限 = 还款期限 / 还款期数
+                        nextPaymentData = BigNumber(loan_start_time).plus(
+                          perLoanDuration.multipliedBy(payedTimes.plus(1)),
+                        )
+                      }
+                      return (
+                        <Text>
+                          {unix(nextPaymentData.toNumber()).format(
+                            'YYYY/MM/DD',
+                          )}
+                        </Text>
+                      )
+                    },
+                  },
                   {
                     title: 'Next payment amount',
                     dataIndex: 'col9',
