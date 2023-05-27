@@ -85,9 +85,10 @@ enum LOAN_DAYS_ENUM {
 
 type PoolType = {
   pool_id: number
-  pool_apr: number
+  pool_apr_with_spread: number
   pool_days: LOAN_DAYS_ENUM
   lp_address: string
+  lp_pool_apr: number
 }
 
 const NFTDetailContainer: FunctionComponent<FlexProps> = ({
@@ -332,7 +333,7 @@ const NftAssetDetail = () => {
             loan_ratio_preferential_flexibility,
             owner_address,
           }) => {
-            const lpPoolApr =
+            const lp_pool_apr =
               pool_maximum_interest_rate -
               (TENORS.indexOf(pool_maximum_days) - index) *
                 loan_time_concession_flexibility -
@@ -342,13 +343,14 @@ const NftAssetDetail = () => {
                 loan_ratio_preferential_flexibility
             return {
               pool_id,
-              pool_apr: lpPoolApr * (1 + interestSpread),
+              pool_apr_with_spread: lp_pool_apr * (1 + interestSpread),
+              lp_pool_apr,
               pool_days: item,
               lp_address: owner_address,
             }
           },
         ),
-        (i) => i.pool_apr,
+        (i) => i.pool_apr_with_spread,
       )
       if (!currentPool) break
       currentPools.push(currentPool)
@@ -364,6 +366,7 @@ const NftAssetDetail = () => {
     interestSpread,
   ])
 
+  console.log(pools)
   // number of installments
   const [installmentOptions, setInstallmentOptions] = useState<(1 | 2 | 3)[]>()
   const [installmentValue, setInstallmentValue] = useState<1 | 2 | 3>(1)
@@ -392,9 +395,9 @@ const NftAssetDetail = () => {
       if (!loanWeiAmount || isEmpty(selectPool)) {
         return BigNumber(0)
       }
-      const { pool_days, pool_apr } = selectPool
+      const { pool_days, pool_apr_with_spread } = selectPool
       const loanEthAmount = Number(wei2Eth(loanWeiAmount))
-      const apr = pool_apr / 10000
+      const apr = pool_apr_with_spread / 10000
       return amortizationCalByDays(loanEthAmount, apr, pool_days, value)
     },
     [selectPool, loanWeiAmount],
@@ -414,7 +417,13 @@ const NftAssetDetail = () => {
         return
       }
       const xBankContract = createXBankContract()
-      const { pool_apr, pool_days, pool_id, lp_address } = selectPool
+      const {
+        pool_apr_with_spread,
+        pool_days,
+        pool_id,
+        lp_address,
+        lp_pool_apr,
+      } = selectPool
       let transferBlock
 
       try {
@@ -444,7 +453,7 @@ const NftAssetDetail = () => {
           repay_times: installmentValue,
           total_repayment: loanWeiAmount.toNumber().toString(),
           loan_duration: pool_days * 24 * 60 * 60,
-          loan_interest_rate: pool_apr,
+          loan_interest_rate: lp_pool_apr,
         }
         await generateLoanOrder({
           ...postParams,
@@ -912,48 +921,60 @@ const NftAssetDetail = () => {
           }
         >
           <Flex gap={'8px'} flexWrap='wrap'>
-            {pools.map(({ pool_id, pool_apr, pool_days, lp_address }) => {
-              return (
-                <Flex
-                  key={`${pool_id}-${pool_apr}-${pool_days}`}
-                  w={{
-                    md: `${100 / pools.length}%`,
-                    sm: '100%',
-                    xs: '100%',
-                  }}
-                  minW={{
-                    md: '112px',
-                    sm: '100%',
-                    xs: '100%',
-                  }}
-                  maxW={{
-                    md: '112px',
-                    sm: '100%',
-                    xs: '100%',
-                  }}
-                >
-                  <RadioCard
-                    isDisabled={clickLoading}
-                    onClick={() =>
-                      setSelectPool({
-                        pool_apr,
-                        pool_id,
-                        pool_days,
-                        lp_address,
-                      })
-                    }
-                    isActive={selectPool?.pool_days === pool_days}
+            {pools.map(
+              ({
+                pool_id,
+                pool_apr_with_spread,
+                pool_days,
+                lp_address,
+                lp_pool_apr,
+              }) => {
+                return (
+                  <Flex
+                    key={`${pool_id}-${pool_apr_with_spread}-${pool_days}`}
+                    w={{
+                      md: `${100 / pools.length}%`,
+                      sm: '100%',
+                      xs: '100%',
+                    }}
+                    minW={{
+                      md: '112px',
+                      sm: '100%',
+                      xs: '100%',
+                    }}
+                    maxW={{
+                      md: '112px',
+                      sm: '100%',
+                      xs: '100%',
+                    }}
                   >
-                    <Text fontWeight={700}>{pool_days} Days</Text>
-                    <Text fontWeight={500} fontSize='12px' color='blue.1'>
-                      <Highlight query={'APR'} styles={{ color: `black.1` }}>
-                        {`${pool_apr && floor(pool_apr / 100, 4)} % APR`}
-                      </Highlight>
-                    </Text>
-                  </RadioCard>
-                </Flex>
-              )
-            })}
+                    <RadioCard
+                      isDisabled={clickLoading}
+                      onClick={() =>
+                        setSelectPool({
+                          pool_apr_with_spread,
+                          pool_id,
+                          pool_days,
+                          lp_address,
+                          lp_pool_apr,
+                        })
+                      }
+                      isActive={selectPool?.pool_days === pool_days}
+                    >
+                      <Text fontWeight={700}>{pool_days} Days</Text>
+                      <Text fontWeight={500} fontSize='12px' color='blue.1'>
+                        <Highlight query={'APR'} styles={{ color: `black.1` }}>
+                          {`${
+                            pool_apr_with_spread &&
+                            floor(pool_apr_with_spread / 100, 4)
+                          } % APR`}
+                        </Highlight>
+                      </Text>
+                    </RadioCard>
+                  </Flex>
+                )
+              },
+            )}
           </Flex>
         </LabelComponent>
 
