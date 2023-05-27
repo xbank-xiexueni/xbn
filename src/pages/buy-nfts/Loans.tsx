@@ -433,6 +433,8 @@ const Loans = () => {
     setPrepayData(undefined)
   }, [prepayLoadingMap, prepayData])
 
+  console.log(prepayData?.interestOutstanding.toNumber())
+
   return (
     <Box mt='60px'>
       <Heading size={'2xl'} mb='60px'>
@@ -692,7 +694,9 @@ const Loans = () => {
                 <Text>Interest Outstanding</Text>
                 <Text>
                   {prepayData
-                    ? formatFloat(wei2Eth(prepayData?.interestOutstanding))
+                    ? formatFloat(
+                        wei2Eth(prepayData?.interestOutstanding.integerValue()),
+                      )
                     : '--'}{' '}
                   {UNIT}
                 </Text>
