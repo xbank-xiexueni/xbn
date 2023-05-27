@@ -110,7 +110,8 @@ const Loans = () => {
       assetTokenId: i.nft_collateral_id,
     }))
   }, [data])
-  const { data: bactNftListInfo } = useBatchAsset(batchAssetParams)
+  const { data: bactNftListInfo, loading: nftLoading } =
+    useBatchAsset(batchAssetParams)
 
   // 点击 repay
   const handleClickRepay = useCallback(
@@ -195,6 +196,7 @@ const Loans = () => {
               w='40px'
               h='40px'
               borderRadius={4}
+              fit={'contain'}
             />
             <Text
               w={'60%'}
@@ -313,7 +315,7 @@ const Loans = () => {
   // 点击 pay in advance, 读取当前 loan,并打开弹窗
   const handleClickPayInAdvance = useCallback(
     (info: LoanListItemType) => {
-      if (prepayLoadingMap && prepayLoadingMap[info.loan_id]) {
+      if ((prepayLoadingMap && prepayLoadingMap[info.loan_id]) || nftLoading) {
         return
       }
       const currentInfo = bactNftListInfo?.find(
@@ -366,13 +368,15 @@ const Loans = () => {
       setPrepayData({
         ...info,
         outstandingPrincipal,
-        interestOutstanding,
+        interestOutstanding: interestOutstanding.lt(0)
+          ? BigNumber(0)
+          : interestOutstanding,
         imagePreviewUrl: currentInfo?.imagePreviewUrl,
         name: currentInfo?.name,
         tokenID: currentInfo?.tokenID,
       })
     },
-    [bactNftListInfo, prepayLoadingMap],
+    [bactNftListInfo, prepayLoadingMap, nftLoading],
   )
   // 确认提前还款
   const handleConfirmPayInAdvance = useCallback(() => {
@@ -432,8 +436,6 @@ const Loans = () => {
     if (prepayLoadingMap && prepayLoadingMap[prepayData?.loan_id]) return
     setPrepayData(undefined)
   }, [prepayLoadingMap, prepayData])
-
-  console.log(prepayData?.interestOutstanding.toNumber())
 
   return (
     <Box mt='60px'>
@@ -539,6 +541,9 @@ const Loans = () => {
                             fontSize='14px'
                             fontWeight={'700'}
                           >
+                            {/* {nftLoading && (
+                              <Spinner color='blue.1' size={'sm'} />
+                            )} */}
                             Pay in advance
                           </Text>
                         </Box>
