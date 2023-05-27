@@ -151,6 +151,8 @@ const NftAssetDetail = () => {
     }
   }, [timer])
 
+  // 利差 X 0.1
+  const [interestSpread, setInterestSpread] = useState<number>(0)
   const [commodityWeiPrice, setCommodityWeiPrice] = useState(BigNumber(0))
   // const [, setUpdatedAt] = useState('')
 
@@ -327,16 +329,17 @@ const NftAssetDetail = () => {
             loan_ratio_preferential_flexibility,
             owner_address,
           }) => {
+            const lpPoolApr =
+              pool_maximum_interest_rate -
+              (TENORS.indexOf(pool_maximum_days) - index) *
+                loan_time_concession_flexibility -
+              // percentage 与最大贷款比例的 差
+              // 4000 6000 => 1
+              ((pool_maximum_percentage - loanPercentage) / 1000) *
+                loan_ratio_preferential_flexibility
             return {
               pool_id,
-              pool_apr:
-                pool_maximum_interest_rate -
-                (TENORS.indexOf(pool_maximum_days) - index) *
-                  loan_time_concession_flexibility -
-                // percentage 与最大贷款比例的 差
-                // 4000 6000 => 1
-                ((pool_maximum_percentage - loanPercentage) / 1000) *
-                  loan_ratio_preferential_flexibility,
+              pool_apr: lpPoolApr * (1 + interestSpread),
               pool_days: item,
               lp_address: owner_address,
             }
@@ -350,7 +353,13 @@ const NftAssetDetail = () => {
     setSelectPool(currentPools?.length > 1 ? currentPools[1] : currentPools[0])
 
     return currentPools
-  }, [latestBalanceMap, loanPercentage, loanWeiAmount, originPoolList])
+  }, [
+    latestBalanceMap,
+    loanPercentage,
+    loanWeiAmount,
+    originPoolList,
+    interestSpread,
+  ])
 
   // number of installments
   const [installmentOptions, setInstallmentOptions] = useState<(1 | 2 | 3)[]>()
