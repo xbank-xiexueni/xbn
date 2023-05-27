@@ -417,13 +417,7 @@ const NftAssetDetail = () => {
         return
       }
       const xBankContract = createXBankContract()
-      const {
-        pool_apr_with_spread,
-        pool_days,
-        pool_id,
-        lp_address,
-        lp_pool_apr,
-      } = selectPool
+      const { pool_days, pool_id, lp_address, lp_pool_apr } = selectPool
       let transferBlock
 
       try {

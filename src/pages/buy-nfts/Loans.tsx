@@ -32,7 +32,6 @@ import {
 } from '@/components'
 import { FORMAT_NUMBER, UNIT } from '@/constants'
 import { useBatchAsset, useWallet, useCatchContractError } from '@/hooks'
-import { amortizationCalByDays } from '@/utils/calculation'
 import { createWeb3Provider, createXBankContract } from '@/utils/createContract'
 import { formatAddress, formatFloat } from '@/utils/format'
 import { wei2Eth } from '@/utils/unit-conversion'
@@ -249,19 +248,14 @@ const Loans = () => {
     },
     {
       title: 'Interest',
-      dataIndex: 'loan_interest_rate',
-      key: 'loan_interest_rate',
+      dataIndex: 'loan_interest',
+      key: 'loan_interest',
       render: (_: any, item: Record<string, any>) => {
         return (
           <Text>
             {BigNumber(
               wei2Eth(
-                amortizationCalByDays(
-                  item?.total_repayment,
-                  item?.loan_interest_rate / 10000,
-                  (item?.loan_duration / 24 / 60 / 60) as 7 | 14 | 30 | 60 | 90,
-                  item?.repay_times,
-                )
+                BigNumber(item.loan_interest)
                   .multipliedBy(item?.repay_times)
                   .minus(item.total_repayment),
               ),
@@ -504,25 +498,11 @@ const Loans = () => {
                   },
                   {
                     title: 'Next payment amount',
-                    dataIndex: 'col9',
-                    key: 'col9',
-                    render: (_: any, item: Record<string, any>) => (
+                    dataIndex: 'loan_interest',
+                    key: 'loan_interest',
+                    render: (value: any) => (
                       <Text>
-                        {BigNumber(
-                          wei2Eth(
-                            amortizationCalByDays(
-                              item.total_repayment,
-                              item.loan_interest_rate / 10000,
-                              (item.loan_duration / 24 / 60 / 60) as
-                                | 7
-                                | 14
-                                | 30
-                                | 60
-                                | 90,
-                              item.repay_times,
-                            ),
-                          ),
-                        ).toFormat(8)}
+                        {BigNumber(wei2Eth(value)).toFormat(8)}
                         &nbsp;
                         {UNIT}
                       </Text>
