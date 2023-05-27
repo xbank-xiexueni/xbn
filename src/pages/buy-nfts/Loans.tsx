@@ -144,8 +144,6 @@ const Loans = () => {
             BigNumber(currentBalance).lt(Number(repaymentAmount)),
           )
 
-          return
-
           // 2. 调用 xbank.repayLoan
           const repayHash = await xBankContract.methods
             .repayLoan(loan_id)
