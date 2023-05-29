@@ -62,6 +62,7 @@ function CustomSelect<
             borderRadius: 8,
             top: '65%',
             boxShadow: 'none',
+            zIndex: 2,
           }
         },
         singleValue: (baseStyles) => ({

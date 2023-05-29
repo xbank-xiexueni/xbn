@@ -1,4 +1,6 @@
-import { Box, Flex, Heading, Text, type BoxProps } from '@chakra-ui/react'
+import { Box, Flex, Heading, type BoxProps, Tooltip } from '@chakra-ui/react'
+
+import { SvgComponent } from '@/components'
 
 import type { FunctionComponent } from 'react'
 
@@ -9,39 +11,31 @@ const StepDescription: FunctionComponent<
       title: string
       text: string
     }
-    isFull?: boolean
   } & BoxProps
-> = ({ data: { step, title, text }, isFull = false, ...rest }) => {
+> = ({ data: { step, title, text }, ...rest }) => {
   return (
     <Box {...rest}>
-      <Flex mb={'20px'} alignItems='center'>
-        <Flex
-          bg='blue.1'
-          color='white'
-          borderRadius={'50%'}
-          mr={'16px'}
-          w={'32px'}
-          h={'32px'}
-          justifyContent='center'
-          fontSize='18px'
-          lineHeight={2}
-        >
-          {step}
-        </Flex>
+      <Tooltip label={text} placement='auto-start'>
+        <Flex mb={'20px'} alignItems='center' gap={'16px'}>
+          <Flex
+            bg='blue.1'
+            color='white'
+            borderRadius={'50%'}
+            w={'32px'}
+            h={'32px'}
+            justifyContent='center'
+            fontSize='18px'
+            lineHeight={2}
+          >
+            {step}
+          </Flex>
 
-        <Heading fontSize={'18px'} color='black.1' w='80%'>
-          {title}
-        </Heading>
-      </Flex>
-      <Text
-        color='gray.3'
-        fontWeight={'500'}
-        whiteSpace='pre-wrap'
-        fontSize={'14px'}
-        maxW={!isFull ? '364px' : '100%'}
-      >
-        {text}
-      </Text>
+          <Heading fontSize={'18px'} color='black.1'>
+            {title}
+          </Heading>
+          <SvgComponent svgId='icon-tip' />
+        </Flex>
+      </Tooltip>
     </Box>
   )
 }

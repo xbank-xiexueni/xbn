@@ -65,7 +65,8 @@ export const LP_BASE_RATE: Record<string, number> = {
   '90-9000': 9000,
 }
 
-export const TENORS = [7, 14, 30, 60, 90]
+export const TENORS = [1, 3, 7, 14, 30, 60, 90]
+
 export const COLLATERALS = [
   1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000,
 ]
@@ -78,12 +79,12 @@ export const STEPS_DESCRIPTIONS = [
     text: 'Please choose a preferred collection that you will accept to lend against. All the collections listed on OpenSea, X2Y2 and LookRare are available',
   },
   {
-    title: 'Select Tenor',
-    text: 'Please choose the max length of duration acceptable for potential borrowers. A 60-day length of duration will be more commonly used.',
-  },
-  {
     title: 'Select Collateral Factor',
     text: 'Indicate the ratio which will determine how much money borrowers can receive to borrow against expected NFT collection. The higher the ratio, the more money they can borrow from the pool. A 50% of collateral factor will be more commonly used.',
+  },
+  {
+    title: 'Select Tenor',
+    text: 'Please choose the max length of duration acceptable for potential borrowers. A 60-day length of duration will be more commonly used.',
   },
   {
     title: 'Generate the interest rate table for outstanding loans',
